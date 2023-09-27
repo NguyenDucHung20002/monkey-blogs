@@ -40,6 +40,6 @@ app.use("/api/auth", authRouter);
 
 app.use(errorMiddleware);
 
-app.listen(env.PORT || 8000, () => {
-  console.log("Server is runing! port:" + env.PORT);
+app.listen(env.SERVER_PORT || 8000, () => {
+  console.log("Server is runing! port:" + env.SERVER_PORT);
 });
