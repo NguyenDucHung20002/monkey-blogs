@@ -15,7 +15,6 @@ passport.use(
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
-        console.log(profile);
         const role = await Role.findOne({ slug: "user" });
         let user = await User.findOne({ email: profile.emails[0].value });
         if (!user) {
