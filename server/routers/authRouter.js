@@ -20,7 +20,9 @@ router.get(
   passport.authenticate("google", { session: false }),
   async (req, res) => {
     const user = req.user;
-    const token = jwt.sign({ id: user._id }, env.SECRET_KEY);
+    const token = jwt.sign({ id: user._id }, env.SECRET_KEY, {
+      expiresIn: env.EXPIRED_IN,
+    });
 
     await Token.create({ userId: user._id, token });
 
