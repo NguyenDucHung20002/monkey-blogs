@@ -1,9 +1,10 @@
 const Profile = require("../models/Profile");
+const Token = require("../models/Token");
 const { asyncMiddleware } = require("../middlewares/asyncMiddleware");
 const { ErrorResponse } = require("../response/ErrorResponse");
 
-// login
-const loginSuccess = asyncMiddleware(async (req, res, next) => {
+// Login
+const login = asyncMiddleware(async (req, res, next) => {
   const { id: user } = req.user;
 
   const myProfile = await Profile.findOne({ user }).select(
@@ -21,4 +22,16 @@ const loginSuccess = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-module.exports = { loginSuccess };
+// Logout
+const logout = asyncMiddleware(async (req, res, next) => {
+  const { id: user } = req.user;
+  const { token } = req;
+
+  await Token.findOneAndDelete({ userId: user, token });
+
+  res.status(200).json({
+    success: true,
+  });
+});
+
+module.exports = { login, logout };
