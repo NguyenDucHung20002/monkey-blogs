@@ -22,15 +22,14 @@ const jwtAuth = async (req, res, next) => {
     }
 
     const user = jwt.verify(token, env.SECRET_KEY);
-    const tokenDB = await Token.findOne({ userId: user.id, token });
-    if (!tokenDB) {
+    const tokenDoc = await Token.findOne({ userId: user.id, token });
+    if (!tokenDoc) {
       return res.status(401).json({
         success: false,
         message: "Unauthorized",
       });
     }
     req.user = user;
-    req.token = token;
     next();
   } catch (error) {
     return res.status(401).json({
