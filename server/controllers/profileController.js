@@ -5,10 +5,10 @@ const Profile = require("../models/Profile");
 const FollowerShip = require("../models/FollowerShip");
 
 // get my profile
-const getAProfile = asyncMiddleware(async (req, res, next) => {
-  const { username } = req.params;
+const getMyProfile = asyncMiddleware(async (req, res, next) => {
+  const { id: user } = req.user;
 
-  const profile = await Profile.findOne({ username });
+  const profile = await Profile.findOne({ user });
   if (!profile) {
     throw new ErrorResponse(404, "profile not found");
   }
@@ -29,19 +29,14 @@ const getAProfile = asyncMiddleware(async (req, res, next) => {
 
 // update my profile
 const updateMyProfile = asyncMiddleware(async (req, res, next) => {
-  const { username } = req.params;
   const { id: user } = req.user;
   const { fullname, bio, about } = req.body;
 
   const filename = req.file?.filename;
 
-  let oldProfile = await Profile.findOne({ username });
+  let oldProfile = await Profile.findOne({ user });
   if (!oldProfile) {
     throw new ErrorResponse(404, "Profile not found");
-  }
-
-  if (oldProfile.user != user) {
-    throw new ErrorResponse(401, "Unauthorized");
   }
 
   await Profile.findOneAndUpdate(
@@ -68,10 +63,9 @@ const updateMyProfile = asyncMiddleware(async (req, res, next) => {
 
 // get my followers
 const getMyFollowers = asyncMiddleware(async (req, res, next) => {
-  const { username } = req.params;
   const { id: user } = req.user;
 
-  const profile = await Profile.findOne({ username });
+  const profile = await Profile.findOne({ user });
   if (!profile) {
     throw new ErrorResponse(404, "profile not found");
   }
@@ -104,16 +98,11 @@ const getMyFollowers = asyncMiddleware(async (req, res, next) => {
 
 // get my following
 const getMyFollowing = asyncMiddleware(async (req, res, next) => {
-  const { username } = req.params;
   const { id: user } = req.user;
 
-  const profile = await Profile.findOne({ username });
+  const profile = await Profile.findOne({ user });
   if (!profile) {
     throw new ErrorResponse(404, "profile not found");
-  }
-
-  if (profile.user != user) {
-    throw new ErrorResponse(401, "Unauthorized");
   }
 
   const following = await FollowerShip.find({
@@ -132,7 +121,7 @@ const getMyFollowing = asyncMiddleware(async (req, res, next) => {
 });
 
 module.exports = {
-  getAProfile,
+  getMyProfile,
   updateMyProfile,
   getMyFollowers,
   getMyFollowing,
