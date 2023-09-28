@@ -7,18 +7,18 @@ const profileController = require("../controllers/profileController");
 
 const router = express.Router();
 
-router.get("/:username", profileController.getAProfile);
+router.get("/", jwtAuth, profileController.getMyProfile);
 
 router.put(
-  "/:username",
+  "/",
   jwtAuth,
   mongoUpload.single("avatar"),
   validator(profileSchema.updateSchema),
   profileController.updateMyProfile
 );
 
-router.get("/:username/followers", jwtAuth, profileController.getMyFollowers);
+router.get("/followers", jwtAuth, profileController.getMyFollowers);
 
-router.get("/:username/following", jwtAuth, profileController.getMyFollowing);
+router.get("/following", jwtAuth, profileController.getMyFollowing);
 
 module.exports = router;
