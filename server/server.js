@@ -9,6 +9,7 @@ const createRoles = require("./constant/role");
 const app = express();
 const cors = require("cors");
 const authRouter = require("./routers/authRouter");
+const profileRouter = require("./routers/profileRouter");
 
 require("./services/googleOauth");
 
@@ -37,6 +38,7 @@ mongoose
 createRoles();
 
 app.use("/api/auth", authRouter);
+app.use("/api/profile", profileRouter);
 
 app.use(errorMiddleware);
 
