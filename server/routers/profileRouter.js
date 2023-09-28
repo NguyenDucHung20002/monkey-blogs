@@ -21,4 +21,10 @@ router.get("/followers", jwtAuth, profileController.getMyFollowers);
 
 router.get("/following", jwtAuth, profileController.getMyFollowing);
 
+router.get("/:username", profileController.getAUserProfile);
+
+router.get("/:username/followers", profileController.getUserFollowers);
+
+router.get("/:username/following", profileController.getUserFollowing);
+
 module.exports = router;

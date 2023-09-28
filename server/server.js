@@ -9,7 +9,9 @@ const createRoles = require("./constant/role");
 const app = express();
 const cors = require("cors");
 const authRouter = require("./routers/authRouter");
+const topicRouter = require("./routers/topicRouter");
 const profileRouter = require("./routers/profileRouter");
+const followerShipRouter = require("./routers/followerShipRouter");
 
 require("./services/googleOauth");
 
@@ -38,7 +40,9 @@ mongoose
 createRoles();
 
 app.use("/api/auth", authRouter);
+app.use("/api/topic", topicRouter);
 app.use("/api/profile", profileRouter);
+app.use("/api/follower-relationship", followerShipRouter);
 
 app.use(errorMiddleware);
 

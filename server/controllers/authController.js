@@ -1,24 +1,22 @@
-const Profile = require("../models/Profile");
 const Token = require("../models/Token");
-const { asyncMiddleware } = require("../middlewares/asyncMiddleware");
+const Profile = require("../models/Profile");
 const { ErrorResponse } = require("../response/ErrorResponse");
+const { asyncMiddleware } = require("../middlewares/asyncMiddleware");
 
 // Login
 const login = asyncMiddleware(async (req, res, next) => {
   const { id: user } = req.user;
 
-  const myProfile = await Profile.findOne({ user }).select(
+  const profile = await Profile.findOne({ user }).select(
     "-_id avatar fullname username"
   );
-  if (!myProfile) {
+  if (!profile) {
     throw new ErrorResponse(404, "profile not found");
   }
 
-  console.log(myProfile);
-
   res.status(200).json({
     success: true,
-    data: myProfile,
+    data: profile,
   });
 });
 

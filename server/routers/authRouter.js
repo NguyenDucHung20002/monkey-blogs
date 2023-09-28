@@ -1,10 +1,10 @@
 const express = require("express");
-const { env } = require("../config/env");
-const passport = require("passport");
 const jwt = require("jsonwebtoken");
+const passport = require("passport");
+const Token = require("../models/Token");
+const { env } = require("../config/env");
 const jwtAuth = require("../middlewares/jwtAuth");
 const authController = require("../controllers/authController");
-const Token = require("../models/Token");
 
 const router = express.Router();
 
@@ -27,9 +27,11 @@ router.get(
       tokenDoc = new Token({
         userId: user._id,
         token,
+        timestamps: Date.now(),
       });
     } else {
       tokenDoc.token = token;
+      tokenDoc.timestamps = Date.now();
     }
 
     await tokenDoc.save();
