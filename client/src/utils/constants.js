@@ -1,6 +1,6 @@
 export const theme = {
-  primary: "#1DC071",
-  secondary: "#A4D96C",
+  primary: "#74b9ff",
+  secondary: "#0984e3",
   grayDark: "#292D32",
   grayLight: "#E7ECF3",
   tertiary: "#3A1097",
@@ -9,7 +9,8 @@ export const theme = {
   gray6B: "#6B6B6B",
   gray23: "#232323",
   gray4b: "#4B5264",
-  grayf1: "#F1F1F3",
+  grayF1: "#F1F1F3",
   gray80: "#808191",
   black: "#171725",
+  red: "#eb4d4b",
 };

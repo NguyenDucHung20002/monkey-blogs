@@ -1,11 +1,12 @@
 import styled, { css } from "styled-components";
 import PropTypes from "prop-types";
 import { NavLink } from "react-router-dom";
-import { LoadingSpinner } from "../loading";
+import { LoadingSpinner } from "../../loading";
 
 const ButtonStyles = styled.button`
   cursor: pointer;
-  padding: 0 25px;
+  padding: 0 10px;
+  margin: 0 5px;
   line-height: 1;
   border-radius: 8px;
   font-weight: 600;
@@ -14,17 +15,47 @@ const ButtonStyles = styled.button`
   display: flex;
   justify-content: center;
   align-items: center;
+  transition: 0.3s;
+  position: relative;
+  ${(props) =>
+    props.notification !== "" &&
+    css`
+      &:after {
+        content: "${(props) =>
+          props.notification && +props.notification >= 5
+            ? "5+"
+            : props.notification}";
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        border-radius: 50%;
+        height: 20px;
+        width: 20px;
+        font-size: 14px;
+        color: white;
+        line-height: 20px;
+        font-weight: 300;
+        background-color: ${(props) => props.theme.red};
+      }
+    `};
+
   ${(props) =>
     props.kind === "secondary" &&
     css`
       color: ${(props) => props.theme.primary};
       background-color: white;
+      &:hover {
+        color: ${(props) => props.theme.secondary};
+      }
     `};
   ${(props) =>
     props.kind === "primary" &&
     css`
       color: white;
       background-color: ${(props) => props.theme.primary};
+      &:hover {
+        background-color: ${props.theme.secondary};
+      }
     `};
   ${(props) =>
     props.kind === "ghost" &&
@@ -47,6 +78,7 @@ const Button = ({
   onClick = () => {},
   children,
   kind = "primary",
+  notification = "",
   ...props
 }) => {
   // eslint-disable-next-line react/prop-types
@@ -55,14 +87,25 @@ const Button = ({
   if (to !== "" && typeof to === "string") {
     return (
       <NavLink to={to} className="inline-block">
-        <ButtonStyles type={type} kind={kind} {...props}>
+        <ButtonStyles
+          type={type}
+          kind={kind}
+          notification={notification}
+          {...props}
+        >
           {child}
         </ButtonStyles>
       </NavLink>
     );
   }
   return (
-    <ButtonStyles type={type} kind={kind} onClick={onClick} {...props}>
+    <ButtonStyles
+      type={type}
+      kind={kind}
+      notification={notification}
+      onClick={onClick}
+      {...props}
+    >
       {child}
     </ButtonStyles>
   );
@@ -73,6 +116,7 @@ Button.propTypes = {
   isLoading: PropTypes.bool,
   onClick: PropTypes.func,
   children: PropTypes.node,
+  notification: PropTypes.string,
   kind: PropTypes.oneOf(["primary", "secondary", "ghost"]),
 };
 
