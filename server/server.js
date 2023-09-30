@@ -44,7 +44,7 @@ app.use("/api/auth", authRouter);
 app.use("/api/topic", topicRouter);
 app.use("/api/profile", profileRouter);
 app.use("/api/follower-relationship", followerShipRouter);
-app.use("/api/following-topic", followTopicRouter);
+app.use("/api/follow-topic", followTopicRouter);
 
 app.use(errorMiddleware);
 
