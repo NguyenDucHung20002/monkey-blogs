@@ -1,5 +1,5 @@
 const Profile = require("../models/Profile");
-const FollowerShip = require("../models/FollowerShip");
+const FollowProfile = require("../models/FollowProfile");
 const { ErrorResponse } = require("../response/ErrorResponse");
 const { asyncMiddleware } = require("../middlewares/asyncMiddleware");
 
@@ -22,19 +22,19 @@ const followOrUnfollowAUser = asyncMiddleware(async (req, res, next) => {
     throw new ErrorResponse(400, "you can't following your self");
   }
 
-  let followerShip = await FollowerShip.findOne({
+  let followProfile = await FollowProfile.findOne({
     following: userProfile._id,
     follower: myProfile._id,
   });
 
-  if (!followerShip) {
-    followerShip = new FollowerShip({
+  if (!followProfile) {
+    followProfile = new FollowProfile({
       following: userProfile._id,
       follower: myProfile._id,
     });
-    await followerShip.save();
+    await followProfile.save();
   } else {
-    await FollowerShip.deleteOne({ _id: followerShip._id });
+    await FollowProfile.deleteOne({ _id: followProfile._id });
   }
 
   res.status(200).json({
