@@ -12,7 +12,7 @@ const authRouter = require("./routers/authRouter");
 const topicRouter = require("./routers/topicRouter");
 const profileRouter = require("./routers/profileRouter");
 const followerShipRouter = require("./routers/followerShipRouter");
-const followingTopicRouter = require("./routers/followingTopicRouter");
+const followTopicRouter = require("./routers/followTopicRouter");
 
 require("./services/googleOauth");
 
@@ -44,7 +44,7 @@ app.use("/api/auth", authRouter);
 app.use("/api/topic", topicRouter);
 app.use("/api/profile", profileRouter);
 app.use("/api/follower-relationship", followerShipRouter);
-app.use("/api/following-topic", followingTopicRouter);
+app.use("/api/following-topic", followTopicRouter);
 
 app.use(errorMiddleware);
 

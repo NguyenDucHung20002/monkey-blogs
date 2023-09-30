@@ -1,6 +1,7 @@
 const Profile = require("../models/Profile");
 const { removeFile } = require("../utils/removeFile");
 const FollowerShip = require("../models/FollowerShip");
+const FollowTopic = require("../models/FollowTopic");
 const { ErrorResponse } = require("../response/ErrorResponse");
 const { asyncMiddleware } = require("../middlewares/asyncMiddleware");
 
@@ -120,6 +121,30 @@ const getMyFollowing = asyncMiddleware(async (req, res, next) => {
   });
 });
 
+// get my following topics
+const getMyFollowingTopics = asyncMiddleware(async (req, res, next) => {
+  const { id: user } = req.user;
+
+  const profile = await Profile.findOne({ user });
+  if (!profile) {
+    throw new ErrorResponse(404, "profile not found");
+  }
+
+  const followingTopics = await FollowTopic.find({
+    follower: profile._id,
+  })
+    .select("topic")
+    .populate({
+      path: "topic",
+      select: "name slug",
+    });
+
+  res.status(200).json({
+    success: true,
+    data: followingTopics,
+  });
+});
+
 // get a user profile
 const getAUserProfile = asyncMiddleware(async (req, res, next) => {
   const { username } = req.params;
@@ -196,6 +221,7 @@ module.exports = {
   updateMyProfile,
   getMyFollowers,
   getMyFollowing,
+  getMyFollowingTopics,
   getAUserProfile,
   getUserFollowers,
   getUserFollowing,

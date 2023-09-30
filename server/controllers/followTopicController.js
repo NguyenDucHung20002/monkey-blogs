@@ -1,6 +1,6 @@
 const Topic = require("../models/Topic");
 const Profile = require("../models/Profile");
-const FollowingTopic = require("../models/FollowingTopic");
+const FollowTopic = require("../models/FollowTopic");
 const { ErrorResponse } = require("../response/ErrorResponse");
 const { asyncMiddleware } = require("../middlewares/asyncMiddleware");
 
@@ -19,19 +19,19 @@ const followOrUnfollowATopic = asyncMiddleware(async (req, res, next) => {
     throw new ErrorResponse(404, "topic not found");
   }
 
-  let followingTopic = await FollowingTopic.findOne({
+  let followTopic = await FollowTopic.findOne({
     follower: profile._id,
     topic: topic._id,
   });
-  console.log(followingTopic);
-  if (!followingTopic) {
-    followingTopic = new FollowingTopic({
+  console.log(followTopic);
+  if (!followTopic) {
+    followTopic = new FollowTopic({
       follower: profile._id,
       topic: topic._id,
     });
-    await followingTopic.save();
+    await followTopic.save();
   } else {
-    await FollowingTopic.deleteOne({ _id: followingTopic._id });
+    await FollowTopic.deleteOne({ _id: followTopic._id });
   }
 
   res.status(200).json({
