@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const FollowerShipSchema = new mongoose.Schema(
+const FollowProfileSchema = new mongoose.Schema(
   {
     follower: {
       type: mongoose.Schema.Types.ObjectId,
@@ -19,4 +19,4 @@ const FollowerShipSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model("FollowerShip", FollowerShipSchema);
+module.exports = mongoose.model("FollowProfile", FollowProfileSchema);

@@ -11,7 +11,7 @@ const cors = require("cors");
 const authRouter = require("./routers/authRouter");
 const topicRouter = require("./routers/topicRouter");
 const profileRouter = require("./routers/profileRouter");
-const followerShipRouter = require("./routers/followerShipRouter");
+const followProfileRouter = require("./routers/followProfileRouter");
 const followTopicRouter = require("./routers/followTopicRouter");
 
 require("./services/googleOauth");
@@ -43,7 +43,7 @@ createRoles();
 app.use("/api/auth", authRouter);
 app.use("/api/topic", topicRouter);
 app.use("/api/profile", profileRouter);
-app.use("/api/follower-relationship", followerShipRouter);
+app.use("/api/follow-profile", followProfileRouter);
 app.use("/api/follow-topic", followTopicRouter);
 
 app.use(errorMiddleware);

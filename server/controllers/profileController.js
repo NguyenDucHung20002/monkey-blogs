@@ -1,6 +1,6 @@
 const Profile = require("../models/Profile");
 const { removeFile } = require("../utils/removeFile");
-const FollowerShip = require("../models/FollowerShip");
+const FollowProfile = require("../models/FollowProfile");
 const FollowTopic = require("../models/FollowTopic");
 const { ErrorResponse } = require("../response/ErrorResponse");
 const { asyncMiddleware } = require("../middlewares/asyncMiddleware");
@@ -14,11 +14,11 @@ const getMyProfile = asyncMiddleware(async (req, res, next) => {
     throw new ErrorResponse(404, "profile not found");
   }
 
-  const followerCount = await FollowerShip.countDocuments({
+  const followerCount = await FollowProfile.countDocuments({
     following: profile._id,
   });
 
-  const followingCount = await FollowerShip.countDocuments({
+  const followingCount = await FollowProfile.countDocuments({
     follower: profile._id,
   });
 
@@ -78,7 +78,7 @@ const getMyFollowers = asyncMiddleware(async (req, res, next) => {
   // const page = parseInt(req.query.page) || 1;
   // const limit = parseInt(req.query.limit) || 10;
 
-  const followers = await FollowerShip.find({
+  const followers = await FollowProfile.find({
     following: profile._id,
   })
     .select("follower")
@@ -106,7 +106,7 @@ const getMyFollowing = asyncMiddleware(async (req, res, next) => {
     throw new ErrorResponse(404, "profile not found");
   }
 
-  const following = await FollowerShip.find({
+  const following = await FollowProfile.find({
     follower: profile._id,
   })
     .select("following")
@@ -154,11 +154,11 @@ const getAUserProfile = asyncMiddleware(async (req, res, next) => {
     throw new ErrorResponse(404, "user profile not found");
   }
 
-  const followerCount = await FollowerShip.countDocuments({
+  const followerCount = await FollowProfile.countDocuments({
     following: userProfile._id,
   });
 
-  const followingCount = await FollowerShip.countDocuments({
+  const followingCount = await FollowProfile.countDocuments({
     follower: userProfile._id,
   });
 
@@ -177,7 +177,7 @@ const getUserFollowers = asyncMiddleware(async (req, res, next) => {
     throw new ErrorResponse(404, "user profile not found");
   }
 
-  const userFollowers = await FollowerShip.find({
+  const userFollowers = await FollowProfile.find({
     following: userProfile._id,
   })
     .select("follower")
@@ -201,7 +201,7 @@ const getUserFollowing = asyncMiddleware(async (req, res, next) => {
     throw new ErrorResponse(404, "user profile not found");
   }
 
-  const userFollowing = await FollowerShip.find({
+  const userFollowing = await FollowProfile.find({
     follower: userProfile._id,
   })
     .select("following")
