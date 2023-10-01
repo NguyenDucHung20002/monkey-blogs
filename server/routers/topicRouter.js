@@ -33,6 +33,8 @@ router.delete(
   topicController.deleteTopic
 );
 
+router.get("/:slug", topicController.getATopic);
+
 router.get("/", topicController.getAllTopics);
 
 module.exports = router;
