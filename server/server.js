@@ -10,9 +10,10 @@ const app = express();
 const cors = require("cors");
 const authRouter = require("./routers/authRouter");
 const topicRouter = require("./routers/topicRouter");
+const articleRouter = require("./routers/articleRouter");
 const profileRouter = require("./routers/profileRouter");
-const followProfileRouter = require("./routers/followProfileRouter");
 const followTopicRouter = require("./routers/followTopicRouter");
+const followProfileRouter = require("./routers/followProfileRouter");
 
 require("./services/googleOauth");
 
@@ -45,6 +46,7 @@ app.use("/api/topic", topicRouter);
 app.use("/api/profile", profileRouter);
 app.use("/api/follow-profile", followProfileRouter);
 app.use("/api/follow-topic", followTopicRouter);
+app.use("/api/article", articleRouter);
 
 app.use(errorMiddleware);
 

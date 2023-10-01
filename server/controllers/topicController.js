@@ -1,5 +1,6 @@
 const Topic = require("../models/Topic");
 const toSlug = require("../utils/toSlug");
+const FollowTopic = require("../models/FollowTopic");
 const { removeFile } = require("../utils/removeFile");
 const { ErrorResponse } = require("../response/ErrorResponse");
 const { asyncMiddleware } = require("../middlewares/asyncMiddleware");
@@ -83,6 +84,23 @@ const deleteTopic = asyncMiddleware(async (req, res, next) => {
   });
 });
 
+// get a topic
+const getATopic = asyncMiddleware(async (req, res, next) => {
+  const { slug } = req.params;
+
+  const topic = await Topic.findOne({ slug }).select("-createdAt -updatedAt");
+  if (!topic) {
+    throw new ErrorResponse(404, "topic not found");
+  }
+
+  const countFollowers = await FollowTopic.countDocuments({ topic: topic._id });
+
+  res.status(200).json({
+    success: true,
+    data: { topic, countFollowers },
+  });
+});
+
 // get all topics
 const getAllTopics = asyncMiddleware(async (req, res, next) => {
   const topics = await Topic.find();
@@ -93,4 +111,10 @@ const getAllTopics = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-module.exports = { createTopic, updateTopic, deleteTopic, getAllTopics };
+module.exports = {
+  createTopic,
+  updateTopic,
+  deleteTopic,
+  getATopic,
+  getAllTopics,
+};
