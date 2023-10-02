@@ -16,6 +16,7 @@ const ButtonStyles = styled.button`
   justify-content: center;
   align-items: center;
   transition: 0.3s;
+  z-index: 0;
   position: relative;
   ${(props) =>
     props.notification !== "" &&

@@ -1,12 +1,13 @@
 // eslint-disable-next-line no-unused-vars
-import React from "react";
-import { Link, NavLink } from "react-router-dom";
+import React, { useCallback } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
 import { Avatar, Space, Popover } from "antd";
 import styled from "styled-components";
 import logo from "../assets/logo.jpg";
 import { SearchMain } from "../components/search";
 import { Button } from "../components/button";
 import Headroom from "react-headroom";
+import { useAuth } from "../contexts/auth-context";
 
 const icons = {
   libraryIcon: (
@@ -98,7 +99,7 @@ const icons = {
 };
 
 const HomeStyle = styled.header`
-  padding: 10px 0;
+  padding: 10px 20px;
   background-color: white;
   .header-main {
     display: flex;
@@ -111,26 +112,52 @@ const HomeStyle = styled.header`
   }
 `;
 
-const content = (
-  <div className="w-[250px] block">
-    <NavLink to={`/`}>
-      <div className="flex items-center justify-start my-4">
-        {icons.userIcon} <p className="ml-3">Profile</p>
-      </div>
-    </NavLink>
-    <NavLink to={`/`}>
-      <div className="flex items-center justify-start my-4">
-        {icons.libraryIcon} <p className="ml-3">Profile</p>
-      </div>
-    </NavLink>
-    <NavLink to={`/`}>
-      <div className="flex items-center justify-start my-4">
-        {icons.storyIcon} <p className="ml-3">Profile</p>
-      </div>
-    </NavLink>
-  </div>
-);
 const Header = () => {
+  const { userInfo, setUserInfo } = useAuth();
+  const { data } = userInfo;
+  const navigate = useNavigate();
+
+  const handleSignOut = () => {
+    setUserInfo({});
+    localStorage.removeItem("token");
+    navigate("/sign-in");
+  };
+
+  const content = useCallback(function (username, fullname) {
+    return (
+      <div className="w-[250px] block">
+        <h2 className="pb-2 text-sm font-semibold border-b border-gray-300">
+          {fullname && fullname?.length > 8
+            ? fullname.slice(0, 8) + "..."
+            : fullname}
+        </h2>
+        <NavLink to={`/user/profile/${username}`}>
+          <div className="flex items-center justify-start my-4">
+            {icons.userIcon} <p className="ml-3">Profile</p>
+          </div>
+        </NavLink>
+        <NavLink to={`/user/library/${username}`}>
+          <div className="flex items-center justify-start my-4">
+            {icons.libraryIcon} <p className="ml-3">Library</p>
+          </div>
+        </NavLink>
+        <NavLink to={`/user/stories/${username}`}>
+          <div className="flex items-center justify-start my-4">
+            {icons.storyIcon} <p className="ml-3">Stories</p>
+          </div>
+        </NavLink>
+        <div className="w-full border-t border-gray-300 btn-sign-out text-start">
+          <button
+            onClick={handleSignOut}
+            className="block px-2 py-2 text-gray-400 hover:text-gray-600"
+          >
+            Sign out
+          </button>
+        </div>
+      </div>
+    );
+  }, []);
+
   return (
     <>
       <Headroom>
@@ -143,10 +170,13 @@ const Header = () => {
               <SearchMain className="ml-4"></SearchMain>
             </div>
             <div className="flex items-center justify-center header-left">
-              <Button kind="secondary" height="40px" className="">
-                {icons.writeIcon}
-                <p className="ml-2 text-lg font-medium">Write</p>
-              </Button>
+              <NavLink to={`/write`}>
+                <Button kind="secondary" height="40px" className="">
+                  {icons.writeIcon}
+                  <p className="ml-2 text-lg font-medium">Write</p>
+                </Button>
+              </NavLink>
+
               <Button
                 kind="secondary"
                 height="40px"
@@ -158,16 +188,14 @@ const Header = () => {
               <Space direction="vertical" wrap size={16} className="p-1 ml-5">
                 <Popover
                   placement="bottomRight"
-                  content={content}
+                  content={() => content(data?.username, data?.fullname)}
                   trigger="click"
                 >
-                  <Link to={`/author`}>
-                    <Avatar
-                      className="cursor-pointer"
-                      size="large"
-                      src={<img src={logo} alt="avatar" />}
-                    />
-                  </Link>
+                  <Avatar
+                    className="cursor-pointer"
+                    size="large"
+                    src={<img src={data?.avatar} alt="avatar" />}
+                  />
                 </Popover>
               </Space>
             </div>

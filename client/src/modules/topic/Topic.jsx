@@ -6,8 +6,8 @@ import styled, { css } from "styled-components";
 
 const TopicStyle = styled.section`
   display: inline-block;
-  padding: 4px 10px;
-  border-radius: 10px;
+  padding: 6px 15px;
+  border-radius: 20px;
   color: ${(props) => props.theme.gray6B};
   font-size: 14px;
   font-weight: 600;
@@ -34,7 +34,7 @@ const TopicStyle = styled.section`
 const Topic = ({ children, type = "primary", className = "", to = "" }) => {
   return (
     <TopicStyle type={type} className={`post-category ${className}`}>
-      <Link to={`/category/${to}`}>{children}</Link>
+      <Link to={`/topic/${to}`}>{children}</Link>
     </TopicStyle>
   );
 };

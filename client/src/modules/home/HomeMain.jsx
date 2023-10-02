@@ -4,12 +4,29 @@ import styled from "styled-components";
 import Blog from "../blog/Blog";
 
 const HomeMainStyled = styled.div`
-  margin-top: 40px;
+  padding-top: 30px;
 `;
 
 const HomeMain = () => {
   return (
     <HomeMainStyled>
+      <Blog></Blog>
+      <Blog></Blog>
+      <Blog></Blog>
+      <Blog></Blog>
+      <Blog></Blog>
+      <Blog></Blog>
+      <Blog></Blog>
+      <Blog></Blog>
+      <Blog></Blog>
+      <Blog></Blog>
+      <Blog></Blog>
+      <Blog></Blog>
+      <Blog></Blog>
+      <Blog></Blog>
+      <Blog></Blog>
+      <Blog></Blog>
+      <Blog></Blog>
       <Blog></Blog>
       <Blog></Blog>
       <Blog></Blog>

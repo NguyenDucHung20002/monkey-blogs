@@ -1,6 +1,16 @@
+import { useEffect } from "react";
 import { Button } from "../components/button";
+import { useNavigate } from "react-router-dom";
 
 const SignInPage = () => {
+  const token = localStorage.getItem("token");
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (token) {
+      navigate("/");
+    }
+  }, [token, navigate]);
+
   return (
     <div className="w-[100vw] h-[100vh] flex items-center justify-center flex-col">
       <h2 className="text-lg font-bold text-blue-400">

@@ -2,9 +2,7 @@
 import React, { Fragment } from "react";
 import Header from "./Header";
 import styled from "styled-components";
-const LayoutStyle = styled.div`
-  padding: 0 20px;
-`;
+const LayoutStyle = styled.div``;
 // eslint-disable-next-line react/prop-types
 const Layout = ({ children }) => {
   return (

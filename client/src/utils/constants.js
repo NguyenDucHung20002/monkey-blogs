@@ -14,3 +14,10 @@ export const theme = {
   black: "#171725",
   red: "#eb4d4b",
 };
+
+export const config = {
+  CLIENT_PORT: 5173,
+  SERVER_PORT: 8080,
+  CLIENT_HOST: "http://127.0.0.1",
+  SERVER_HOST: "http://localhost",
+};
