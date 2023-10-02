@@ -15,4 +15,16 @@ router.post(
   articleController.createAnArticle
 );
 
+router.put(
+  "/:slug",
+  jwtAuth,
+  mongoUpload.single("img"),
+  validator(articleSchema.updateSchema),
+  articleController.updateMyArticle
+);
+
+router.delete("/:slug", jwtAuth, articleController.deleteMyArticle);
+
+router.get("/:slug", articleController.getAnArticle);
+
 module.exports = router;
