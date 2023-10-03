@@ -76,8 +76,9 @@ const deleteTopic = asyncMiddleware(async (req, res, next) => {
   const { slug } = req.params;
 
   const topic = await Topic.findOneAndDelete({ slug });
-
-  removeFile(topic.banner);
+  if (topic) {
+    removeFile(topic.banner);
+  }
 
   res.status(200).json({
     success: true,
