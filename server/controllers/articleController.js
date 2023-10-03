@@ -143,12 +143,15 @@ const getAllArticles = asyncMiddleware(async (req, res, next) => {
 const getArticlesByTopic = asyncMiddleware(async (req, res, next) => {
   const { slug } = req.params;
 
-  const topic = await Topic.findOne({ slug, status: "approved" });
+  const topic = await Topic.findOne({ slug });
   if (!topic) {
     throw new ErrorResponse(404, "topic not found");
   }
 
-  const articlesByTopic = await Article.find({ topics: topic._id })
+  const articlesByTopic = await Article.find({
+    topics: topic._id,
+    status: "approved",
+  })
     .select("title createdAt updatedAt")
     .sort({ createdAt: -1 })
     .populate({
