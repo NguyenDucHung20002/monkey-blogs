@@ -1,3 +1,4 @@
+const Topic = require("../models/Topic");
 const toSlug = require("../utils/toSlug");
 const Profile = require("../models/Profile");
 const Article = require("../models/Article");
@@ -122,9 +123,50 @@ const getAnArticle = asyncMiddleware(async (req, res, next) => {
   });
 });
 
+// get all articles
+const getAllArticles = asyncMiddleware(async (req, res, next) => {
+  const article = await Article.find()
+    .select("title createdAt updatedAt")
+    .sort({ createdAt: -1 })
+    .populate({
+      path: "author",
+      select: "avatar fullname username",
+    });
+
+  res.status(200).json({
+    success: true,
+    data: article,
+  });
+});
+
+// get articles by topic
+const getArticlesByTopic = asyncMiddleware(async (req, res, next) => {
+  const { slug } = req.params;
+
+  const topic = await Topic.findOne({ slug });
+  if (!topic) {
+    throw new ErrorResponse(404, "topic not found");
+  }
+
+  const articlesByTopic = await Article.find({ topics: topic._id })
+    .select("title createdAt updatedAt")
+    .sort({ createdAt: -1 })
+    .populate({
+      path: "author",
+      select: "avatar fullname username",
+    });
+
+  res.status(200).json({
+    success: true,
+    data: articlesByTopic,
+  });
+});
+
 module.exports = {
   createAnArticle,
   updateMyArticle,
   getAnArticle,
   deleteMyArticle,
+  getAllArticles,
+  getArticlesByTopic,
 };

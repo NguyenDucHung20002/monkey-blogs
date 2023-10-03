@@ -27,4 +27,8 @@ router.delete("/:slug", jwtAuth, articleController.deleteMyArticle);
 
 router.get("/:slug", articleController.getAnArticle);
 
+router.get("", articleController.getAllArticles);
+
+router.get("/topic/:slug", articleController.getArticlesByTopic);
+
 module.exports = router;
