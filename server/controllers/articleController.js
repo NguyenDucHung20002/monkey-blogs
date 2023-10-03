@@ -125,7 +125,25 @@ const getAnArticle = asyncMiddleware(async (req, res, next) => {
 
 // get all articles
 const getAllArticles = asyncMiddleware(async (req, res, next) => {
-  const article = await Article.find()
+  const { tag } = req.query;
+
+  let articles;
+
+  if (!tag) {
+    articles = await Article.find({ status: "approved" });
+  } else {
+    const topic = await Topic.findOne({ slug: tag });
+    if (!topic) {
+      throw new ErrorResponse(404, "topic tag not found");
+    }
+
+    articles = await Article.find({
+      topics: topic._id,
+      status: "approved",
+    });
+  }
+
+  articles = articles
     .select("title createdAt updatedAt")
     .sort({ createdAt: -1 })
     .populate({
@@ -135,32 +153,35 @@ const getAllArticles = asyncMiddleware(async (req, res, next) => {
 
   res.status(200).json({
     success: true,
-    data: article,
+    data: articles,
   });
 });
 
 // get articles by topic
-const getArticlesByTopic = asyncMiddleware(async (req, res, next) => {
-  const { slug } = req.params;
+// const getArticlesByTopic = asyncMiddleware(async (req, res, next) => {
+//   const { tag } = req.query;
 
-  const topic = await Topic.findOne({ slug });
-  if (!topic) {
-    throw new ErrorResponse(404, "topic not found");
-  }
+//   const topic = await Topic.findOne({ slug: tag });
+//   if (!topic) {
+//     throw new ErrorResponse(404, "topic not found");
+//   }
 
-  const articlesByTopic = await Article.find({ topics: topic._id })
-    .select("title createdAt updatedAt")
-    .sort({ createdAt: -1 })
-    .populate({
-      path: "author",
-      select: "avatar fullname username",
-    });
+//   const articlesByTopic = await Article.find({
+//     topics: topic._id,
+//     status: "approved",
+//   })
+//     .select("title createdAt updatedAt")
+//     .sort({ createdAt: -1 })
+//     .populate({
+//       path: "author",
+//       select: "avatar fullname username",
+//     });
 
-  res.status(200).json({
-    success: true,
-    data: articlesByTopic,
-  });
-});
+//   res.status(200).json({
+//     success: true,
+//     data: articlesByTopic,
+//   });
+// });
 
 module.exports = {
   createAnArticle,
@@ -168,5 +189,5 @@ module.exports = {
   getAnArticle,
   deleteMyArticle,
   getAllArticles,
-  getArticlesByTopic,
+  // getArticlesByTopic,
 };
