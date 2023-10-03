@@ -29,6 +29,6 @@ router.get("/:slug", articleController.getAnArticle);
 
 router.get("", articleController.getAllArticles);
 
-router.get("/topic/:slug", articleController.getArticlesByTopic);
+// router.get("", articleController.getArticlesByTopic);
 
 module.exports = router;
