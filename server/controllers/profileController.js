@@ -1,8 +1,7 @@
 const Profile = require("../models/Profile");
+const FollowTopic = require("../models/FollowTopic");
 const { removeFile } = require("../utils/removeFile");
 const FollowProfile = require("../models/FollowProfile");
-const FollowTopic = require("../models/FollowTopic");
-const { ErrorResponse } = require("../response/ErrorResponse");
 const { asyncMiddleware } = require("../middlewares/asyncMiddleware");
 
 // get profile
@@ -23,7 +22,7 @@ const getProfile = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// update my profile
+// update profile
 const updateProfile = asyncMiddleware(async (req, res, next) => {
   const { profile } = req;
   const { fullname, bio, about } = req.body;
@@ -78,7 +77,7 @@ const getFollowers = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// get  following
+// get following
 const getFollowing = asyncMiddleware(async (req, res, next) => {
   const { profile } = req;
 

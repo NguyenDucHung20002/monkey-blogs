@@ -15,7 +15,6 @@ const ArticleSchema = new mongoose.Schema(
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Topic",
-        required: true,
       },
     ],
     status: { type: String, required: true, default: "pending" },
