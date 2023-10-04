@@ -3,34 +3,45 @@ const jwtAuth = require("../middlewares/jwtAuth");
 const validator = require("../middlewares/validator");
 const mongoUpload = require("../middlewares/mongoUpload");
 const profileSchema = require("../validations/profileSchema");
+const fetchProfile = require("../middlewares/fetchProfile");
 const profileController = require("../controllers/profileController");
 
 const router = express.Router();
 
-router.get("/", jwtAuth, profileController.getMyProfile);
+router.get("/", jwtAuth, fetchProfile, profileController.getProfile);
 
 router.put(
   "/",
   jwtAuth,
   mongoUpload.single("avatar"),
+  fetchProfile,
   validator(profileSchema.updateSchema),
-  profileController.updateMyProfile
+  profileController.updateProfile
 );
 
-router.get("/followers", jwtAuth, profileController.getMyFollowers);
+router.get("/followers", jwtAuth, fetchProfile, profileController.getFollowers);
 
-router.get("/following", jwtAuth, profileController.getMyFollowing);
+router.get("/following", jwtAuth, fetchProfile, profileController.getFollowing);
 
 router.get(
   "/following/topics",
   jwtAuth,
-  profileController.getMyFollowingTopics
+  fetchProfile,
+  profileController.getFollowingTopics
 );
 
-router.get("/:username", profileController.getAUserProfile);
+router.get("/:username", fetchProfile, profileController.getProfile);
 
-router.get("/:username/followers", profileController.getUserFollowers);
+router.get(
+  "/:username/followers",
+  fetchProfile,
+  profileController.getFollowers
+);
 
-router.get("/:username/following", profileController.getUserFollowing);
+router.get(
+  "/:username/following",
+  fetchProfile,
+  profileController.getFollowing
+);
 
 module.exports = router;

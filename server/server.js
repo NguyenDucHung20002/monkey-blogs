@@ -15,6 +15,7 @@ const profileRouter = require("./routers/profileRouter");
 const followTopicRouter = require("./routers/followTopicRouter");
 const followProfileRouter = require("./routers/followProfileRouter");
 const fileRouter = require("./routers/fileRouter");
+const likeRouter = require("./routers/likeRouter");
 
 require("./services/googleOauth");
 
@@ -49,6 +50,7 @@ app.use("/api/follow-profile", followProfileRouter);
 app.use("/api/follow-topic", followTopicRouter);
 app.use("/api/article", articleRouter);
 app.use("/api/file", fileRouter);
+app.use("/api/like", likeRouter);
 
 app.use(errorMiddleware);
 
