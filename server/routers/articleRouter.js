@@ -35,6 +35,8 @@ router.delete(
 
 router.get("/:slug", articleController.getAnArticle);
 
+router.get("/:slug/likes", articleController.getArticleLikes);
+
 router.get("", articleController.getAllArticles);
 
 module.exports = router;

@@ -114,6 +114,27 @@ const getAnArticle = asyncMiddleware(async (req, res, next) => {
     data: { article, likeCount },
   });
 });
+// get article likes
+const getArticleLikes = asyncMiddleware(async (req, res, next) => {
+  const { slug } = req.params;
+
+  const article = await Article.findOne({ slug, status: "approved" });
+  if (!article) {
+    throw new ErrorResponse(404, "article not found");
+  }
+
+  const likes = await Like.find({ article: article._id })
+    .select("profile")
+    .populate({
+      path: "profile",
+      select: "avatar fullname username",
+    });
+
+  res.status(200).json({
+    success: true,
+    data: likes,
+  });
+});
 
 // get all articles
 const getAllArticles = asyncMiddleware(async (req, res, next) => {
@@ -152,6 +173,7 @@ module.exports = {
   createAnArticle,
   updateMyArticle,
   getAnArticle,
+  getArticleLikes,
   deleteMyArticle,
   getAllArticles,
 };
