@@ -80,6 +80,8 @@ const deleteTopic = asyncMiddleware(async (req, res, next) => {
     removeFile(topic.banner);
   }
 
+  await FollowTopic.deleteMany({ slug });
+
   res.status(200).json({
     success: true,
   });
@@ -104,7 +106,16 @@ const getATopic = asyncMiddleware(async (req, res, next) => {
 
 // get all topics
 const getAllTopics = asyncMiddleware(async (req, res, next) => {
-  const topics = await Topic.find();
+  const searchQuery = req.query.search;
+
+  let topics;
+
+  if (!searchQuery) {
+    topics = await Topic.find();
+  } else {
+    const regex = new RegExp(searchQuery, "i");
+    topics = await Topic.find({ slug: regex });
+  }
 
   res.status(200).json({
     success: true,

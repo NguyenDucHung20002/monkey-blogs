@@ -5,14 +5,9 @@ const FollowTopic = require("../models/FollowTopic");
 const { ErrorResponse } = require("../response/ErrorResponse");
 const { asyncMiddleware } = require("../middlewares/asyncMiddleware");
 
-// get my profile
-const getMyProfile = asyncMiddleware(async (req, res, next) => {
-  const { id: user } = req.user;
-
-  const profile = await Profile.findOne({ user });
-  if (!profile) {
-    throw new ErrorResponse(404, "profile not found");
-  }
+// get profile
+const getProfile = asyncMiddleware(async (req, res, next) => {
+  const { profile } = req;
 
   const followerCount = await FollowProfile.countDocuments({
     following: profile._id,
@@ -29,19 +24,14 @@ const getMyProfile = asyncMiddleware(async (req, res, next) => {
 });
 
 // update my profile
-const updateMyProfile = asyncMiddleware(async (req, res, next) => {
-  const { id: user } = req.user;
+const updateProfile = asyncMiddleware(async (req, res, next) => {
+  const { profile } = req;
   const { fullname, bio, about } = req.body;
 
   const filename = req.file?.filename;
 
-  let oldProfile = await Profile.findOne({ user });
-  if (!oldProfile) {
-    throw new ErrorResponse(404, "Profile not found");
-  }
-
   await Profile.findOneAndUpdate(
-    { user },
+    { user: profile.user },
     {
       fullname,
       bio,
@@ -52,7 +42,7 @@ const updateMyProfile = asyncMiddleware(async (req, res, next) => {
   );
 
   if (filename) {
-    removeFile(oldProfile.avatar);
+    removeFile(profile.avatar);
   }
 
   res.status(200).json({
@@ -62,18 +52,9 @@ const updateMyProfile = asyncMiddleware(async (req, res, next) => {
 
 // http://localhost:8080/api/auth/username/followers?limit=10&page=1
 
-// get my followers
-const getMyFollowers = asyncMiddleware(async (req, res, next) => {
-  const { id: user } = req.user;
-
-  const profile = await Profile.findOne({ user });
-  if (!profile) {
-    throw new ErrorResponse(404, "profile not found");
-  }
-
-  if (profile.user != user) {
-    throw new ErrorResponse(401, "Unauthorized");
-  }
+// get followers
+const getFollowers = asyncMiddleware(async (req, res, next) => {
+  const { profile } = req;
 
   // const page = parseInt(req.query.page) || 1;
   // const limit = parseInt(req.query.limit) || 10;
@@ -97,14 +78,9 @@ const getMyFollowers = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// get my following
-const getMyFollowing = asyncMiddleware(async (req, res, next) => {
-  const { id: user } = req.user;
-
-  const profile = await Profile.findOne({ user });
-  if (!profile) {
-    throw new ErrorResponse(404, "profile not found");
-  }
+// get  following
+const getFollowing = asyncMiddleware(async (req, res, next) => {
+  const { profile } = req;
 
   const following = await FollowProfile.find({
     follower: profile._id,
@@ -121,14 +97,9 @@ const getMyFollowing = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// get my following topics
-const getMyFollowingTopics = asyncMiddleware(async (req, res, next) => {
-  const { id: user } = req.user;
-
-  const profile = await Profile.findOne({ user });
-  if (!profile) {
-    throw new ErrorResponse(404, "profile not found");
-  }
+// get following topics
+const getFollowingTopics = asyncMiddleware(async (req, res, next) => {
+  const { profile } = req;
 
   const followingTopics = await FollowTopic.find({
     follower: profile._id,
@@ -145,84 +116,10 @@ const getMyFollowingTopics = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// get a user profile
-const getAUserProfile = asyncMiddleware(async (req, res, next) => {
-  const { username } = req.params;
-
-  const userProfile = await Profile.findOne({ username });
-  if (!userProfile) {
-    throw new ErrorResponse(404, "user profile not found");
-  }
-
-  const followerCount = await FollowProfile.countDocuments({
-    following: userProfile._id,
-  });
-
-  const followingCount = await FollowProfile.countDocuments({
-    follower: userProfile._id,
-  });
-
-  res.status(200).json({
-    success: true,
-    data: { userProfile, followerCount, followingCount },
-  });
-});
-
-// get user followers
-const getUserFollowers = asyncMiddleware(async (req, res, next) => {
-  const { username } = req.params;
-
-  const userProfile = await Profile.findOne({ username });
-  if (!userProfile) {
-    throw new ErrorResponse(404, "user profile not found");
-  }
-
-  const userFollowers = await FollowProfile.find({
-    following: userProfile._id,
-  })
-    .select("follower")
-    .populate({
-      path: "follower",
-      select: "avatar fullname username bio",
-    });
-
-  res.status(200).json({
-    success: true,
-    data: userFollowers,
-  });
-});
-
-// get user following
-const getUserFollowing = asyncMiddleware(async (req, res, next) => {
-  const { username } = req.params;
-
-  const userProfile = await Profile.findOne({ username });
-  if (!userProfile) {
-    throw new ErrorResponse(404, "user profile not found");
-  }
-
-  const userFollowing = await FollowProfile.find({
-    follower: userProfile._id,
-  })
-    .select("following")
-    .populate({
-      path: "following",
-      select: "avatar fullname username bio",
-    });
-
-  res.status(200).json({
-    success: true,
-    data: userFollowing,
-  });
-});
-
 module.exports = {
-  getMyProfile,
-  updateMyProfile,
-  getMyFollowers,
-  getMyFollowing,
-  getMyFollowingTopics,
-  getAUserProfile,
-  getUserFollowers,
-  getUserFollowing,
+  getProfile,
+  updateProfile,
+  getFollowers,
+  getFollowing,
+  getFollowingTopics,
 };

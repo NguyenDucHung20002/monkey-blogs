@@ -1,22 +1,10 @@
-const Profile = require("../models/Profile");
 const FollowProfile = require("../models/FollowProfile");
 const { ErrorResponse } = require("../response/ErrorResponse");
 const { asyncMiddleware } = require("../middlewares/asyncMiddleware");
 
 // follow or unfollow a user
 const followOrUnfollowAUser = asyncMiddleware(async (req, res, next) => {
-  const { id: user } = req.user;
-  const { username } = req.params;
-
-  const myProfile = await Profile.findOne({ user });
-  if (!myProfile) {
-    throw new ErrorResponse(404, "profile not found");
-  }
-
-  const userProfile = await Profile.findOne({ username });
-  if (!userProfile) {
-    throw new ErrorResponse(404, "user profile not found");
-  }
+  const { myProfile, userProfile } = req;
 
   if (myProfile._id.toString() === userProfile._id.toString()) {
     throw new ErrorResponse(400, "you can't following your self");
