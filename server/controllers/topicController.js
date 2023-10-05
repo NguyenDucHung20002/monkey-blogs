@@ -109,12 +109,20 @@ const getAllTopics = asyncMiddleware(async (req, res, next) => {
 
   let topics;
 
-  if (!searchQuery) {
-    topics = await Topic.find();
-  } else {
-    const regex = new RegExp(searchQuery, "i");
-    topics = await Topic.find({ slug: regex });
+  if (searchQuery) {
+    const regex = new RegExp(`^${searchQuery}`, "i");
+    topics = Topic.find({ slug: regex });
   }
+
+  if (!searchQuery) {
+    topics = Topic.find();
+  }
+
+  if (searchQuery === "") {
+    topics = [];
+  }
+
+  topics = await topics;
 
   res.status(200).json({
     success: true,
