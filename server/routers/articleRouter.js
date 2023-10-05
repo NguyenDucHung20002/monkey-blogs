@@ -13,7 +13,6 @@ router.post(
   jwtAuth,
   fetchProfile,
   mongoUpload.single("img"),
-  validator(articleSchema.createSchema),
   articleController.createAnArticle
 );
 

@@ -8,7 +8,6 @@ const { asyncMiddleware } = require("../middlewares/asyncMiddleware");
 // create topic
 const createTopic = asyncMiddleware(async (req, res, next) => {
   const { name } = req.body;
-
   const filename = req.file?.filename;
   if (!filename) {
     throw new ErrorResponse(422, "banner required");
