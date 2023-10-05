@@ -1,0 +1,94 @@
+import axios from "axios";
+import { config } from "../../utils/constants";
+import { useEffect, useState } from "react";
+import { debounce } from "lodash";
+import { toast } from "react-toastify";
+
+/* eslint-disable react/prop-types */
+const SearchAddTopics = ({ topics = [], setTopics, token = "" }) => {
+  const [topicInput, setTopicInput] = useState("");
+
+  const handleDeleteTopic = (slug) => {
+    console.log("slug:", slug);
+    const topicsClone = [...topics];
+    const topicFilters = topicsClone.filter((topic) => topic.slug !== slug);
+    console.log("topicFilters:", topicFilters);
+    setTopics(topicFilters);
+  };
+
+  useEffect(() => {
+    async function fetchTopics() {
+      if (!token) return;
+      try {
+        const response = await axios.get(
+          `${config.SERVER_HOST}:${config.SERVER_PORT}/api/topic?search=${topicInput}`,
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        if (response?.data) setTopics(response.data?.data);
+      } catch (error) {
+        toast.error("Some thing was wrong!", {
+          pauseOnHover: false,
+          delay: 500,
+        });
+      }
+    }
+    fetchTopics();
+  }, [setTopics, token, topicInput]);
+
+  const handleOnchange = debounce((e) => {
+    setTopicInput(e.target.value);
+  }, 500);
+
+  return (
+    <div className="flex flex-wrap items-center w-full p-1 mt-5 bg-gray-200 border border-gray-700">
+      {topics &&
+        topics?.length > 0 &&
+        topics.map((topic) => (
+          <div
+            key={topic._id}
+            className="flex items-center justify-center m-1 text-sm bg-white rounded-sm h-7"
+          >
+            <span className="p-1">{topic?.name}</span>{" "}
+            <button
+              type="button"
+              onClick={() => handleDeleteTopic(topic?.slug)}
+              className="px-1 cursor-pointer"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth="1.5"
+                stroke="currentColor"
+                className="w-5 h-5"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
+        ))}
+      {topics && topics.length < 5 && (
+        <div>
+          <input
+            type="text"
+            className="w-full p-2 text-sm bg-gray-200 max-w-[200px] placeholder:text-sm"
+            placeholder="Add a topic"
+            onChange={handleOnchange}
+          />
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default SearchAddTopics;

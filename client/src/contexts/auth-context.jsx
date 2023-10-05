@@ -22,17 +22,24 @@ function AuthProvider(props) {
     const token = localStorage.getItem("token");
     if (!token) navigate("/sign-in");
     async function fetcher() {
-      const response = await axios.post(
-        `${config.SERVER_HOST}:${config.SERVER_PORT}/api/auth/login`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
+      try {
+        const response = await axios.post(
+          `${config.SERVER_HOST}:${config.SERVER_PORT}/api/auth/login`,
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        if (response.data) setUserInfo(response.data);
+      } catch (error) {
+        if (error.response.status === 401) {
+          localStorage.removeItem("token");
+          navigate("/sign-in");
         }
-      );
-      if (response.data) setUserInfo(response.data);
+      }
     }
     fetcher();
   }, [navigate, searchParams, setSearchParams]);

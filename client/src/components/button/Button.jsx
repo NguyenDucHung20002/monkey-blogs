@@ -1,7 +1,7 @@
+/* eslint-disable react/prop-types */
 import styled, { css } from "styled-components";
 import PropTypes from "prop-types";
 import { NavLink } from "react-router-dom";
-import { LoadingSpinner } from "../../loading";
 
 const ButtonStyles = styled.button`
   cursor: pointer;
@@ -80,11 +80,10 @@ const Button = ({
   children,
   kind = "primary",
   notification = "",
+  to,
   ...props
 }) => {
   // eslint-disable-next-line react/prop-types
-  const { isLoading, to } = props;
-  const child = isLoading ? <LoadingSpinner></LoadingSpinner> : children;
   if (to !== "" && typeof to === "string") {
     return (
       <NavLink to={to} className="inline-block">
@@ -94,7 +93,7 @@ const Button = ({
           notification={notification}
           {...props}
         >
-          {child}
+          {children}
         </ButtonStyles>
       </NavLink>
     );
@@ -107,7 +106,7 @@ const Button = ({
       onClick={onClick}
       {...props}
     >
-      {child}
+      {children}
     </ButtonStyles>
   );
 };
