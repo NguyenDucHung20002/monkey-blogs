@@ -33,7 +33,7 @@ const SearchStyled = styled.div`
 `;
 
 // eslint-disable-next-line react/prop-types
-const SearchMain = ({ handleSearch, className }) => {
+const SearchMain = ({ onChange, className }) => {
   return (
     <SearchStyled className={className}>
       <div className="icon-search">
@@ -56,7 +56,7 @@ const SearchMain = ({ handleSearch, className }) => {
         type="text"
         className="search-main"
         placeholder="Search Medium"
-        onChange={handleSearch}
+        onChange={onChange}
       />
     </SearchStyled>
   );

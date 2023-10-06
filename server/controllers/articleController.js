@@ -107,9 +107,32 @@ const getAnArticle = asyncMiddleware(async (req, res, next) => {
     throw new ErrorResponse(404, "article not found");
   }
 
+  const likeCount = await Like.countDocuments({ article: article._id });
+
   res.status(200).json({
     success: true,
-    data: article,
+    data: { article, likeCount },
+  });
+});
+// get article likes
+const getArticleLikes = asyncMiddleware(async (req, res, next) => {
+  const { slug } = req.params;
+
+  const article = await Article.findOne({ slug, status: "approved" });
+  if (!article) {
+    throw new ErrorResponse(404, "article not found");
+  }
+
+  const likes = await Like.find({ article: article._id })
+    .select("profile")
+    .populate({
+      path: "profile",
+      select: "avatar fullname username",
+    });
+
+  res.status(200).json({
+    success: true,
+    data: likes,
   });
 });
 
@@ -120,30 +143,25 @@ const getAllArticles = asyncMiddleware(async (req, res, next) => {
   let articles;
 
   if (!tag) {
-    articles = await Article.find({ status: "approved" })
-      .select("title createdAt updatedAt")
-      .sort({ createdAt: -1 })
-      .populate({
-        path: "author",
-        select: "avatar fullname username",
-      });
+    articles = Article.find({ status: "approved" });
   } else {
     const topic = await Topic.findOne({ slug: tag });
     if (!topic) {
       throw new ErrorResponse(404, "topic tag not found");
     }
-
-    articles = await Article.find({
+    articles = Article.find({
       topics: topic._id,
       status: "approved",
-    })
-      .select("title createdAt updatedAt")
-      .sort({ createdAt: -1 })
-      .populate({
-        path: "author",
-        select: "avatar fullname username",
-      });
+    });
   }
+
+  articles = await articles
+    .select("title slug createdAt updatedAt")
+    .sort({ createdAt: -1 })
+    .populate({
+      path: "author",
+      select: "avatar fullname username",
+    });
 
   res.status(200).json({
     success: true,
@@ -155,6 +173,7 @@ module.exports = {
   createAnArticle,
   updateMyArticle,
   getAnArticle,
+  getArticleLikes,
   deleteMyArticle,
   getAllArticles,
 };

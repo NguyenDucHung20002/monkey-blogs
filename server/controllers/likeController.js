@@ -17,7 +17,7 @@ const likeOrUnlikeAnArticle = asyncMiddleware(async (req, res, next) => {
   if (!like) {
     like = new Like({
       article: article._id,
-      user: profile._id,
+      profile: profile._id,
     });
     await like.save();
   } else {

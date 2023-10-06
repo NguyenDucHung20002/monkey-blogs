@@ -1,8 +1,9 @@
 import React, { Suspense } from "react";
 import { Route, Routes } from "react-router";
 import { AuthProvider } from "./contexts/auth-context";
+import { ToastContainer } from "react-toastify";
 
-const ProfilePage = React.lazy(() => import("./pages/ProfilePage"));
+const Profile = React.lazy(() => import("./pages/Profile"));
 const Layout = React.lazy(() => import("./layout/Layout"));
 const PageNotFound = React.lazy(() => import("./pages/PageNotFound"));
 const StartedTopicsPage = React.lazy(() => import("./pages/StartedTopicsPage"));
@@ -24,13 +25,11 @@ function App() {
               path="/get-started/topics"
               element={<StartedTopicsPage></StartedTopicsPage>}
             ></Route>
-            <Route
-              path="/write"
-              element={<StartedTopicsPage></StartedTopicsPage>}
-            ></Route>
+            <Route path="/write" element={<WritePage></WritePage>}></Route>
             <Route path="*" element={<PageNotFound></PageNotFound>}></Route>
           </Routes>
         </Suspense>
+        <ToastContainer></ToastContainer>
       </AuthProvider>
     </div>
   );

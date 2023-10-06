@@ -6,6 +6,7 @@ import { ThemeProvider } from "styled-components";
 import { GlobalStyles } from "./styles/GlobalStyle";
 import { BrowserRouter } from "react-router-dom";
 import { theme } from "./utils/constants";
+import "react-toastify/dist/ReactToastify.css";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";

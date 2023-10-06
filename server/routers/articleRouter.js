@@ -13,7 +13,6 @@ router.post(
   jwtAuth,
   fetchProfile,
   mongoUpload.single("img"),
-  validator(articleSchema.createSchema),
   articleController.createAnArticle
 );
 
@@ -34,6 +33,8 @@ router.delete(
 );
 
 router.get("/:slug", articleController.getAnArticle);
+
+router.get("/:slug/likes", articleController.getArticleLikes);
 
 router.get("", articleController.getAllArticles);
 
