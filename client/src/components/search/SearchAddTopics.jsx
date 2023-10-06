@@ -1,18 +1,18 @@
 import axios from "axios";
 import { config } from "../../utils/constants";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { debounce } from "lodash";
 import { toast } from "react-toastify";
 
 /* eslint-disable react/prop-types */
 const SearchAddTopics = ({ topics = [], setTopics, token = "" }) => {
   const [topicInput, setTopicInput] = useState("");
+  const [addTopics, setAddTopics] = useState([]);
+  const input = useRef(null);
 
   const handleDeleteTopic = (slug) => {
-    console.log("slug:", slug);
     const topicsClone = [...topics];
     const topicFilters = topicsClone.filter((topic) => topic.slug !== slug);
-    console.log("topicFilters:", topicFilters);
     setTopics(topicFilters);
   };
 
@@ -30,7 +30,7 @@ const SearchAddTopics = ({ topics = [], setTopics, token = "" }) => {
             },
           }
         );
-        if (response?.data) setTopics(response.data?.data);
+        if (response?.data) setAddTopics(response.data?.data);
       } catch (error) {
         toast.error("Some thing was wrong!", {
           pauseOnHover: false,
@@ -39,14 +39,25 @@ const SearchAddTopics = ({ topics = [], setTopics, token = "" }) => {
       }
     }
     fetchTopics();
-  }, [setTopics, token, topicInput]);
+  }, [setAddTopics, token, topicInput]);
+
+  const handleAddTopic = (value) => {
+    const addTopicClone = [];
+    const check = topics.filter((topic) => topic.slug === value.slug);
+    if (check.length === 0) {
+      addTopicClone.push(...topics, value);
+      setTopics(addTopicClone);
+    }
+    input.current.value = "";
+    setTopicInput("");
+  };
 
   const handleOnchange = debounce((e) => {
     setTopicInput(e.target.value);
   }, 500);
 
   return (
-    <div className="flex flex-wrap items-center w-full p-1 mt-5 bg-gray-200 border border-gray-700">
+    <div className="relative flex flex-wrap items-center w-full p-1 mt-5 bg-gray-200 border border-gray-700">
       {topics &&
         topics?.length > 0 &&
         topics.map((topic) => (
@@ -80,11 +91,27 @@ const SearchAddTopics = ({ topics = [], setTopics, token = "" }) => {
       {topics && topics.length < 5 && (
         <div>
           <input
+            ref={input}
             type="text"
             className="w-full p-2 text-sm bg-gray-200 max-w-[200px] placeholder:text-sm"
             placeholder="Add a topic"
             onChange={handleOnchange}
           />
+        </div>
+      )}
+      {addTopics && addTopics?.length > 0 && (
+        <div className="absolute left-0 dropdown top-[calc(100%+10px)] border rounded  bg-gray-200 max-w-[200px] w-full p-1">
+          <ul>
+            {addTopics.map((topic) => (
+              <li
+                key={topic._id}
+                className="p-1 text-sm text-black transition-all rounded cursor-pointer hover:bg-black hover:text-white "
+                onClick={() => handleAddTopic(topic)}
+              >
+                {topic?.name}
+              </li>
+            ))}
+          </ul>
         </div>
       )}
     </div>

@@ -6,7 +6,6 @@ import { Avatar, Space, Popover } from "antd";
 import styled from "styled-components";
 import logo from "../assets/logo.jpg";
 import { Button } from "../components/button";
-import Headroom from "react-headroom";
 import { useAuth } from "../contexts/auth-context";
 
 const icons = {
@@ -102,7 +101,7 @@ const HomeStyle = styled.header`
   }
 `;
 
-const WriteHeader = ({ isSubmitting = false }) => {
+const WriteHeader = () => {
   const { userInfo, setUserInfo } = useAuth();
   const { data } = userInfo;
   const navigate = useNavigate();
@@ -150,57 +149,44 @@ const WriteHeader = ({ isSubmitting = false }) => {
 
   return (
     <>
-      <Headroom>
-        <HomeStyle>
-          <div className="flex items-center justify-between ">
-            <div className="flex items-center justify-center header-right">
-              <NavLink to="/" className="w-10 h-10">
-                <img srcSet={logo} alt="monkey-blogging" className="logo" />
-              </NavLink>
-              <p className="ml-3 text-sm">
-                Draft in{" "}
-                {data?.fullname && data?.fullname?.length > 10
-                  ? data?.fullname.slice(0, 10) + "..."
-                  : data?.fullname}
-              </p>
-            </div>
-            <div className="flex items-center justify-center header-left">
-              <Button
-                type="submit"
-                kind="primary"
-                height="30px"
-                isSubmitting={isSubmitting}
-                disabled={isSubmitting}
-                className="!font-normal !text-sm"
-              >
-                Publish
-              </Button>
-
-              <Button
-                kind="secondary"
-                height="40px"
-                notification={"1"}
-                className=""
-              >
-                {icons.notificationIcon}
-              </Button>
-              <Space direction="vertical" wrap size={16} className="p-1 ml-5">
-                <Popover
-                  placement="bottomRight"
-                  content={() => content(data?.username, data?.fullname)}
-                  trigger="click"
-                >
-                  <Avatar
-                    className="cursor-pointer"
-                    size="large"
-                    src={<img src={data?.avatar} alt="avatar" />}
-                  />
-                </Popover>
-              </Space>
-            </div>
+      <HomeStyle>
+        <div className="flex items-center justify-between ">
+          <div className="flex items-center justify-center header-right">
+            <NavLink to="/" className="w-10 h-10">
+              <img srcSet={logo} alt="monkey-blogging" className="logo" />
+            </NavLink>
+            <p className="ml-3 text-sm">
+              Draft in{" "}
+              {data?.fullname && data?.fullname?.length > 10
+                ? data?.fullname.slice(0, 10) + "..."
+                : data?.fullname}
+            </p>
           </div>
-        </HomeStyle>
-      </Headroom>
+          <div className="flex items-center justify-center header-left">
+            <Button
+              kind="secondary"
+              height="40px"
+              notification={"1"}
+              className=""
+            >
+              {icons.notificationIcon}
+            </Button>
+            <Space direction="vertical" wrap size={16} className="p-1 ml-5">
+              <Popover
+                placement="bottomRight"
+                content={() => content(data?.username, data?.fullname)}
+                trigger="click"
+              >
+                <Avatar
+                  className="cursor-pointer"
+                  size="large"
+                  src={<img src={data?.avatar} alt="avatar" />}
+                />
+              </Popover>
+            </Space>
+          </div>
+        </div>
+      </HomeStyle>
     </>
   );
 };

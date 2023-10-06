@@ -27,6 +27,7 @@ const ButtonStyles = styled.button`
             ? "5+"
             : props.notification}";
         position: absolute;
+        padding-top: 3px;
         top: -5px;
         right: -5px;
         border-radius: 50%;
@@ -34,8 +35,10 @@ const ButtonStyles = styled.button`
         width: 20px;
         font-size: 14px;
         color: white;
-        line-height: 20px;
         font-weight: 300;
+        display: flex;
+        justify-content: center;
+        align-items: center;
         background-color: ${(props) => props.theme.red};
       }
     `};
