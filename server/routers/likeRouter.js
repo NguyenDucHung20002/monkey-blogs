@@ -1,6 +1,6 @@
 const express = require("express");
 const jwtAuth = require("../middlewares/jwtAuth");
-const fetchProfile = require("../middlewares/fetchProfile");
+const fetchMyProfile = require("../middlewares/fetchMyProfile");
 const likeController = require("../controllers/likeController");
 
 const router = express.Router();
@@ -8,7 +8,7 @@ const router = express.Router();
 router.post(
   "/like-unlike/:slug",
   jwtAuth,
-  fetchProfile,
+  fetchMyProfile,
   likeController.likeOrUnlikeAnArticle
 );
 

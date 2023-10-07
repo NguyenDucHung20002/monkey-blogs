@@ -2,13 +2,14 @@ const Like = require("../models/Like");
 const Topic = require("../models/Topic");
 const toSlug = require("../utils/toSlug");
 const Article = require("../models/Article");
+const addUrlToImg = require("../utils/addUrlToImg");
 const { removeFile } = require("../utils/removeFile");
 const { ErrorResponse } = require("../response/ErrorResponse");
 const { asyncMiddleware } = require("../middlewares/asyncMiddleware");
 
 // create an article
 const createAnArticle = asyncMiddleware(async (req, res, next) => {
-  const { profile } = req;
+  const { myProfile } = req;
   const { title, content, topics } = req.body;
 
   const filename = req.file?.filename;
@@ -19,7 +20,7 @@ const createAnArticle = asyncMiddleware(async (req, res, next) => {
   const slug = toSlug(title) + "-" + Date.now();
 
   const article = new Article({
-    author: profile._id,
+    author: myProfile._id,
     title,
     slug,
     img: filename,
@@ -36,13 +37,13 @@ const createAnArticle = asyncMiddleware(async (req, res, next) => {
 
 // update an article
 const updateMyArticle = asyncMiddleware(async (req, res, next) => {
-  const { profile } = req;
+  const { myProfile } = req;
   const { slug } = req.params;
   const { title, content, topics } = req.body;
 
   const filename = req.file?.filename;
 
-  const oldArticle = await Article.findOne({ author: profile._id, slug });
+  const oldArticle = await Article.findOne({ author: myProfile._id, slug });
   if (!oldArticle) {
     throw new ErrorResponse(404, "article not found");
   }
@@ -56,7 +57,7 @@ const updateMyArticle = asyncMiddleware(async (req, res, next) => {
   }
 
   await Article.findOneAndUpdate(
-    { author: profile._id, slug },
+    { author: myProfile._id, slug },
     { title, slug: updatedSlug, img: filename, content, topics },
     { new: true }
   );
@@ -72,11 +73,11 @@ const updateMyArticle = asyncMiddleware(async (req, res, next) => {
 
 // delete an article
 const deleteMyArticle = asyncMiddleware(async (req, res, next) => {
-  const { profile } = req;
+  const { myProfile } = req;
   const { slug } = req.params;
 
   const article = await Article.findOneAndDelete({
-    author: profile._id,
+    author: myProfile._id,
     slug,
   });
   if (article) {
@@ -114,6 +115,7 @@ const getAnArticle = asyncMiddleware(async (req, res, next) => {
     data: { article, likeCount },
   });
 });
+
 // get article likes
 const getArticleLikes = asyncMiddleware(async (req, res, next) => {
   const { slug } = req.params;
@@ -128,7 +130,14 @@ const getArticleLikes = asyncMiddleware(async (req, res, next) => {
     .populate({
       path: "profile",
       select: "avatar fullname username",
-    });
+    })
+    .sort({ createdAt: -1 });
+
+  likes.forEach((user) => {
+    if (user.profile && user.profile.avatar) {
+      user.profile.avatar = addUrlToImg(user.profile.avatar);
+    }
+  });
 
   res.status(200).json({
     success: true,
@@ -142,13 +151,14 @@ const getAllArticles = asyncMiddleware(async (req, res, next) => {
 
   let articles;
 
+  const topic = await Topic.findOne({ slug: tag });
+  if (!topic) {
+    throw new ErrorResponse(404, "topic tag not found");
+  }
+
   if (!tag) {
     articles = Article.find({ status: "approved" });
   } else {
-    const topic = await Topic.findOne({ slug: tag });
-    if (!topic) {
-      throw new ErrorResponse(404, "topic tag not found");
-    }
     articles = Article.find({
       topics: topic._id,
       status: "approved",

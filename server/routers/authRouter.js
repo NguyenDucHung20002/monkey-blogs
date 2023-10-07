@@ -4,6 +4,7 @@ const passport = require("passport");
 const Token = require("../models/Token");
 const { env } = require("../config/env");
 const jwtAuth = require("../middlewares/jwtAuth");
+const fethMyProfile = require("../middlewares/fetchMyProfile");
 const authController = require("../controllers/authController");
 
 const router = express.Router();
@@ -41,7 +42,7 @@ router.get(
 );
 
 // Login
-router.post("/login", jwtAuth, authController.login);
+router.post("/login", jwtAuth, fethMyProfile, authController.login);
 
 // Logout
 router.post("/logout", jwtAuth, authController.logout);

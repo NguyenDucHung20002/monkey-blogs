@@ -1,6 +1,6 @@
 const express = require("express");
 const jwtAuth = require("../middlewares/jwtAuth");
-const fetchProfile = require("../middlewares/fetchProfile");
+const fetchMyProfile = require("../middlewares/fetchMyProfile");
 const followTopicController = require("../controllers/followTopicController");
 
 const router = express.Router();
@@ -8,7 +8,7 @@ const router = express.Router();
 router.post(
   "/follow-unfollow/:slug",
   jwtAuth,
-  fetchProfile,
+  fetchMyProfile,
   followTopicController.followOrUnfollowATopic
 );
 

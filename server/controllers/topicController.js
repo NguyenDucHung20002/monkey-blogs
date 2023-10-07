@@ -1,5 +1,7 @@
 const Topic = require("../models/Topic");
 const toSlug = require("../utils/toSlug");
+const Article = require("../models/Article");
+const addUrlToImg = require("../utils/addUrlToImg");
 const FollowTopic = require("../models/FollowTopic");
 const { removeFile } = require("../utils/removeFile");
 const { ErrorResponse } = require("../response/ErrorResponse");
@@ -96,34 +98,38 @@ const getATopic = asyncMiddleware(async (req, res, next) => {
     throw new ErrorResponse(404, "topic not found");
   }
 
-  const countFollowers = await FollowTopic.countDocuments({ topic: topic._id });
+  const countFollowers = await FollowTopic.countDocuments({
+    topic: topic._id,
+  });
+  const countArticles = await Article.countDocuments({
+    topics: topic._id,
+  });
+
+  topic.banner = addUrlToImg(topic.banner);
 
   res.status(200).json({
     success: true,
-    data: { topic, countFollowers },
+    data: { topic, countArticles, countFollowers },
   });
 });
 
 // get all topics
 const getAllTopics = asyncMiddleware(async (req, res, next) => {
-  const searchQuery = req.query.search;
+  const topics = await Topic.find().select("name slug");
 
-  let topics;
+  res.status(200).json({
+    success: true,
+    data: topics,
+  });
+});
 
-  if (searchQuery) {
-    const regex = new RegExp(`^${searchQuery}`, "i");
-    topics = Topic.find({ slug: regex });
-  }
+// search topics
+const searchTopics = asyncMiddleware(async (req, res, next) => {
+  const search = req.query.name;
 
-  if (!searchQuery) {
-    topics = Topic.find();
-  }
+  const regex = new RegExp(search, "i");
 
-  if (searchQuery === "") {
-    topics = [];
-  }
-
-  topics = await topics;
+  const topics = await Topic.find({ name: regex });
 
   res.status(200).json({
     success: true,
@@ -137,4 +143,5 @@ module.exports = {
   deleteTopic,
   getATopic,
   getAllTopics,
+  searchTopics,
 };

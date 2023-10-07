@@ -3,7 +3,7 @@ const jwtAuth = require("../middlewares/jwtAuth");
 const validator = require("../middlewares/validator");
 const mongoUpload = require("../middlewares/mongoUpload");
 const articleSchema = require("../validations/articleSchema");
-const fetchProfile = require("../middlewares/fetchProfile");
+const fetchMyProfile = require("../middlewares/fetchMyProfile");
 const articleController = require("../controllers/articleController");
 
 const router = express.Router();
@@ -11,7 +11,7 @@ const router = express.Router();
 router.post(
   "/",
   jwtAuth,
-  fetchProfile,
+  fetchMyProfile,
   mongoUpload.single("img"),
   validator(articleSchema.createSchema),
   articleController.createAnArticle
@@ -20,7 +20,7 @@ router.post(
 router.put(
   "/:slug",
   jwtAuth,
-  fetchProfile,
+  fetchMyProfile,
   mongoUpload.single("img"),
   validator(articleSchema.updateSchema),
   articleController.updateMyArticle
@@ -29,7 +29,7 @@ router.put(
 router.delete(
   "/:slug",
   jwtAuth,
-  fetchProfile,
+  fetchMyProfile,
   articleController.deleteMyArticle
 );
 

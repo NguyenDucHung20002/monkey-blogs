@@ -1,7 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const { env } = require("../config/env");
-const mongoUpload = require("../middlewares/mongoUpload");
 const { ErrorResponse } = require("../response/ErrorResponse");
 const { asyncMiddleware } = require("../middlewares/asyncMiddleware");
 
@@ -31,4 +30,5 @@ router.get(
     readStream.pipe(res);
   })
 );
+
 module.exports = router;

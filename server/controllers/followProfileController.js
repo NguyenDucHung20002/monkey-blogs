@@ -1,3 +1,4 @@
+const Profile = require("../models/Profile");
 const FollowProfile = require("../models/FollowProfile");
 const { ErrorResponse } = require("../response/ErrorResponse");
 const { asyncMiddleware } = require("../middlewares/asyncMiddleware");

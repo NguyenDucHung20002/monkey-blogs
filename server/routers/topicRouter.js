@@ -35,6 +35,8 @@ router.delete(
 
 router.get("/:slug", topicController.getATopic);
 
+router.get("/search/topics", topicController.searchTopics);
+
 router.get("/", topicController.getAllTopics);
 
 module.exports = router;
