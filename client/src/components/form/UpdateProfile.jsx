@@ -1,23 +1,48 @@
 
 import React, { useEffect, useRef, useState } from "react";
-import styled from "styled-components"; 
+import styled, { keyframes } from "styled-components"; 
 import {useForm, useWatch} from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from '@hookform/resolvers/yup';
 import axios from "axios"
-const UpdateProfile = () => {
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+const UpdateProfile = ({show, setShow}) => {
   const [imageSrc, setImageSrc] = useState(null);
+  const [showAnimation, setShowAnimation] = useState(false);
   const url = "http://localhost:8080/api/";
   const token =localStorage.getItem('token')
   const formData = new FormData();
-
+  const options={
+    pauseOnHover: false,
+    delay: 300,
+  }
+  // set animation when user click out side container
+  const handleAnimateClick = (event) => {
+    const container = document.querySelector('.container');
+    if (container.contains(event.target)) {
+      return; 
+    }
+    setShowAnimation(true);
+    setTimeout(() => {
+      setShowAnimation(false);
+    }, 100);
+  };
+  //handle when upload file
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0];
-    if (selectedFile) {
-      const imageUrl = URL.createObjectURL(selectedFile);
-      setImageSrc({imageUrl,'avatar': selectedFile});
+    if(!selectedFile) return
+    const allowedExtensions = /(\.jpg|\.jpeg|\.png|\.gif)$/i;
+    if (!allowedExtensions.exec(selectedFile.name)) {
+      // alert("Choose inly .jpeg .jpg .png .gif");
+      toast.error("Choose only .jpeg .jpg .png .gif",options)
+      event.target.value = "";
+      return;
     }
+    const imageUrl = URL.createObjectURL(selectedFile);
+    setImageSrc({imageUrl,'avatar': selectedFile});
   };
+  //Form Update User
   const schema = yup.object({
     fullname:yup.string().required().min(3).max(50),
     bio:yup.string().max(160),
@@ -47,7 +72,7 @@ const UpdateProfile = () => {
       }
     })
     if(res.data.success){
-      console.log("success");
+      setShow(false)
     }
   };
 
@@ -72,7 +97,10 @@ const UpdateProfile = () => {
     fetch();
   },[])
   return (<>
-    <ProfileStyles>
+    <ProfileStyles showAnimation={showAnimation}>
+      <div className={`wrapper ${show?"show":""} `}
+        onClick={handleAnimateClick}
+      >
       <div className="container">
         <h1>Profile information</h1>
         <div className="photo-container">
@@ -126,12 +154,13 @@ const UpdateProfile = () => {
                 {/* <p className={bioValue?.length>160 ?"warning":""}><span>{bioValue ? bioValue.length:"0"}</span>/160</p> */}
               </div>
             </div>
-          </form>
           <div className="group-btn-bottom">
-            <button className="cancel">Cancel</button>
+            <button className="cancel" onClick={()=>setShow(false)}>Cancel</button>
             <button type="submit" onClick={handleSubmit(onSubmitHandeler)} className="save">Save</button>
           </div>
+          </form>
         </div>
+      </div>
       </div>
     </ProfileStyles>
 
@@ -142,16 +171,32 @@ export default UpdateProfile;
 
 
 const ProfileStyles = styled.div`
-  /* background-color: rgba(185, 184, 184, 0.1); */
-  
-  .container{
+.wrapper{
+  opacity: 0;
+  visibility: hidden;
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  z-index: 999;
+  background-color: rgba(71, 71, 71, 0.2);
+  transition: 0.5s;
+  overflow: hidden;
+  top: 0;
+}
+.show{
+  opacity: 1;
+  visibility: visible;
+}
+.container{
     padding: 25px 40px;
     max-width: 600px;
     background-color: white;
     color: #6B6B6B;
-    margin: auto;
+    margin-top: 80px;
     box-shadow: rgba(0, 0, 0, 0.15) 0px 2px 10px;
     border-radius: 5px;
+    transition: 0.1s;
+    transform: ${props => props.showAnimation ? 'scale(1.1)' : 'scale(1)'};
     .warning{
       color: red;
     }

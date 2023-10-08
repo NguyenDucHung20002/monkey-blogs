@@ -2,8 +2,9 @@ import React, { Suspense } from "react";
 import { Route, Routes } from "react-router";
 import { AuthProvider } from "./contexts/auth-context";
 import { ToastContainer } from "react-toastify";
+const WritePage = React.lazy(() => import("./pages/WritePage"));
 
-const Profile = React.lazy(() => import("./pages/Profile"));
+const ProfilePage = React.lazy(() => import("./pages/ProfilePage"));
 const Layout = React.lazy(() => import("./layout/Layout"));
 const PageNotFound = React.lazy(() => import("./pages/PageNotFound"));
 const StartedTopicsPage = React.lazy(() => import("./pages/StartedTopicsPage"));

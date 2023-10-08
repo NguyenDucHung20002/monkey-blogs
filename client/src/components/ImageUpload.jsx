@@ -19,6 +19,7 @@ const ImageUpload = (props) => {
           type="file"
           name={name}
           className="hidden-input"
+          accept="image/gif, image/jpeg, image/png"
           onChange={() => {}}
           {...rest}
         />
