@@ -139,6 +139,7 @@ const getArticleLikes = asyncMiddleware(async (req, res, next) => {
 // get all articles
 const getAllArticles = asyncMiddleware(async (req, res, next) => {
   const { tag } = req.query;
+  console.log("tag:", tag);
 
   let articles;
 
@@ -146,6 +147,7 @@ const getAllArticles = asyncMiddleware(async (req, res, next) => {
     articles = Article.find({ status: "approved" });
   } else {
     const topic = await Topic.findOne({ slug: tag });
+    console.log("topic:", topic);
     if (!topic) {
       throw new ErrorResponse(404, "topic tag not found");
     }
