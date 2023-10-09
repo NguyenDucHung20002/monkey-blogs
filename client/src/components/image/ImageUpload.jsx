@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import { Fragment } from "react";
-import iconUpload from "../assets/img-upload.png";
+import iconUpload from "../../assets/img-upload.png";
 
 const ImageUpload = (props) => {
   const {

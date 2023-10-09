@@ -2,19 +2,15 @@
 import { Fragment } from "react";
 import Topic from "./Topic";
 
-const TopicList = ({
-  title = "Following topics",
-  data = ["hentai", "echi"],
-  className = "",
-}) => {
+const TopicList = ({ title = "", data = [], className = "" }) => {
   if (data?.length === 0) return null;
   return (
     <Fragment>
       <div className={` ${className}`}>
-        <h3 className={"mb-5 text-lg font-semibold"}>{title}</h3>
+        {title && <h3 className={"mb-5 text-lg font-semibold"}>{title}</h3>}
         {data.map((value, index) => (
-          <Topic key={index} className="mb-3 mr-3">
-            {value}
+          <Topic to={value.slug} key={index} className="mb-3 mr-3">
+            {value.name}
           </Topic>
         ))}
       </div>

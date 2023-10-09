@@ -3,7 +3,6 @@ import ReactQuill, { Quill } from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import styled from "styled-components";
 import WriteHeader from "../layout/WriteHeader";
-import ImageUpload from "../components/ImageUpload";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
@@ -18,6 +17,7 @@ import { useNavigate } from "react-router-dom";
 import ImageUploader from "quill-image-uploader";
 import { imgbbAPI } from "../config/apiConfig";
 import { Button } from "../components/button";
+import ImageUpload from "../components/image/ImageUpload";
 Quill.register("modules/imageUploader", ImageUploader);
 
 const WritePageStyle = styled.div`
