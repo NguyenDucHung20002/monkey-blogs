@@ -11,16 +11,37 @@ import ProfileInfor from "../modules/profile/ProfileInfor";
 import ProfileContext from "../modules/profile/ProfileContext";
 import { useAuth } from "../contexts/auth-context";
 import { config } from "../utils/constants";
+import Following from "../components/follow/Following";
+import TopicRcmm from "../modules/topic/TopicRcm";
+import ArticleList from "../modules/article/ArticleList";
+import { useParams, useSearchParams } from "react-router-dom";
 const ProfilePage = () =>
 {
   const [show, setShow] = useState(false)
-  const [ user, setUser ] = useState({
-    avatar:""
-  });
+  const [ user, setUser ] = useState({});
+  const [isFollow, setIsFollow] = useState(false)
+  const { userInfo, setUserInfo } = useAuth();
+  const {username} = useParams();
+  console.log(user);
   const token =localStorage.getItem('token')
+  console.log(token);
+  const FetchFollow = async()=>{
+    const res = await axios.post(`${config.SERVER_HOST}:${config.SERVER_PORT}/api/follow-user/follow-unfollow/${username}`,{},{
+      headers:{
+        authorization:`Bearer ${token}`,
+        'Content-Type': 'application/json',
+      }
+    }).catch((err)=>{
+      console.log(err);
+    })
+    if(res.data.success){
+      setIsFollow(!isFollow)
+    }
+  }
+
   useEffect(()=>{
     async function fetch(){
-      const res= await axios.get(`${config.SERVER_HOST}:${config.SERVER_PORT}/api/profile`,{
+      const res= await axios.get(`${config.SERVER_HOST}:${config.SERVER_PORT}/api/user/${username}`,{
         headers:{
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -29,24 +50,28 @@ const ProfilePage = () =>
         console.log(err);
       })
       if(res.data.success){
-        const profileUser = res.data.data.profile;
-        setUser({...profileUser,"avatar":`${config.SERVER_HOST}:${config.SERVER_PORT}/api/file/${profileUser.avatar}`})
+        const profileUser = res.data.data;
+        setUser({...profileUser})
+        setIsFollow(profileUser.isFollowing)
       }
     }
     fetch();
-  },[show])
+  },[show,username])
   return (<>
     <div className="w-full border-t border-gray-300"></div>
-      <UpdateProfile show={show} setShow={setShow}/>
-    <div className="container mx-auto">
-      <Row>
-        <Col span={16}>
+    {user.isMyProfile&& <UpdateProfile user={user} show={show} setShow={setShow}/>}
+    <div className="container max-w-[1336px] mx-auto flex">
+        <div className="w-full md:px-14 md:max-w-[70%] " >
           <ProfileContext user={user} />
-        </Col>
-        <Col span={8}>
-          <ProfileInfor show={show} setShow={setShow} user={user}/>
-        </Col>
-      </Row>
+          {/* <ArticleList className="md:grid-cols-1 lg:grid-cols-2 gap-8"/> */}
+        </div>
+        <div className=" hidden max-w-[30%] md:block  ">
+          <div className="w-full h-screen p-8 border-l border-l-gray-300 text-gray-500 ">
+            <ProfileInfor show={show} setShow={setShow} user={user} isFollow={isFollow} FetchFollow={FetchFollow} />
+            {/* <Following/> */}
+            <TopicRcmm/>
+          </div>
+        </div>
     </div>
   </>)
 };

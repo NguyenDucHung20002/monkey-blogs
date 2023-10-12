@@ -131,7 +131,7 @@ const Header = () => {
             ? fullname.slice(0, 8) + "..."
             : fullname}
         </h2>
-        <NavLink to={`/profile`}>
+        <NavLink to={`/profile/${username}`}>
           <div className="flex items-center justify-start my-4">
             {icons.userIcon} <p className="ml-3">Profile</p>
           </div>
