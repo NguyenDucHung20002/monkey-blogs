@@ -9,10 +9,12 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { config } from "../../utils/constants";
 import axios from "axios";
+import Swal from "sweetalert2";
 
 const TopicManage = () => {
   const navigate = useNavigate();
-  const [topcis, setTopics] = useState([]);
+  const [topics, setTopics] = useState([]);
+  const token = localStorage.getItem("token");
   useEffect(() => {
     async function fetchTopic() {
       try {
@@ -35,8 +37,62 @@ const TopicManage = () => {
     fetchTopic();
   }, []);
 
+  const topicDeleted = (slug) => {
+    const topicDeleted = topics.filter((topic) => topic.slug !== slug);
+    setTopics(topicDeleted);
+  };
+
   const handleDeleteTopic = (value) => {
-    console.log("value:", value);
+    async function fetchAddTopic() {
+      if (!token) return;
+      try {
+        const response = await axios.delete(
+          `${config.SERVER_HOST}:${config.SERVER_PORT}/api/topic/${value}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        if (response.data.success) {
+          toast.success("Add successfully!", {
+            pauseOnHover: false,
+            delay: 500,
+          });
+          topicDeleted(value);
+        }
+      } catch (error) {
+        if (error.response.status === 409)
+          return Swal.fire(
+            "Deleted!",
+            "Your post has been deleted.",
+            "success"
+          );
+
+        toast.error("Some thing was wrong!", {
+          pauseOnHover: false,
+          delay: 500,
+        });
+      }
+    }
+
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        fetchAddTopic();
+      } else {
+        Swal.fire("Failed!", "You have no right to delete post", "warning");
+      }
+    });
   };
 
   return (
@@ -56,9 +112,9 @@ const TopicManage = () => {
           </tr>
         </thead>
         <tbody>
-          {topcis &&
-            topcis.length > 0 &&
-            topcis.map((topic, index) => (
+          {topics &&
+            topics.length > 0 &&
+            topics.map((topic, index) => (
               <tr key={index}>
                 <td>{topic._id}</td>
                 <td>{topic.name}</td>

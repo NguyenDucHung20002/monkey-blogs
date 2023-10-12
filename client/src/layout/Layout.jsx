@@ -9,6 +9,7 @@ const LayoutStyle = styled.div``;
 // eslint-disable-next-line react/prop-types
 const Layout = () => {
   const { userInfo } = useAuth();
+
   if (!userInfo) return <PageNotFound></PageNotFound>;
   return (
     <LayoutStyle>

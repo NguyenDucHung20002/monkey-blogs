@@ -2,6 +2,7 @@ import React, { Suspense } from "react";
 import { Route, Routes } from "react-router";
 import { AuthProvider } from "./contexts/auth-context";
 import { ToastContainer } from "react-toastify";
+const HomeMain = React.lazy(() => import("./modules/home/HomeMain"));
 const TopicUpdate = React.lazy(() => import("./modules/topic/TopicUpdate"));
 const TopicAddNew = React.lazy(() => import("./modules/topic/TopicAddNew"));
 const PostDetailPage = React.lazy(() => import("./pages/PostDetailPage"));
@@ -28,9 +29,15 @@ function App() {
         <Suspense>
           <Routes>
             <Route element={<Layout></Layout>}>
-              <Route path="/" element={<HomePage></HomePage>}></Route>
+              <Route element={<HomePage></HomePage>}>
+                <Route path="/" element={<HomeMain></HomeMain>}></Route>
+                <Route
+                  path="/following"
+                  element={<HomeMain></HomeMain>}
+                ></Route>
+              </Route>
               <Route
-                path="/:slug"
+                path="/blog/:slug"
                 element={<PostDetailPage></PostDetailPage>}
               ></Route>
               <Route

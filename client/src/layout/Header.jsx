@@ -1,5 +1,5 @@
 // eslint-disable-next-line no-unused-vars
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { Avatar, Space, Popover } from "antd";
 import styled from "styled-components";
@@ -8,6 +8,7 @@ import { SearchMain } from "../components/search";
 import { Button } from "../components/button";
 import Headroom from "react-headroom";
 import { useAuth } from "../contexts/auth-context";
+import { debounce } from "lodash";
 
 const icons = {
   libraryIcon: (
@@ -116,6 +117,8 @@ const Header = () => {
   const { userInfo, setUserInfo } = useAuth();
   const { data } = userInfo;
   const navigate = useNavigate();
+  const [inputSearch, setInputSearch] = useState();
+  const navigation = useNavigate();
 
   const handleSignOut = () => {
     setUserInfo({});
@@ -158,6 +161,28 @@ const Header = () => {
     );
   }, []);
 
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  console.log("windowWidth:", windowWidth);
+  const handleResize = debounce(() => {
+    setWindowWidth(window.innerWidth);
+  }, 500);
+
+  useEffect(() => {
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  const handleSearch = debounce((e) => {
+    setInputSearch(e.target.value);
+  }, 500);
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    navigation(`/search?q=${inputSearch}`);
+  };
+
   return (
     <>
       <Headroom>
@@ -167,7 +192,13 @@ const Header = () => {
               <NavLink to="/">
                 <img srcSet={logo} alt="monkey-blogging" className="logo" />
               </NavLink>
-              <SearchMain className="ml-4"></SearchMain>
+              <form autoComplete="off" onSubmit={handleSearchSubmit}>
+                <SearchMain
+                  id="search"
+                  className="ml-4"
+                  onChange={handleSearch}
+                ></SearchMain>
+              </form>
             </div>
             <div className="flex items-center justify-center header-left">
               <NavLink to={`/write`}>

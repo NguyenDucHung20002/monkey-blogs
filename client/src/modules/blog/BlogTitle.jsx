@@ -1,10 +1,11 @@
 /* eslint-disable react/prop-types */
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import styled, { css } from "styled-components";
 const BlogTitleStyles = styled.h3`
   font-weight: 600;
-  line-height: 1.5;
+  line-height: 1.3;
   letter-spacing: 0.25px;
+  font-weight: bold;
   a {
     display: block;
   }
@@ -19,7 +20,7 @@ const BlogTitleStyles = styled.h3`
   ${(props) =>
     props.size === "big" &&
     css`
-      font-size: 22px;
+      font-size: 24px;
       @media screen and (max-width: 1023.98px) {
         font-size: 16px;
       }
@@ -29,7 +30,7 @@ const BlogTitleStyles = styled.h3`
 const BlogTitle = ({ children, className = "", size = "normal", to = "" }) => {
   return (
     <BlogTitleStyles size={size} className={`post-title ${className}`}>
-      <Link to={`/${to}`}>{children}</Link>
+      <NavLink to={to}>{children}</NavLink>
     </BlogTitleStyles>
   );
 };

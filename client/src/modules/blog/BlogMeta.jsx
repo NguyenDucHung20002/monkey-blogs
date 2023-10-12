@@ -6,7 +6,7 @@ const BlogMetaStyles = styled.div`
   display: flex;
   align-items: center;
   gap: 12px;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
   color: inherit;
   .post {
@@ -30,13 +30,18 @@ const BlogMeta = ({
   className = "",
   to = "",
 }) => {
+  function formatDate(isoDateString) {
+    const options = { month: "short", day: "numeric" };
+    const date = new Date(isoDateString);
+    return date.toLocaleDateString("en-US", options);
+  }
   return (
     <BlogMetaStyles className={`post-meta ${className}`}>
-      <span className="post-time">{date}</span>
-      <span className="post-dot"></span>
       <Link to={`/author/${to}`}>
         <span className="post-author">{authorName}</span>
       </Link>
+      <span className="post-dot"></span>
+      <span className="post-time">{formatDate(date)}</span>
     </BlogMetaStyles>
   );
 };

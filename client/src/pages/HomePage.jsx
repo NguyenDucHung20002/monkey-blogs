@@ -3,8 +3,8 @@ import React, { Fragment, useState } from "react";
 import StickyBox from "react-sticky-box";
 import styled from "styled-components";
 import { Col, Row } from "antd";
-import HomeMain from "../modules/home/HomeMain";
 import HomeSide from "../modules/home/HomeSide";
+import { Outlet } from "react-router-dom";
 
 const HomePageStyle = styled.div``;
 
@@ -13,10 +13,10 @@ const HomePage = () => {
     <HomePageStyle>
       <div className="w-full border-t border-gray-300"></div>
       <Row className="px-5 ">
-        <Col span={16}>
-          <HomeMain></HomeMain>
+        <Col xs={24} md={15}>
+          <Outlet></Outlet>
         </Col>
-        <Col span={8}>
+        <Col xs={0} md={9}>
           <StickyBox>
             <HomeSide></HomeSide>
           </StickyBox>

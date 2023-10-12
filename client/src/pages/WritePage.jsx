@@ -18,6 +18,7 @@ import ImageUploader from "quill-image-uploader";
 import { imgbbAPI } from "../config/apiConfig";
 import { Button } from "../components/button";
 import ImageUpload from "../components/image/ImageUpload";
+import { debounce } from "lodash";
 Quill.register("modules/imageUploader", ImageUploader);
 
 const WritePageStyle = styled.div`
@@ -49,6 +50,7 @@ const WritePage = () => {
   const [topics, setTopics] = useState([]);
   const [imageFilename, setImageFilename] = useState(null);
   const [content, setContent] = useState("");
+  const [preview, setPreview] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -69,6 +71,16 @@ const WritePage = () => {
   useEffect(() => {
     setValue("content", content);
   }, [content, setValue]);
+
+  useEffect(() => {
+    const contentClone = content;
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(contentClone, "text/html");
+    const textContent = doc.body.textContent;
+
+    setPreview(textContent);
+    setValue("preview", preview);
+  }, [content, preview, setValue]);
 
   const handleSelectImage = (e) => {
     const file = e.target.files[0];
@@ -91,18 +103,19 @@ const WritePage = () => {
   };
 
   const handleAddBlog = (values) => {
-    console.log("values:", values);
     if (!isValid) return;
     if (!imageFilename)
       toast.error("Please fill out your image title!", {
         pauseOnHover: false,
         delay: 500,
       });
-    const { title, content, topics } = values;
+    const { title, content, topics, preview } = values;
+    const cutPreview = preview.slice(0, 200);
     const formData = new FormData();
     formData.set("img", imageFilename);
     formData.set("title", title);
     formData.set("content", content);
+    formData.set("preview", cutPreview);
     topics.forEach((value, index) => {
       formData.set(`topics[${index}]`, value);
     });
@@ -161,6 +174,10 @@ const WritePage = () => {
     []
   );
 
+  const handleChangeContent = debounce((value) => {
+    setContent(value);
+  }, 500);
+
   if (!token) return null;
 
   return (
@@ -212,7 +229,7 @@ const WritePage = () => {
             modules={modules}
             theme="snow"
             value={content}
-            onChange={setContent}
+            onChange={handleChangeContent}
           />
         </div>
         <div className="sticky bottom-0 flex justify-center p-4">

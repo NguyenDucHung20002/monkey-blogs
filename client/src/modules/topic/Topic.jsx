@@ -6,7 +6,7 @@ import styled, { css } from "styled-components";
 
 const TopicStyle = styled.section`
   display: inline-block;
-  padding: 6px 15px;
+  padding: 3px 10px 4px;
   border-radius: 20px;
   color: ${(props) => props.theme.gray6B};
   font-size: 14px;

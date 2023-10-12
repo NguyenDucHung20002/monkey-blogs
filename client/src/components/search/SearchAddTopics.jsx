@@ -21,7 +21,7 @@ const SearchAddTopics = ({ topics = [], setTopics, token = "" }) => {
       if (!token) return;
       try {
         const response = await axios.get(
-          `${config.SERVER_HOST}:${config.SERVER_PORT}/api/topic?search=${topicInput}`,
+          `${config.SERVER_HOST}:${config.SERVER_PORT}/api/topic/search/topics/?search=${topicInput}`,
           {},
           {
             headers: {
@@ -31,6 +31,7 @@ const SearchAddTopics = ({ topics = [], setTopics, token = "" }) => {
           }
         );
         if (response?.data) setAddTopics(response.data?.data);
+        console.log("response?.data:", response?.data);
       } catch (error) {
         toast.error("Some thing was wrong!", {
           pauseOnHover: false,
