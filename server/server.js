@@ -8,13 +8,13 @@ const createRoles = require("./constant/role");
 
 const app = express();
 const cors = require("cors");
+const userRouter = require("./routers/userRouter");
 const authRouter = require("./routers/authRouter");
 const fileRouter = require("./routers/fileRouter");
 const topicRouter = require("./routers/topicRouter");
-const profileRouter = require("./routers/profileRouter");
 const articleRouter = require("./routers/articleRouter");
 const followTopicRouter = require("./routers/followTopicRouter");
-const followProfileRouter = require("./routers/followProfileRouter");
+const followUserRouter = require("./routers/followUserRouter");
 
 require("./services/googleOauth");
 
@@ -44,11 +44,13 @@ createRoles();
 
 app.use("/api/auth", authRouter);
 app.use("/api/file", fileRouter);
+app.use("/api/user", userRouter);
 app.use("/api/topic", topicRouter);
 app.use("/api/profile", profileRouter);
 app.use("/api/article", articleRouter);
 app.use("/api/follow-topic", followTopicRouter);
-app.use("/api/follow-profile", followProfileRouter);
+app.use("/api/follow-user", followUserRouter);
+app.use("/api/like", likeRouter);
 
 app.use(errorMiddleware);
 

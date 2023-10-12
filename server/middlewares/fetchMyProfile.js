@@ -1,5 +1,5 @@
-const Profile = require("../models/Profile");
-const { ErrorResponse } = require("../response/ErrorResponse");
+const User = require("../models/User");
+const addUrlToImg = require("../utils/addUrlToImg");
 
 const fetchMyProfile = async (req, res, next) => {
   try {
@@ -7,17 +7,25 @@ const fetchMyProfile = async (req, res, next) => {
       return next();
     }
 
-    const user = req.user.id;
+    const { id: user } = req.user;
 
-    const myProfile = await Profile.findOne({ user });
+    const myProfile = await User.findById(user);
     if (!myProfile) {
-      throw new ErrorResponse(404, "Profile not found");
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
     }
+
+    myProfile.avatar = addUrlToImg(myProfile.avatar);
 
     req.myProfile = myProfile;
     next();
   } catch (error) {
-    next(error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
   }
 };
 

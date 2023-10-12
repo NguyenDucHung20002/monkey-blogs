@@ -1,15 +1,15 @@
 const mongoose = require("mongoose");
 
-const FollowProfileSchema = new mongoose.Schema(
+const FollowUserSchema = new mongoose.Schema(
   {
     follower: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Profile",
+      ref: "User",
       required: true,
     },
     following: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Profile",
+      ref: "User",
       required: true,
     },
   },
@@ -19,4 +19,4 @@ const FollowProfileSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model("FollowProfile", FollowProfileSchema);
+module.exports = mongoose.model("FollowUser", FollowUserSchema);

@@ -4,7 +4,7 @@ const ArticleSchema = new mongoose.Schema(
   {
     author: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Profile",
+      ref: "User",
       required: true,
     },
     preview: {
@@ -12,6 +12,7 @@ const ArticleSchema = new mongoose.Schema(
       required: true,
     },
     img: { type: String, required: true },
+    preview: { type: String, required: true },
     title: { type: String, required: true },
     slug: { type: String, required: true, unique: true },
     content: { type: String, required: true },

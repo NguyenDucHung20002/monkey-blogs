@@ -1,5 +1,6 @@
+const Role = require("../models/Role");
 const Token = require("../models/Token");
-const addUrlToImg = require("../utils/addUrlToImg");
+const { ErrorResponse } = require("../response/ErrorResponse");
 const { asyncMiddleware } = require("../middlewares/asyncMiddleware");
 
 // ==================== login ==================== //
@@ -7,10 +8,16 @@ const { asyncMiddleware } = require("../middlewares/asyncMiddleware");
 const login = asyncMiddleware(async (req, res, next) => {
   const { fullname, username, avatar } = req.myProfile;
 
+  const selectedRole = await Role.findById(myProfile.role).select("slug");
+  if (!selectedRole) {
+    throw new ErrorResponse(404, "Role not found");
+  }
+
   const profile = {
-    fullname,
-    username,
-    avatar: addUrlToImg(avatar),
+    avatar: myProfile.avatar,
+    fullname: myProfile.fullname,
+    username: myProfile.username,
+    role: selectedRole.slug,
   };
 
   res.status(200).json({
@@ -22,9 +29,9 @@ const login = asyncMiddleware(async (req, res, next) => {
 // ==================== Logout ==================== //
 
 const logout = asyncMiddleware(async (req, res, next) => {
-  const { id: user } = req.user;
+  const { myProfile } = req;
 
-  await Token.findOneAndDelete({ userId: user });
+  await Token.findOneAndDelete({ userId: myProfile._id });
 
   res.status(200).json({
     success: true,

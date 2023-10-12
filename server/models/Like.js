@@ -1,15 +1,15 @@
 const mongoose = require("mongoose");
 
-const FollowingTopicSchema = new mongoose.Schema(
+const LikeSchema = new mongoose.Schema(
   {
-    follower: {
+    article: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: "Article",
       required: true,
     },
-    topic: {
+    user: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Topic",
+      ref: "User",
       required: true,
     },
   },
@@ -19,4 +19,4 @@ const FollowingTopicSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model("FollowingTopic", FollowingTopicSchema);
+module.exports = mongoose.model("Like", LikeSchema);

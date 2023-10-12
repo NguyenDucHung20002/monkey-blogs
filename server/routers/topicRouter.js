@@ -34,10 +34,13 @@ router.delete(
 
 router.get("/:slug", optionalAuth, fetchMyProfile, topicController.getATopic);
 
-router.get("/search/topics", topicController.searchTopics);
-
 router.get("/", topicController.getAllTopics);
 
-router.get("/tag/:slug/articles", topicController.getTopicArticles);
+router.get(
+  "/tag/:slug/articles",
+  optionalAuth,
+  fetchMyProfile,
+  topicController.getTopicArticles
+);
 
 module.exports = router;

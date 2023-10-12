@@ -34,13 +34,10 @@ router.delete(
   articleController.deleteMyArticle
 );
 
-router.get(
-  "/:slug",
-  optionalAuth,
-  fetchMyProfile,
-  articleController.getAnArticle
-);
+router.get("/:slug", articleController.getAnArticle);
 
-router.get("", requiredAuth, fetchMyProfile, articleController.getAllArticles);
+router.get("/:slug/likes", articleController.getArticleLikes);
+
+router.get("", articleController.getAllArticles);
 
 module.exports = router;

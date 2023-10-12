@@ -1,17 +1,15 @@
 const express = require("express");
 const requiredAuth = require("../middlewares/requiredAuth");
 const fetchMyProfile = require("../middlewares/fetchMyProfile");
-const fetchUserProfile = require("../middlewares/fetchUserProfile");
-const followProfileController = require("../controllers/followProfileController");
+const likeController = require("../controllers/likeController");
 
 const router = express.Router();
 
 router.post(
-  "/follow-unfollow/:username",
+  "/:slug/like-unlike",
   requiredAuth,
   fetchMyProfile,
-  fetchUserProfile,
-  followProfileController.followOrUnfollowAUser
+  likeController.likeOrUnLikeAnArticle
 );
 
 module.exports = router;
