@@ -7,7 +7,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import axios from "axios"
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-const UpdateProfile = ({show, setShow}) => {
+const UpdateProfile = ({show, setShow, user}) => {
   const [imageSrc, setImageSrc] = useState(null);
   const [showAnimation, setShowAnimation] = useState(false);
   const url = "http://localhost:8080/api/";
@@ -65,7 +65,7 @@ const UpdateProfile = ({show, setShow}) => {
       formData.set('avatar', imageSrc.avatar);
     }
 
-    const res= await axios.put(`${url}profile`,formData,{
+    const res= await axios.put(`${url}user/me/update`,formData,{
       headers:{
         Authorization: `Bearer ${token}`,
         'Content-Type': 'multipart/form-data',
@@ -77,25 +77,13 @@ const UpdateProfile = ({show, setShow}) => {
   };
 
   useEffect(()=>{
-    async function fetch(){
-      const res= await axios.get(`${url}profile`,{
-        headers:{
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        }
-      }).catch((err)=>{
-        console.log(err);
-      })
-      if(res.data.success){
-        const profileUser = res.data.data.profile
-        setImageSrc({...imageSrc,['imageUrl']:`http://localhost:8080/api/file/${profileUser.avatar}`})
-        setValue('fullname',profileUser.fullname)
-        profileUser?.bio && profileUser?.bio!=" "? setValue('bio',profileUser?.bio):""
-        profileUser?.about && profileUser?.about!=" " ? setValue('about',profileUser?.about):""
-      }
-    }
-    fetch();
-  },[])
+    const profile = user?.profile
+    setValue('fullname',profile?.fullname)
+    profile?.bio && profile?.bio!=" "? setValue('bio',profile?.bio):""
+    profile?.about && profile?.about!=" " ? setValue('about',profile?.about):""
+    setImageSrc({...imageSrc,['imageUrl']:`${profile?.avatar}`})
+  },[user])
+
   return (<>
     <ProfileStyles showAnimation={showAnimation}>
       <div className={`wrapper ${show?"show":""} `}

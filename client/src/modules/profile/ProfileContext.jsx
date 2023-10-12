@@ -4,7 +4,7 @@ const ProfileContext = ({user}) =>
 {
 
     return (<>
-        <div className="w-full h-full py-8 px-16">
+        <div className="w-full py-8">
             <div className="w-full h-20 py-4 flex items-center justify-between">
                 <div className="text-[25px] text-black py-3" >Name</div>
                 <div className="text-[40px] text-stone-500">...</div>

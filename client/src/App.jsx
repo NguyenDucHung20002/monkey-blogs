@@ -3,6 +3,7 @@ import { Route, Routes } from "react-router";
 import { AuthProvider } from "./contexts/auth-context";
 import { ToastContainer } from "react-toastify";
 const HomeMain = React.lazy(() => import("./modules/home/HomeMain"));
+import TopicPage from "./pages/TopicPage";
 const TopicUpdate = React.lazy(() => import("./modules/topic/TopicUpdate"));
 const TopicAddNew = React.lazy(() => import("./modules/topic/TopicAddNew"));
 const PostDetailPage = React.lazy(() => import("./pages/PostDetailPage"));
@@ -41,7 +42,11 @@ function App() {
                 element={<PostDetailPage></PostDetailPage>}
               ></Route>
               <Route
-                path="/profile"
+                path="/topic/:slug"
+                element={<TopicPage></TopicPage>}
+              ></Route>
+              <Route
+                path="/profile/:username"
                 element={<ProfilePage></ProfilePage>}
               ></Route>
             </Route>
