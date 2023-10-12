@@ -7,6 +7,10 @@ const ArticleSchema = new mongoose.Schema(
       ref: "Profile",
       required: true,
     },
+    preview: {
+      type: String,
+      required: true,
+    },
     img: { type: String, required: true },
     title: { type: String, required: true },
     slug: { type: String, required: true, unique: true },

@@ -1,8 +1,12 @@
 const Profile = require("../models/Profile");
 const { ErrorResponse } = require("../response/ErrorResponse");
 
-const fetchProfile = async (req, res, next) => {
+const fetchMyProfile = async (req, res, next) => {
   try {
+    if (!req.user) {
+      return next();
+    }
+
     const user = req.user.id;
 
     const myProfile = await Profile.findOne({ user });
@@ -17,4 +21,4 @@ const fetchProfile = async (req, res, next) => {
   }
 };
 
-module.exports = fetchProfile;
+module.exports = fetchMyProfile;

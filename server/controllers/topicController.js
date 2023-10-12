@@ -3,18 +3,13 @@ const toSlug = require("../utils/toSlug");
 const Article = require("../models/Article");
 const addUrlToImg = require("../utils/addUrlToImg");
 const FollowTopic = require("../models/FollowTopic");
-const { removeFile } = require("../utils/removeFile");
 const { ErrorResponse } = require("../response/ErrorResponse");
 const { asyncMiddleware } = require("../middlewares/asyncMiddleware");
 
-// create topic
+// ==================== create topic ==================== //
+
 const createTopic = asyncMiddleware(async (req, res, next) => {
   const { name } = req.body;
-
-  const filename = req.file?.filename;
-  if (!filename) {
-    throw new ErrorResponse(422, "banner required");
-  }
 
   const isExistedTopic = await Topic.findOne({ name });
   if (isExistedTopic) {
@@ -24,7 +19,6 @@ const createTopic = asyncMiddleware(async (req, res, next) => {
   const slug = toSlug(name);
 
   const topic = new Topic({
-    banner: filename,
     name,
     slug,
   });
@@ -36,12 +30,11 @@ const createTopic = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// update topic
+// ==================== update topic ==================== //
+
 const updateTopic = asyncMiddleware(async (req, res, next) => {
   const { slug } = req.params;
   const { name } = req.body;
-
-  const filename = req.file?.filename;
 
   let existingTopic = await Topic.findOne({ slug });
   if (!existingTopic) {
@@ -60,62 +53,82 @@ const updateTopic = asyncMiddleware(async (req, res, next) => {
 
   await Topic.findOneAndUpdate(
     { slug },
-    { name, slug: updatedSlug, banner: filename },
+    { name, slug: updatedSlug },
     { new: true }
   );
 
-  if (filename) {
-    removeFile(existingTopic.banner);
-  }
-
   res.status(200).json({
     success: true,
   });
 });
 
-// delete topic
+// ==================== delete topic ==================== //
+
 const deleteTopic = asyncMiddleware(async (req, res, next) => {
   const { slug } = req.params;
 
-  const topic = await Topic.findOneAndDelete({ slug });
-  if (topic) {
-    removeFile(topic.banner);
-  }
+  const deletedTopic = await Topic.findOneAndDelete({ slug });
 
   await FollowTopic.deleteMany({ slug });
+
+  await Article.updateMany(
+    { topics: deletedTopic._id },
+    { $pull: { topics: deletedTopic._id } }
+  );
 
   res.status(200).json({
     success: true,
   });
 });
 
-// get a topic
+// ==================== get a topic ==================== //
+
 const getATopic = asyncMiddleware(async (req, res, next) => {
   const { slug } = req.params;
+  const { myProfile } = req;
 
   const topic = await Topic.findOne({ slug }).select("-createdAt -updatedAt");
   if (!topic) {
     throw new ErrorResponse(404, "topic not found");
   }
 
-  const countFollowers = await FollowTopic.countDocuments({
+  const followersCount = await FollowTopic.countDocuments({
     topic: topic._id,
   });
-  const countArticles = await Article.countDocuments({
+
+  const articlesCount = await Article.countDocuments({
     topics: topic._id,
   });
 
-  topic.banner = addUrlToImg(topic.banner);
+  let isFollowing = true;
+
+  const checkExits = await FollowTopic.findOne({
+    follower: myProfile ? myProfile._id : null,
+    topic: topic._id,
+  });
+  if (!checkExits) {
+    isFollowing = false;
+  }
 
   res.status(200).json({
     success: true,
-    data: { topic, countArticles, countFollowers },
+    data: { topic, followersCount, articlesCount, isFollowing },
   });
 });
 
-// get all topics
+// ==================== get topics ==================== //
+
 const getAllTopics = asyncMiddleware(async (req, res, next) => {
-  const topics = await Topic.find().select("name slug");
+  const { search } = req.query;
+
+  let topics;
+
+  if (search) {
+    const regex = new RegExp(search, "i");
+    topics = await Topic.find({ slug: regex });
+  } else {
+    topics = await Topic.find();
+  }
 
   res.status(200).json({
     success: true,
@@ -123,13 +136,51 @@ const getAllTopics = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// search topics
+// ==================== get topic articles ==================== //
+
+const getTopicArticles = asyncMiddleware(async (req, res, next) => {
+  const { slug } = req.params;
+
+  const topic = await Topic.findOne({ slug });
+  if (!topic) {
+    throw new ErrorResponse(404, "topic not found");
+  }
+
+  const articles = await Article.find({
+    topics: topic._id,
+  })
+    .select("img title slug createdAt updatedAt")
+    .sort({ createdAt: -1 })
+    .populate({
+      path: "author",
+      select: "avatar fullname username",
+    });
+
+  articles.forEach((article) => {
+    if (article.author && article.author.avatar && article.img) {
+      article.author.avatar = addUrlToImg(article.author.avatar);
+      article.img = addUrlToImg(article.img);
+    }
+  });
+
+  res.status(200).json({
+    success: true,
+    data: articles,
+  });
+});
+
+// ==================== search topics ==================== //
+
 const searchTopics = asyncMiddleware(async (req, res, next) => {
-  const search = req.query.name;
+  const { search } = req.query;
 
   const regex = new RegExp(search, "i");
 
-  const topics = await Topic.find({ name: regex });
+  let topics = [];
+
+  if (search) {
+    topics = await Topic.find({ name: regex });
+  }
 
   res.status(200).json({
     success: true,
@@ -143,5 +194,6 @@ module.exports = {
   deleteTopic,
   getATopic,
   getAllTopics,
+  getTopicArticles,
   searchTopics,
 };

@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 const passport = require("passport");
 const Token = require("../models/Token");
 const { env } = require("../config/env");
-const jwtAuth = require("../middlewares/jwtAuth");
+const requiredAuth = require("../middlewares/requiredAuth");
 const fethMyProfile = require("../middlewares/fetchMyProfile");
 const authController = require("../controllers/authController");
 
@@ -42,9 +42,9 @@ router.get(
 );
 
 // Login
-router.post("/login", jwtAuth, fethMyProfile, authController.login);
+router.post("/login", requiredAuth, fethMyProfile, authController.login);
 
 // Logout
-router.post("/logout", jwtAuth, authController.logout);
+router.post("/logout", requiredAuth, authController.logout);
 
 module.exports = router;

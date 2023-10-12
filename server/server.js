@@ -10,7 +10,6 @@ const app = express();
 const cors = require("cors");
 const authRouter = require("./routers/authRouter");
 const fileRouter = require("./routers/fileRouter");
-const likeRouter = require("./routers/likeRouter");
 const topicRouter = require("./routers/topicRouter");
 const profileRouter = require("./routers/profileRouter");
 const articleRouter = require("./routers/articleRouter");
@@ -45,10 +44,9 @@ createRoles();
 
 app.use("/api/auth", authRouter);
 app.use("/api/file", fileRouter);
-app.use("/api/like", likeRouter);
 app.use("/api/topic", topicRouter);
-app.use("/api/article", articleRouter);
 app.use("/api/profile", profileRouter);
+app.use("/api/article", articleRouter);
 app.use("/api/follow-topic", followTopicRouter);
 app.use("/api/follow-profile", followProfileRouter);
 

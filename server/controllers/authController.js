@@ -2,14 +2,15 @@ const Token = require("../models/Token");
 const addUrlToImg = require("../utils/addUrlToImg");
 const { asyncMiddleware } = require("../middlewares/asyncMiddleware");
 
-// Login
+// ==================== login ==================== //
+
 const login = asyncMiddleware(async (req, res, next) => {
-  const { myProfile } = req;
+  const { fullname, username, avatar } = req.myProfile;
 
   const profile = {
-    fullname: myProfile.fullname,
-    username: myProfile.username,
-    avatar: addUrlToImg(myProfile.avatar),
+    fullname,
+    username,
+    avatar: addUrlToImg(avatar),
   };
 
   res.status(200).json({
@@ -18,7 +19,8 @@ const login = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// Logout
+// ==================== Logout ==================== //
+
 const logout = asyncMiddleware(async (req, res, next) => {
   const { id: user } = req.user;
 

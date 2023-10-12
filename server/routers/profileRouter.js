@@ -1,7 +1,8 @@
 const express = require("express");
-const jwtAuth = require("../middlewares/jwtAuth");
 const validator = require("../middlewares/validator");
 const mongoUpload = require("../middlewares/mongoUpload");
+const requiredAuth = require("../middlewares/requiredAuth");
+const optionalAuth = require("../middlewares/optionalAuth");
 const profileSchema = require("../validations/profileSchema");
 const fetchMyProfile = require("../middlewares/fetchMyProfile");
 const fetchUserProfile = require("../middlewares/fetchUserProfile");
@@ -9,50 +10,44 @@ const profileController = require("../controllers/profileController");
 
 const router = express.Router();
 
-router.get("/", jwtAuth, fetchMyProfile, profileController.getProfile);
-
-router.put(
-  "/",
-  jwtAuth,
-  fetchMyProfile,
-  mongoUpload.single("avatar"),
-  validator(profileSchema.updateSchema),
-  profileController.updateProfile
-);
-
 router.get(
-  "/followers",
-  jwtAuth,
+  "/:username",
+  optionalAuth,
   fetchMyProfile,
-  profileController.getFollowers
-);
-
-router.get(
-  "/following",
-  jwtAuth,
-  fetchMyProfile,
-  profileController.getFollowing
-);
-
-router.get(
-  "/following/topics",
-  jwtAuth,
-  fetchMyProfile,
-  profileController.getFollowingTopics
-);
-
-router.get("/:username", fetchUserProfile, profileController.getProfile);
-
-router.get(
-  "/:username/followers",
   fetchUserProfile,
-  profileController.getFollowers
+  profileController.getProfile
 );
 
 router.get(
   "/:username/following",
+  optionalAuth,
+  fetchMyProfile,
   fetchUserProfile,
   profileController.getFollowing
+);
+
+router.get(
+  "/:username/followers",
+  optionalAuth,
+  fetchMyProfile,
+  fetchUserProfile,
+  profileController.getFollowers
+);
+
+router.get(
+  "/me/following/topics",
+  requiredAuth,
+  fetchMyProfile,
+  profileController.getMyFollowingTopics
+);
+
+router.put(
+  "/me/update",
+  requiredAuth,
+  fetchMyProfile,
+  mongoUpload.single("avatar"),
+  validator(profileSchema.updateSchema),
+  profileController.updateMyProfile
 );
 
 module.exports = router;
