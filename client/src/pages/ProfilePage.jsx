@@ -5,7 +5,6 @@ import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import axios from "axios";
 import UpdateProfile from "../components/form/UpdateProfile";
-import { Col, Row } from "antd";
 import ProfileInfor from "../modules/profile/ProfileInfor";
 import ProfileContext from "../modules/profile/ProfileContext";
 import { useAuth } from "../contexts/auth-context";
@@ -13,7 +12,7 @@ import { config } from "../utils/constants";
 import Following from "../components/follow/Following";
 import TopicRcmm from "../modules/topic/TopicRcm";
 import ArticleList from "../modules/article/ArticleList";
-import { useParams, useSearchParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 const ProfilePage = () => {
   const [show, setShow] = useState(false);
   const [user, setUser] = useState({});
@@ -26,7 +25,7 @@ const ProfilePage = () => {
   const FetchFollow = async () => {
     const res = await axios
       .post(
-        `${config.SERVER_HOST}:${config.SERVER_PORT}/api/follow-user/follow-unfollow/${username}`,
+        `${config.SERVER_HOST}:${config.SERVER_PORT}/api/follow-user/${username}/follow-unfollow`,
         {},
         {
           headers: {
