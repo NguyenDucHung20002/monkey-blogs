@@ -3,8 +3,8 @@ const Article = require("../models/Article");
 const { ErrorResponse } = require("../response/ErrorResponse");
 const { asyncMiddleware } = require("../middlewares/asyncMiddleware");
 
-// like an article
-const likeOrUnlikeAnArticle = asyncMiddleware(async (req, res, next) => {
+// ==================== like or unlike an article ==================== //
+const likeOrUnLikeAnArticle = asyncMiddleware(async (req, res, next) => {
   const { myProfile } = req;
   const { slug } = req.params;
 
@@ -17,16 +17,17 @@ const likeOrUnlikeAnArticle = asyncMiddleware(async (req, res, next) => {
   if (!like) {
     like = new Like({
       article: article._id,
-      profile: myProfile._id,
+      user: myProfile._id,
     });
+
     await like.save();
   } else {
     await Like.deleteOne({ _id: like._id });
   }
 
-  res.status(200).json({
+  res.status(201).json({
     success: true,
   });
 });
 
-module.exports = { likeOrUnlikeAnArticle };
+module.exports = { likeOrUnLikeAnArticle };

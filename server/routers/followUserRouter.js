@@ -1,17 +1,17 @@
 const express = require("express");
-const jwtAuth = require("../middlewares/jwtAuth");
+const requiredAuth = require("../middlewares/requiredAuth");
 const fetchMyProfile = require("../middlewares/fetchMyProfile");
 const fetchUserProfile = require("../middlewares/fetchUserProfile");
-const followProfileController = require("../controllers/followProfileController");
+const followUserController = require("../controllers/followUserController");
 
 const router = express.Router();
 
 router.post(
-  "/follow-unfollow/:username",
-  jwtAuth,
+  "/:username/follow-unfollow",
+  requiredAuth,
   fetchMyProfile,
   fetchUserProfile,
-  followProfileController.followOrUnfollowAUser
+  followUserController.followOrUnfollowAUser
 );
 
 module.exports = router;

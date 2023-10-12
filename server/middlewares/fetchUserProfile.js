@@ -1,21 +1,36 @@
-const Profile = require("../models/Profile");
-const { ErrorResponse } = require("../response/ErrorResponse");
+const User = require("../models/User");
+const addUrlToImg = require("../utils/addUrlToImg");
 
 const fetchProfile = async (req, res, next) => {
   try {
-    const username = req.params.username;
-
-    const userProfile = await Profile.findOne({ username });
-    if (!userProfile) {
-      throw new ErrorResponse(404, "Profile not found");
+    if (!req.params) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid request: Missing username parameter",
+      });
     }
 
-    console.log(userProfile._id);
+    const username = req.params.username;
+
+    const userProfile = await User.findOne({ username }).select(
+      "avatar fullname username bio about"
+    );
+    if (!userProfile) {
+      return res.status(401).json({
+        success: false,
+        message: "Profile not found",
+      });
+    }
+
+    userProfile.avatar = addUrlToImg(userProfile.avatar);
 
     req.userProfile = userProfile;
     next();
   } catch (error) {
-    next(error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
   }
 };
 

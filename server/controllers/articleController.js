@@ -1,16 +1,20 @@
-const Like = require("../models/Like");
+const User = require("../models/User");
 const Topic = require("../models/Topic");
 const toSlug = require("../utils/toSlug");
 const Article = require("../models/Article");
+const FollowUser = require("../models/FollowUser");
 const addUrlToImg = require("../utils/addUrlToImg");
+const FollowTopic = require("../models/FollowTopic");
 const { removeFile } = require("../utils/removeFile");
 const { ErrorResponse } = require("../response/ErrorResponse");
 const { asyncMiddleware } = require("../middlewares/asyncMiddleware");
+const Like = require("../models/Like");
 
-// create an article
+// ==================== create article ==================== //
+
 const createAnArticle = asyncMiddleware(async (req, res, next) => {
   const { myProfile } = req;
-  const { title, content, topics } = req.body;
+  const { title, preview, content, topics } = req.body;
 
   const filename = req.file?.filename;
   if (!filename) {
@@ -22,6 +26,7 @@ const createAnArticle = asyncMiddleware(async (req, res, next) => {
   const article = new Article({
     author: myProfile._id,
     title,
+    preview,
     slug,
     img: filename,
     content,
@@ -35,11 +40,12 @@ const createAnArticle = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// update an article
+// ==================== update article ==================== //
+
 const updateMyArticle = asyncMiddleware(async (req, res, next) => {
   const { myProfile } = req;
   const { slug } = req.params;
-  const { title, content, topics } = req.body;
+  const { title, preview, content, topics } = req.body;
 
   const filename = req.file?.filename;
 
@@ -58,7 +64,7 @@ const updateMyArticle = asyncMiddleware(async (req, res, next) => {
 
   await Article.findOneAndUpdate(
     { author: myProfile._id, slug },
-    { title, slug: updatedSlug, img: filename, content, topics },
+    { title, preview, slug: updatedSlug, img: filename, content, topics },
     { new: true }
   );
 
@@ -71,7 +77,8 @@ const updateMyArticle = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// delete an article
+// ==================== delete article ==================== //
+
 const deleteMyArticle = asyncMiddleware(async (req, res, next) => {
   const { myProfile } = req;
   const { slug } = req.params;
@@ -84,16 +91,16 @@ const deleteMyArticle = asyncMiddleware(async (req, res, next) => {
     removeFile(article.img);
   }
 
-  await Like.deleteMany({ article: article._id });
-
   res.status(200).json({
     success: true,
   });
 });
 
-// get an article
+// ==================== get an article ==================== //
+
 const getAnArticle = asyncMiddleware(async (req, res, next) => {
   const { slug } = req.params;
+  const { myProfile } = req;
 
   const article = await Article.findOne({ slug, status: "approved" })
     .populate({
@@ -104,74 +111,76 @@ const getAnArticle = asyncMiddleware(async (req, res, next) => {
       path: "topics",
       select: "name slug",
     });
+
   if (!article) {
     throw new ErrorResponse(404, "article not found");
   }
 
   const likeCount = await Like.countDocuments({ article: article._id });
 
-  res.status(200).json({
-    success: true,
-    data: { article, likeCount },
-  });
-});
+  const result = { article, likeCount };
 
-// get article likes
-const getArticleLikes = asyncMiddleware(async (req, res, next) => {
-  const { slug } = req.params;
-
-  const article = await Article.findOne({ slug, status: "approved" });
-  if (!article) {
-    throw new ErrorResponse(404, "article not found");
+  if (myProfile) {
+    result.isLiked = (await Like.findOne({
+      user: myProfile._id,
+    }))
+      ? true
+      : false;
+    result.isMyArticle =
+      myProfile._id.toString() === article.author._id.toString();
   }
 
-  const likes = await Like.find({ article: article._id })
-    .select("profile")
-    .populate({
-      path: "profile",
-      select: "avatar fullname username",
-    })
-    .sort({ createdAt: -1 });
-
-  likes.forEach((user) => {
-    if (user.profile && user.profile.avatar) {
-      user.profile.avatar = addUrlToImg(user.profile.avatar);
-    }
-  });
-
   res.status(200).json({
     success: true,
-    data: likes,
+    data: result,
   });
 });
 
-// get all articles
+// ==================== get all articles ==================== //
+
 const getAllArticles = asyncMiddleware(async (req, res, next) => {
-  const { tag } = req.query;
+  const { myProfile } = req;
+  const { tag, feed } = req.query;
 
-  let articles;
+  const findQuery = {
+    status: "approved",
+  };
 
-  const topic = await Topic.findOne({ slug: tag });
-  if (!topic) {
-    throw new ErrorResponse(404, "topic tag not found");
+  if (tag) {
+    const topic = await Topic.findOne({ slug: tag }).lean();
+    if (!topic) {
+      throw new ErrorResponse(404, "topic tag not found");
+    }
+    findQuery.topics = topic._id;
   }
 
-  if (!tag) {
-    articles = Article.find({ status: "approved" });
-  } else {
-    articles = Article.find({
-      topics: topic._id,
-      status: "approved",
-    });
+  if (feed) {
+    const myFollowing = await FollowUser.find({
+      follower: myProfile._id,
+    }).select("following");
+    const myFollowingIds = myFollowing.map((follow) => follow.following);
+    findQuery.author = { $in: myFollowingIds };
   }
 
-  articles = await articles
-    .select("title slug createdAt updatedAt")
+  const articles = await Article.find(findQuery)
+    .select("author title preview img slug topics createdAt updatedAt")
+    .populate({
+      path: "topics",
+      options: { limit: 1 },
+      select: "name slug",
+    })
     .sort({ createdAt: -1 })
     .populate({
       path: "author",
       select: "avatar fullname username",
     });
+
+  articles.forEach((article) => {
+    if (article.author && article.author.avatar && article.img) {
+      article.author.avatar = addUrlToImg(article.author.avatar);
+      article.img = addUrlToImg(article.img);
+    }
+  });
 
   res.status(200).json({
     success: true,
@@ -179,11 +188,42 @@ const getAllArticles = asyncMiddleware(async (req, res, next) => {
   });
 });
 
+// ==================== search topics for create article ==================== //
+
+const searchTopics = asyncMiddleware(async (req, res, next) => {
+  const { search } = req.body;
+
+  let topics = [];
+
+  if (search) {
+    const regex = new RegExp(search, "i");
+    topics = await Topic.find({ name: regex });
+  }
+
+  const topicsWithCounts = await Promise.all(
+    topics.map(async (topic) => {
+      const followersCount = await FollowTopic.countDocuments({
+        topic: topic._id,
+      });
+      return {
+        name: topic.name,
+        slug: topic.slug,
+        followersCount,
+      };
+    })
+  );
+
+  res.status(200).json({
+    success: true,
+    data: topicsWithCounts,
+  });
+});
+
 module.exports = {
   createAnArticle,
   updateMyArticle,
   getAnArticle,
-  getArticleLikes,
   deleteMyArticle,
   getAllArticles,
+  searchTopics,
 };

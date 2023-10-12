@@ -2,26 +2,27 @@ const jwt = require("jsonwebtoken");
 const { env } = require("../config/env");
 const Token = require("../models/Token");
 
-const jwtAuth = async (req, res, next) => {
+const requiredAuth = async (req, res, next) => {
+  const headerToken = req.headers.authorization;
+
+  if (!headerToken || !headerToken.startsWith("Bearer ")) {
+    return res.status(401).json({
+      success: false,
+      message: "Unauthorized",
+    });
+  }
+
+  const token = headerToken.split(" ")[1];
+  if (!token) {
+    return res.status(401).json({
+      success: false,
+      message: "Unauthorized",
+    });
+  }
+
   try {
-    const headerToken = req.headers.authorization;
-
-    if (!headerToken || !headerToken.startsWith("Bearer ")) {
-      return res.status(401).json({
-        success: false,
-        message: "Unauthorized",
-      });
-    }
-
-    const token = headerToken.split(" ")[1];
-    if (!token) {
-      return res.status(401).json({
-        success: false,
-        message: "Unauthorized",
-      });
-    }
-
     const user = jwt.verify(token, env.SECRET_KEY);
+
     const tokenDoc = await Token.findOne({ userId: user.id, token });
     if (!tokenDoc) {
       return res.status(401).json({
@@ -29,6 +30,7 @@ const jwtAuth = async (req, res, next) => {
         message: "Unauthorized",
       });
     }
+
     req.user = user;
     next();
   } catch (error) {
@@ -39,4 +41,4 @@ const jwtAuth = async (req, res, next) => {
   }
 };
 
-module.exports = jwtAuth;
+module.exports = requiredAuth;

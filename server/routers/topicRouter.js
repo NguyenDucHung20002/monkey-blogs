@@ -1,42 +1,46 @@
 const express = require("express");
-const jwtAuth = require("../middlewares/jwtAuth");
 const validator = require("../middlewares/validator");
-const mongoUpload = require("../middlewares/mongoUpload");
 const topicSchema = require("../validations/topicSchema");
 const { authorize } = require("../middlewares/authorize");
+const requiredAuth = require("../middlewares/requiredAuth");
+const optionalAuth = require("../middlewares/optionalAuth");
+const fetchMyProfile = require("../middlewares/fetchMyProfile");
 const topicController = require("../controllers/topicController");
 
 const router = express.Router();
 
 router.post(
   "/",
-  jwtAuth,
+  requiredAuth,
   authorize("admin"),
-  mongoUpload.single("banner"),
   validator(topicSchema.createSchema),
   topicController.createTopic
 );
 
 router.put(
   "/:slug",
-  jwtAuth,
+  requiredAuth,
   authorize("admin"),
-  mongoUpload.single("banner"),
   validator(topicSchema.updateSchema),
   topicController.updateTopic
 );
 
 router.delete(
   "/:slug",
-  jwtAuth,
+  requiredAuth,
   authorize("admin"),
   topicController.deleteTopic
 );
 
-router.get("/:slug", topicController.getATopic);
-
-router.get("/search/topics", topicController.searchTopics);
+router.get("/:slug", optionalAuth, fetchMyProfile, topicController.getATopic);
 
 router.get("/", topicController.getAllTopics);
+
+router.get(
+  "/tag/:slug/articles",
+  optionalAuth,
+  fetchMyProfile,
+  topicController.getTopicArticles
+);
 
 module.exports = router;

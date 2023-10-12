@@ -3,7 +3,8 @@ const FollowTopic = require("../models/FollowTopic");
 const { ErrorResponse } = require("../response/ErrorResponse");
 const { asyncMiddleware } = require("../middlewares/asyncMiddleware");
 
-// follow or unfollow a topic
+// ==================== follow or unfollow a topic ==================== //
+
 const followOrUnfollowATopic = asyncMiddleware(async (req, res, next) => {
   const { myProfile } = req;
   const { slug } = req.params;

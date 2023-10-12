@@ -18,7 +18,7 @@ const createRoles = async () => {
     }
 
     const createdRoles = await Role.create([admin, staff, user]);
-    console.log("Roles created:", createdRoles);
+    // console.log("Roles created:", createdRoles);
   } catch (error) {
     console.error("Error creating roles:", error);
   }
