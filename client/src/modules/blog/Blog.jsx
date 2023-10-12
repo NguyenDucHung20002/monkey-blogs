@@ -43,7 +43,7 @@ const Blog = ({ blog }) => {
     <BlogStyle className="border-b border-gray-300">
       <div className="flex-1 pt-3 pr-5">
         <div className="flex items-center">
-          <Link to={`/author/${author?.username}`}>
+          <Link to={`/profile/${author?.username}`}>
             <Avatar
               className="cursor-pointer"
               size="large"

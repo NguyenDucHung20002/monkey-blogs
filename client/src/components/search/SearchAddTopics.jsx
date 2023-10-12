@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 
 /* eslint-disable react/prop-types */
 const SearchAddTopics = ({ topics = [], setTopics, token = "" }) => {
+  console.log("topics:", topics);
   const [topicInput, setTopicInput] = useState("");
   const [addTopics, setAddTopics] = useState([]);
   const input = useRef(null);
@@ -20,9 +21,11 @@ const SearchAddTopics = ({ topics = [], setTopics, token = "" }) => {
     async function fetchTopics() {
       if (!token) return;
       try {
-        const response = await axios.get(
-          `${config.SERVER_HOST}:${config.SERVER_PORT}/api/topic/search/topics/?search=${topicInput}`,
-          {},
+        const response = await axios.post(
+          `${config.SERVER_HOST}:${config.SERVER_PORT}/api/article/topics`,
+          {
+            search: topicInput,
+          },
           {
             headers: {
               Authorization: `Bearer ${token}`,

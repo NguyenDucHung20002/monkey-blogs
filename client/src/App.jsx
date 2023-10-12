@@ -3,7 +3,8 @@ import { Route, Routes } from "react-router";
 import { AuthProvider } from "./contexts/auth-context";
 import { ToastContainer } from "react-toastify";
 const HomeMain = React.lazy(() => import("./modules/home/HomeMain"));
-import TopicPage from "./pages/TopicPage";
+
+const TopicPage = React.lazy(() => import("./pages/TopicPage"));
 const TopicUpdate = React.lazy(() => import("./modules/topic/TopicUpdate"));
 const TopicAddNew = React.lazy(() => import("./modules/topic/TopicAddNew"));
 const PostDetailPage = React.lazy(() => import("./pages/PostDetailPage"));

@@ -103,6 +103,7 @@ const WritePage = () => {
   };
 
   const handleAddBlog = (values) => {
+    console.log("values:", values);
     if (!isValid) return;
     if (!imageFilename)
       toast.error("Please fill out your image title!", {

@@ -31,6 +31,7 @@ const HomeMain = () => {
           }
         );
         if (response.data) setBlogs(response.data.data);
+        console.log("response.data:", response.data);
       } catch (error) {
         toast.error("Some thing was wrong!", {
           pauseOnHover: false,

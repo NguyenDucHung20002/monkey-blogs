@@ -37,7 +37,7 @@ const BlogMeta = ({
   }
   return (
     <BlogMetaStyles className={`post-meta ${className}`}>
-      <Link to={`/author/${to}`}>
+      <Link to={`/profile/${to}`}>
         <span className="post-author">{authorName}</span>
       </Link>
       <span className="post-dot"></span>
