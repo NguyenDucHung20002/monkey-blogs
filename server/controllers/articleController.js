@@ -206,6 +206,7 @@ const searchTopics = asyncMiddleware(async (req, res, next) => {
         topic: topic._id,
       });
       return {
+        _id: topic._id,
         name: topic.name,
         slug: topic.slug,
         followersCount,
