@@ -40,6 +40,43 @@ const addComment = asyncMiddleware(async (req, res, next) => {
   });
 });
 
+// ==================== update comment ==================== //
+
+const updateComment = asyncMiddleware(async (req, res, next) => {
+  const { commentId } = req.params;
+  const { myProfile } = req;
+  const { content } = req.body;
+
+  await Comment.findOneAndUpdate(
+    { _id: commentId, author: myProfile._id },
+    {
+      content,
+    }
+  );
+
+  res.status(200).json({
+    success: true,
+  });
+});
+
+// ==================== delete comment ==================== //
+
+const deleteComment = asyncMiddleware(async (req, res, next) => {
+  const { commentId } = req.params;
+  const { myProfile } = req;
+
+  const deletedComment = await Comment.findOneAndDelete({
+    _id: commentId,
+    author: myProfile._id,
+  });
+
+  await Comment.deleteMany({ parentCommentId: deletedComment._id });
+
+  res.status(200).json({
+    success: true,
+  });
+});
+
 // ==================== get article main comments ==================== //
 
 const getMainComments = asyncMiddleware(async (req, res, next) => {
@@ -136,6 +173,8 @@ async function commentList(myProfile, query, article) {
 
 module.exports = {
   addComment,
+  updateComment,
+  deleteComment,
   getMainComments,
   getChildComments,
 };

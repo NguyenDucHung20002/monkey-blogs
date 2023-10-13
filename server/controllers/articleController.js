@@ -116,6 +116,9 @@ const getAnArticle = asyncMiddleware(async (req, res, next) => {
     throw new ErrorResponse(404, "article not found");
   }
 
+  article.img = addUrlToImg(article.img);
+  article.author.avatar = addUrlToImg(article.author.avatar);
+
   const likeCount = await Like.countDocuments({ article: article._id });
 
   const result = { article, likeCount };

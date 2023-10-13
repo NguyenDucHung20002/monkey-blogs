@@ -13,6 +13,20 @@ router.post(
   commentCountroller.addComment
 );
 
+router.put(
+  "/:commentId",
+  requiredAuth,
+  fetchMyProfile,
+  commentCountroller.updateComment
+);
+
+router.delete(
+  "/:commentId",
+  requiredAuth,
+  fetchMyProfile,
+  commentCountroller.deleteComment
+);
+
 router.get(
   "/:slug",
   optionalAuth,
