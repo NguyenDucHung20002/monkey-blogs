@@ -1,4 +1,5 @@
 const User = require("../models/User");
+const Like = require("../models/Like");
 const Topic = require("../models/Topic");
 const toSlug = require("../utils/toSlug");
 const Article = require("../models/Article");
@@ -8,7 +9,6 @@ const FollowTopic = require("../models/FollowTopic");
 const { removeFile } = require("../utils/removeFile");
 const { ErrorResponse } = require("../response/ErrorResponse");
 const { asyncMiddleware } = require("../middlewares/asyncMiddleware");
-const Like = require("../models/Like");
 
 // ==================== create article ==================== //
 
@@ -123,6 +123,7 @@ const getAnArticle = asyncMiddleware(async (req, res, next) => {
   if (myProfile) {
     result.isLiked = (await Like.findOne({
       user: myProfile._id,
+      article: article._id,
     }))
       ? true
       : false;
@@ -162,29 +163,11 @@ const getAllArticles = asyncMiddleware(async (req, res, next) => {
     findQuery.author = { $in: myFollowingIds };
   }
 
-  const articles = await Article.find(findQuery)
-    .select("author title preview img slug topics createdAt updatedAt")
-    .populate({
-      path: "topics",
-      options: { limit: 1 },
-      select: "name slug",
-    })
-    .sort({ createdAt: -1 })
-    .populate({
-      path: "author",
-      select: "avatar fullname username",
-    });
-
-  articles.forEach((article) => {
-    if (article.author && article.author.avatar && article.img) {
-      article.author.avatar = addUrlToImg(article.author.avatar);
-      article.img = addUrlToImg(article.img);
-    }
-  });
+  const result = await articleList(findQuery);
 
   res.status(200).json({
     success: true,
-    data: articles,
+    data: result,
   });
 });
 
@@ -219,6 +202,32 @@ const searchTopics = asyncMiddleware(async (req, res, next) => {
     data: topicsWithCounts,
   });
 });
+
+// -------------------- article list function -------------------- //
+
+async function articleList(findQuery) {
+  const articles = await Article.find(findQuery)
+    .select("author title preview img slug topics createdAt updatedAt")
+    .populate({
+      path: "topics",
+      options: { limit: 1 },
+      select: "name slug",
+    })
+    .sort({ createdAt: -1 })
+    .populate({
+      path: "author",
+      select: "avatar fullname username",
+    });
+
+  articles.forEach((article) => {
+    if (article.author && article.author.avatar && article.img) {
+      article.author.avatar = addUrlToImg(article.author.avatar);
+      article.img = addUrlToImg(article.img);
+    }
+  });
+
+  return articles;
+}
 
 module.exports = {
   createAnArticle,

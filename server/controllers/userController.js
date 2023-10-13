@@ -1,42 +1,43 @@
 const User = require("../models/User");
+const Article = require("../models/Article");
 const FollowUser = require("../models/FollowUser");
 const addUrlToImg = require("../utils/addUrlToImg");
 const FollowTopic = require("../models/FollowTopic");
 const { removeFile } = require("../utils/removeFile");
 const { asyncMiddleware } = require("../middlewares/asyncMiddleware");
-const Article = require("../models/Article");
 
 // ==================== get profile detail ==================== //
 
 const getProfile = asyncMiddleware(async (req, res, next) => {
   const { myProfile, userProfile } = req;
 
-  const response = { profile: userProfile };
+  const profile = { profile: userProfile };
 
   if (myProfile) {
     if (myProfile.id.toString() !== userProfile.id.toString()) {
-      response.isFollowing = (await FollowUser.findOne({
+      profile.isMyProfile = false;
+      profile.isFollowing = (await FollowUser.findOne({
         follower: myProfile._id,
         following: userProfile._id,
       }))
         ? true
         : false;
     } else {
-      response.isMyProfile = true;
+      profile.isMyProfile = true;
     }
   }
 
-  response.followerCount = await FollowUser.countDocuments({
+  profile.followerCount = await FollowUser.countDocuments({
     following: userProfile._id,
   });
 
-  response.followingCount = await FollowUser.countDocuments({
+  profile.followingCount = await FollowUser.countDocuments({
     follower: userProfile._id,
   });
 
   res.status(200).json({
     success: true,
-    data: response,
+    data: profile,
   });
 });
 
@@ -118,26 +119,6 @@ const getFollowers = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// ==================== get my following topics ==================== //
-
-const getMyFollowingTopics = asyncMiddleware(async (req, res, next) => {
-  const { myProfile } = req;
-
-  const topics = await FollowTopic.find({
-    follower: myProfile._id,
-  })
-    .select("topic")
-    .populate({
-      path: "topic",
-      select: "name slug",
-    });
-
-  res.status(200).json({
-    success: true,
-    data: topics,
-  });
-});
-
 // ==================== get user articles ==================== //
 
 const getUserArticles = asyncMiddleware(async (req, res, next) => {
@@ -161,6 +142,26 @@ const getUserArticles = asyncMiddleware(async (req, res, next) => {
   res.status(200).json({
     success: true,
     data: articles,
+  });
+});
+
+// ==================== get my following topics ==================== //
+
+const getMyFollowingTopics = asyncMiddleware(async (req, res, next) => {
+  const { myProfile } = req;
+
+  const topics = await FollowTopic.find({
+    follower: myProfile._id,
+  })
+    .select("topic")
+    .populate({
+      path: "topic",
+      select: "name slug",
+    });
+
+  res.status(200).json({
+    success: true,
+    data: topics,
   });
 });
 

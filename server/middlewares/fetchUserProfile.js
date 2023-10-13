@@ -13,7 +13,7 @@ const fetchProfile = async (req, res, next) => {
     const username = req.params.username;
 
     const userProfile = await User.findOne({ username }).select(
-      "avatar fullname username bio about"
+      "-email -loginType -role -status"
     );
     if (!userProfile) {
       return res.status(401).json({

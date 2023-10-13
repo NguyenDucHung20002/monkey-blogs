@@ -2,10 +2,10 @@ const express = require("express");
 const validator = require("../middlewares/validator");
 const mongoUpload = require("../middlewares/mongoUpload");
 const requiredAuth = require("../middlewares/requiredAuth");
+const optionalAuth = require("../middlewares/optionalAuth");
 const articleSchema = require("../validations/articleSchema");
 const fetchMyProfile = require("../middlewares/fetchMyProfile");
 const articleController = require("../controllers/articleController");
-const optionalAuth = require("../middlewares/optionalAuth");
 
 const router = express.Router();
 
