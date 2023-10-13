@@ -113,7 +113,9 @@ async function commentList(myProfile, query, article) {
       }
       const isAuthor =
         commentData.author._id.toString() == article.author.toString();
-      const replyCount = await Comment.count({ parentCommentId: comment._id });
+      const replyCount = await Comment.countDocuments({
+        parentCommentId: comment._id,
+      });
       return myProfile
         ? {
             ...commentData,
@@ -129,7 +131,6 @@ async function commentList(myProfile, query, article) {
           };
     })
   );
-
   return result;
 }
 

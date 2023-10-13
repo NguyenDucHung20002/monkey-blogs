@@ -121,6 +121,12 @@ const getAnArticle = asyncMiddleware(async (req, res, next) => {
   const result = { article, likeCount };
 
   if (myProfile) {
+    result.authorFollowing = (await FollowUser.findOne({
+      follower: myProfile._id,
+      following: article.author._id,
+    }))
+      ? true
+      : false;
     result.isLiked = (await Like.findOne({
       user: myProfile._id,
       article: article._id,
