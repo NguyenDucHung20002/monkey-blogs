@@ -38,7 +38,6 @@ const ProfilePage = () => {
         console.log(err);
       });
     if (res.data.success) {
-      console.log("res.data.success:", res.data.success);
       setIsFollow(!isFollow);
     }
   };
