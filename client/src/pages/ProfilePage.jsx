@@ -5,7 +5,6 @@ import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import axios from "axios";
 import UpdateProfile from "../components/form/UpdateProfile";
-import { Col, Row } from "antd";
 import ProfileInfor from "../modules/profile/ProfileInfor";
 import ProfileContext from "../modules/profile/ProfileContext";
 import { useAuth } from "../contexts/auth-context";
@@ -39,7 +38,6 @@ const ProfilePage = () => {
         console.log(err);
       });
     if (res.data.success) {
-      console.log("res.data.success:", res.data.success);
       setIsFollow(!isFollow);
     }
   };
