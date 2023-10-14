@@ -193,7 +193,7 @@ const updateMyProfile = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// ==================== get random users suggestion ==================== //
+// ==================== get random users suggestions ==================== //
 
 const getRandomUsers = asyncMiddleware(async (req, res, next) => {
   const { myProfile } = req;

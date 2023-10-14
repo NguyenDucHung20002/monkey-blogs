@@ -202,7 +202,7 @@ const getTopicArticles = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// ==================== get random topics suggestion ==================== //
+// ==================== get random topics suggestions ==================== //
 
 const getRandomTopics = asyncMiddleware(async (req, res, next) => {
   const { myProfile } = req;
