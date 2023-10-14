@@ -172,11 +172,29 @@ const getAllArticles = asyncMiddleware(async (req, res, next) => {
     findQuery.author = { $in: myFollowingIds };
   }
 
-  const result = await articleList(findQuery);
+  const articles = await Article.find(findQuery)
+    .select("author title preview img slug topics createdAt updatedAt")
+    .populate({
+      path: "topics",
+      options: { limit: 1 },
+      select: "name slug",
+    })
+    .sort({ createdAt: -1 })
+    .populate({
+      path: "author",
+      select: "avatar fullname username",
+    });
+
+  articles.forEach((article) => {
+    if (article.author && article.author.avatar && article.img) {
+      article.author.avatar = addUrlToImg(article.author.avatar);
+      article.img = addUrlToImg(article.img);
+    }
+  });
 
   res.status(200).json({
     success: true,
-    data: result,
+    data: articles,
   });
 });
 
@@ -211,32 +229,6 @@ const searchTopics = asyncMiddleware(async (req, res, next) => {
     data: topicsWithCounts,
   });
 });
-
-// -------------------- article list function -------------------- //
-
-async function articleList(findQuery) {
-  const articles = await Article.find(findQuery)
-    .select("author title preview img slug topics createdAt updatedAt")
-    .populate({
-      path: "topics",
-      options: { limit: 1 },
-      select: "name slug",
-    })
-    .sort({ createdAt: -1 })
-    .populate({
-      path: "author",
-      select: "avatar fullname username",
-    });
-
-  articles.forEach((article) => {
-    if (article.author && article.author.avatar && article.img) {
-      article.author.avatar = addUrlToImg(article.author.avatar);
-      article.img = addUrlToImg(article.img);
-    }
-  });
-
-  return articles;
-}
 
 module.exports = {
   createAnArticle,

@@ -43,4 +43,11 @@ router.get(
   topicController.getTopicArticles
 );
 
+router.get(
+  "/me/suggetions",
+  requiredAuth,
+  fetchMyProfile,
+  topicController.getRandomTopics
+);
+
 module.exports = router;

@@ -56,4 +56,11 @@ router.put(
   userController.updateMyProfile
 );
 
+router.get(
+  "/me/suggestions",
+  requiredAuth,
+  fetchMyProfile,
+  userController.getRandomUsers
+);
+
 module.exports = router;

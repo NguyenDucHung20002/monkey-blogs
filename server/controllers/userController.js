@@ -193,6 +193,33 @@ const updateMyProfile = asyncMiddleware(async (req, res, next) => {
   });
 });
 
+// ==================== get random users suggestion ==================== //
+
+const getRandomUsers = asyncMiddleware(async (req, res, next) => {
+  const { myProfile } = req;
+
+  const myFollowing = await FollowUser.find({ follower: myProfile._id });
+  const followingIds = myFollowing.map((myFollowing) => {
+    return myFollowing.following.toString();
+  });
+
+  let users = await User.aggregate()
+    .match({ _id: { $nin: [myProfile._id, followingIds] } })
+    .project("avatar fullname username bio")
+    .sample(15);
+
+  users.forEach((user) => {
+    if (user && user.avatar) {
+      user.avatar = addUrlToImg(user.avatar);
+    }
+  });
+
+  res.status(200).json({
+    success: true,
+    data: users,
+  });
+});
+
 module.exports = {
   getProfile,
   getFollowing,
@@ -200,4 +227,5 @@ module.exports = {
   getMyFollowingTopics,
   updateMyProfile,
   getUserArticles,
+  getRandomUsers,
 };

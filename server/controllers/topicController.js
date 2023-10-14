@@ -202,6 +202,27 @@ const getTopicArticles = asyncMiddleware(async (req, res, next) => {
   });
 });
 
+// ==================== get random topics suggestion ==================== //
+
+const getRandomTopics = asyncMiddleware(async (req, res, next) => {
+  const { myProfile } = req;
+
+  const myFollowingTopics = await FollowTopic.find({ follower: myProfile._id });
+  const topicIds = myFollowingTopics.map((topicId) => {
+    return topicId.topic.toString();
+  });
+
+  let topics = await Topic.aggregate()
+    .match({ _id: { $nin: topicIds } })
+    .project("-createdAt -updatedAt")
+    .sample(8);
+
+  res.status(200).json({
+    success: true,
+    data: topics,
+  });
+});
+
 module.exports = {
   createTopic,
   updateTopic,
@@ -209,4 +230,5 @@ module.exports = {
   getATopic,
   getAllTopics,
   getTopicArticles,
+  getRandomTopics,
 };
