@@ -4,20 +4,25 @@ const { ErrorResponse } = require("../response/ErrorResponse");
 const { asyncMiddleware } = require("../middlewares/asyncMiddleware");
 
 // ==================== like or unlike an article ==================== //
+
 const likeOrUnLikeAnArticle = asyncMiddleware(async (req, res, next) => {
-  const { myProfile } = req;
+  const myUserId = req.myProfile._id;
   const { slug } = req.params;
 
-  const article = await Article.findOne({ slug });
+  const article = await Article.exists({ slug });
   if (!article) {
     throw new ErrorResponse(404, "article not found");
   }
 
-  let like = await Like.findOne({ article: article._id, user: myProfile._id });
+  let like = await Like.findOne({
+    article: article._id,
+    user: myUserId,
+  }).lean();
+
   if (!like) {
     like = new Like({
       article: article._id,
-      user: myProfile._id,
+      user: myUserId,
     });
 
     await like.save();
@@ -25,7 +30,7 @@ const likeOrUnLikeAnArticle = asyncMiddleware(async (req, res, next) => {
     await Like.deleteOne({ _id: like._id });
   }
 
-  res.status(201).json({
+  res.status(200).json({
     success: true,
   });
 });

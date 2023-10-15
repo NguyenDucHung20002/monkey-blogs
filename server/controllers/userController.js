@@ -14,9 +14,9 @@ const getProfile = asyncMiddleware(async (req, res, next) => {
   const profile = { profile: userProfile };
 
   if (myProfile) {
-    if (myProfile.id.toString() !== userProfile.id.toString()) {
+    if (myProfile._id.toString() !== userProfile._id.toString()) {
       profile.isMyProfile = false;
-      profile.isFollowing = (await FollowUser.findOne({
+      profile.isFollowing = (await FollowUser.exists({
         follower: myProfile._id,
         following: userProfile._id,
       }))
@@ -27,13 +27,13 @@ const getProfile = asyncMiddleware(async (req, res, next) => {
     }
   }
 
-  profile.followerCount = await FollowUser.countDocuments({
-    following: userProfile._id,
-  });
+  const [followerCount, followingCount] = await Promise.all([
+    FollowUser.countDocuments({ following: userProfile._id }),
+    FollowUser.countDocuments({ follower: userProfile._id }),
+  ]);
 
-  profile.followingCount = await FollowUser.countDocuments({
-    follower: userProfile._id,
-  });
+  profile.followerCount = followerCount;
+  profile.followingCount = followingCount;
 
   res.status(200).json({
     success: true,
@@ -44,7 +44,7 @@ const getProfile = asyncMiddleware(async (req, res, next) => {
 // ==================== get following ==================== //
 
 const getFollowing = asyncMiddleware(async (req, res, next) => {
-  const { myProfile, userProfile } = req;
+  const { userProfile, myProfile } = req;
 
   const followingDocs = await FollowUser.find({
     follower: userProfile._id,
@@ -52,6 +52,7 @@ const getFollowing = asyncMiddleware(async (req, res, next) => {
       $ne: myProfile ? myProfile._id : null,
     },
   })
+    .lean()
     .select("follower following")
     .populate({
       path: "following",
@@ -59,16 +60,16 @@ const getFollowing = asyncMiddleware(async (req, res, next) => {
     });
 
   const following = followingDocs.map((doc) => {
-    const followingData = { ...doc.following.toObject() };
-    if (followingData && followingData.avatar) {
-      followingData.avatar = addUrlToImg(followingData.avatar);
+    const following = { ...doc.following };
+    if (following && following.avatar) {
+      following.avatar = addUrlToImg(following.avatar);
     }
     return myProfile
       ? {
-          ...followingData,
+          ...following,
           isFollowing: myProfile._id.toString() === doc.follower._id.toString(),
         }
-      : followingData;
+      : following;
   });
 
   res.status(200).json({
@@ -82,35 +83,39 @@ const getFollowing = asyncMiddleware(async (req, res, next) => {
 const getFollowers = asyncMiddleware(async (req, res, next) => {
   const { myProfile, userProfile } = req;
 
-  const followerDocs = await FollowUser.find({
-    follower: {
-      $ne: myProfile ? myProfile._id : null,
-    },
-    following: userProfile._id,
-  })
-    .select("follower")
-    .populate({ path: "follower", select: "avatar fullname username bio" });
-
-  const followingDocs = await FollowUser.find({
-    follower: userProfile._id,
-    following: {
-      $ne: myProfile ? myProfile._id : null,
-    },
-  }).select("following");
+  const [followerDocs, followingDocs] = await Promise.all([
+    FollowUser.find({
+      follower: {
+        $ne: myProfile ? myProfile._id : null,
+      },
+      following: userProfile._id,
+    })
+      .lean()
+      .select("follower")
+      .populate({ path: "follower", select: "avatar fullname username bio" }),
+    FollowUser.find({
+      follower: userProfile._id,
+      following: {
+        $ne: myProfile ? myProfile._id : null,
+      },
+    })
+      .lean()
+      .select("following"),
+  ]);
 
   const followingIds = followingDocs.map((doc) => doc.following.toString());
 
   const followers = followerDocs.map((doc) => {
-    const followersData = { ...doc.follower.toObject() };
-    if (followersData && followersData.avatar) {
-      followersData.avatar = addUrlToImg(followersData.avatar);
+    const follower = { ...doc.follower };
+    if (follower && follower.avatar) {
+      follower.avatar = addUrlToImg(follower.avatar);
     }
     return myProfile
       ? {
-          ...followersData,
+          ...follower,
           isFollowing: followingIds.includes(doc.follower._id.toString()),
         }
-      : followersData;
+      : follower;
   });
 
   res.status(200).json({
@@ -125,7 +130,8 @@ const getUserArticles = asyncMiddleware(async (req, res, next) => {
   const { userProfile } = req;
 
   const articles = await Article.find({ author: userProfile._id })
-    .select("title preview img slug topics createdAt updatedAt ")
+    .lean()
+    .select("-author -content")
     .populate({
       path: "topics",
       options: { limit: 1 },
@@ -148,11 +154,12 @@ const getUserArticles = asyncMiddleware(async (req, res, next) => {
 // ==================== get my following topics ==================== //
 
 const getMyFollowingTopics = asyncMiddleware(async (req, res, next) => {
-  const { myProfile } = req;
+  const myUserId = req.myProfile._id;
 
   const topics = await FollowTopic.find({
-    follower: myProfile._id,
+    follower: myUserId,
   })
+    .lean()
     .select("topic")
     .populate({
       path: "topic",
@@ -168,13 +175,13 @@ const getMyFollowingTopics = asyncMiddleware(async (req, res, next) => {
 // ==================== update my profile ==================== //
 
 const updateMyProfile = asyncMiddleware(async (req, res, next) => {
-  const { myProfile } = req;
+  const { _id: myUserId, avatar } = req.myProfile;
   const { fullname, bio, about } = req.body;
 
   const filename = req.file?.filename;
 
   await User.findByIdAndUpdate(
-    myProfile._id,
+    myUserId,
     {
       fullname,
       bio,
@@ -185,7 +192,7 @@ const updateMyProfile = asyncMiddleware(async (req, res, next) => {
   );
 
   if (filename) {
-    removeFile(myProfile.avatar);
+    removeFile(avatar);
   }
 
   res.status(200).json({
@@ -196,15 +203,18 @@ const updateMyProfile = asyncMiddleware(async (req, res, next) => {
 // ==================== get random users suggestions ==================== //
 
 const getRandomUsers = asyncMiddleware(async (req, res, next) => {
-  const { myProfile } = req;
+  const myUserId = req.myProfile._id;
 
-  const myFollowing = await FollowUser.find({ follower: myProfile._id });
+  const myFollowing = await FollowUser.find({ follower: myUserId })
+    .lean()
+    .select("following");
+
   const followingIds = myFollowing.map((myFollowing) => {
-    return myFollowing.following.toString();
+    return myFollowing.following;
   });
 
-  let users = await User.aggregate()
-    .match({ _id: { $nin: [myProfile._id, followingIds] } })
+  const users = await User.aggregate()
+    .match({ _id: { $nin: [myUserId, ...followingIds] } })
     .project("avatar fullname username bio")
     .sample(15);
 
@@ -220,6 +230,52 @@ const getRandomUsers = asyncMiddleware(async (req, res, next) => {
   });
 });
 
+// ==================== search users ==================== //
+
+const searchUser = asyncMiddleware(async (req, res, next) => {
+  const { myProfile } = req;
+  const { search } = req.body;
+
+  let users = [];
+
+  if (search) {
+    users = await User.find()
+      .and([
+        { fullname: new RegExp(search, "i") },
+        { _id: { $ne: myProfile ? myProfile._id : null } },
+      ])
+      .lean()
+      .select("avatar fullname username")
+      .sort({ createdAt: -1 });
+
+    const myFollowing = await FollowUser.find({
+      follower: myProfile ? myProfile._id : null,
+    })
+      .lean()
+      .select("following");
+
+    const followingIds = myFollowing.map((following) =>
+      following.following.toString()
+    );
+
+    users = users.map((user) => {
+      return myProfile
+        ? {
+            ...user,
+            isFollowing: followingIds.includes(user._id.toString()),
+          }
+        : {
+            ...user,
+          };
+    });
+  }
+
+  res.status(200).json({
+    success: true,
+    data: users,
+  });
+});
+
 module.exports = {
   getProfile,
   getFollowing,
@@ -228,4 +284,5 @@ module.exports = {
   updateMyProfile,
   getUserArticles,
   getRandomUsers,
+  searchUser,
 };

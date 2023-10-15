@@ -6,6 +6,7 @@ const followUserController = require("../controllers/followUserController");
 
 const router = express.Router();
 
+// folow or unfollow a user
 router.post(
   "/:username/follow-unfollow",
   requiredAuth,

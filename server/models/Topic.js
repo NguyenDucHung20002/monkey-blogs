@@ -6,7 +6,7 @@ const TopicSchema = new mongoose.Schema(
     slug: { type: String, require: true, unique: true },
   },
   {
-    timestamps: true,
+    timestamps: false,
     versionKey: false,
   }
 );

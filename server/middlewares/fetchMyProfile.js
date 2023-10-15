@@ -9,15 +9,13 @@ const fetchMyProfile = async (req, res, next) => {
 
     const { id: user } = req.user;
 
-    const myProfile = await User.findById(user);
+    const myProfile = await User.findById(user).lean();
     if (!myProfile) {
       return res.status(404).json({
         success: false,
         message: "User not found",
       });
     }
-
-    myProfile.avatar = addUrlToImg(myProfile.avatar);
 
     req.myProfile = myProfile;
     next();

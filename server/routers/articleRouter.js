@@ -9,6 +9,7 @@ const articleController = require("../controllers/articleController");
 
 const router = express.Router();
 
+// create article
 router.post(
   "/",
   requiredAuth,
@@ -18,6 +19,7 @@ router.post(
   articleController.createAnArticle
 );
 
+// update article
 router.put(
   "/:slug",
   requiredAuth,
@@ -27,6 +29,7 @@ router.put(
   articleController.updateMyArticle
 );
 
+// delete article
 router.delete(
   "/:slug",
   requiredAuth,
@@ -34,6 +37,7 @@ router.delete(
   articleController.deleteMyArticle
 );
 
+// get an article
 router.get(
   "/:slug",
   optionalAuth,
@@ -41,8 +45,13 @@ router.get(
   articleController.getAnArticle
 );
 
+// get all articles
 router.get("/", requiredAuth, fetchMyProfile, articleController.getAllArticles);
 
+// search topic
 router.post("/topics", articleController.searchTopics);
+
+// search articles
+router.post("/search", articleController.searchArticles);
 
 module.exports = router;

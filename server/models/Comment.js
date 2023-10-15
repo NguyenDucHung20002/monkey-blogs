@@ -19,9 +19,9 @@ const CommentSchema = new mongoose.Schema(
       ref: "Comment",
     },
 
-    replyToUser: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+    depth: {
+      type: Number,
+      default: 1,
     },
 
     content: { type: String, required: true },

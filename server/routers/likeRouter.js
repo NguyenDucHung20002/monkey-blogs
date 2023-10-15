@@ -5,6 +5,7 @@ const likeController = require("../controllers/likeController");
 
 const router = express.Router();
 
+// like an article
 router.post(
   "/:slug/like-unlike",
   requiredAuth,

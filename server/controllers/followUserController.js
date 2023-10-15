@@ -5,20 +5,21 @@ const { asyncMiddleware } = require("../middlewares/asyncMiddleware");
 // ==================== follow or unfollow a profile ==================== //
 
 const followOrUnfollowAUser = asyncMiddleware(async (req, res, next) => {
-  const { myProfile, userProfile } = req;
+  const myUserId = req.myProfile._id;
+  const { userProfile } = req;
 
-  if (myProfile._id.toString() === userProfile._id.toString()) {
+  if (myUserId.toString() === userProfile._id.toString()) {
     throw new ErrorResponse(400, ":)");
   }
 
   let followUser = await FollowUser.findOne({
-    follower: myProfile._id,
+    follower: myUserId,
     following: userProfile._id,
-  });
+  }).lean();
 
   if (!followUser) {
     followUser = new FollowUser({
-      follower: myProfile._id,
+      follower: myUserId,
       following: userProfile._id,
     });
     await followUser.save();

@@ -1,5 +1,7 @@
+const { default: sizeof } = require("object-sizeof");
 const User = require("../models/User");
 const addUrlToImg = require("../utils/addUrlToImg");
+const sizeOf = require("object-sizeof");
 
 const fetchProfile = async (req, res, next) => {
   try {
@@ -12,9 +14,9 @@ const fetchProfile = async (req, res, next) => {
 
     const username = req.params.username;
 
-    const userProfile = await User.findOne({ username }).select(
-      "-email -loginType -role -status"
-    );
+    const userProfile = await User.findOne({ username })
+      .lean()
+      .select("-email -loginType -role -status");
     if (!userProfile) {
       return res.status(401).json({
         success: false,

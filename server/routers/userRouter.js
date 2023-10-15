@@ -10,6 +10,7 @@ const fetchUserProfile = require("../middlewares/fetchUserProfile");
 
 const router = express.Router();
 
+// get user profile
 router.get(
   "/:username",
   optionalAuth,
@@ -18,6 +19,7 @@ router.get(
   userController.getProfile
 );
 
+// get user following
 router.get(
   "/:username/following",
   optionalAuth,
@@ -26,6 +28,7 @@ router.get(
   userController.getFollowing
 );
 
+// get user followers
 router.get(
   "/:username/followers",
   optionalAuth,
@@ -34,12 +37,14 @@ router.get(
   userController.getFollowers
 );
 
+// get user articles
 router.get(
   "/:username/articles",
   fetchUserProfile,
   userController.getUserArticles
 );
 
+// get my following topics
 router.get(
   "/me/following/topics",
   requiredAuth,
@@ -47,6 +52,7 @@ router.get(
   userController.getMyFollowingTopics
 );
 
+// update my profile
 router.put(
   "/me/update",
   requiredAuth,
@@ -56,11 +62,15 @@ router.put(
   userController.updateMyProfile
 );
 
+// get random users suggestions
 router.get(
   "/me/suggestions",
   requiredAuth,
   fetchMyProfile,
   userController.getRandomUsers
 );
+
+// search users
+router.post("/search", optionalAuth, fetchMyProfile, userController.searchUser);
 
 module.exports = router;

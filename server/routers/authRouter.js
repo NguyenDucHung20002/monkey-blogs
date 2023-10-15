@@ -12,9 +12,7 @@ const router = express.Router();
 // Google OAuth process
 router.get(
   "/google",
-  passport.authenticate("google", {
-    scope: ["profile", "email"],
-  })
+  passport.authenticate("google", { scope: ["profile", "email"] })
 );
 
 // Google OAuth callback URL
@@ -22,14 +20,14 @@ router.get(
   "/google/callback",
   passport.authenticate("google", { session: false }),
   async (req, res) => {
-    const user = req.user;
+    const { id: user } = req.user;
 
-    const token = jwt.sign({ id: user._id }, env.SECRET_KEY);
+    const token = jwt.sign({ id: user }, env.SECRET_KEY);
 
-    let tokenDoc = await Token.findOne({ userId: user._id });
+    let tokenDoc = await Token.findOne({ userId: user });
     if (!tokenDoc) {
       tokenDoc = new Token({
-        userId: user._id,
+        userId: user,
         token,
         timestamps: Date.now(),
       });

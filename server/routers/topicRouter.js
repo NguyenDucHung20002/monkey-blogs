@@ -9,6 +9,7 @@ const topicController = require("../controllers/topicController");
 
 const router = express.Router();
 
+// create topic
 router.post(
   "/",
   requiredAuth,
@@ -17,6 +18,7 @@ router.post(
   topicController.createTopic
 );
 
+// update topic
 router.put(
   "/:slug",
   requiredAuth,
@@ -25,6 +27,7 @@ router.put(
   topicController.updateTopic
 );
 
+// delete topic
 router.delete(
   "/:slug",
   requiredAuth,
@@ -32,10 +35,13 @@ router.delete(
   topicController.deleteTopic
 );
 
+// get a topic
 router.get("/:slug", optionalAuth, fetchMyProfile, topicController.getATopic);
 
+// get all topic
 router.get("/", topicController.getAllTopics);
 
+// get topic articles
 router.get(
   "/tag/:slug/articles",
   optionalAuth,
@@ -43,8 +49,9 @@ router.get(
   topicController.getTopicArticles
 );
 
+// get random topics suggestions
 router.get(
-  "/me/suggetions",
+  "/me/suggestions",
   requiredAuth,
   fetchMyProfile,
   topicController.getRandomTopics

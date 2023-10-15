@@ -5,8 +5,9 @@ const followTopicController = require("../controllers/followTopicController");
 
 const router = express.Router();
 
+// follow or unfollow a topic
 router.post(
-  "/follow-unfollow/:slug",
+  "/:slug/follow-unfollow",
   requiredAuth,
   fetchMyProfile,
   followTopicController.followOrUnfollowATopic
