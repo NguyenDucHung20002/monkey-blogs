@@ -1,3 +1,3 @@
-import NavbarHome from "./NavbarHome";
+import Navbar from "./NavbarHome";
 
-export { NavbarHome };
+export { Navbar as NavbarHome };

@@ -2,8 +2,15 @@ import React, { Suspense } from "react";
 import { Route, Routes } from "react-router";
 import { AuthProvider } from "./contexts/auth-context";
 import { ToastContainer } from "react-toastify";
+import MeFollowingPage from "./pages/MeFollowingPage";
+import MeSuggestionPage from "./pages/MeSuggestionPage";
+import SearchPage from "./pages/SearchPage";
+import SearchStoriesPage from "./pages/SearchStoriesPage";
+import SearchTopicsPage from "./pages/SearchTopicsPage";
+import SearchUsersPage from "./pages/SearchUsersPage";
+const MePage = React.lazy(() => import("./pages/MePage"));
+const FollowingPage = React.lazy(() => import("./pages/FollowingPage"));
 const HomeMain = React.lazy(() => import("./modules/home/HomeMain"));
-
 const TopicPage = React.lazy(() => import("./pages/TopicPage"));
 const TopicUpdate = React.lazy(() => import("./modules/topic/TopicUpdate"));
 const TopicAddNew = React.lazy(() => import("./modules/topic/TopicAddNew"));
@@ -35,7 +42,17 @@ function App() {
                 <Route path="/" element={<HomeMain></HomeMain>}></Route>
                 <Route
                   path="/following"
-                  element={<HomeMain></HomeMain>}
+                  element={<FollowingPage></FollowingPage>}
+                ></Route>
+              </Route>
+              <Route element={<MePage></MePage>}>
+                <Route
+                  path="/me/following"
+                  element={<MeFollowingPage></MeFollowingPage>}
+                ></Route>
+                <Route
+                  path="/me/suggestions"
+                  element={<MeSuggestionPage></MeSuggestionPage>}
                 ></Route>
               </Route>
               <Route
@@ -50,6 +67,21 @@ function App() {
                 path="/profile/:username"
                 element={<ProfilePage></ProfilePage>}
               ></Route>
+
+              <Route element={<SearchPage></SearchPage>}>
+                <Route
+                  path="/search"
+                  element={<SearchStoriesPage></SearchStoriesPage>}
+                ></Route>
+                <Route
+                  path="/search/topics"
+                  element={<SearchTopicsPage></SearchTopicsPage>}
+                ></Route>
+                <Route
+                  path="/search/people"
+                  element={<SearchUsersPage></SearchUsersPage>}
+                ></Route>
+              </Route>
             </Route>
             <Route element={<DashboardLayout></DashboardLayout>}>
               <Route

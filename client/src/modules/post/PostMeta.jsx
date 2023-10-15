@@ -25,19 +25,34 @@ const PostMetaStyles = styled.div`
   }
 `;
 
-const PostMeta = ({
-  date = "Mar 23",
-  authorName = "Andiez Le",
-  className = "",
-  to = "",
-}) => {
+function getTimeAgo(startDate) {
+  const currentDate = new Date();
+  const timeDifference = currentDate - startDate;
+  const seconds = Math.floor(timeDifference / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+
+  if (seconds < 60) {
+    return `${seconds} seconds ago`;
+  } else if (minutes < 60) {
+    return `${minutes} ${minutes === 1 ? "min" : "mins"} ago`;
+  } else if (hours < 24) {
+    return `${hours} ${hours === 1 ? "hour" : "hours"} ago`;
+  } else {
+    const days = Math.floor(hours / 24);
+    return `${days} ${days === 1 ? "day" : "days"} ago`;
+  }
+}
+
+const PostMeta = ({ date = "", authorName = "", className = "", to = "" }) => {
+  const dateCreated = new Date(date);
   return (
     <PostMetaStyles className={`post-meta ${className}`}>
-      <Link to={`/author/${to}`}>
+      <Link to={`/profile/${to}`}>
         <span className="post-author">{authorName}</span>
       </Link>
       <div className="follow">
-        <span className="post-time">{date}</span>
+        <span className="post-time">{getTimeAgo(dateCreated)}</span>
         <span className="post-dot"></span>
         <button className="text-base text-green-600 cursor-pointer hover:text-green-700">
           Follow

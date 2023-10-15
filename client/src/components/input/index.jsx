@@ -1,3 +1,4 @@
 import Input from "./Input";
+import InputComment from "./InputComment";
 
-export { Input };
+export { Input, InputComment };

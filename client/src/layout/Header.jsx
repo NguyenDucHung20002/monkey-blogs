@@ -176,11 +176,11 @@ const Header = () => {
 
   const handleSearch = debounce((e) => {
     setInputSearch(e.target.value);
-  }, 500);
+  }, 100);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
-    navigation(`/search?q=${inputSearch}`);
+    navigation(`/search/?q=${inputSearch}`);
   };
 
   return (

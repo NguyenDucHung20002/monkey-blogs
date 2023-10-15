@@ -1,25 +1,15 @@
-// eslint-disable-next-line no-unused-vars
-import React, { useEffect, useState } from "react";
-import TopicList from "../topic/TopicList";
-import styled from "styled-components";
-import { toast } from "react-toastify";
-import { config } from "../../utils/constants";
+import { useEffect, useState } from "react";
+import FollowingUserHandle from "../components/following/FollowingUserHandle";
+import TopicUserHandle from "../components/topic/TopicUserHandle";
 import axios from "axios";
-import FollowingUserHandle from "../../components/following/FollowingUserHandle";
-import { NavLink } from "react-router-dom";
-const HomeSideStyle = styled.div`
-  padding: 30px 0 0 30px;
-  min-height: calc(100vh - 70px);
+import { config } from "../utils/constants";
+import { toast } from "react-toastify";
 
-  .home-side {
-    max-width: 400px;
-    width: 100%;
-  }
-`;
-
-const HomeSide = () => {
+const MeSuggestionPage = () => {
   const [topics, setTopics] = useState([]);
+  console.log("topics:", topics);
   const [users, setUsers] = useState([]);
+  console.log("users:", users);
   const token = localStorage.getItem("token");
 
   useEffect(() => {
@@ -70,38 +60,30 @@ const HomeSide = () => {
   }, [token]);
 
   return (
-    <HomeSideStyle className="border-l border-gray-300">
-      <div className="home-side">
-        <div className="mb-5">
-          <h3 className="mb-5 text-lg font-semibold">Recommended topics</h3>
-          {topics && topics.length > 0 && (
-            <>
-              <TopicList data={topics}></TopicList>
-              <NavLink to={"/me/suggestions"}>
-                <button className="ml-1">see more suggestions</button>
-              </NavLink>
-            </>
-          )}
-        </div>
-        <div className="mb-5">
-          <h3 className="mb-5 text-lg font-semibold">Who to follow</h3>
+    <div>
+      <div className="user-following max-w-[700px] w-full mx-auto">
+        <div className="mt-6 border-b border-gray-300">
+          <h3 className="text-base font-bold">Who to follow</h3>
           {users &&
             users.length > 0 &&
             users.map((user) => (
-              <>
-                <FollowingUserHandle
-                  key={user._id}
-                  data={user}
-                ></FollowingUserHandle>
-                <NavLink to={"/me/suggestions"}>
-                  <button className="ml-1">see more suggestions</button>
-                </NavLink>
-              </>
+              <FollowingUserHandle
+                key={user._id}
+                data={user}
+              ></FollowingUserHandle>
+            ))}
+        </div>
+        <div className="mt-6 border-b border-gray-300">
+          <h3 className="text-base font-bold">Topics to follow</h3>
+          {topics &&
+            topics.length > 0 &&
+            topics.map((topic) => (
+              <TopicUserHandle key={topic._id} data={topic}></TopicUserHandle>
             ))}
         </div>
       </div>
-    </HomeSideStyle>
+    </div>
   );
 };
 
-export default HomeSide;
+export default MeSuggestionPage;

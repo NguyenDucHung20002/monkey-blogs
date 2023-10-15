@@ -1,23 +1,15 @@
-import React, { useEffect, useRef, useState } from "react";
-import styled from "styled-components";
-import { useForm, useWatch } from "react-hook-form";
-import * as yup from "yup";
-import { yupResolver } from "@hookform/resolvers/yup";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import UpdateProfile from "../components/form/UpdateProfile";
 import ProfileInfor from "../modules/profile/ProfileInfor";
 import ProfileContext from "../modules/profile/ProfileContext";
-import { useAuth } from "../contexts/auth-context";
 import { config } from "../utils/constants";
-import Following from "../components/follow/Following";
 import TopicRcmm from "../modules/topic/TopicRcm";
-import ArticleList from "../modules/article/ArticleList";
 import { useParams } from "react-router-dom";
 const ProfilePage = () => {
   const [show, setShow] = useState(false);
   const [user, setUser] = useState({});
   const [isFollow, setIsFollow] = useState(false);
-  const { userInfo, setUserInfo } = useAuth();
   const { username } = useParams();
   console.log(user);
   const token = localStorage.getItem("token");
@@ -96,9 +88,9 @@ const ProfilePage = () => {
 
 export default ProfilePage;
 
-const ProfilePageStyle = styled.div`
-  .container {
-    max-width: 1200px;
-    margin: auto;
-  }
-`;
+// const ProfilePageStyle = styled.div`
+//   .container {
+//     max-width: 1200px;
+//     margin: auto;
+//   }
+// `;

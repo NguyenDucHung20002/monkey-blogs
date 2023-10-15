@@ -14,7 +14,8 @@ const BlogStyle = styled.div`
   justify-content: space-between;
   align-items: center;
 
-  padding: 0 20px 20px;
+  margin: 0 20px;
+  padding-bottom: 20px;
 `;
 
 const Blog = ({ blog }) => {

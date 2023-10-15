@@ -9,7 +9,6 @@ const { createContext, useContext, useState } = React;
 const AuthContext = createContext();
 function AuthProvider(props) {
   const [userInfo, setUserInfo] = useState({});
-  console.log("userInfo:", userInfo);
   const value = { userInfo, setUserInfo };
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -53,5 +52,6 @@ function useAuth() {
     throw new Error("useUser must be used within UserProvider");
   return context;
 }
+
 // eslint-disable-next-line react-refresh/only-export-components
 export { AuthProvider, useAuth };

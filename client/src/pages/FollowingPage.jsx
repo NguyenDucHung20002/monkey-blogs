@@ -1,26 +1,26 @@
-/* eslint-disable react/prop-types */
 // eslint-disable-next-line no-unused-vars
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import Blog from "../blog/Blog";
 import { toast } from "react-toastify";
-import { config } from "../../utils/constants";
 import axios from "axios";
+import Blog from "../modules/blog/Blog";
+import { config } from "../utils/constants";
 
-const HomeMainStyled = styled.div`
+const FollowingPageStyled = styled.div`
   max-width: 700px;
   width: 100%;
   margin: 0 auto;
 `;
 
-const HomeMain = () => {
+const FollowingPage = () => {
   const token = localStorage.getItem("token");
   const [blogs, setBlogs] = useState([]);
+  console.log("blogs:", blogs);
   useEffect(() => {
     async function fetchBlog() {
       try {
         const response = await axios.get(
-          `${config.SERVER_HOST}:${config.SERVER_PORT}/api/article`,
+          `${config.SERVER_HOST}:${config.SERVER_PORT}/api/article/?feed=following`,
           {
             headers: {
               Authorization: "Bearer " + token,
@@ -29,6 +29,7 @@ const HomeMain = () => {
           }
         );
         if (response.data) setBlogs(response.data.data);
+        console.log("response.data:", response.data);
       } catch (error) {
         toast.error("Some thing was wrong!", {
           pauseOnHover: false,
@@ -40,14 +41,14 @@ const HomeMain = () => {
   }, [token]);
 
   return (
-    <HomeMainStyled>
+    <FollowingPageStyled>
       <div>
         {blogs &&
           blogs.length > 0 &&
           blogs.map((blog) => <Blog key={blog._id} blog={blog}></Blog>)}
       </div>
-    </HomeMainStyled>
+    </FollowingPageStyled>
   );
 };
 
-export default HomeMain;
+export default FollowingPage;

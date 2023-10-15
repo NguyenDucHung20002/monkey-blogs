@@ -1,8 +1,8 @@
+/* eslint-disable react/prop-types */
 import { NavLink } from "react-router-dom";
 import styled from "styled-components";
 
 const NavbarHomeStyle = styled.div`
-  margin: 0 20px 20px;
   display: flex;
   align-items: center;
   gap: 30px;
@@ -22,21 +22,10 @@ const NavbarHomeStyle = styled.div`
   }
 `;
 
-const navHome = [
-  {
-    title: "For you",
-    url: "/",
-  },
-  {
-    title: "Following",
-    url: "/following",
-  },
-];
-
-const NavbarHome = () => {
+const Navbar = ({ className = "", data = [] }) => {
   return (
-    <NavbarHomeStyle>
-      {navHome.map((link) => {
+    <NavbarHomeStyle className={className}>
+      {data.map((link) => {
         if (link.onClick)
           return (
             <div className="menu-item" onClick={link.onClick} key={link.title}>
@@ -53,4 +42,4 @@ const NavbarHome = () => {
   );
 };
 
-export default NavbarHome;
+export default Navbar;

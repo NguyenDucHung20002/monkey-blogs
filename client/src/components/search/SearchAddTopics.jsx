@@ -5,7 +5,12 @@ import { debounce } from "lodash";
 import { toast } from "react-toastify";
 
 /* eslint-disable react/prop-types */
-const SearchAddTopics = ({ topics = [], setTopics, token = "" }) => {
+const SearchAddTopics = ({
+  topics = [],
+  setTopics,
+  token = "",
+  placeholder = "",
+}) => {
   console.log("topics:", topics);
   const [topicInput, setTopicInput] = useState("");
   const [addTopics, setAddTopics] = useState([]);
@@ -98,18 +103,18 @@ const SearchAddTopics = ({ topics = [], setTopics, token = "" }) => {
             ref={input}
             type="text"
             className="w-full p-2 text-sm bg-gray-200 max-w-[200px] placeholder:text-sm"
-            placeholder="Add a topic"
+            placeholder={placeholder}
             onChange={handleOnchange}
           />
         </div>
       )}
       {addTopics && addTopics?.length > 0 && (
-        <div className="absolute left-0 dropdown top-[calc(100%+10px)] border rounded  bg-gray-200 max-w-[200px] w-full p-1">
+        <div className="absolute left-0 dropdown top-[calc(100%+10px)] border border-black bg-gray-200 max-w-[200px] w-full p-1">
           <ul>
             {addTopics.map((topic) => (
               <li
                 key={topic._id}
-                className="p-1 text-sm text-black transition-all rounded cursor-pointer hover:bg-black hover:text-white "
+                className="p-1 text-sm text-black transition-all cursor-pointer hover:bg-black hover:text-white "
                 onClick={() => handleAddTopic(topic)}
               >
                 {topic?.name}

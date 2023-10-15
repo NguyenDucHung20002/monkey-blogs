@@ -1,11 +1,18 @@
 /* eslint-disable no-unused-vars */
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import PostImage from "../modules/post/PostImage";
 import img from "../assets/logo.jpg";
 import PostMeta from "../modules/post/PostMeta";
 import Avatar from "../modules/user/Avatar";
 import TopicList from "../modules/topic/TopicList";
+import { Link, useParams } from "react-router-dom";
+import { config } from "../utils/constants";
+import axios from "axios";
+import { toast } from "react-toastify";
+import PageNotFound from "./PageNotFound";
+import ActionComment from "../action/ActionComment";
+import ActionLike from "../action/ActionLike";
 
 const PostDetailPagePageStyle = styled.div`
   padding: 50px 0;
@@ -23,7 +30,7 @@ const PostDetailPagePageStyle = styled.div`
 
     &-content {
       max-width: 700px;
-      margin: 80px auto;
+      margin: 40px auto;
     }
   }
   .author {
@@ -77,50 +84,71 @@ const PostDetailPagePageStyle = styled.div`
     }
   }
 `;
-const topics = [
-  {
-    name: "Hentai",
-    slug: "hentai",
-  },
-  {
-    name: "Echi",
-    slug: "echi",
-  },
-];
 
 const PostDetailPage = () => {
+  const { slug } = useParams("slug");
+  const [blog, setBlog] = useState(null);
+
+  useEffect(() => {
+    async function fetchBlog() {
+      try {
+        const response = await axios.get(
+          `${config.SERVER_HOST}:${config.SERVER_PORT}/api/article/${slug} `,
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        if (response.data) setBlog(response.data.data.article);
+      } catch (error) {
+        toast.error("Some thing was wrong!", {
+          pauseOnHover: false,
+          delay: 500,
+        });
+      }
+    }
+    fetchBlog();
+  }, [slug]);
+
+  if (!slug) return <PageNotFound></PageNotFound>;
+
   return (
     <PostDetailPagePageStyle>
-      <div className="post-header">
-        <PostImage url={img} className="post-feature"></PostImage>
-        <div className="post-info">
-          <h1 className="py-10 post-heading">Hentai</h1>
-          <div className="flex items-center gap-5 mb-5">
-            <Avatar url={img} size="large"></Avatar>
-            <PostMeta></PostMeta>
+      {blog && (
+        <div className="post-header">
+          <PostImage url={blog.img} className="post-feature"></PostImage>
+          <div className="post-info">
+            <h1 className="py-10 post-heading">{blog?.title}</h1>
+            <div className="flex items-center gap-5 mb-5">
+              <Link to={`/profile/${blog.author?.username}`}>
+                <Avatar url={blog.author?.avatar} size="large"></Avatar>
+              </Link>
+              <PostMeta
+                date={blog.createdAt}
+                authorName={blog.author?.fullname}
+                to={blog.author?.username}
+              ></PostMeta>
+            </div>
+            <TopicList data={blog.topics}></TopicList>
+            <div className="py-2 mt-5 border-gray-200 action border-y">
+              <div className="flex items-center gap-5 communicate">
+                <ActionLike></ActionLike>
+                <ActionComment></ActionComment>
+              </div>
+            </div>
           </div>
-          <TopicList data={topics}></TopicList>
-          {/* Check if user role is ADMIN then can edit the post */}
-          {/* {userInfo?.role === userRole.ADMIN && (
-                <Link
-                  to={`/manage/update-post?id=${postInfo.id}`}
-                  className="inline-block px-4 py-2 mt-5 text-sm border border-gray-400 rounded-md"
-                >
-                  Edit post
-                </Link>
-              )} */}
-        </div>
-        <div className="post-content">
-          <div
-            className="entry-content"
-            // Prevent XSS Attack recommen from React Docs
-          >
-            <h2>hentai</h2>
+          <div className="post-content">
+            <div
+              className="entry-content"
+              // Prevent XSS Attack recommen from React Docs
+              dangerouslySetInnerHTML={{
+                __html: blog.content || "",
+              }}
+            ></div>
           </div>
-          {/* <AuthorBox userId={user.id}></AuthorBox> */}
         </div>
-        {/* <PostRelated categoryId={postInfo?.category?.id}></PostRelated> */}
-      </div>
+      )}
     </PostDetailPagePageStyle>
   );
 };

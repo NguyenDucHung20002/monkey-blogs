@@ -216,6 +216,7 @@ const WritePage = () => {
               topics={topics}
               setTopics={setTopics}
               token={token}
+              placeholder="Add a topic"
             ></SearchAddTopics>
             <p className="mt-5 text-sm text-gray-400 ">
               <span className="font-semibold text-gray-600">Note:</span> Changes
