@@ -1,33 +1,10 @@
 /* eslint-disable react/prop-types */
-import { useState } from "react";
 import Topic from "../../modules/topic/Topic";
-import { config } from "../../utils/constants";
-import axios from "axios";
+import ButtonFollowingTopic from "../button/ButtonFollowingTopic";
 
-const TopicUserHandle = ({ data = {} }) => {
+const TopicUserHandle = ({ data = {}, initialFollowing = false }) => {
   const { slug, name } = data;
-  const token = localStorage.getItem("token");
-  const [followed, setFollowed] = useState(false);
 
-  const handleFollow = async (slug) => {
-    const res = await axios
-      .post(
-        `${config.SERVER_HOST}:${config.SERVER_PORT}/api/follow-topic/follow-unfollow/${slug}`,
-        {},
-        {
-          headers: {
-            authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      )
-      .catch((err) => {
-        console.log(err);
-      });
-    if (res.data.success) {
-      setFollowed(!followed);
-    }
-  };
   if (!data) return;
   return (
     <div className="flex items-center justify-between">
@@ -42,21 +19,10 @@ const TopicUserHandle = ({ data = {} }) => {
           </div>
         </div>
       </div>
-      {!followed ? (
-        <button
-          className="px-4 py-1 text-blue-600 border border-blue-600 cursor-pointer rounded-2xl"
-          onClick={() => handleFollow(slug)}
-        >
-          Follow
-        </button>
-      ) : (
-        <button
-          className="px-4 py-1 text-white bg-blue-400 cursor-pointer rounded-2xl"
-          onClick={() => handleFollow(slug)}
-        >
-          Following
-        </button>
-      )}
+      <ButtonFollowingTopic
+        slug={slug}
+        initialFollowing={initialFollowing}
+      ></ButtonFollowingTopic>
     </div>
   );
 };

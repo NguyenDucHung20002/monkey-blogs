@@ -1,34 +1,10 @@
 /* eslint-disable react/prop-types */
 import { Link } from "react-router-dom";
 import Avatar from "../../modules/user/Avatar";
-import { useState } from "react";
-import { config } from "../../utils/constants";
-import axios from "axios";
+import ButtonFollowingUser from "../button/ButtonFollowingUser";
 
-const FollowingUserHandle = ({ data = {} }) => {
+const FollowingUserHandle = ({ data = {}, initialFollowing = false }) => {
   const { username, avatar, fullname, bio } = data;
-  const token = localStorage.getItem("token");
-  const [followed, setFollowed] = useState(false);
-
-  const handleFollow = async (username) => {
-    const res = await axios
-      .post(
-        `${config.SERVER_HOST}:${config.SERVER_PORT}/api/follow-user/${username}/follow-unfollow`,
-        {},
-        {
-          headers: {
-            authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      )
-      .catch((err) => {
-        console.log(err);
-      });
-    if (res.data.success) {
-      setFollowed(!followed);
-    }
-  };
 
   if (!data) return;
   return (
@@ -44,21 +20,10 @@ const FollowingUserHandle = ({ data = {} }) => {
           {bio && <p className="max-w-xs text-sm line-clamp-2">{bio}</p>}
         </div>
       </div>
-      {!followed ? (
-        <button
-          className="px-4 py-1 text-blue-600 border border-blue-600 cursor-pointer rounded-2xl"
-          onClick={() => handleFollow(username)}
-        >
-          Follow
-        </button>
-      ) : (
-        <button
-          className="px-4 py-1 text-white bg-blue-400 cursor-pointer rounded-2xl"
-          onClick={() => handleFollow(username)}
-        >
-          Following
-        </button>
-      )}
+      <ButtonFollowingUser
+        username={username}
+        initialFollowing={initialFollowing}
+      ></ButtonFollowingUser>
     </div>
   );
 };

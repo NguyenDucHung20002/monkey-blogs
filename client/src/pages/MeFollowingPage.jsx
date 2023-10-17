@@ -72,6 +72,7 @@ const MeFollowingPage = () => {
               <FollowingUserHandle
                 key={user._id}
                 data={user}
+                initialFollowing={true}
               ></FollowingUserHandle>
             ))}
         </div>
@@ -83,6 +84,7 @@ const MeFollowingPage = () => {
               <TopicUserHandle
                 key={topic._id}
                 data={topic.topic}
+                initialFollowing={true}
               ></TopicUserHandle>
             ))}
         </div>

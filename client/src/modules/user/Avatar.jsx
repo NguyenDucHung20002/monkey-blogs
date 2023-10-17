@@ -30,7 +30,7 @@ const AvatarStyle = styled.div`
 const Avatar = ({ url = "", alt = "", size }) => {
   return (
     <AvatarStyle size={size}>
-      <img className="rounded-1/2" src={url} alt={alt} loading="lazy" />
+      <img className="avatar rounded-1/2" src={url} alt={alt} loading="lazy" />
     </AvatarStyle>
   );
 };

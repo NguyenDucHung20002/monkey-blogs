@@ -73,9 +73,9 @@ const HomeSide = () => {
     <HomeSideStyle className="border-l border-gray-300">
       <div className="home-side">
         <div className="mb-5">
-          <h3 className="mb-5 text-lg font-semibold">Recommended topics</h3>
           {topics && topics.length > 0 && (
             <>
+              <h3 className="mb-5 text-lg font-semibold">Recommended topics</h3>
               <TopicList data={topics}></TopicList>
               <NavLink to={"/me/suggestions"}>
                 <button className="ml-1">see more suggestions</button>
@@ -84,20 +84,20 @@ const HomeSide = () => {
           )}
         </div>
         <div className="mb-5">
-          <h3 className="mb-5 text-lg font-semibold">Who to follow</h3>
-          {users &&
-            users.length > 0 &&
-            users.map((user) => (
-              <>
+          {users && users.length > 0 && (
+            <>
+              <h3 className="mb-5 text-lg font-semibold">Who to follow</h3>
+              {users.map((user) => (
                 <FollowingUserHandle
                   key={user._id}
                   data={user}
                 ></FollowingUserHandle>
-                <NavLink to={"/me/suggestions"}>
-                  <button className="ml-1">see more suggestions</button>
-                </NavLink>
-              </>
-            ))}
+              ))}
+              <NavLink to={"/me/suggestions"}>
+                <button className="ml-1">see more suggestions</button>
+              </NavLink>
+            </>
+          )}
         </div>
       </div>
     </HomeSideStyle>
