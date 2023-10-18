@@ -4,7 +4,7 @@ const topicSchema = require("../validations/topicSchema");
 const { authorize } = require("../middlewares/authorize");
 const requiredAuth = require("../middlewares/requiredAuth");
 const optionalAuth = require("../middlewares/optionalAuth");
-const fetchMyProfile = require("../middlewares/fetchMyProfile");
+const fetchMe = require("../middlewares/fetchMe");
 const topicController = require("../controllers/topicController");
 
 const router = express.Router();
@@ -36,7 +36,7 @@ router.delete(
 );
 
 // get a topic
-router.get("/:slug", optionalAuth, fetchMyProfile, topicController.getATopic);
+router.get("/:slug", optionalAuth, fetchMe, topicController.getATopic);
 
 // get all topic
 router.get("/", topicController.getAllTopics);
@@ -45,7 +45,7 @@ router.get("/", topicController.getAllTopics);
 router.get(
   "/tag/:slug/articles",
   optionalAuth,
-  fetchMyProfile,
+  fetchMe,
   topicController.getTopicArticles
 );
 
@@ -53,7 +53,7 @@ router.get(
 router.get(
   "/me/suggestions",
   requiredAuth,
-  fetchMyProfile,
+  fetchMe,
   topicController.getRandomTopics
 );
 

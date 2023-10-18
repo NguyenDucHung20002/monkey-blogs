@@ -2,6 +2,7 @@ const Like = require("../models/Like");
 const Topic = require("../models/Topic");
 const toSlug = require("../utils/toSlug");
 const Article = require("../models/Article");
+const Comment = require("../models/Comment");
 const addUrlToImg = require("../utils/addUrlToImg");
 const FollowTopic = require("../models/FollowTopic");
 const { ErrorResponse } = require("../response/ErrorResponse");
@@ -94,7 +95,7 @@ const deleteTopic = asyncMiddleware(async (req, res, next) => {
 
 const getATopic = asyncMiddleware(async (req, res, next) => {
   const { slug } = req.params;
-  const { myProfile } = req;
+  const { me } = req;
 
   const topic = await Topic.findOne({ slug }).lean();
   if (!topic) {
@@ -102,7 +103,7 @@ const getATopic = asyncMiddleware(async (req, res, next) => {
   }
 
   const [followers, articlesCount] = await Promise.all([
-    FollowTopic.find({ topic: topic._id }).lean().select("follower"),
+    FollowTopic.find({ topic: topic._id }).lean().distinct("follower"),
     Article.countDocuments({ topics: topic._id }),
   ]);
 
@@ -112,12 +113,64 @@ const getATopic = asyncMiddleware(async (req, res, next) => {
     articlesCount,
   };
 
-  if (myProfile) {
-    const followerIds = followers.map((follower) =>
-      follower.follower.toString()
-    );
-    result.isFollowing = followerIds.includes(myProfile._id.toString());
+  if (me) {
+    result.isFollowing = followers.includes(me._id);
   }
+
+  res.status(200).json({
+    success: true,
+    data: result,
+  });
+});
+
+// ==================== get topic articles ==================== //
+
+const getTopicArticles = asyncMiddleware(async (req, res, next) => {
+  const { me } = req;
+  const { slug } = req.params;
+  const { page = 1, limit = 10 } = req.query;
+
+  const skip = (page - 1) * limit;
+
+  const topic = await Topic.exists({ slug });
+  if (!topic) {
+    throw new ErrorResponse(404, "topic not found");
+  }
+
+  const articles = await Article.find({ topics: topic._id })
+    .lean()
+    .skip(skip)
+    .limit(limit)
+    .select("-content -topics -status")
+    .populate({
+      path: "author",
+      select: "avatar fullname username",
+    })
+    .sort({ createdAt: -1 });
+
+  const result = await Promise.all(
+    articles.map(async (article) => {
+      if (article && article.author && article.author.avatar && article.img) {
+        article.author.avatar = addUrlToImg(article.author.avatar);
+        article.img = addUrlToImg(article.img);
+      }
+      const like = await Like.find({ article: article._id })
+        .lean()
+        .distinct("user");
+      const commentCount = await Comment.countDocuments({
+        article: article._id,
+      });
+      const likeCount = like.length;
+      return me
+        ? {
+            ...article,
+            likeCount,
+            commentCount,
+            isLiked: like.includes(me._id),
+          }
+        : { ...article, likeCount, commentCount };
+    })
+  );
 
   res.status(200).json({
     success: true,
@@ -147,68 +200,17 @@ const getAllTopics = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// ==================== get topic articles ==================== //
-
-const getTopicArticles = asyncMiddleware(async (req, res, next) => {
-  const { myProfile } = req;
-  const { slug } = req.params;
-
-  const topic = await Topic.exists({ slug });
-  if (!topic) {
-    throw new ErrorResponse(404, "topic not found");
-  }
-
-  const articles = await Article.find({
-    topics: topic._id,
-  })
-    .lean()
-    .select("-content -topics -status")
-    .populate({
-      path: "author",
-      select: "avatar fullname username",
-    })
-    .sort({ createdAt: -1 });
-
-  const result = await Promise.all(
-    articles.map(async (article) => {
-      if (article.author && article.author.avatar && article.img) {
-        article.author.avatar = addUrlToImg(article.author.avatar);
-        article.img = addUrlToImg(article.img);
-      }
-      const like = await Like.find({ article: article._id })
-        .lean()
-        .select("user");
-      const likeId = like.map((id) => id.user.toString());
-      const likeCount = likeId.length;
-      return myProfile
-        ? {
-            ...article,
-            likeCount,
-            isLiked: likeId.includes(myProfile._id.toString()),
-          }
-        : { ...article, likeCount };
-    })
-  );
-
-  res.status(200).json({
-    success: true,
-    data: result,
-  });
-});
-
 // ==================== get random topics suggestions ==================== //
 
 const getRandomTopics = asyncMiddleware(async (req, res, next) => {
-  const myUserId = req.myProfile._id;
+  const { me } = req;
 
-  const myFollowingTopics = await FollowTopic.find({ follower: myUserId })
+  const myFollowingTopics = await FollowTopic.find({ follower: me._id })
     .lean()
-    .select("topic");
-
-  const topicIds = myFollowingTopics.map((topicId) => topicId.topic);
+    .distinct("topic");
 
   const topics = await Topic.aggregate()
-    .match({ _id: { $nin: [...topicIds] } })
+    .match({ _id: { $nin: myFollowingTopics } })
     .project("-createdAt -updatedAt")
     .sample(8);
 

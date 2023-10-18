@@ -1,6 +1,6 @@
 const express = require("express");
 const requiredAuth = require("../middlewares/requiredAuth");
-const fetchMyProfile = require("../middlewares/fetchMyProfile");
+const fetchMe = require("../middlewares/fetchMe");
 const followTopicController = require("../controllers/followTopicController");
 
 const router = express.Router();
@@ -9,7 +9,7 @@ const router = express.Router();
 router.post(
   "/:slug/follow-unfollow",
   requiredAuth,
-  fetchMyProfile,
+  fetchMe,
   followTopicController.followOrUnfollowATopic
 );
 

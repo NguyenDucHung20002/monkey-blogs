@@ -1,7 +1,6 @@
 const User = require("../models/User");
-const addUrlToImg = require("../utils/addUrlToImg");
 
-const fetchMyProfile = async (req, res, next) => {
+const fetchMe = async (req, res, next) => {
   try {
     if (!req.user) {
       return next();
@@ -9,15 +8,15 @@ const fetchMyProfile = async (req, res, next) => {
 
     const { id: user } = req.user;
 
-    const myProfile = await User.findById(user).lean();
-    if (!myProfile) {
+    const me = await User.findById(user).lean();
+    if (!me) {
       return res.status(404).json({
         success: false,
         message: "User not found",
       });
     }
 
-    req.myProfile = myProfile;
+    req.me = me;
     next();
   } catch (error) {
     return res.status(500).json({
@@ -27,4 +26,4 @@ const fetchMyProfile = async (req, res, next) => {
   }
 };
 
-module.exports = fetchMyProfile;
+module.exports = fetchMe;

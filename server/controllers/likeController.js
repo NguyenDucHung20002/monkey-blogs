@@ -6,7 +6,7 @@ const { asyncMiddleware } = require("../middlewares/asyncMiddleware");
 // ==================== like or unlike an article ==================== //
 
 const likeOrUnLikeAnArticle = asyncMiddleware(async (req, res, next) => {
-  const myUserId = req.myProfile._id;
+  const { me } = req;
   const { slug } = req.params;
 
   const article = await Article.exists({ slug });
@@ -16,13 +16,13 @@ const likeOrUnLikeAnArticle = asyncMiddleware(async (req, res, next) => {
 
   let like = await Like.findOne({
     article: article._id,
-    user: myUserId,
+    user: me._id,
   }).lean();
 
   if (!like) {
     like = new Like({
       article: article._id,
-      user: myUserId,
+      user: me._id,
     });
 
     await like.save();

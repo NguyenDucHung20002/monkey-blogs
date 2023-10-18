@@ -5,8 +5,8 @@ const mongoUpload = require("../middlewares/mongoUpload");
 const requiredAuth = require("../middlewares/requiredAuth");
 const optionalAuth = require("../middlewares/optionalAuth");
 const userController = require("../controllers/userController");
-const fetchMyProfile = require("../middlewares/fetchMyProfile");
-const fetchUserProfile = require("../middlewares/fetchUserProfile");
+const fetchMe = require("../middlewares/fetchMe");
+const fetchUser = require("../middlewares/fetchUser");
 
 const router = express.Router();
 
@@ -14,8 +14,8 @@ const router = express.Router();
 router.get(
   "/:username",
   optionalAuth,
-  fetchMyProfile,
-  fetchUserProfile,
+  fetchMe,
+  fetchUser,
   userController.getProfile
 );
 
@@ -23,8 +23,8 @@ router.get(
 router.get(
   "/:username/following",
   optionalAuth,
-  fetchMyProfile,
-  fetchUserProfile,
+  fetchMe,
+  fetchUser,
   userController.getFollowing
 );
 
@@ -32,23 +32,19 @@ router.get(
 router.get(
   "/:username/followers",
   optionalAuth,
-  fetchMyProfile,
-  fetchUserProfile,
+  fetchMe,
+  fetchUser,
   userController.getFollowers
 );
 
 // get user articles
-router.get(
-  "/:username/articles",
-  fetchUserProfile,
-  userController.getUserArticles
-);
+router.get("/:username/articles", fetchUser, userController.getUserArticles);
 
 // get my following topics
 router.get(
   "/me/following/topics",
   requiredAuth,
-  fetchMyProfile,
+  fetchMe,
   userController.getMyFollowingTopics
 );
 
@@ -56,7 +52,7 @@ router.get(
 router.put(
   "/me/update",
   requiredAuth,
-  fetchMyProfile,
+  fetchMe,
   mongoUpload.single("avatar"),
   validator(userSchema.updateSchema),
   userController.updateMyProfile
@@ -66,11 +62,11 @@ router.put(
 router.get(
   "/me/suggestions",
   requiredAuth,
-  fetchMyProfile,
+  fetchMe,
   userController.getRandomUsers
 );
 
 // search users
-router.post("/search", optionalAuth, fetchMyProfile, userController.searchUser);
+router.post("/search", optionalAuth, fetchMe, userController.searchUser);
 
 module.exports = router;

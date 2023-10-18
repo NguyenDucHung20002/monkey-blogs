@@ -1,10 +1,10 @@
 const Like = require("../models/Like");
 const Topic = require("../models/Topic");
 const toSlug = require("../utils/toSlug");
+const Comment = require("../models/Comment");
 const Article = require("../models/Article");
 const FollowUser = require("../models/FollowUser");
 const addUrlToImg = require("../utils/addUrlToImg");
-const FollowTopic = require("../models/FollowTopic");
 const { removeFile } = require("../utils/removeFile");
 const { ErrorResponse } = require("../response/ErrorResponse");
 const { asyncMiddleware } = require("../middlewares/asyncMiddleware");
@@ -12,7 +12,7 @@ const { asyncMiddleware } = require("../middlewares/asyncMiddleware");
 // ==================== create article ==================== //
 
 const createAnArticle = asyncMiddleware(async (req, res, next) => {
-  const myUserId = req.myProfile._id;
+  const { me } = req;
   const { title, preview, content, topics } = req.body;
 
   const filename = req.file?.filename;
@@ -23,7 +23,7 @@ const createAnArticle = asyncMiddleware(async (req, res, next) => {
   const slug = toSlug(title) + "-" + Date.now();
 
   const article = new Article({
-    author: myUserId,
+    author: me._id,
     title,
     preview,
     slug,
@@ -42,7 +42,7 @@ const createAnArticle = asyncMiddleware(async (req, res, next) => {
 // ==================== update article ==================== //
 
 const updateMyArticle = asyncMiddleware(async (req, res, next) => {
-  const myUserId = req.myProfile._id;
+  const { me } = req;
   const { slug } = req.params;
   const { title, preview, content, topics } = req.body;
 
@@ -55,8 +55,6 @@ const updateMyArticle = asyncMiddleware(async (req, res, next) => {
     throw new ErrorResponse(404, "article not found");
   }
 
-  console.log(oldArticle);
-
   let updatedSlug;
 
   if (title) {
@@ -66,7 +64,7 @@ const updateMyArticle = asyncMiddleware(async (req, res, next) => {
   }
 
   await Article.findOneAndUpdate(
-    { author: myUserId, slug },
+    { author: me._id, slug },
     { title, preview, slug: updatedSlug, img: filename, content, topics },
     { new: true }
   );
@@ -83,11 +81,11 @@ const updateMyArticle = asyncMiddleware(async (req, res, next) => {
 // ==================== delete article ==================== //
 
 const deleteMyArticle = asyncMiddleware(async (req, res, next) => {
-  const myUserId = req.myProfile._id;
+  const { me } = req;
   const { slug } = req.params;
 
   const article = await Article.findOneAndDelete({
-    author: myUserId,
+    author: me._id,
     slug,
   });
   if (article) {
@@ -102,8 +100,8 @@ const deleteMyArticle = asyncMiddleware(async (req, res, next) => {
 // ==================== get an article ==================== //
 
 const getAnArticle = asyncMiddleware(async (req, res, next) => {
+  const { me } = req;
   const { slug } = req.params;
-  const { myProfile } = req;
 
   const article = await Article.findOne({ slug, status: "approved" })
     .lean()
@@ -122,25 +120,29 @@ const getAnArticle = asyncMiddleware(async (req, res, next) => {
   }
 
   article.img = addUrlToImg(article.img);
+
   article.author.avatar = addUrlToImg(article.author.avatar);
 
-  const likes = await Like.find({ article: article._id }).lean().select("user");
+  const commentCount = await Comment.countDocuments({ article: article._id });
 
-  const result = { article, likeCount: likes.length };
+  const likes = await Like.find({ article: article._id })
+    .lean()
+    .distinct("user");
 
-  if (myProfile) {
-    result.isMyArticle =
-      myProfile._id.toString() === article.author._id.toString();
+  const result = { article, likeCount: likes.length, commentCount };
+
+  if (me) {
+    result.isMyArticle = me._id.toString() === article.author._id.toString();
     if (!result.isMyArticle) {
       result.authorFollowing = (await FollowUser.exists({
-        follower: myProfile._id,
+        follower: me._id,
         following: article.author._id,
       }))
         ? true
         : false;
     }
-    const likeIds = likes.map((like) => like.user.toString());
-    result.isLiked = likeIds.includes(myProfile._id);
+
+    result.isLiked = likes.includes(me._id);
   }
 
   res.status(200).json({
@@ -149,10 +151,10 @@ const getAnArticle = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// ==================== get all articles ==================== //
+// ==================== get all articles when login ==================== //
 
 const getAllArticles = asyncMiddleware(async (req, res, next) => {
-  const { myProfile } = req;
+  const { me } = req;
   const { tag, feed } = req.query;
 
   const findQuery = { status: "approved" };
@@ -167,12 +169,11 @@ const getAllArticles = asyncMiddleware(async (req, res, next) => {
 
   if (feed) {
     const myFollowing = await FollowUser.find({
-      follower: myProfile._id,
+      follower: me._id,
     })
       .lean()
-      .select("following");
-    const myFollowingIds = myFollowing.map((follow) => follow.following);
-    findQuery.author = { $in: myFollowingIds };
+      .distinct("following");
+    findQuery.author = { $in: myFollowing };
   }
 
   const articles = await Article.find(findQuery)
@@ -190,7 +191,7 @@ const getAllArticles = asyncMiddleware(async (req, res, next) => {
     });
 
   articles.forEach((article) => {
-    if (article.author && article.author.avatar && article.img) {
+    if (article && article.author && article.author.avatar && article.img) {
       article.author.avatar = addUrlToImg(article.author.avatar);
       article.img = addUrlToImg(article.img);
     }
@@ -213,21 +214,9 @@ const searchTopics = asyncMiddleware(async (req, res, next) => {
     topics = await Topic.find({ name: new RegExp(search, "i") }).lean();
   }
 
-  const topicsWithCounts = await Promise.all(
-    topics.map(async (topic) => {
-      const followersCount = await FollowTopic.countDocuments({
-        topic: topic._id,
-      });
-      return {
-        ...topic,
-        followersCount,
-      };
-    })
-  );
-
   res.status(200).json({
     success: true,
-    data: topicsWithCounts,
+    data: topics,
   });
 });
 
@@ -235,6 +224,9 @@ const searchTopics = asyncMiddleware(async (req, res, next) => {
 
 const searchArticles = asyncMiddleware(async (req, res, next) => {
   const { search } = req.body;
+  const { page = 1, limit = 10 } = req.query;
+
+  const skip = (page - 1) * limit;
 
   let articles = [];
 
@@ -244,6 +236,8 @@ const searchArticles = asyncMiddleware(async (req, res, next) => {
       status: "approved",
     })
       .lean()
+      .skip(skip)
+      .limit(limit)
       .select("-status -content")
       .populate({
         path: "topics",

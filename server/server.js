@@ -13,9 +13,11 @@ const authRouter = require("./routers/authRouter");
 const fileRouter = require("./routers/fileRouter");
 const likeRouter = require("./routers/likeRouter");
 const topicRouter = require("./routers/topicRouter");
+const commentRouter = require("./routers/commentRouter");
 const articleRouter = require("./routers/articleRouter");
-const followTopicRouter = require("./routers/followTopicRouter");
 const followUserRouter = require("./routers/followUserRouter");
+const followTopicRouter = require("./routers/followTopicRouter");
+const notificationRouter = require("./routers/notificationRouter");
 
 require("./services/passport");
 
@@ -46,11 +48,13 @@ createRoles();
 app.use("/api/auth", authRouter);
 app.use("/api/file", fileRouter);
 app.use("/api/user", userRouter);
-app.use("/api/topic", topicRouter);
-app.use("/api/article", articleRouter);
-app.use("/api/follow-topic", followTopicRouter);
-app.use("/api/follow-user", followUserRouter);
 app.use("/api/like", likeRouter);
+app.use("/api/topic", topicRouter);
+app.use("/api/comment", commentRouter);
+app.use("/api/article", articleRouter);
+app.use("/api/follow-user", followUserRouter);
+app.use("/api/follow-topic", followTopicRouter);
+app.use("/api/notification", notificationRouter);
 
 app.use(errorMiddleware);
 

@@ -6,7 +6,7 @@ const { asyncMiddleware } = require("../middlewares/asyncMiddleware");
 // ==================== follow or unfollow a topic ==================== //
 
 const followOrUnfollowATopic = asyncMiddleware(async (req, res, next) => {
-  const myUserId = req.myProfile._id;
+  const { me } = req;
   const { slug } = req.params;
 
   const topic = await Topic.findOne({ slug });
@@ -15,15 +15,16 @@ const followOrUnfollowATopic = asyncMiddleware(async (req, res, next) => {
   }
 
   let followTopic = await FollowTopic.findOne({
-    follower: myUserId,
+    follower: me._id,
     topic: topic._id,
   }).lean();
 
   if (!followTopic) {
     followTopic = new FollowTopic({
-      follower: myUserId,
+      follower: me._id,
       topic: topic._id,
     });
+
     await followTopic.save();
   } else {
     await FollowTopic.deleteOne({ _id: followTopic._id });
