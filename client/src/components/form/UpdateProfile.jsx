@@ -77,7 +77,7 @@ const UpdateProfile = ({show, setShow, user}) => {
   };
 
   useEffect(()=>{
-    const profile = user?.profile
+    const profile = user
     setValue('fullname',profile?.fullname)
     profile?.bio && profile?.bio!=" "? setValue('bio',profile?.bio):""
     profile?.about && profile?.about!=" " ? setValue('about',profile?.about):""

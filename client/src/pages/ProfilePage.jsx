@@ -6,22 +6,23 @@ import ProfileContext from "../modules/profile/ProfileContext";
 import { config } from "../utils/constants";
 import TopicRcmm from "../modules/topic/TopicRcm";
 import { useParams } from "react-router-dom";
+import ProfileBlogs from "../modules/profile/ProfileBlogs";
+import Following from "../components/follow/Following";
 const ProfilePage = () => {
   const [show, setShow] = useState(false);
+  const [isfollowed, setIsFollowed] = useState(false);
   const [user, setUser] = useState({});
-  const [isFollow, setIsFollow] = useState(false);
+  const [blogs, setBlogs] = useState([]);
+  const [following, setFollowing] = useState([]);
   const { username } = useParams();
-  console.log(user);
   const token = localStorage.getItem("token");
-  console.log(token);
-  const FetchFollow = async () => {
+  async function fetchUserInf() {
     const res = await axios
-      .post(
-        `${config.SERVER_HOST}:${config.SERVER_PORT}/api/follow-user/${username}/follow-unfollow`,
-        {},
+      .get(
+        `${config.SERVER_HOST}:${config.SERVER_PORT}/api/user/${username}`,
         {
           headers: {
-            authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
         }
@@ -30,43 +31,67 @@ const ProfilePage = () => {
         console.log(err);
       });
     if (res.data.success) {
-      setIsFollow(!isFollow);
+      const profileUser = res.data.data;
+      setUser({ ...profileUser });
+      setIsFollowed(profileUser.isMe)
     }
-  };
-
-  useEffect(() => {
-    async function fetch() {
-      const res = await axios
-        .get(
-          `${config.SERVER_HOST}:${config.SERVER_PORT}/api/user/${username}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        )
-        .catch((err) => {
-          console.log(err);
-        });
+  }
+  async function fetchUserBlog() {
+    const res = await axios
+      .get(`${config.SERVER_HOST}:${config.SERVER_PORT}/api/user/${username}/articles`)
+      .catch((err) => {
+        console.log(err);
+      });
       if (res.data.success) {
-        const profileUser = res.data.data;
-        setUser({ ...profileUser });
-        setIsFollow(profileUser.isFollowing);
+        const dataBlogs = res.data.data;
+        setBlogs( [...dataBlogs ]);
       }
     }
-    fetch();
+  async function fetchDeleteArticle(slug) {
+    const res = await axios
+      .delete(
+        `${config.SERVER_HOST}:${config.SERVER_PORT}/api/article/${slug}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      )
+      .catch((err) => {
+        console.log(err);
+      });
+    if (res.data.success) {
+        fetchUserBlog()
+    }
+  }
+  async function fetchUserFollowing() {
+    const res = await axios
+      .get(`${config.SERVER_HOST}:${config.SERVER_PORT}/api/user/${username}/following`)
+      .catch((err) => {
+        console.log(err);
+      });
+      if (res.data.success) {
+        const dataBlogs = res.data.data;
+        setFollowing( [...dataBlogs ]);
+      }
+    }
+  useEffect(() => {
+    fetchUserInf();
+    fetchUserBlog();
+    fetchUserFollowing()
   }, [show, username]);
-  return (
+  console.log(user);
+    return (
     <>
       <div className="w-full border-t border-gray-300"></div>
-      {user.isMyProfile && (
+      {user.isMe && (
         <UpdateProfile user={user} show={show} setShow={setShow} />
       )}
       <div className="container max-w-[1336px] mx-auto flex">
         <div className="w-full md:px-14 md:max-w-[70%] ">
           <ProfileContext user={user} />
-          {/* <ArticleList className="gap-8 md:grid-cols-1 lg:grid-cols-2"/> */}
+          <ProfileBlogs blogs={blogs} user={user} fetchDeleteArticle={fetchDeleteArticle} />
         </div>
         <div className=" hidden max-w-[30%] md:block  ">
           <div className="w-full h-screen p-8 text-gray-500 border-l border-l-gray-300 ">
@@ -74,10 +99,10 @@ const ProfilePage = () => {
               show={show}
               setShow={setShow}
               user={user}
-              isFollow={isFollow}
-              FetchFollow={FetchFollow}
+              isfollowed={isfollowed}
+              username={username}
             />
-            {/* <Following/> */}
+            <Following data={following} token={token} user={user}/>
             <TopicRcmm />
           </div>
         </div>

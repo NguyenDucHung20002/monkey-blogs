@@ -13,7 +13,7 @@ const ProfileContext = ({user}) =>
                 <div className="inline-block py-4 border-b border-stone-800 ">Home</div>
             </div>
 
-            <div className="flex bg-neutral-50 mt-11 border border-neutral-50 rounded-lg overflow-hidden">
+            {/* <div className="flex bg-neutral-50 mt-11 border border-neutral-50 rounded-lg overflow-hidden">
                 <div className="w-2/4 p-6">
                     <div className="flex">
                         <div className="w-6 h-6 rounded-1/2 overflow-hidden">
@@ -32,7 +32,7 @@ const ProfileContext = ({user}) =>
                     <div className="bg-neutral-200 h-full w-1/3 mx-[2px]"></div>
                     <div className="bg-neutral-200 h-full flex-1"></div>
                 </div>
-            </div>
+            </div> */}
         </div>
     </>)
 }
