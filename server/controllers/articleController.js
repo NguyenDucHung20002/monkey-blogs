@@ -106,14 +106,8 @@ const getAnArticle = asyncMiddleware(async (req, res, next) => {
   const article = await Article.findOne({ slug, status: "approved" })
     .lean()
     .select("-status")
-    .populate({
-      path: "author",
-      select: "avatar fullname username",
-    })
-    .populate({
-      path: "topics",
-      select: "name slug",
-    });
+    .populate({ path: "author", select: "avatar fullname username" })
+    .populate({ path: "topics", select: "name slug" });
 
   if (!article) {
     throw new ErrorResponse(404, "article not found");
@@ -134,12 +128,10 @@ const getAnArticle = asyncMiddleware(async (req, res, next) => {
   if (me) {
     result.isMyArticle = me._id.toString() === article.author._id.toString();
     if (!result.isMyArticle) {
-      result.authorFollowing = (await FollowUser.exists({
+      result.authorFollowing = !!(await FollowUser.exists({
         follower: me._id,
         following: article.author._id,
-      }))
-        ? true
-        : false;
+      }));
     }
 
     result.isLiked = likes.includes(me._id);
@@ -179,22 +171,13 @@ const getAllArticles = asyncMiddleware(async (req, res, next) => {
   const articles = await Article.find(findQuery)
     .lean()
     .select("-status -content")
-    .populate({
-      path: "topics",
-      options: { limit: 1 },
-      select: "name slug",
-    })
+    .populate({ path: "topics", options: { limit: 1 }, select: "name slug" })
     .sort({ createdAt: -1 })
-    .populate({
-      path: "author",
-      select: "avatar fullname username",
-    });
+    .populate({ path: "author", select: "avatar fullname username" });
 
   articles.forEach((article) => {
-    if (article && article.author && article.author.avatar && article.img) {
-      article.author.avatar = addUrlToImg(article.author.avatar);
-      article.img = addUrlToImg(article.img);
-    }
+    article.author.avatar = addUrlToImg(article.author.avatar);
+    article.img = addUrlToImg(article.img);
   });
 
   res.status(200).json({
@@ -239,22 +222,13 @@ const searchArticles = asyncMiddleware(async (req, res, next) => {
       .skip(skip)
       .limit(limit)
       .select("-status -content")
-      .populate({
-        path: "topics",
-        options: { limit: 1 },
-        select: "name slug",
-      })
+      .populate({ path: "topics", options: { limit: 1 }, select: "name slug" })
       .sort({ createdAt: -1 })
-      .populate({
-        path: "author",
-        select: "avatar fullname username",
-      });
+      .populate({ path: "author", select: "avatar fullname username" });
 
     articles.forEach((article) => {
-      if (article.author && article.author.avatar && article.img) {
-        article.author.avatar = addUrlToImg(article.author.avatar);
-        article.img = addUrlToImg(article.img);
-      }
+      article.author.avatar = addUrlToImg(article.author.avatar);
+      article.img = addUrlToImg(article.img);
     });
   }
 

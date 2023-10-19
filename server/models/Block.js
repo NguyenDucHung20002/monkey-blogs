@@ -1,24 +1,24 @@
 const mongoose = require("mongoose");
 
-const FollowingTopicSchema = new mongoose.Schema(
+const BlockSchema = new mongoose.Schema(
   {
-    follower: {
+    user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
-    topic: {
+    block: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Topic",
+      ref: "User",
       required: true,
     },
   },
   {
-    timestamps: true,
+    timestamps: false,
     versionKey: false,
   }
 );
 
-FollowingTopicSchema.index({ follower: 1, topic: 1 });
+BlockSchema.index({ user: 1, block: 1 });
 
-module.exports = mongoose.model("FollowingTopic", FollowingTopicSchema);
+module.exports = mongoose.model("Block", BlockSchema);

@@ -18,7 +18,7 @@ const ArticleSchema = new mongoose.Schema(
         ref: "Topic",
       },
     ],
-    status: { type: String, required: true, default: "pending" },
+    status: { type: String, required: true, default: "approved" },
   },
   {
     timestamps: true,

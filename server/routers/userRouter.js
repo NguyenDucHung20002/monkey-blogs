@@ -1,12 +1,12 @@
 const express = require("express");
+const fetchMe = require("../middlewares/fetchMe");
+const fetchUser = require("../middlewares/fetchUser");
 const validator = require("../middlewares/validator");
 const userSchema = require("../validations/userSchema");
 const mongoUpload = require("../middlewares/mongoUpload");
 const requiredAuth = require("../middlewares/requiredAuth");
 const optionalAuth = require("../middlewares/optionalAuth");
 const userController = require("../controllers/userController");
-const fetchMe = require("../middlewares/fetchMe");
-const fetchUser = require("../middlewares/fetchUser");
 
 const router = express.Router();
 
@@ -68,5 +68,8 @@ router.get(
 
 // search users
 router.post("/search", optionalAuth, fetchMe, userController.searchUser);
+
+// get block list
+router.get("/me/blocks", requiredAuth, fetchMe, userController.getBlockList);
 
 module.exports = router;

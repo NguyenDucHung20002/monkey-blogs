@@ -83,7 +83,7 @@ const deleteComment = asyncMiddleware(async (req, res, next) => {
 const getMainComments = asyncMiddleware(async (req, res, next) => {
   const { me } = req;
   const { slug } = req.params;
-  const { page = 1, limit = 10 } = req.query;
+  const { page = 1, limit = 15 } = req.query;
 
   const skip = (page - 1) * limit;
 
@@ -99,12 +99,12 @@ const getMainComments = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// ==================== get article comment nested comments of main comment ==================== //
+// ==================== get article nested comments of main comment ==================== //
 
 const getNestedComments = asyncMiddleware(async (req, res, next) => {
   const { me } = req;
   const { id, slug } = req.params;
-  const { page = 1, limit = 10 } = req.query;
+  const { page = 1, limit = 15 } = req.query;
 
   const skip = (page - 1) * limit;
 
@@ -140,17 +140,12 @@ async function commentList(me, article, parentCommentId, skip, limit) {
     .skip(skip)
     .limit(limit)
     .select("-article")
-    .populate({
-      path: "author",
-      select: "avatar fullname username",
-    })
+    .populate({ path: "author", select: "avatar fullname username" })
     .sort({ createdAt: -1 });
 
   const result = await Promise.all(
     comments.map(async (comment) => {
-      if (comment && comment.author && comment.author.avatar) {
-        comment.author.avatar = addUrlToImg(comment.author.avatar);
-      }
+      comment.author.avatar = addUrlToImg(comment.author.avatar);
       const isAuthor =
         comment.author._id.toString() === article.author.toString();
       const replyCount = await Comment.countDocuments({

@@ -5,7 +5,7 @@ const { asyncMiddleware } = require("../middlewares/asyncMiddleware");
 
 const getAllNotifications = asyncMiddleware(async (req, res, next) => {
   const { me } = req;
-  const { page = 1, limit = 10 } = req.query;
+  const { page = 1, limit = 15 } = req.query;
 
   const skip = (page - 1) * limit;
 

@@ -1,4 +1,5 @@
 const User = require("../models/User");
+const Block = require("../models/Block");
 const Article = require("../models/Article");
 const FollowUser = require("../models/FollowUser");
 const addUrlToImg = require("../utils/addUrlToImg");
@@ -11,18 +12,13 @@ const { asyncMiddleware } = require("../middlewares/asyncMiddleware");
 const getProfile = asyncMiddleware(async (req, res, next) => {
   const { me, user } = req;
 
-  const profile = { profile: user };
+  const result = { ...user };
 
-  if (me) {
-    profile.isMyProfile = me._id.toString() === user._id.toString();
-    if (!profile.isMyProfile) {
-      profile.isFollowing = (await FollowUser.exists({
-        follower: me._id,
-        following: user._id,
-      }))
-        ? true
-        : false;
-    }
+  result.isMe = me && me._id.toString() === user._id.toString();
+  if (!result.isMe) {
+    result.isFollowed =
+      me &&
+      !!(await FollowUser.exists({ follower: me._id, following: user._id }));
   }
 
   const [followerCount, followingCount] = await Promise.all([
@@ -30,12 +26,12 @@ const getProfile = asyncMiddleware(async (req, res, next) => {
     FollowUser.countDocuments({ follower: user._id }),
   ]);
 
-  profile.followerCount = followerCount;
-  profile.followingCount = followingCount;
+  result.followerCount = followerCount;
+  result.followingCount = followingCount;
 
   res.status(200).json({
     success: true,
-    data: profile,
+    data: result,
   });
 });
 
@@ -43,7 +39,7 @@ const getProfile = asyncMiddleware(async (req, res, next) => {
 
 const getFollowing = asyncMiddleware(async (req, res, next) => {
   const { me, user } = req;
-  const { page = 1, limit = 10 } = req.query;
+  const { page = 1, limit = 15 } = req.query;
 
   const skip = (page - 1) * limit;
 
@@ -55,27 +51,22 @@ const getFollowing = asyncMiddleware(async (req, res, next) => {
     .skip(skip)
     .limit(limit)
     .select("follower following")
-    .populate({
-      path: "following",
-      select: "avatar fullname username bio",
-    });
+    .populate({ path: "following", select: "avatar fullname username bio" });
 
-  const following = followingDocs.map((doc) => {
+  const result = followingDocs.map((doc) => {
     const following = { ...doc.following };
-    if (following && following.avatar) {
-      following.avatar = addUrlToImg(following.avatar);
-    }
-    return me
+    following.avatar = addUrlToImg(following.avatar);
+    return me && me._id.toString() !== user._id.toString()
       ? {
           ...following,
-          isFollowing: me._id.toString() === doc.follower._id.toString(),
+          isFollowed: me._id.toString() === doc.follower._id.toString(),
         }
       : following;
   });
 
   res.status(200).json({
     success: true,
-    data: following,
+    data: result,
   });
 });
 
@@ -83,7 +74,7 @@ const getFollowing = asyncMiddleware(async (req, res, next) => {
 
 const getFollowers = asyncMiddleware(async (req, res, next) => {
   const { me, user } = req;
-  const { page = 1, limit = 10 } = req.query;
+  const { page = 1, limit = 15 } = req.query;
 
   const skip = (page - 1) * limit;
 
@@ -97,20 +88,16 @@ const getFollowers = asyncMiddleware(async (req, res, next) => {
     .select("follower")
     .populate({ path: "follower", select: "avatar fullname username bio" });
 
-  const followers = await Promise.all(
+  const result = await Promise.all(
     followerDocs.map(async (doc) => {
-      if (doc && doc.follower && doc.follower.avatar) {
-        doc.follower.avatar = addUrlToImg(doc.follower.avatar);
-      }
+      doc.follower.avatar = addUrlToImg(doc.follower.avatar);
       return me
         ? {
             ...doc.follower,
-            isFollowing: (await FollowUser.exists({
+            isFollowed: !!(await FollowUser.exists({
               follower: me._id,
               following: doc.follower,
-            }))
-              ? true
-              : false,
+            })),
           }
         : doc.follower;
     })
@@ -118,7 +105,7 @@ const getFollowers = asyncMiddleware(async (req, res, next) => {
 
   res.status(200).json({
     success: true,
-    data: followers,
+    data: result,
   });
 });
 
@@ -126,7 +113,7 @@ const getFollowers = asyncMiddleware(async (req, res, next) => {
 
 const getUserArticles = asyncMiddleware(async (req, res, next) => {
   const { user } = req;
-  const { page = 1, limit = 10 } = req.query;
+  const { page = 1, limit = 15 } = req.query;
 
   const skip = (page - 1) * limit;
 
@@ -135,17 +122,11 @@ const getUserArticles = asyncMiddleware(async (req, res, next) => {
     .skip(skip)
     .limit(limit)
     .select("-author -content")
-    .populate({
-      path: "topics",
-      options: { limit: 1 },
-      select: "name slug",
-    })
+    .populate({ path: "topics", options: { limit: 1 }, select: "name slug" })
     .sort({ createdAt: -1 });
 
   articles.forEach((article) => {
-    if (article && article.img) {
-      article.img = addUrlToImg(article.img);
-    }
+    article.img = addUrlToImg(article.img);
   });
 
   res.status(200).json({
@@ -158,18 +139,23 @@ const getUserArticles = asyncMiddleware(async (req, res, next) => {
 
 const getMyFollowingTopics = asyncMiddleware(async (req, res, next) => {
   const { me } = req;
+  const { page = 1, limit = 15 } = req.query;
+
+  const skip = (page - 1) * limit;
 
   const topics = await FollowTopic.find({ follower: me._id })
     .lean()
+    .skip(skip)
+    .limit(limit)
     .select("topic")
-    .populate({
-      path: "topic",
-      select: "name slug",
-    });
+    .populate({ path: "topic", select: "name slug" });
+
+  const result = topics.map((topic) => {
+    return topic.topic;
+  });
 
   res.status(200).json({
-    success: true,
-    data: topics,
+    success: result,
   });
 });
 
@@ -216,9 +202,7 @@ const getRandomUsers = asyncMiddleware(async (req, res, next) => {
     .sample(15);
 
   users.forEach((user) => {
-    if (user && user.avatar) {
-      user.avatar = addUrlToImg(user.avatar);
-    }
+    user.avatar = addUrlToImg(user.avatar);
   });
 
   res.status(200).json({
@@ -232,38 +216,33 @@ const getRandomUsers = asyncMiddleware(async (req, res, next) => {
 const searchUser = asyncMiddleware(async (req, res, next) => {
   const { me } = req;
   const { search } = req.body;
-  const { page = 1, limit = 10 } = req.query;
+  const { page = 1, limit = 15 } = req.query;
 
   const skip = (page - 1) * limit;
 
-  let users = [];
+  let result = [];
 
   if (search) {
-    users = await User.find()
-      .and([
-        { fullname: new RegExp(search, "i") },
-        { _id: { $ne: me ? me._id : null } },
-      ])
+    const users = await User.find({
+      fullname: new RegExp(search, "i"),
+      _id: { $ne: me ? me._id : null },
+    })
       .lean()
       .skip(skip)
       .limit(limit)
       .select("avatar fullname username")
       .sort({ createdAt: -1 });
 
-    users = await Promise.all(
+    result = await Promise.all(
       users.map(async (user) => {
-        if (user && user.avatar) {
-          user.avatar = addUrlToImg(user.avatar);
-        }
+        user.avatar = addUrlToImg(user.avatar);
         return me
           ? {
               ...user,
-              isFollowing: (await FollowUser.exists({
+              isFollowing: !!(await FollowUser.exists({
                 follower: me._id,
                 following: user._id,
-              }))
-                ? true
-                : false,
+              })),
             }
           : user;
       })
@@ -272,7 +251,26 @@ const searchUser = asyncMiddleware(async (req, res, next) => {
 
   res.status(200).json({
     success: true,
-    data: users,
+    data: result,
+  });
+});
+
+// ==================== get block list ==================== //
+
+const getBlockList = asyncMiddleware(async (req, res, next) => {
+  const { me } = req;
+
+  const blocks = await Block.find({ user: me._id })
+    .lean()
+    .select("block")
+    .populate({
+      path: "block",
+      select: "avatar fullname username",
+    });
+
+  res.status(200).json({
+    success: true,
+    data: blocks,
   });
 });
 
@@ -285,4 +283,5 @@ module.exports = {
   getUserArticles,
   getRandomUsers,
   searchUser,
+  getBlockList,
 };

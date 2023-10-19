@@ -27,9 +27,9 @@ const login = asyncMiddleware(async (req, res, next) => {
 // ==================== Logout ==================== //
 
 const logout = asyncMiddleware(async (req, res, next) => {
-  const userId = req.me._id;
+  const { me } = req;
 
-  await Token.findOneAndDelete({ userId });
+  await Token.findOneAndDelete({ userId: me._id });
 
   res.status(200).json({
     success: true,

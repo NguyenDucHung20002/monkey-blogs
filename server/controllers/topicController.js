@@ -102,19 +102,22 @@ const getATopic = asyncMiddleware(async (req, res, next) => {
     throw new ErrorResponse(404, "topic not found");
   }
 
-  const [followers, articlesCount] = await Promise.all([
-    FollowTopic.find({ topic: topic._id }).lean().distinct("follower"),
+  const [followersCount, articlesCount] = await Promise.all([
+    FollowTopic.countDocuments({ topic: topic._id }),
     Article.countDocuments({ topics: topic._id }),
   ]);
 
   const result = {
-    topic,
-    followersCount: followers.length,
+    ...topic,
+    followersCount,
     articlesCount,
   };
 
   if (me) {
-    result.isFollowing = followers.includes(me._id);
+    result.isFollowing = !!(await FollowTopic.exists({
+      follower: me._id,
+      topic: topic._id,
+    }));
   }
 
   res.status(200).json({
@@ -128,7 +131,7 @@ const getATopic = asyncMiddleware(async (req, res, next) => {
 const getTopicArticles = asyncMiddleware(async (req, res, next) => {
   const { me } = req;
   const { slug } = req.params;
-  const { page = 1, limit = 10 } = req.query;
+  const { page = 1, limit = 15 } = req.query;
 
   const skip = (page - 1) * limit;
 
@@ -142,18 +145,13 @@ const getTopicArticles = asyncMiddleware(async (req, res, next) => {
     .skip(skip)
     .limit(limit)
     .select("-content -topics -status")
-    .populate({
-      path: "author",
-      select: "avatar fullname username",
-    })
+    .populate({ path: "author", select: "avatar fullname username" })
     .sort({ createdAt: -1 });
 
   const result = await Promise.all(
     articles.map(async (article) => {
-      if (article && article.author && article.author.avatar && article.img) {
-        article.author.avatar = addUrlToImg(article.author.avatar);
-        article.img = addUrlToImg(article.img);
-      }
+      article.author.avatar = addUrlToImg(article.author.avatar);
+      article.img = addUrlToImg(article.img);
       const like = await Like.find({ article: article._id })
         .lean()
         .distinct("user");
@@ -182,6 +180,9 @@ const getTopicArticles = asyncMiddleware(async (req, res, next) => {
 
 const getAllTopics = asyncMiddleware(async (req, res, next) => {
   const { search } = req.query;
+  const { page = 1, limit = 15 } = req.query;
+
+  const skip = (page - 1) * limit;
 
   let topics;
 
@@ -192,7 +193,7 @@ const getAllTopics = asyncMiddleware(async (req, res, next) => {
     topics = Topic.find();
   }
 
-  topics = await topics.lean().select("name slug");
+  topics = await topics.lean().skip(skip).limit(limit).select("name slug");
 
   res.status(200).json({
     success: true,
