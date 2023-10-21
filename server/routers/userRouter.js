@@ -19,6 +19,20 @@ router.get(
   userController.getProfile
 );
 
+// count following
+router.get(
+  "/:username/following/amount",
+  fetchUser,
+  userController.countFollowing
+);
+
+// count follower
+router.get(
+  "/:username/follower/amount",
+  fetchUser,
+  userController.countFollower
+);
+
 // get user following
 router.get(
   "/:username/following",
