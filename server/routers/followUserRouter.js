@@ -12,7 +12,7 @@ router.post(
   requiredAuth,
   fetchMe,
   fetchUser,
-  followUserController.followOrUnfollowAUser
+  followUserController.followOrUnfollowUser
 );
 
 module.exports = router;

@@ -10,7 +10,7 @@ const userController = require("../controllers/userController");
 
 const router = express.Router();
 
-// get user profile
+// get profile
 router.get(
   "/:username",
   optionalAuth,
@@ -26,14 +26,14 @@ router.get(
   userController.countFollowing
 );
 
-// count follower
+// count followers
 router.get(
-  "/:username/follower/amount",
+  "/:username/followers/amount",
   fetchUser,
-  userController.countFollower
+  userController.countFollowers
 );
 
-// get user following
+// get following
 router.get(
   "/:username/following",
   optionalAuth,
@@ -42,7 +42,7 @@ router.get(
   userController.getFollowing
 );
 
-// get user followers
+// get followers
 router.get(
   "/:username/followers",
   optionalAuth,
@@ -54,7 +54,7 @@ router.get(
 // get user articles
 router.get("/:username/articles", fetchUser, userController.getUserArticles);
 
-// get my following topics
+// get followed topics
 router.get(
   "/me/following/topics",
   requiredAuth,
@@ -82,8 +82,5 @@ router.get(
 
 // search users
 router.post("/search", optionalAuth, fetchMe, userController.searchUser);
-
-// get block list
-router.get("/me/blocks", requiredAuth, fetchMe, userController.getBlockList);
 
 module.exports = router;

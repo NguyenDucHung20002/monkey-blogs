@@ -19,6 +19,8 @@ const followUserRouter = require("./routers/followUserRouter");
 const followTopicRouter = require("./routers/followTopicRouter");
 const notificationRouter = require("./routers/notificationRouter");
 
+const testRouter = require("./test");
+
 require("./services/passport");
 
 const { errorMiddleware } = require("./middlewares/errorMiddleware");
@@ -55,6 +57,8 @@ app.use("/api/article", articleRouter);
 app.use("/api/follow-user", followUserRouter);
 app.use("/api/follow-topic", followTopicRouter);
 app.use("/api/notification", notificationRouter);
+
+app.use("/api/test", testRouter);
 
 app.use(errorMiddleware);
 

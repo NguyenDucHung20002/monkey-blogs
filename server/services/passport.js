@@ -30,7 +30,6 @@ passport.use(
             email: profile._json.email,
             username,
             role: role._id,
-            status: "active",
           });
 
           await user.save();

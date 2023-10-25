@@ -1,5 +1,4 @@
 const User = require("../models/User");
-const Block = require("../models/Block");
 const Article = require("../models/Article");
 const FollowUser = require("../models/FollowUser");
 const addUrlToImg = require("../utils/addUrlToImg");
@@ -7,7 +6,7 @@ const FollowTopic = require("../models/FollowTopic");
 const { removeFile } = require("../utils/removeFile");
 const { asyncMiddleware } = require("../middlewares/asyncMiddleware");
 
-// ==================== get profile detail ==================== //
+// ==================== get profile ==================== //
 
 const getProfile = asyncMiddleware(async (req, res, next) => {
   const { me, user } = req;
@@ -15,10 +14,7 @@ const getProfile = asyncMiddleware(async (req, res, next) => {
   const result = { ...user };
 
   if (!me) {
-    return res.status(200).json({
-      success: true,
-      data: result,
-    });
+    return res.status(200).json({ success: true, data: result });
   }
 
   result.isMe = me._id.toString() === user._id.toString();
@@ -30,10 +26,7 @@ const getProfile = asyncMiddleware(async (req, res, next) => {
     }));
   }
 
-  res.status(200).json({
-    success: true,
-    data: result,
-  });
+  res.status(200).json({ success: true, data: result });
 });
 
 // ==================== count following ==================== //
@@ -41,153 +34,136 @@ const getProfile = asyncMiddleware(async (req, res, next) => {
 const countFollowing = asyncMiddleware(async (req, res, next) => {
   const { user } = req;
 
-  const count = await FollowUser.countDocuments({
-    follower: user._id,
-  });
+  const count = await FollowUser.count({ follower: user._id });
 
-  res.status(200).json({
-    success: true,
-    data: count,
-  });
+  res.status(200).json({ success: true, data: count });
 });
 
-// ==================== count follower ==================== //
+// ==================== count followers ==================== //
 
-const countFollower = asyncMiddleware(async (req, res, next) => {
+const countFollowers = asyncMiddleware(async (req, res, next) => {
   const { user } = req;
 
-  const count = await FollowUser.countDocuments({
-    following: user._id,
-  });
+  const count = await FollowUser.count({ following: user._id });
 
-  res.status(200).json({
-    success: true,
-    data: count,
-  });
+  res.status(200).json({ success: true, data: count });
 });
 
 // ==================== get following ==================== //
 
 const getFollowing = asyncMiddleware(async (req, res, next) => {
   const { me, user } = req;
-  const { page = 1, limit = 15 } = req.query;
+  const { skip, limit = 15 } = req.query;
 
-  const skip = (page - 1) * limit;
+  const query = { follower: user._id, following: { $ne: me ? me._id : null } };
+  if (skip) query._id = { $gt: skip };
 
-  const followingDocs = await FollowUser.find({
-    follower: user._id,
-    following: { $ne: me ? me._id : undefined },
-  })
+  const following = await FollowUser.find(query)
     .lean()
-    .skip(skip)
     .limit(limit)
     .select("follower following")
-    .populate({ path: "following", select: "avatar fullname username bio" });
+    .populate({ path: "following", select: "avatar fullname username bio" })
+    .sort({ createdAt: -1 });
 
-  result = followingDocs.map((doc) => {
-    const following = { ...doc.following };
+  const result = following.map((val) => {
+    const following = { ...val.following };
     following.avatar = addUrlToImg(following.avatar);
     return me && me._id.toString() !== user._id.toString()
       ? {
           ...following,
-          isFollowed: me._id.toString() === doc.follower._id.toString(),
+          isFollowed: me._id.toString() === val.follower._id.toString(),
         }
       : following;
   });
 
-  res.status(200).json({
-    success: true,
-    data: result,
-  });
+  const skipID =
+    following.length > 0 ? following[following.length - 1]._id : null;
+
+  res.status(200).json({ success: true, data: result, skipID });
 });
 
-// ==================== get followers ==================== //
+// ==================== get follower ==================== //
 
 const getFollowers = asyncMiddleware(async (req, res, next) => {
   const { me, user } = req;
-  const { page = 1, limit = 15 } = req.query;
+  const { skip, limit = 15 } = req.query;
 
-  const skip = (page - 1) * limit;
+  const query = { follower: { $ne: me ? me._id : null }, following: user._id };
+  if (skip) query._id = { $gt: skip };
 
-  const followerDocs = await FollowUser.find({
-    follower: { $ne: me ? me._id : null },
-    following: user._id,
-  })
+  const followers = await FollowUser.find(query)
     .lean()
-    .skip(skip)
     .limit(limit)
     .select("follower")
     .populate({ path: "follower", select: "avatar fullname username bio" });
 
   const result = await Promise.all(
-    followerDocs.map(async (doc) => {
-      doc.follower.avatar = addUrlToImg(doc.follower.avatar);
+    followers.map(async (val) => {
+      val.follower.avatar = addUrlToImg(val.follower.avatar);
       return me
         ? {
-            ...doc.follower,
+            ...val.follower,
             isFollowed: !!(await FollowUser.exists({
               follower: me._id,
-              following: doc.follower,
+              following: val.follower,
             })),
           }
-        : doc.follower;
+        : val.follower;
     })
   );
 
-  res.status(200).json({
-    success: true,
-    data: result,
-  });
+  const skipID =
+    followers.length > 0 ? followers[followers.length - 1]._id : null;
+
+  res.status(200).json({ success: true, data: result, skipID });
 });
 
 // ==================== get user articles ==================== //
 
 const getUserArticles = asyncMiddleware(async (req, res, next) => {
   const { user } = req;
-  const { page = 1, limit = 15 } = req.query;
+  const { skip, limit = 15 } = req.query;
 
-  const skip = (page - 1) * limit;
+  const query = { author: user._id };
+  if (skip) query._id = { $lt: skip };
 
-  const articles = await Article.find({ author: user._id })
+  const articles = await Article.find(query)
     .lean()
-    .skip(skip)
     .limit(limit)
-    .select("-author -content")
+    .select("-author -content -status")
     .populate({ path: "topics", options: { limit: 1 }, select: "name slug" })
     .sort({ createdAt: -1 });
 
-  articles.forEach((article) => {
-    article.img = addUrlToImg(article.img);
-  });
+  articles.forEach((val) => (val.img = addUrlToImg(val.img)));
 
-  res.status(200).json({
-    success: true,
-    data: articles,
-  });
+  const skipID = articles.length > 0 ? articles[articles.length - 1]._id : null;
+
+  res.status(200).json({ success: true, data: articles, skipID });
 });
 
-// ==================== get my following topics ==================== //
+// ==================== get followed topics ==================== //
 
 const getMyFollowingTopics = asyncMiddleware(async (req, res, next) => {
   const { me } = req;
-  const { page = 1, limit = 15 } = req.query;
+  const { skip, limit = 15 } = req.query;
 
-  const skip = (page - 1) * limit;
+  const query = { follower: me._id };
+  if (skip) query._id = { $gt: skip };
 
-  const topicDocs = await FollowTopic.find({ follower: me._id })
+  const topics = await FollowTopic.find(query)
     .lean()
-    .skip(skip)
     .limit(limit)
     .select("topic")
-    .populate({ path: "topic", select: "name slug" });
+    .populate({ path: "topic", select: "name slug" })
+    .sort({ _id: 1 });
 
-  const result = topicDocs.map((doc) => {
-    return doc.topic;
+  const result = topics.map((val) => {
+    return val.topic;
   });
 
-  res.status(200).json({
-    success: result,
-  });
+  const skipID = topics.length > 0 ? topics[topics.length - 1]._id : null;
+
+  res.status(200).json({ success: true, data: result, skipID });
 });
 
 // ==================== update my profile ==================== //
@@ -209,16 +185,12 @@ const updateMyProfile = asyncMiddleware(async (req, res, next) => {
     { new: true }
   );
 
-  if (filename) {
-    removeFile(me.avatar);
-  }
+  if (filename) removeFile(me.avatar);
 
-  res.status(200).json({
-    success: true,
-  });
+  res.status(200).json({ success: true });
 });
 
-// ==================== get random users suggestions ==================== //
+// ==================== random users suggestions ==================== //
 
 const getRandomUsers = asyncMiddleware(async (req, res, next) => {
   const { me } = req;
@@ -236,10 +208,7 @@ const getRandomUsers = asyncMiddleware(async (req, res, next) => {
     user.avatar = addUrlToImg(user.avatar);
   });
 
-  res.status(200).json({
-    success: true,
-    data: users,
-  });
+  res.status(200).json({ success: true, data: users });
 });
 
 // ==================== search users ==================== //
@@ -247,76 +216,46 @@ const getRandomUsers = asyncMiddleware(async (req, res, next) => {
 const searchUser = asyncMiddleware(async (req, res, next) => {
   const { me } = req;
   const { search } = req.body;
-  const { page = 1, limit = 15 } = req.query;
-
-  const skip = (page - 1) * limit;
-
-  let result = [];
-
-  const regex = new RegExp(search, "i");
+  const { skip, limit = 15 } = req.query;
 
   if (search) {
-    const users = await User.find()
-      .or([
-        {
-          fullname: regex,
-        },
-        {
-          username: regex,
-        },
-      ])
-      .and([{ _id: { $ne: me ? me._id : null } }])
+    const query = {
+      $text: { $search: search },
+      _id: { $ne: me ? me._id : null },
+    };
+
+    if (skip) query._id.$lt = skip;
+
+    const users = await User.find(query)
       .lean()
-      .skip(skip)
       .limit(limit)
-      .select("avatar fullname username")
-      .sort({ createdAt: -1 });
+      .select("avatar fullname username bio");
 
     result = await Promise.all(
-      users.map(async (user) => {
-        user.avatar = addUrlToImg(user.avatar);
+      users.map(async (val) => {
+        val.avatar = addUrlToImg(val.avatar);
         return me
           ? {
-              ...user,
-              isFollowing: !!(await FollowUser.exists({
+              ...val,
+              isFollowed: !!(await FollowUser.exists({
                 follower: me._id,
-                following: user._id,
+                following: val._id,
               })),
             }
-          : user;
+          : val;
       })
     );
   }
 
-  res.status(200).json({
-    success: true,
-    data: result,
-  });
-});
+  const skipID = result.length > 0 ? result[result.length - 1]._id : null;
 
-// ==================== get block list ==================== //
-
-const getBlockList = asyncMiddleware(async (req, res, next) => {
-  const { me } = req;
-
-  const blocks = await Block.find({ user: me._id })
-    .lean()
-    .select("block")
-    .populate({
-      path: "block",
-      select: "avatar fullname username",
-    });
-
-  res.status(200).json({
-    success: true,
-    data: blocks,
-  });
+  res.status(200).json({ success: true, data: result, skipID });
 });
 
 module.exports = {
   getProfile,
   countFollowing,
-  countFollower,
+  countFollowers,
   getFollowing,
   getFollowers,
   getMyFollowingTopics,
@@ -324,5 +263,4 @@ module.exports = {
   getUserArticles,
   getRandomUsers,
   searchUser,
-  getBlockList,
 };

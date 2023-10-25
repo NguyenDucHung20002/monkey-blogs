@@ -32,4 +32,8 @@ const CommentSchema = new mongoose.Schema(
   }
 );
 
+CommentSchema.index({ article: 1 });
+CommentSchema.index({ createdAt: 1 });
+CommentSchema.index({ parentCommentId: 1 });
+
 module.exports = mongoose.model("Comment", CommentSchema);

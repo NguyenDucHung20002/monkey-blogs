@@ -14,13 +14,12 @@ const FollowingTopicSchema = new mongoose.Schema(
     },
   },
   {
-    timestamps: true,
+    timestamps: false,
     versionKey: false,
   }
 );
 
+FollowingTopicSchema.index({ topic: 1 });
 FollowingTopicSchema.index({ follower: 1 });
-FollowingTopicSchema.index({ following: 1 });
-FollowingTopicSchema.index({ follower: 1, topic: 1 });
 
 module.exports = mongoose.model("FollowingTopic", FollowingTopicSchema);

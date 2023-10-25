@@ -3,83 +3,43 @@ const { asyncMiddleware } = require("../middlewares/asyncMiddleware");
 
 // ==================== get all notifications ==================== //
 
-const getAllNotifications = asyncMiddleware(async (req, res, next) => {
+const getNotifications = asyncMiddleware(async (req, res, next) => {
   const { me } = req;
-  const { page = 1, limit = 15 } = req.query;
+  const { skip, limit = 15 } = req.query;
 
-  const skip = (page - 1) * limit;
+  const query = { recipient: me._id };
 
-  const notifications = await Notification.find({ recipient: me._id })
+  if (skip) query._id = { $lt: skip };
+
+  const notifications = await Notification.find(query)
     .lean()
-    .skip(skip)
+    .select("-recipient -isRead")
     .limit(limit)
-    .sort({ created: -1 });
+    .sort({ createdAt: -1 });
 
-  res.status(200).json({
-    success: true,
-    data: notifications,
+  notifications.forEach(async (val) => {
+    await Notification.updateOne({ _id: val._id }, { isRead: true });
   });
+
+  const skipID =
+    notifications.length > 0
+      ? notifications[notifications.length - 1]._id
+      : null;
+
+  res.status(200).json({ success: true, data: notifications, skipID });
 });
 
-// ==================== delete Notification ==================== //
+// ==================== Count Unread Notifications ==================== //
 
-const deleteNotification = asyncMiddleware(async (req, res, next) => {
-  const { me } = req;
-  const { id } = req.params;
-
-  await Notification.findOneAndDelete({ _id: id, recipient: me._id });
-
-  res.status(200).json({
-    success: true,
-  });
-});
-
-// ==================== delete All Notifications ==================== //
-
-const deleteAllNotifications = asyncMiddleware(async (req, res, next) => {
+const countUnRead = asyncMiddleware(async (req, res, next) => {
   const { me } = req;
 
-  await Notification.deleteMany({ recipient: me._id });
+  const count = await Notification.count({ recipient: me._id, isRead: false });
 
-  res.status(200).json({
-    success: true,
-  });
-});
-
-// ==================== mart notification as read ==================== //
-
-const MarkAsRead = asyncMiddleware(async (req, res, next) => {
-  const { me } = req;
-
-  await Notification.findOneAndUpdate(
-    { recipient: me._id, isRead: false },
-    { isRead: true }
-  );
-
-  res.status(200).json({
-    success: true,
-  });
-});
-
-// ==================== mart all notifications as read ==================== //
-
-const markAllNotificationsAsRead = asyncMiddleware(async (req, res, next) => {
-  const { me } = req;
-
-  await Notification.updateMany(
-    { recipient: me._id, isRead: false },
-    { $set: { isRead: true } }
-  );
-
-  res.status(200).json({
-    success: true,
-  });
+  res.status(200).json({ success: true, data: count });
 });
 
 module.exports = {
-  getAllNotifications,
-  deleteAllNotifications,
-  deleteNotification,
-  markAllNotificationsAsRead,
-  MarkAsRead,
+  getNotifications,
+  countUnRead,
 };

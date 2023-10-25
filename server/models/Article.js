@@ -7,7 +7,7 @@ const ArticleSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    img: { type: String, required: true },
+    img: { type: String, required: true, unique: true },
     title: { type: String, required: true },
     preview: { type: String, required: true },
     slug: { type: String, required: true, unique: true },
@@ -25,5 +25,9 @@ const ArticleSchema = new mongoose.Schema(
     versionKey: false,
   }
 );
+
+ArticleSchema.index({ topics: 1 });
+ArticleSchema.index({ createdAt: 1 });
+ArticleSchema.index({ title: "text" });
 
 module.exports = mongoose.model("Article", ArticleSchema);

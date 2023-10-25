@@ -40,6 +40,12 @@ router.delete(
 // get an article
 router.get("/:slug", optionalAuth, fetchMe, articleController.getAnArticle);
 
+// count article likes
+router.get("/:slug/likes/amount", articleController.countArticleLikes);
+
+// count article comment
+router.get("/:slug/comments/amount", articleController.countArticleComments);
+
 // get all articles
 router.get("/", requiredAuth, fetchMe, articleController.getAllArticles);
 

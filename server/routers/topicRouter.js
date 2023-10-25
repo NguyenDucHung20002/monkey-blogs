@@ -38,7 +38,13 @@ router.delete(
 // get a topic
 router.get("/:slug", optionalAuth, fetchMe, topicController.getATopic);
 
-// get all topic
+// count topic articles
+router.get("/:slug/articles/amount", topicController.countTopicArticles);
+
+// count topic follower
+router.get("/:slug/followers/amount", topicController.countTopicFollowers);
+
+// get all topics
 router.get("/", topicController.getAllTopics);
 
 // get topic articles

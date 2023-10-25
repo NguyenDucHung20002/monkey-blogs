@@ -8,7 +8,7 @@ const NotificationSchema = new mongoose.Schema(
       required: true,
     },
 
-    data: {
+    content: {
       type: String,
       required: true,
     },
@@ -22,6 +22,15 @@ const NotificationSchema = new mongoose.Schema(
     timestamps: true,
     versionKey: false,
   }
+);
+
+NotificationSchema.index({ isRead: 1 });
+NotificationSchema.index({ recipient: 1 });
+NotificationSchema.index({ createdAt: 1 });
+NotificationSchema.index({ recipient: 1, isRead: 1 });
+NotificationSchema.index(
+  { timestamps: 1 },
+  { expireAfterSeconds: 2592000, partialFilterExpression: { isRead: true } }
 );
 
 module.exports = mongoose.model("Notification", NotificationSchema);

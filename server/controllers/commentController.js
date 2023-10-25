@@ -11,24 +11,16 @@ const addComment = asyncMiddleware(async (req, res, next) => {
   const { slug } = req.params;
   const { parentCommentId, content } = req.body;
 
-  const article = await Article.exists({ slug });
-  if (!article) {
-    throw new ErrorResponse(404, "Article not found");
-  }
+  const article = await Article.findOne({ slug }).lean().select("_id author");
+  if (!article) throw new ErrorResponse(404, "Article not found");
 
-  const data = {
-    article: article._id,
-    author: me._id,
-    content,
-  };
+  const data = { article: article._id, author: me._id, content };
 
   if (parentCommentId) {
     const parentComment = await Comment.findById(parentCommentId)
       .lean()
       .select("_id depth");
-    if (!parentComment) {
-      throw new ErrorResponse(404, "Comment not found");
-    }
+    if (!parentComment) throw new ErrorResponse(404, "Comment not found");
 
     data.parentCommentId = parentComment._id;
     data.depth = parentComment.depth + 1;
@@ -38,9 +30,12 @@ const addComment = asyncMiddleware(async (req, res, next) => {
 
   await comment.save();
 
-  res.status(201).json({
-    success: true,
-  });
+  const result = await Comment.findById(comment._id)
+    .lean()
+    .select("-article")
+    .populate({ path: "author", select: "avatar fullname username" });
+
+  res.status(201).json({ success: true, data: result });
 });
 
 // ==================== update comment ==================== //
@@ -52,9 +47,7 @@ const updateComment = asyncMiddleware(async (req, res, next) => {
 
   await Comment.findOneAndUpdate({ _id: id, author: me._id }, { content });
 
-  res.status(200).json({
-    success: true,
-  });
+  res.status(200).json({ success: true });
 });
 
 // ==================== delete comment ==================== //
@@ -69,13 +62,10 @@ const deleteComment = asyncMiddleware(async (req, res, next) => {
 
   if (comment) {
     await deleteCommentAndReplies(comment);
-
     await Comment.deleteOne({ _id: comment._id });
   }
 
-  res.status(200).json({
-    success: true,
-  });
+  res.status(200).json({ success: true });
 });
 
 // ==================== get article main comments ==================== //
@@ -83,20 +73,40 @@ const deleteComment = asyncMiddleware(async (req, res, next) => {
 const getMainComments = asyncMiddleware(async (req, res, next) => {
   const { me } = req;
   const { slug } = req.params;
-  const { page = 1, limit = 15 } = req.query;
-
-  const skip = (page - 1) * limit;
+  const { skip, limit = 15 } = req.query;
 
   const article = await Article.findOne({ slug }).lean().select("_id author");
-  if (!article) {
-    throw new ErrorResponse(404, "Article not found");
-  }
+  if (!article) throw new ErrorResponse(404, "Article not found");
 
-  const comments = await commentList(me, article, null, skip, limit);
-  res.status(200).json({
-    success: true,
-    data: comments,
-  });
+  const query = { article: article._id, depth: 1 };
+  if (skip) query._id = { $lt: skip };
+
+  const comments = await Comment.find(query)
+    .lean()
+    .limit(limit)
+    .select("-article")
+    .populate({ path: "author", select: "avatar fullname username" })
+    .sort({ createdAt: -1 });
+
+  const result = await Promise.all(
+    comments.map(async (val) => {
+      val.author.avatar = addUrlToImg(val.author.avatar);
+      const isAuthor = val.author._id.toString() === article.author.toString();
+      const replyCount = await Comment.count({ parentCommentId: val._id });
+      return me
+        ? {
+            ...val,
+            isMyComment: me._id.toString() === val.author._id.toString(),
+            isAuthor,
+            replyCount,
+          }
+        : { ...val, isAuthor, replyCount };
+    })
+  );
+
+  const skipID = comments.length > 0 ? comments[comments.length - 1]._id : null;
+
+  res.status(200).json({ success: true, data: result, skipID });
 });
 
 // ==================== get article nested comments of main comment ==================== //
@@ -104,85 +114,57 @@ const getMainComments = asyncMiddleware(async (req, res, next) => {
 const getNestedComments = asyncMiddleware(async (req, res, next) => {
   const { me } = req;
   const { id, slug } = req.params;
-  const { page = 1, limit = 15 } = req.query;
-
-  const skip = (page - 1) * limit;
+  const { skip, limit = 15 } = req.query;
 
   const article = await Article.findOne({ slug }).lean().select("_id author");
-  if (!article) {
-    throw new ErrorResponse(404, "Article not found");
-  }
+  if (!article) throw new ErrorResponse(404, "Article not found");
 
   const parentComment = await Comment.findById(id).lean().select("_id");
-  if (!parentComment) {
-    throw new ErrorResponse(404, "Comment not found");
-  }
+  if (!parentComment) throw new ErrorResponse(404, "Comment not found");
 
-  const nestedComments = await commentList(
-    me,
-    article,
-    parentComment._id,
-    skip,
-    limit
-  );
+  const query = { article: article._id, parentCommentId: parentComment._id };
+  if (skip) query._id = { $lt: skip };
 
-  res.status(200).json({
-    success: true,
-    data: nestedComments,
-  });
-});
-
-// -------------------- comment list function -------------------- //
-
-async function commentList(me, article, parentCommentId, skip, limit) {
-  const comments = await Comment.find({ article: article._id, parentCommentId })
+  const comments = await Comment.find(query)
     .lean()
-    .skip(skip)
     .limit(limit)
     .select("-article")
     .populate({ path: "author", select: "avatar fullname username" })
     .sort({ createdAt: -1 });
 
   const result = await Promise.all(
-    comments.map(async (comment) => {
-      comment.author.avatar = addUrlToImg(comment.author.avatar);
-      const isAuthor =
-        comment.author._id.toString() === article.author.toString();
-      const replyCount = await Comment.countDocuments({
-        parentCommentId: comment._id,
-      });
+    comments.map(async (val) => {
+      val.author.avatar = addUrlToImg(val.author.avatar);
+      const isAuthor = val.author._id.toString() === article.author.toString();
+      const replyCount = await Comment.count({ parentCommentId: val._id });
       return me
         ? {
-            ...comment,
-            isMyComment: me._id.toString() === comment.author._id.toString(),
+            ...val,
+            isMyComment: me._id.toString() === val.author._id.toString(),
             isAuthor,
             replyCount,
           }
-        : {
-            ...comment,
-            isAuthor,
-            replyCount,
-          };
+        : { ...val, isAuthor, replyCount };
     })
   );
-  return result;
-}
+
+  const skipID = comments.length > 0 ? comments[comments.length - 1]._id : null;
+
+  res.status(200).json({ success: true, data: result, skipID });
+});
 
 // -------------------- delete nested comments function -------------------- //
 
-async function deleteCommentAndReplies(comment) {
-  const replyComments = await Comment.find({
-    parentCommentId: comment._id,
-  });
+const deleteCommentAndReplies = async (comment) => {
+  const replyComments = await Comment.find({ parentCommentId: comment._id });
 
   await Promise.all(
     replyComments.map(async (replyComment) => {
       await deleteCommentAndReplies(replyComment._id);
-
       await Comment.deleteOne({ _id: replyComment._id });
     })
   );
-}
+};
 
 module.exports = {
   addComment,

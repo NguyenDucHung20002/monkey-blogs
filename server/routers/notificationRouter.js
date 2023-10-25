@@ -10,39 +10,14 @@ router.get(
   "/me",
   requiredAuth,
   fetchMe,
-  notificationController.getAllNotifications
+  notificationController.getNotifications
 );
 
-// delete all notifications
-router.delete(
-  "/me/delete",
+router.get(
+  "/me/unread/amount",
   requiredAuth,
   fetchMe,
-  notificationController.deleteAllNotifications
-);
-
-// delete  notification
-router.delete(
-  "/me/:id/delete",
-  requiredAuth,
-  fetchMe,
-  notificationController.deleteNotification
-);
-
-// mart notification as read
-router.delete(
-  "/me/:id/read",
-  requiredAuth,
-  fetchMe,
-  notificationController.MarkAsRead
-);
-
-// mart all notifications as read
-router.delete(
-  "/me/read",
-  requiredAuth,
-  fetchMe,
-  notificationController.markAllNotificationsAsRead
+  notificationController.countUnRead
 );
 
 module.exports = router;
