@@ -3,7 +3,7 @@ import axios from "axios";
 import React, { useState } from "react";
 import { config } from "../../utils/constants.js";
 import ButtonFollowingUser from "../button/ButtonFollowingUser.jsx";
-const Following = ({data=[],token, user})=>{
+const Following = ({data=[],token, user, countFollow})=>{
     const [userFollow, setUserFollow] = useState({});
         async function fetchUserInf(username) {
             const res = await axios
@@ -38,7 +38,7 @@ const Following = ({data=[],token, user})=>{
                 <div className="h-[1px] my-3 bg-stone-400"></div>
                 <div className="flex items-center justify-between">
                     <div className="">
-                        <p>{userFollow.followingCount} Followers</p>
+                        <p>{countFollow?.follower} Followers</p>
                     </div>
                     <ButtonFollowingUser username={userFollow?.username} initialFollowing={userFollow.isFollowed}/>
                 </div>
@@ -74,7 +74,7 @@ const Following = ({data=[],token, user})=>{
 
             </div>
             <div className="py-2 my-3">
-                <button>See all <span>({user.followingCount})</span></button>
+                <button>See all <span>({countFollow?.following})</span></button>
             </div>
         </div>
     </>)
