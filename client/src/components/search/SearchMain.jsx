@@ -21,6 +21,7 @@ const SearchStyled = styled.div`
     margin-left: 5px;
     font-size: 14px;
     &::placeholder {
+      font-size: 14px;
       transition: 0.3s;
       color: ${(props) => props.theme.black};
     }

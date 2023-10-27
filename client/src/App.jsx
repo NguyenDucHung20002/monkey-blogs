@@ -2,12 +2,13 @@ import React, { Suspense } from "react";
 import { Route, Routes } from "react-router";
 import { AuthProvider } from "./contexts/auth-context";
 import { ToastContainer } from "react-toastify";
-import MeFollowingPage from "./pages/MeFollowingPage";
-import MeSuggestionPage from "./pages/MeSuggestionPage";
-import SearchPage from "./pages/SearchPage";
-import SearchStoriesPage from "./pages/SearchStoriesPage";
-import SearchTopicsPage from "./pages/SearchTopicsPage";
-import SearchUsersPage from "./pages/SearchUsersPage";
+const MeFollowingPage = React.lazy(() => import("./pages/MeFollowingPage"));
+const MeSuggestionPage = React.lazy(() => import("./pages/MeSuggestionPage"));
+const SearchPage = React.lazy(() => import("./pages/SearchPage"));
+const SearchStoriesPage = React.lazy(() => import("./pages/SearchStoriesPage"));
+const SearchTopicsPage = React.lazy(() => import("./pages/SearchTopicsPage"));
+const SearchUsersPage = React.lazy(() => import("./pages/SearchUsersPage"));
+const EditBlogPage = React.lazy(() => import("./pages/EditBlogPage"));
 const MePage = React.lazy(() => import("./pages/MePage"));
 const FollowingPage = React.lazy(() => import("./pages/FollowingPage"));
 const HomeMain = React.lazy(() => import("./modules/home/HomeMain"));
@@ -33,7 +34,7 @@ const SignInPage = React.lazy(() => import("./pages/SignInPage"));
 
 function App() {
   return (
-    <div>
+    <div id="main">
       <AuthProvider>
         <Suspense>
           <Routes>
@@ -115,6 +116,10 @@ function App() {
               element={<StartedTopicsPage></StartedTopicsPage>}
             ></Route>
             <Route path="/write" element={<WritePage></WritePage>}></Route>
+            <Route
+              path="/edit-blog/:slug"
+              element={<EditBlogPage></EditBlogPage>}
+            ></Route>
             <Route path="*" element={<PageNotFound></PageNotFound>}></Route>
           </Routes>
         </Suspense>

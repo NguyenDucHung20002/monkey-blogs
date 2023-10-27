@@ -5,9 +5,9 @@ import FollowingUserHandle from "../components/following/FollowingUserHandle";
 import axios from "axios";
 
 const SearchUsersPage = () => {
-  const [users, setUsers] = useState([]);
   const [searchParams] = useSearchParams();
   const search = searchParams.get("q");
+  const [users, setUsers] = useState([]);
   useEffect(() => {
     async function fetchTopics() {
       try {

@@ -27,7 +27,6 @@ const ButtonStyles = styled.button`
             ? "5+"
             : props.notification}";
         position: absolute;
-        padding-top: 3px;
         top: -5px;
         right: -5px;
         border-radius: 50%;

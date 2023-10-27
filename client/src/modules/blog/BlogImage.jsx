@@ -14,7 +14,7 @@ const BlogImageStyles = styled.div`
 `;
 
 // eslint-disable-next-line react/prop-types
-const PostImage = ({ className = "", url = "", alt = "", to = "" }) => {
+const BlogImage = ({ className = "", url = "", alt = "", to = "" }) => {
   if (to)
     return (
       <NavLink to={to} style={{ display: "block" }}>
@@ -30,4 +30,4 @@ const PostImage = ({ className = "", url = "", alt = "", to = "" }) => {
   );
 };
 
-export default PostImage;
+export default BlogImage;

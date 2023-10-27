@@ -11,7 +11,6 @@ const SearchAddTopics = ({
   token = "",
   placeholder = "",
 }) => {
-  console.log("topics:", topics);
   const [topicInput, setTopicInput] = useState("");
   const [addTopics, setAddTopics] = useState([]);
   const input = useRef(null);
@@ -39,7 +38,6 @@ const SearchAddTopics = ({
           }
         );
         if (response?.data) setAddTopics(response.data?.data);
-        console.log("response?.data:", response?.data);
       } catch (error) {
         toast.error("Some thing was wrong!", {
           pauseOnHover: false,

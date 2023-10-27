@@ -1,20 +1,76 @@
 /* eslint-disable react/prop-types */
 import { Input } from "antd";
+import axios from "axios";
+import { useState } from "react";
+import { config } from "../../utils/constants";
+import { useEffect } from "react";
 
 const { TextArea } = Input;
-const InputComment = ({ valueContent }) => {
-  const { value, setValue } = valueContent;
+const InputComment = ({ slug = "", parentCommentId = "", commentValue }) => {
+  const { commentBlog, setCommentBlog } = commentValue;
+  console.log("commentBlog:", commentBlog);
+  const [content, setContent] = useState("");
+  const [isSubmit, setIsSubmit] = useState(false);
+  const token = localStorage.getItem("token");
 
   const handleCancel = () => {
-    setValue("");
+    setContent("");
   };
 
-  if (!valueContent) return;
+  const HandleRespond = () => {
+    setIsSubmit(true);
+    async function postRespond() {
+      try {
+        const response = await axios
+          .post(
+            `${config.SERVER_HOST}:${config.SERVER_PORT}/api/comment/${slug}`,
+            {
+              parentCommentId,
+              content,
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+              },
+            }
+          )
+          .finally(() => {
+            setIsSubmit(false);
+            setContent("");
+          });
+
+        if (response.data) {
+          const data = response.data.data;
+          const commentClone = [...commentBlog];
+          commentClone.unshift(data);
+          setCommentBlog(commentClone);
+        }
+      } catch (error) {
+        console.log("error:", error);
+      }
+    }
+
+    postRespond();
+  };
+
+  useEffect(() => {
+    if (content == "") {
+      setIsSubmit(true);
+    } else {
+      setIsSubmit(false);
+    }
+  }, [content]);
+
+  if (!slug) return;
+  if (!commentValue) return;
   return (
     <>
       <TextArea
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
+        value={content}
+        onChange={(e) => {
+          setContent(e.target.value);
+        }}
         placeholder="What are your thoughts"
         autoSize={{ minRows: 3, maxRows: 3 }}
       />
@@ -22,9 +78,13 @@ const InputComment = ({ valueContent }) => {
         <button className="px-3 py-1 rounded-2xl" onClick={handleCancel}>
           Cancel
         </button>
+
         <button
-          type="submit"
-          className="px-3 py-1 text-white bg-green-600 rounded-2xl"
+          className={`px-3 py-1 text-white  rounded-2xl ${
+            isSubmit ? "bg-green-300" : "bg-green-600"
+          }`}
+          disabled={isSubmit}
+          onClick={HandleRespond}
         >
           Respond
         </button>

@@ -9,6 +9,10 @@ import { Button } from "../components/button";
 import Headroom from "react-headroom";
 import { useAuth } from "../contexts/auth-context";
 import { debounce } from "lodash";
+import axios from "axios";
+import { config } from "../utils/constants";
+import DropdownSearchMain from "../components/dropdown/DropdownSearchMain";
+import useClickOutSide from "../hooks/useClickOutSide";
 
 const icons = {
   libraryIcon: (
@@ -119,6 +123,9 @@ const Header = () => {
   const navigate = useNavigate();
   const [inputSearch, setInputSearch] = useState();
   const navigation = useNavigate();
+  const [users, setUsers] = useState([]);
+  const [topics, setTopics] = useState([]);
+  const { show, setShow, nodeRef } = useClickOutSide("");
 
   const handleSignOut = () => {
     setUserInfo({});
@@ -161,22 +168,63 @@ const Header = () => {
     );
   }, []);
 
-  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
-  console.log("windowWidth:", windowWidth);
-  const handleResize = debounce(() => {
-    setWindowWidth(window.innerWidth);
-  }, 500);
+  // const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  // const handleResize = debounce(() => {
+  //   setWindowWidth(window.innerWidth);
+  // }, 500);
+
+  // useEffect(() => {
+  //   window.addEventListener("resize", handleResize);
+  //   return () => {
+  //     window.removeEventListener("resize", handleResize);
+  //   };
+  // }, []);
 
   useEffect(() => {
-    window.addEventListener("resize", handleResize);
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
+    async function fetchUsers() {
+      try {
+        const response = await axios.post(
+          `${config.SERVER_HOST}:${config.SERVER_PORT}/api/user/search`,
+          {
+            search: inputSearch,
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        if (response?.data) setUsers(response.data?.data);
+      } catch (error) {
+        console.log("error:", error);
+      }
+    }
+    async function fetchTopics() {
+      try {
+        const response = await axios.post(
+          `${config.SERVER_HOST}:${config.SERVER_PORT}/api/article/topics`,
+          {
+            search: inputSearch,
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        if (response?.data) setTopics(response.data?.data);
+      } catch (error) {
+        console.log("error:", error);
+      }
+    }
+    fetchTopics();
+    fetchUsers();
+  }, [inputSearch]);
 
   const handleSearch = debounce((e) => {
     setInputSearch(e.target.value);
-  }, 100);
+    setShow(true);
+  }, 200);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -192,12 +240,23 @@ const Header = () => {
               <NavLink to="/">
                 <img srcSet={logo} alt="monkey-blogging" className="logo" />
               </NavLink>
-              <form autoComplete="off" onSubmit={handleSearchSubmit}>
+              <form
+                autoComplete="off"
+                onSubmit={handleSearchSubmit}
+                className="relative"
+              >
                 <SearchMain
                   id="search"
                   className="ml-4"
                   onChange={handleSearch}
                 ></SearchMain>
+                {show && (
+                  <DropdownSearchMain
+                    ref={nodeRef}
+                    users={users}
+                    topics={topics}
+                  ></DropdownSearchMain>
+                )}
               </form>
             </div>
             <div className="flex items-center justify-center header-left">

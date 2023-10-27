@@ -8,9 +8,7 @@ import { useAuth } from "../contexts/auth-context";
 
 const MeFollowingPage = () => {
   const [topics, setTopics] = useState([]);
-  console.log("topics:", topics);
   const [users, setUsers] = useState([]);
-  console.log("users:", users);
   const token = localStorage.getItem("token");
   const { userInfo } = useAuth();
 
@@ -65,7 +63,7 @@ const MeFollowingPage = () => {
     <div>
       <div className="user-following max-w-[700px] w-full mx-auto">
         <div className="mt-6 border-b border-gray-300">
-          <h3 className="text-base font-bold">Who to follow</h3>
+          <h3 className="mb-3 text-base font-bold">Who to follow</h3>
           {users &&
             users.length > 0 &&
             users.map((user) => (
@@ -77,7 +75,7 @@ const MeFollowingPage = () => {
             ))}
         </div>
         <div className="mt-6 border-b border-gray-300">
-          <h3 className="text-base font-bold">Topics to follow</h3>
+          <h3 className="mb-5 text-base font-bold">Topics to follow</h3>
           {topics &&
             topics.length > 0 &&
             topics.map((topic) => (

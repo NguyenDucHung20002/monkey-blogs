@@ -20,7 +20,31 @@ const HomeSideStyle = styled.div`
 const HomeSide = () => {
   const [topics, setTopics] = useState([]);
   const [users, setUsers] = useState([]);
+  const [topicFollowings, setTopicFollowings] = useState([]);
   const token = localStorage.getItem("token");
+
+  useEffect(() => {
+    async function fetchTopic() {
+      try {
+        const response = await axios.get(
+          `${config.SERVER_HOST}:${config.SERVER_PORT}/api/user/me/following/topics`,
+          {
+            headers: {
+              authorization: "Bearer " + token,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        if (response.data) setTopicFollowings(response.data.data);
+      } catch (error) {
+        toast.error("Some thing was wrong!", {
+          pauseOnHover: false,
+          delay: 500,
+        });
+      }
+    }
+    fetchTopic();
+  }, [token]);
 
   useEffect(() => {
     async function fetchTopic() {
@@ -75,11 +99,19 @@ const HomeSide = () => {
         <div className="mb-5">
           {topics && topics.length > 0 && (
             <>
-              <h3 className="mb-5 text-lg font-semibold">Recommended topics</h3>
+              <h3 className="mb-5 text-lg font-semibold">Topics followed</h3>
+              <TopicList
+                data={topicFollowings}
+                kind="topic-following?slug="
+              ></TopicList>
+            </>
+          )}
+        </div>
+        <div className="mb-5">
+          {topics && topics.length > 0 && (
+            <>
+              <h3 className="mb-5 text-lg font-semibold">Random topics</h3>
               <TopicList data={topics}></TopicList>
-              <NavLink to={"/me/suggestions"}>
-                <button className="ml-1">see more suggestions</button>
-              </NavLink>
             </>
           )}
         </div>

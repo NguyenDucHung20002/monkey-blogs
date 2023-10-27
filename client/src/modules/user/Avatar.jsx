@@ -5,8 +5,8 @@ const AvatarStyle = styled.div`
   ${(props) =>
     props.size === "small" &&
     css`
-      height: 35px;
-      width: 35px;
+      height: 25px;
+      width: 25px;
     `};
   ${(props) =>
     props.size === "medium" &&

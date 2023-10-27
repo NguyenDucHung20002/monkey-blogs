@@ -1,8 +1,9 @@
+/* eslint-disable react/prop-types */
 import { useState } from "react";
 import { Drawer } from "antd";
 import Comment from "../components/comment/Comment";
 
-const ActionComment = () => {
+const ActionComment = ({ slug = "" }) => {
   const [open, setOpen] = useState(false);
 
   const showDrawer = () => {
@@ -42,7 +43,7 @@ const ActionComment = () => {
         onClose={onClose}
         open={open}
       >
-        <Comment></Comment>
+        <Comment slug={slug}></Comment>
       </Drawer>
     </div>
   );

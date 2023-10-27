@@ -100,7 +100,7 @@ const PostDetailPage = () => {
             },
           }
         );
-        if (response.data) setBlog(response.data.data.article);
+        if (response.data) setBlog(response.data.data);
       } catch (error) {
         toast.error("Some thing was wrong!", {
           pauseOnHover: false,
@@ -134,7 +134,7 @@ const PostDetailPage = () => {
             <div className="py-2 mt-5 border-gray-200 action border-y">
               <div className="flex items-center gap-5 communicate">
                 <ActionLike></ActionLike>
-                <ActionComment></ActionComment>
+                <ActionComment slug={blog.slug}></ActionComment>
               </div>
             </div>
           </div>

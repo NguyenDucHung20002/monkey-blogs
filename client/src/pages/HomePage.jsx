@@ -4,7 +4,7 @@ import StickyBox from "react-sticky-box";
 import styled from "styled-components";
 import { Col, Row } from "antd";
 import HomeSide from "../modules/home/HomeSide";
-import { NavLink, Outlet, useSearchParams } from "react-router-dom";
+import { NavLink, Outlet } from "react-router-dom";
 import { NavbarHome } from "../components/navbar";
 
 const HomePageStyle = styled.div``;
@@ -21,13 +21,11 @@ const navHome = [
 ];
 
 const HomePage = () => {
-  const [searchParams] = useSearchParams();
-  console.log("searchParams:", searchParams.get("q"));
   return (
     <HomePageStyle>
       <div className="w-full border-t border-gray-300"></div>
       <Row className="px-5 ">
-        <Col xs={24} md={15}>
+        <Col xs={24} md={15} className="flex flex-col">
           <div className="max-w-[700px] w-full mx-auto my-0 mt-8 flex items-center px-5">
             <NavLink to={"/me/following"}>
               <button className="mr-5 text-gray-400 transition-all hover:text-blue-400">

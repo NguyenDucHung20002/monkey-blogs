@@ -34,7 +34,7 @@ const TopicStyle = styled.section`
 const Topic = ({ children, type = "primary", className = "", to = "" }) => {
   return (
     <TopicStyle type={type} className={`post-category ${className}`}>
-      <Link to={`/topic/${to}`}>{children}</Link>
+      <Link to={`/${to}`}>{children}</Link>
     </TopicStyle>
   );
 };

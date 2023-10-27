@@ -12,12 +12,12 @@ import { useAuth } from "../contexts/auth-context";
 import SearchAddTopics from "../components/search/SearchAddTopics";
 import { config } from "../utils/constants";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "../components/button";
 import ImageUpload from "../components/image/ImageUpload";
 import MyEditor from "../components/input/MyEditor";
 
-const WritePageStyle = styled.div`
+const EditBlogPageStyle = styled.div`
   max-width: 1000px;
   width: 100%;
   margin: 0 auto;
@@ -30,24 +30,68 @@ const schema = yup.object({
   title: yup.string().required("Please fill out your title"),
 });
 
-const WritePage = () => {
+const EditBlogPage = () => {
   const { userInfo } = useAuth();
   const token = localStorage.getItem("token");
   const {
     control,
     handleSubmit,
     setValue,
+    reset,
     formState: { errors, isValid, isSubmitting },
   } = useForm({
     resolver: yupResolver(schema),
   });
-  // const [content, setContent] = useState("");
+  const { slug } = useParams("slug");
   const [image, setImage] = useState("");
   const [topics, setTopics] = useState([]);
   const [imageFilename, setImageFilename] = useState(null);
   const [content, setContent] = useState("");
   const [preview, setPreview] = useState("");
+  const [authorSlug, setAuthorSlug] = useState("");
   const navigate = useNavigate();
+
+  function resetForm(data) {
+    console.log("data:", data);
+    // formData.set("img", imageFilename);
+    // formData.set("title", title);
+    // formData.set("content", content);
+    // formData.set("preview", cutPreview);
+    // topics.forEach((value, index) => {
+    //   formData.set(`topics[${index}]`, value);
+    // });
+    if (!data) return;
+    if (data.length === 0) return;
+    const title = data.title;
+    const preview = data.preview;
+    reset({ title, preview });
+    setImage(data.img);
+    setContent(data.content);
+    setTopics(data.topics);
+    setAuthorSlug(data.author.username);
+  }
+
+  useEffect(() => {
+    async function fetchBlog() {
+      try {
+        const response = await axios.get(
+          `${config.SERVER_HOST}:${config.SERVER_PORT}/api/article/${slug} `,
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        if (response.data) resetForm(response.data.data);
+      } catch (error) {
+        toast.error("Some thing was wrong!", {
+          pauseOnHover: false,
+          delay: 500,
+        });
+      }
+    }
+    fetchBlog();
+  }, [slug]);
 
   useEffect(() => {
     const arrErrs = Object.values(errors);
@@ -98,9 +142,9 @@ const WritePage = () => {
     setImage("");
   };
 
-  const handleAddBlog = (values) => {
+  const handleEditBlog = (values) => {
     if (!isValid) return;
-    if (!imageFilename)
+    if (!image)
       toast.error("Please fill out your image title!", {
         pauseOnHover: false,
         delay: 500,
@@ -108,7 +152,9 @@ const WritePage = () => {
     const { title, content, topics, preview } = values;
     const cutPreview = preview.slice(0, 200);
     const formData = new FormData();
-    formData.set("img", imageFilename);
+    if (imageFilename) {
+      formData.set("img", imageFilename);
+    }
     formData.set("title", title);
     formData.set("content", content);
     formData.set("preview", cutPreview);
@@ -118,8 +164,8 @@ const WritePage = () => {
     async function fetchAddBlog() {
       if (!token) return;
       try {
-        const response = await axios.post(
-          `${config.SERVER_HOST}:${config.SERVER_PORT}/api/article`,
+        const response = await axios.put(
+          `${config.SERVER_HOST}:${config.SERVER_PORT}/api/article/${slug}`,
           formData,
           {
             headers: {
@@ -129,7 +175,7 @@ const WritePage = () => {
           }
         );
         if (response) {
-          navigate("/");
+          navigate(`/profile/${authorSlug}`);
         }
       } catch (error) {
         toast.error("Some thing was wrong!", {
@@ -144,8 +190,8 @@ const WritePage = () => {
   if (!token) return null;
 
   return (
-    <WritePageStyle>
-      <form onSubmit={handleSubmit(handleAddBlog)} autoComplete="off">
+    <EditBlogPageStyle>
+      <form onSubmit={handleSubmit(handleEditBlog)} autoComplete="off">
         <WriteHeader></WriteHeader>
         <div className="mt-5 form-layout">
           <div>
@@ -202,8 +248,8 @@ const WritePage = () => {
           </Button>
         </div>
       </form>
-    </WritePageStyle>
+    </EditBlogPageStyle>
   );
 };
 
-export default WritePage;
+export default EditBlogPage;
