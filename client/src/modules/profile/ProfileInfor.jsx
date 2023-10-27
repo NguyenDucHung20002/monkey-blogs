@@ -1,7 +1,7 @@
 import React from "react";
 import ButtonFollowingUser from "../../components/button/ButtonFollowingUser";
 
-const ProfileInfor = ({setShow, user, isfollowed, username}) =>
+const ProfileInfor = ({setShow, user, isfollowed, username, countFollow}) =>
 {
 
     const profile = user
@@ -11,8 +11,9 @@ const ProfileInfor = ({setShow, user, isfollowed, username}) =>
             <div className="w-20 h-20 rounded-1/2 overflow-hidden ">
                 <img className="w-full h-full" src={profile?.avatar} alt="" />
             </div>
-            <p className="my-4">{profile?.fullname}</p>
-            <p className="mb-4">{profile?.bio ? profile.bio :""} </p>
+            <p className="mt-4">{profile?.fullname}</p>
+            {countFollow && (<p className="">{countFollow?.follower} Followers</p>)}
+            <p className="my-3">{profile?.bio ? profile.bio :""} </p>
             <p className="mb-4">{profile?.about ? profile.about : ""}</p>
             {
             user.isMe?

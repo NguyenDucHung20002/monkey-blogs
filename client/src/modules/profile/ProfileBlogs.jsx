@@ -2,6 +2,7 @@ import React from "react";
 import Topic from "../topic/Topic";
 import { Link } from "react-router-dom";
 import { Popover,Tooltip  } from 'antd';
+import timeSince from "../modulesJs/timeAgo";
 const ProfileBlogs = ({blogs, user, fetchDeleteArticle})=>{
   const handleDelete = (slug)=>{
     fetchDeleteArticle(slug)
@@ -66,7 +67,7 @@ const ProfileBlogs = ({blogs, user, fetchDeleteArticle})=>{
   {blogs.map((val,idx)=>(
     <div key={val._id} className="h-64 border-b pt-6">
       <div className="">
-        <p className="text-sm">2 days ago</p>
+        <p className="text-sm">{timeSince(val.createdAt)}</p>
       </div>
       <div className="flex mt-3">
         <div className="flex-1">

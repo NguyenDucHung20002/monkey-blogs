@@ -12,10 +12,12 @@ const ProfilePage = () => {
   const [show, setShow] = useState(false);
   const [isfollowed, setIsFollowed] = useState(false);
   const [user, setUser] = useState({});
+  const [countFollow, setCountFollow] = useState({});
   const [blogs, setBlogs] = useState([]);
   const [following, setFollowing] = useState([]);
   const { username } = useParams();
   const token = localStorage.getItem("token");
+  //fetch information user
   async function fetchUserInf() {
     const res = await axios
       .get(
@@ -36,6 +38,7 @@ const ProfilePage = () => {
       setIsFollowed(profileUser.isMe)
     }
   }
+  //fetch list blogs of user
   async function fetchUserBlog() {
     const res = await axios
       .get(`${config.SERVER_HOST}:${config.SERVER_PORT}/api/user/${username}/articles`)
@@ -47,6 +50,7 @@ const ProfilePage = () => {
         setBlogs( [...dataBlogs ]);
       }
     }
+  //fetch btn delete article
   async function fetchDeleteArticle(slug) {
     const res = await axios
       .delete(
@@ -65,6 +69,7 @@ const ProfilePage = () => {
         fetchUserBlog()
     }
   }
+  //fetch list user following
   async function fetchUserFollowing() {
     const res = await axios
       .get(`${config.SERVER_HOST}:${config.SERVER_PORT}/api/user/${username}/following`)
@@ -72,16 +77,48 @@ const ProfilePage = () => {
         console.log(err);
       });
       if (res.data.success) {
-        const dataBlogs = res.data.data;
-        setFollowing( [...dataBlogs ]);
+        const dataFollowings = res.data.data;
+        setFollowing( [...dataFollowings ]);
       }
+    }
+  //count following
+  async function fetchCountUserFollowing() {
+    const res = await axios
+      .get(`${config.SERVER_HOST}:${config.SERVER_PORT}/api/user/${username}/following/amount`)
+      .catch((err) => {
+        console.log(err);
+      });
+      if(!res.data.success){
+        console.log(res.data?.message);
+          return
+      }
+        const dataCount = res.data.data;
+        setCountFollow( {...countFollow,'following':dataCount} );
+    }
+  //count follower
+  async function fetchCountUserFollower() {
+    const res = await axios
+      .get(`${config.SERVER_HOST}:${config.SERVER_PORT}/api/user/${username}/follower/amount`)
+      .catch((err) => {
+        console.log(err);
+      });
+      if(!res.data.success){
+        console.log(res.data?.message);
+          return
+      }
+        const dataCount = res.data.data;
+        setCountFollow( {...countFollow,'follower':dataCount} );
     }
   useEffect(() => {
     fetchUserInf();
-    fetchUserBlog();
-    fetchUserFollowing()
   }, [show, username]);
-  console.log(user);
+  useEffect(() => {
+    fetchUserBlog();
+    fetchUserFollowing();
+    fetchCountUserFollowing();
+    fetchCountUserFollower();
+  }, [username]);
+  console.log(blogs);
     return (
     <>
       <div className="w-full border-t border-gray-300"></div>
@@ -101,8 +138,9 @@ const ProfilePage = () => {
               user={user}
               isfollowed={isfollowed}
               username={username}
+              countFollow={countFollow}
             />
-            <Following data={following} token={token} user={user}/>
+            <Following data={following} token={token} user={user} countFollow={countFollow} />
             <TopicRcmm />
           </div>
         </div>
