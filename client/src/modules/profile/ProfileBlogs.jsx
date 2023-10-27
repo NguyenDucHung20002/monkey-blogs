@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 /* eslint-disable react/prop-types */
 import { Link, NavLink } from "react-router-dom";
 import { Popover } from "antd";
@@ -24,19 +23,6 @@ const ProfileBlogs = ({ blogs, user, fetchDeleteArticle }) => {
   };
   const MoreUser = ({ slug }) => {
     return (
-=======
-import React from "react";
-import Topic from "../topic/Topic";
-import { Link } from "react-router-dom";
-import { Popover,Tooltip  } from 'antd';
-import timeSince from "../modulesJs/timeAgo";
-const ProfileBlogs = ({blogs, user, fetchDeleteArticle})=>{
-  const handleDelete = (slug)=>{
-    fetchDeleteArticle(slug)
-  }
-  const MoreUser = ({slug})=>{
-    return(
->>>>>>> caa64f23d0c1a0f4eb1574f28d4069510fbf9624
       <div>
         <NavLink to={`/edit-blog/${slug}`}>
           <div className="my-2 ">Edit story</div>
@@ -90,22 +76,12 @@ const ProfileBlogs = ({blogs, user, fetchDeleteArticle})=>{
             <p className="">No Story</p>
             <button className="text-lg">...</button>
           </div>
-<<<<<<< HEAD
         </div>
         <div className="flex w-2/4 bg-white">
           <div className="w-1/2 h-full bg-neutral-200"></div>
           <div className="bg-neutral-200 h-full w-1/3 mx-[2px]"></div>
           <div className="flex-1 h-full bg-neutral-200"></div>
         </div>
-=======
-      </div> )
-    }
-  return (<>
-  {blogs.map((val,idx)=>(
-    <div key={val._id} className="h-64 border-b pt-6">
-      <div className="">
-        <p className="text-sm">{timeSince(val.createdAt)}</p>
->>>>>>> caa64f23d0c1a0f4eb1574f28d4069510fbf9624
       </div>
     );
   }
