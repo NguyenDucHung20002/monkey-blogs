@@ -52,7 +52,7 @@ router.get("/", articleController.getAllArticles);
 // get followed topic articles
 router.get("/followed/topic/:tag", articleController.getFollwedTopicArticles);
 
-// get followed topic articles
+// get followed authors articles
 router.get(
   "/followed/authors",
   requiredAuth,
