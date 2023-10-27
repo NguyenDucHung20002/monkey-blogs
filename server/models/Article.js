@@ -26,6 +26,7 @@ const ArticleSchema = new mongoose.Schema(
   }
 );
 
+ArticleSchema.index({ author: 1 });
 ArticleSchema.index({ topics: 1 });
 ArticleSchema.index({ createdAt: 1 });
 ArticleSchema.index({ title: "text" });

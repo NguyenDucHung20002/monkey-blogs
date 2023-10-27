@@ -47,7 +47,18 @@ router.get("/:slug/likes/amount", articleController.countArticleLikes);
 router.get("/:slug/comments/amount", articleController.countArticleComments);
 
 // get all articles
-router.get("/", requiredAuth, fetchMe, articleController.getAllArticles);
+router.get("/", articleController.getAllArticles);
+
+// get followed topic articles
+router.get("/followed/topic/:tag", articleController.getFollwedTopicArticles);
+
+// get followed topic articles
+router.get(
+  "/followed/authors",
+  requiredAuth,
+  fetchMe,
+  articleController.getFollwedAuthorsArticles
+);
 
 // search topic
 router.post("/topics", articleController.searchTopics);

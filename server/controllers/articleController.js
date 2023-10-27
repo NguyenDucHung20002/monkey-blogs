@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const Like = require("../models/Like");
 const Topic = require("../models/Topic");
 const toSlug = require("../utils/toSlug");
@@ -149,26 +150,11 @@ const countArticleComments = asyncMiddleware(async (req, res, next) => {
 // ==================== get all articles ==================== //
 
 const getAllArticles = asyncMiddleware(async (req, res, next) => {
-  const { me } = req;
-  const { tag, feed } = req.query;
   const { skip, limit = 15 } = req.query;
 
   const query = { status: "approved" };
 
   if (skip) query._id = { $lt: skip };
-
-  if (tag) {
-    const topic = await Topic.exists({ slug: tag });
-    if (!topic) throw new ErrorResponse(404, "topic tag not found");
-    query.topics = topic._id;
-  }
-
-  if (feed) {
-    const myFollowing = await FollowUser.find({ follower: me._id })
-      .lean()
-      .distinct("following");
-    query.author = { $in: myFollowing };
-  }
 
   const articles = await Article.find(query)
     .lean()
@@ -188,7 +174,79 @@ const getAllArticles = asyncMiddleware(async (req, res, next) => {
   res.status(200).json({ success: true, data: articles, skipID });
 });
 
-// ==================== search topics for create article ==================== //
+// ==================== get followed topic articles ==================== //
+
+const getFollwedTopicArticles = asyncMiddleware(async (req, res, next) => {
+  const { tag } = req.params;
+  const { skip, limit = 15 } = req.query;
+
+  const topic = await Topic.findOne({ slug: tag });
+
+  if (!topic) throw new ErrorResponse(404, "topic not found");
+
+  const query = { topics: topic._id, status: "approved" };
+
+  if (skip) query._id = { $lt: skip };
+
+  const articles = await Article.find(query)
+    .lean()
+    .limit(limit)
+    .select("-status -content")
+    .populate({ path: "author", select: "avatar fullname username" })
+    .populate({ path: "topics", options: { limit: 1 }, select: "name slug" })
+    .sort({ createdAt: -1 });
+
+  articles.forEach((article) => {
+    article.author.avatar = addUrlToImg(article.author.avatar);
+    article.img = addUrlToImg(article.img);
+  });
+
+  const skipID = articles.length > 0 ? articles[articles.length - 1]._id : null;
+
+  res.status(200).json({ success: true, data: articles, skipID });
+});
+
+// ==================== get followed authors articles ==================== //
+
+const getFollwedAuthorsArticles = asyncMiddleware(async (req, res, next) => {
+  const { me } = req;
+  const { skip, limit = 15 } = req.query;
+
+  const query = { author: { $ne: me._id }, status: "approved" };
+
+  if (skip) query._id = { $lt: new mongoose.Types.ObjectId(skip) };
+
+  const articles = await Article.aggregate()
+    .sort({ createdAt: -1 })
+    .match(query)
+    .lookup({
+      from: "followusers",
+      localField: "author",
+      foreignField: "following",
+      as: "followedArticles",
+    })
+    .match({ "followedArticles.follower": me._id })
+    .limit(parseInt(limit))
+    .project("-followedArticles -status -content");
+
+  const result = await Promise.all(
+    articles.map(async (val) => {
+      const populated = await Article.populate(
+        val,
+        { path: "author", select: "avatar fullname username" },
+        { path: "topics", options: { limit: 1 }, select: "name slug" }
+      );
+      populated.author.avatar = addUrlToImg(populated.author.avatar);
+      return populated;
+    })
+  );
+
+  const skipID = articles.length > 0 ? articles[articles.length - 1]._id : null;
+
+  res.status(200).json({ success: true, data: result, skipID });
+});
+
+// ==================== search topics ==================== //
 
 const searchTopics = asyncMiddleware(async (req, res, next) => {
   const { search } = req.body;
@@ -249,6 +307,8 @@ module.exports = {
   countArticleComments,
   deleteMyArticle,
   getAllArticles,
+  getFollwedTopicArticles,
+  getFollwedAuthorsArticles,
   searchTopics,
   searchArticles,
 };

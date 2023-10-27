@@ -1,5 +1,3 @@
-const jwt = require("jsonwebtoken");
-const { env } = require("../config/env");
 const Token = require("../models/Token");
 
 const requiredAuth = async (req, res, next) => {
@@ -21,9 +19,7 @@ const requiredAuth = async (req, res, next) => {
   }
 
   try {
-    const user = jwt.verify(token, env.SECRET_KEY);
-
-    const tokenDoc = await Token.findOne({ userId: user.id, token });
+    const tokenDoc = await Token.findOne({ token });
     if (!tokenDoc) {
       return res.status(401).json({
         success: false,
@@ -31,7 +27,7 @@ const requiredAuth = async (req, res, next) => {
       });
     }
 
-    req.user = user;
+    req.token = token;
     next();
   } catch (error) {
     return res.status(401).json({

@@ -9,7 +9,7 @@ const UserSchema = new mongoose.Schema(
     bio: { type: String },
     about: { type: String },
     role: { type: mongoose.Schema.Types.ObjectId, ref: "Role", required: true },
-    status: { type: String, default: "active" },
+    status: { type: String, default: "normal" },
   },
   {
     timestamps: true,
@@ -17,6 +17,7 @@ const UserSchema = new mongoose.Schema(
   }
 );
 
+UserSchema.index({ status: 1 });
 UserSchema.index({ fullname: "text", username: "text" });
 
 module.exports = mongoose.model("User", UserSchema);

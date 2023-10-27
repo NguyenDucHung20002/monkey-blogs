@@ -15,8 +15,8 @@ const fetchUser = async (req, res, next) => {
     const user = await User.findOne({ username })
       .lean()
       .select("-email -loginType -role -status");
-    if (!user) {
-      return res.status(401).json({
+    if (!user || user.status === "banned") {
+      return res.status(404).json({
         success: false,
         message: "Profile not found",
       });

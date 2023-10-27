@@ -62,8 +62,7 @@ const getFollowing = asyncMiddleware(async (req, res, next) => {
     .lean()
     .limit(limit)
     .select("follower following")
-    .populate({ path: "following", select: "avatar fullname username bio" })
-    .sort({ createdAt: -1 });
+    .populate({ path: "following", select: "avatar fullname username bio" });
 
   const result = following.map((val) => {
     const following = { ...val.following };
@@ -218,10 +217,13 @@ const searchUser = asyncMiddleware(async (req, res, next) => {
   const { search } = req.body;
   const { skip, limit = 15 } = req.query;
 
+  let result = [];
+
   if (search) {
     const query = {
       $text: { $search: search },
       _id: { $ne: me ? me._id : null },
+      status: "normal",
     };
 
     if (skip) query._id.$lt = skip;

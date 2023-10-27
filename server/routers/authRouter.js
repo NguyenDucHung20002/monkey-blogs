@@ -24,19 +24,7 @@ router.get(
 
     const token = jwt.sign({ id: user }, env.SECRET_KEY);
 
-    let tokenDoc = await Token.findOne({ userId: user });
-    if (!tokenDoc) {
-      tokenDoc = new Token({
-        userId: user,
-        token,
-        timestamps: Date.now(),
-      });
-    } else {
-      tokenDoc.token = token;
-      tokenDoc.timestamps = Date.now();
-    }
-
-    await tokenDoc.save();
+    await Token.create({ userId: user, token });
 
     res.redirect(`${env.CLIENT_HOST}:${env.CLIENT_PORT}?token=${token}`);
   }

@@ -16,9 +16,7 @@ passport.use(
     async (accessToken, refreshToken, profile, done) => {
       try {
         const role = await Role.findOne({ slug: "user" });
-        if (!role) {
-          throw new ErrorResponse(404, "role not found");
-        }
+        if (!role) throw new ErrorResponse(404, "role not found");
 
         let user = await User.findOne({ email: profile._json.email });
         if (!user) {

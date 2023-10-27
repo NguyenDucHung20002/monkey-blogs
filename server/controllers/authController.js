@@ -9,12 +9,9 @@ const { asyncMiddleware } = require("../middlewares/asyncMiddleware");
 const login = asyncMiddleware(async (req, res, next) => {
   const { fullname, avatar, username, role } = req.me;
 
-  const selectedRole = await Role.findById(role).lean().select("slug");
-  if (!selectedRole) throw new ErrorResponse(404, "Role not found");
-
   addUrlToImg(avatar);
 
-  const profile = { avatar, fullname, username, role: selectedRole.slug };
+  const profile = { avatar, fullname, username, role: role.slug };
 
   res.status(200).json({ success: true, data: profile });
 });
@@ -22,9 +19,9 @@ const login = asyncMiddleware(async (req, res, next) => {
 // ==================== Logout ==================== //
 
 const logout = asyncMiddleware(async (req, res, next) => {
-  const { me } = req;
+  const { me, token } = req;
 
-  await Token.findOneAndDelete({ userId: me._id });
+  await Token.findOneAndDelete({ userId: me._id, token });
 
   res.status(200).json({ success: true });
 });

@@ -13,6 +13,7 @@ const router = express.Router();
 router.post(
   "/",
   requiredAuth,
+  fetchMe,
   authorize("admin"),
   validator(topicSchema.createSchema),
   topicController.createTopic
@@ -22,6 +23,7 @@ router.post(
 router.put(
   "/:slug",
   requiredAuth,
+  fetchMe,
   authorize("admin"),
   validator(topicSchema.updateSchema),
   topicController.updateTopic
@@ -31,6 +33,7 @@ router.put(
 router.delete(
   "/:slug",
   requiredAuth,
+  fetchMe,
   authorize("admin"),
   topicController.deleteTopic
 );
