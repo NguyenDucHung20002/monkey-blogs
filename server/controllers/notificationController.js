@@ -29,7 +29,7 @@ const getNotifications = asyncMiddleware(async (req, res, next) => {
   res.status(200).json({ success: true, data: notifications, skipID });
 });
 
-// ==================== Count Unread Notifications ==================== //
+// ==================== count unread notifications ==================== //
 
 const countUnRead = asyncMiddleware(async (req, res, next) => {
   const { me } = req;

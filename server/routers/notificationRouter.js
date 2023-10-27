@@ -13,6 +13,7 @@ router.get(
   notificationController.getNotifications
 );
 
+// count unread notifications
 router.get(
   "/me/unread/amount",
   requiredAuth,

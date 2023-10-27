@@ -17,7 +17,7 @@ const createAnArticle = asyncMiddleware(async (req, res, next) => {
   const { title, preview, content, topics } = req.body;
 
   const filename = req.file?.filename;
-  if (!filename) throw new ErrorResponse(422, "article image is required");
+  if (!filename) throw new ErrorResponse(422, "Article image is required");
 
   const slug = toSlug(title) + "-" + Date.now();
 
@@ -48,7 +48,7 @@ const updateMyArticle = asyncMiddleware(async (req, res, next) => {
   const oldArticle = await Article.findOne({ slug })
     .lean()
     .select("_id slug img");
-  if (!oldArticle) throw new ErrorResponse(404, "article not found");
+  if (!oldArticle) throw new ErrorResponse(404, "Article not found");
 
   const updatedSlug = title
     ? toSlug(title) + "-" + Date.now()
@@ -94,7 +94,7 @@ const getAnArticle = asyncMiddleware(async (req, res, next) => {
     .populate({ path: "topics", select: "name slug" })
     .populate({ path: "author", select: "avatar fullname username" });
 
-  if (!article) throw new ErrorResponse(404, "article not found");
+  if (!article) throw new ErrorResponse(404, "Article not found");
 
   article.img = addUrlToImg(article.img);
 
@@ -126,7 +126,7 @@ const countArticleLikes = asyncMiddleware(async (req, res, next) => {
 
   const article = await Article.exists({ slug, status: "approved" });
 
-  if (!article) throw new ErrorResponse(404, "article not found");
+  if (!article) throw new ErrorResponse(404, "Article not found");
 
   const count = await Like.count({ article: article._id });
 
@@ -182,7 +182,7 @@ const getFollwedTopicArticles = asyncMiddleware(async (req, res, next) => {
 
   const topic = await Topic.findOne({ slug: tag });
 
-  if (!topic) throw new ErrorResponse(404, "topic not found");
+  if (!topic) throw new ErrorResponse(404, "Topic not found");
 
   const query = { topics: topic._id, status: "approved" };
 

@@ -1,24 +1,19 @@
 const Role = require("../models/Role");
 const createRoles = async () => {
   try {
-    let admin = await Role.findOne({ slug: "admin" });
-    let staff = await Role.findOne({ slug: "staff" });
-    let user = await Role.findOne({ slug: "user" });
+    let [admin, staff, user] = await Promise.all([
+      Role.findOne({ slug: "admin" }),
+      Role.findOne({ slug: "staff" }),
+      Role.findOne({ slug: "user" }),
+    ]);
 
-    if (!admin) {
-      admin = { name: "Admin", slug: "admin" };
-    }
+    if (!admin) admin = { name: "Admin", slug: "admin" };
 
-    if (!staff) {
-      staff = { name: "Staff", slug: "staff" };
-    }
+    if (!staff) staff = { name: "Staff", slug: "staff" };
 
-    if (!user) {
-      user = { name: "User", slug: "user" };
-    }
+    if (!user) user = { name: "User", slug: "user" };
 
-    const createdRoles = await Role.create([admin, staff, user]);
-    // console.log("Roles created:", createdRoles);
+    await Role.create([admin, staff, user]);
   } catch (error) {
     console.error("Error creating roles:", error);
   }

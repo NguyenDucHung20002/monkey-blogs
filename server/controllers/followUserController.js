@@ -2,7 +2,7 @@ const FollowUser = require("../models/FollowUser");
 const { ErrorResponse } = require("../response/ErrorResponse");
 const { asyncMiddleware } = require("../middlewares/asyncMiddleware");
 
-// ==================== follow a user ==================== //
+// ==================== follow or unfollow a user ==================== //
 
 const followOrUnfollowUser = asyncMiddleware(async (req, res, next) => {
   const { me, user } = req;

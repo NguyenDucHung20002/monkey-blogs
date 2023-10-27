@@ -18,7 +18,7 @@ const fetchUser = async (req, res, next) => {
     if (!user || user.status === "banned") {
       return res.status(404).json({
         success: false,
-        message: "Profile not found",
+        message: "User not found",
       });
     }
 

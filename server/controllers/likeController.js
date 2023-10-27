@@ -10,7 +10,7 @@ const likeOrUnLikeAnArticle = asyncMiddleware(async (req, res, next) => {
   const { slug } = req.params;
 
   const article = await Article.exists({ slug });
-  if (!article) throw new ErrorResponse(404, "article not found");
+  if (!article) throw new ErrorResponse(404, "Article not found");
 
   const data = { article: article._id, user: me._id };
 

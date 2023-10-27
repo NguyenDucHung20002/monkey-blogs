@@ -61,9 +61,17 @@ router.get(
 );
 
 // search topic
-router.post("/topics", articleController.searchTopics);
+router.post(
+  "/topics",
+  validator(articleSchema.searchSchema),
+  articleController.searchTopics
+);
 
 // search articles
-router.post("/search", articleController.searchArticles);
+router.post(
+  "/search",
+  validator(articleSchema.searchSchema),
+  articleController.searchArticles
+);
 
 module.exports = router;

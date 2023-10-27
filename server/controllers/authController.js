@@ -1,7 +1,5 @@
-const Role = require("../models/Role");
 const Token = require("../models/Token");
 const addUrlToImg = require("../utils/addUrlToImg");
-const { ErrorResponse } = require("../response/ErrorResponse");
 const { asyncMiddleware } = require("../middlewares/asyncMiddleware");
 
 // ==================== login ==================== //

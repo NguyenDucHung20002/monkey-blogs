@@ -40,7 +40,7 @@ const updateTopic = asyncMiddleware(async (req, res, next) => {
   const NewName = await Topic.exists().or([{ name }, { slug: updatedSlug }]);
 
   if (NewName && NewName._id.toString() !== existingTopic._id.toString()) {
-    throw new ErrorResponse(404, "Topic name already exist");
+    throw new ErrorResponse(409, "Topic name already exist");
   }
 
   await Topic.findOneAndUpdate(
@@ -77,7 +77,7 @@ const getATopic = asyncMiddleware(async (req, res, next) => {
   const { me } = req;
 
   const topic = await Topic.findOne({ slug }).lean();
-  if (!topic) throw new ErrorResponse(404, "topic not found");
+  if (!topic) throw new ErrorResponse(404, "Topic not found");
 
   const result = { ...topic };
 
@@ -97,7 +97,7 @@ const countTopicArticles = asyncMiddleware(async (req, res, next) => {
   const { slug } = req.params;
 
   const topic = await Topic.findOne({ slug }).lean();
-  if (!topic) throw new ErrorResponse(404, "topic not found");
+  if (!topic) throw new ErrorResponse(404, "Topic not found");
 
   const count = await Article.count({ topics: topic._id });
 
@@ -110,7 +110,7 @@ const countTopicFollowers = asyncMiddleware(async (req, res, next) => {
   const { slug } = req.params;
 
   const topic = await Topic.findOne({ slug }).lean();
-  if (!topic) throw new ErrorResponse(404, "topic not found");
+  if (!topic) throw new ErrorResponse(404, "Topic not found");
 
   const count = await FollowTopic.count({ topic: topic._id });
 
@@ -125,7 +125,7 @@ const getTopicArticles = asyncMiddleware(async (req, res, next) => {
   const { skip, limit = 15 } = req.query;
 
   const topic = await Topic.exists({ slug });
-  if (!topic) throw new ErrorResponse(404, "topic not found");
+  if (!topic) throw new ErrorResponse(404, "Topic not found");
 
   const query = { topics: topic._id };
   if (skip) query._id = { $lt: skip };

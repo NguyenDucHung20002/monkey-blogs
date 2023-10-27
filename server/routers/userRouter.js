@@ -81,6 +81,12 @@ router.get(
 );
 
 // search users
-router.post("/search", optionalAuth, fetchMe, userController.searchUser);
+router.post(
+  "/search",
+  optionalAuth,
+  fetchMe,
+  validator(userSchema.searchSchema),
+  userController.searchUser
+);
 
 module.exports = router;

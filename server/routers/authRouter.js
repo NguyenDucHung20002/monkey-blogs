@@ -34,6 +34,6 @@ router.get(
 router.post("/login", requiredAuth, fetchMe, authController.login);
 
 // Logout
-router.post("/logout", requiredAuth, fetchMe, authController.logout);
+router.delete("/logout", requiredAuth, fetchMe, authController.logout);
 
 module.exports = router;

@@ -13,9 +13,7 @@ const getProfile = asyncMiddleware(async (req, res, next) => {
 
   const result = { ...user };
 
-  if (!me) {
-    return res.status(200).json({ success: true, data: result });
-  }
+  if (!me) return res.status(200).json({ success: true, data: result });
 
   result.isMe = me._id.toString() === user._id.toString();
 
@@ -172,6 +170,15 @@ const updateMyProfile = asyncMiddleware(async (req, res, next) => {
   const { fullname, bio, about } = req.body;
 
   const filename = req.file?.filename;
+  const size = req.file?.size;
+
+  const FILE_LIMIT = 10 * 1024 * 1024;
+  if (size && size > FILE_LIMIT) {
+    throw new ErrorResponse(
+      400,
+      "File too large. Maximum allowed size is 10mb"
+    );
+  }
 
   await User.findByIdAndUpdate(
     me._id,
