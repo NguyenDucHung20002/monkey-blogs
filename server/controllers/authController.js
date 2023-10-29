@@ -7,9 +7,12 @@ const { asyncMiddleware } = require("../middlewares/asyncMiddleware");
 const login = asyncMiddleware(async (req, res, next) => {
   const { fullname, avatar, username, role } = req.me;
 
-  addUrlToImg(avatar);
-
-  const profile = { avatar, fullname, username, role: role.slug };
+  const profile = {
+    avatar: addUrlToImg(avatar),
+    fullname,
+    username,
+    role: role.slug,
+  };
 
   res.status(200).json({ success: true, data: profile });
 });
