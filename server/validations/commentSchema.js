@@ -2,7 +2,7 @@ const Joi = require("./joi");
 
 const createSchema = Joi.object({
   content: Joi.string().required(),
-  parentCommentId: Joi.string(),
+  parentCommentId: Joi.string().allow(""),
 });
 
 const idSchema = Joi.object({

@@ -18,6 +18,7 @@ const UserSchema = new mongoose.Schema(
 );
 
 UserSchema.index({ status: 1 });
+UserSchema.index({ createdAt: 1 });
 UserSchema.index({ fullname: "text", username: "text" });
 
 module.exports = mongoose.model("User", UserSchema);
