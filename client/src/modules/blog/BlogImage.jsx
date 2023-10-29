@@ -1,10 +1,17 @@
 // eslint-disable-next-line no-unused-vars
 import React from "react";
 import { NavLink } from "react-router-dom";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 const BlogImageStyles = styled.div`
-  width: 120px;
+  max-width: 120px;
   height: 120px;
+
+  ${(props) =>
+    props.kind === "gird" &&
+    css`
+      max-width: 360px;
+      height: 180px;
+    `};
   img {
     width: 100%;
     height: 100%;
@@ -14,11 +21,11 @@ const BlogImageStyles = styled.div`
 `;
 
 // eslint-disable-next-line react/prop-types
-const BlogImage = ({ className = "", url = "", alt = "", to = "" }) => {
+const BlogImage = ({ className = "", url = "", alt = "", to = "", kind }) => {
   if (to)
     return (
       <NavLink to={to} style={{ display: "block" }}>
-        <BlogImageStyles className={`post-image ${className}`}>
+        <BlogImageStyles className={`post-image ${className}`} kind={kind}>
           <img src={url} alt={alt} loading="lazy" />
         </BlogImageStyles>
       </NavLink>

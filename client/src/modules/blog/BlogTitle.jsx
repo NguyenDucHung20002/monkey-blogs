@@ -30,7 +30,9 @@ const BlogTitleStyles = styled.h3`
 const BlogTitle = ({ children, className = "", size = "normal", to = "" }) => {
   return (
     <BlogTitleStyles size={size} className={`post-title ${className}`}>
-      <NavLink to={to}>{children}</NavLink>
+      <NavLink to={to}>
+        <p className="text-gray-700 line-clamp-2">{children}</p>
+      </NavLink>
     </BlogTitleStyles>
   );
 };

@@ -27,7 +27,7 @@ const WritePageStyle = styled.div`
 `;
 
 const schema = yup.object({
-  title: yup.string().required("Please fill out your title"),
+  title: yup.string().min(4).required("Please fill out your title"),
 });
 
 const WritePage = () => {
@@ -132,7 +132,7 @@ const WritePage = () => {
           navigate("/");
         }
       } catch (error) {
-        toast.error("Some thing was wrong!", {
+        toast.error(error?.response?.data?.error?.message, {
           pauseOnHover: false,
           delay: 500,
         });

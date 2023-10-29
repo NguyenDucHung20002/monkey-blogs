@@ -2,7 +2,7 @@
 import Topic from "../../modules/topic/Topic";
 import ButtonFollowingTopic from "../button/ButtonFollowingTopic";
 
-const TopicUserHandle = ({ data = {}, initialFollowing = false }) => {
+const TopicUserHandle = ({ data, initialFollowing = false }) => {
   const { slug, name } = data;
 
   if (!data) return;

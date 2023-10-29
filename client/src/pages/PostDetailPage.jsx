@@ -6,7 +6,7 @@ import img from "../assets/logo.jpg";
 import PostMeta from "../modules/post/PostMeta";
 import Avatar from "../modules/user/Avatar";
 import TopicList from "../modules/topic/TopicList";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { config } from "../utils/constants";
 import axios from "axios";
 import { toast } from "react-toastify";
@@ -88,6 +88,7 @@ const PostDetailPagePageStyle = styled.div`
 const PostDetailPage = () => {
   const { slug } = useParams("slug");
   const [blog, setBlog] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function fetchBlog() {
@@ -102,10 +103,9 @@ const PostDetailPage = () => {
         );
         if (response.data) setBlog(response.data.data);
       } catch (error) {
-        toast.error("Some thing was wrong!", {
-          pauseOnHover: false,
-          delay: 500,
-        });
+        if (error.response.data) {
+          navigate("/*");
+        }
       }
     }
     fetchBlog();

@@ -3,14 +3,14 @@ import axios from "axios";
 import { useState } from "react";
 import { config } from "../../utils/constants";
 
-const ButtonFollowingTopic = ({ slug = "", initialFollowing = false }) => {
-  const token = localStorage.getItem("token");
+const ButtonFollowingTopic = ({ initialFollowing = false, slug = "" }) => {
   const [followed, setFollowed] = useState(initialFollowing);
+  const token = localStorage.getItem("token");
 
   const handleFollow = async (slug) => {
     const res = await axios
       .post(
-        `${config.SERVER_HOST}:${config.SERVER_PORT}/api/follow-topic/follow-unfollow/${slug}`,
+        `${config.SERVER_HOST}:${config.SERVER_PORT}/api/follow-topic/${slug}/follow-unfollow`,
         {},
         {
           headers: {
@@ -26,6 +26,7 @@ const ButtonFollowingTopic = ({ slug = "", initialFollowing = false }) => {
       setFollowed(!followed);
     }
   };
+  if (!slug) return;
   return (
     <>
       {!followed ? (

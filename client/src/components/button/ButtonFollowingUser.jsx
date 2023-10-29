@@ -2,32 +2,37 @@
 import { config } from "../../utils/constants";
 import { useState } from "react";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 const ButtonFollowingUser = ({ username = "", initialFollowing = false }) => {
   const [followed, setFollowed] = useState(initialFollowing);
   const token = localStorage.getItem("token");
-  let fetch = {};
-  if (!followed) {
-    (fetch.method = "post"),
-      (fetch.url = `${config.SERVER_HOST}:${config.SERVER_PORT}/api/follow-user/${username}/follow`);
-  } else {
-    (fetch.method = "delete"),
-      (fetch.url = `${config.SERVER_HOST}:${config.SERVER_PORT}/api/follow-user/${username}/unfollow`);
-  }
 
   const handleFollow = async () => {
-    const res = await axios[`${fetch.method}`](
-      fetch.url,
-      {},
-      {
-        headers: {
-          authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      }
-    ).catch((err) => {
-      console.log(err);
-    });
+    const res = await axios
+      .post(
+        `${config.SERVER_HOST}:${config.SERVER_PORT}/api/follow-user/${username}/follow-unfollow`,
+        {},
+        {
+          headers: {
+            authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      )
+      .catch((err) => {
+        if (err.response.status == 404) {
+          toast.error("Can not find user!", {
+            pauseOnHover: false,
+            delay: 500,
+          });
+        } else {
+          toast.error("User banned!", {
+            pauseOnHover: false,
+            delay: 500,
+          });
+        }
+      });
     if (res.data.success) {
       setFollowed(!followed);
     }

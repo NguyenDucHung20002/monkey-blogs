@@ -34,7 +34,7 @@ const SearchStoriesPage = () => {
         );
         if (response.data) setBlogs(response.data.data);
       } catch (error) {
-        console.log("error:", error);
+        console.log("error:", error.response);
       }
     }
     fetchBlog();

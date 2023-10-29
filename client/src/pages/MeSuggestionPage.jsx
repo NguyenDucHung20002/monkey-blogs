@@ -7,9 +7,7 @@ import { toast } from "react-toastify";
 
 const MeSuggestionPage = () => {
   const [topics, setTopics] = useState([]);
-  console.log("topics:", topics);
   const [users, setUsers] = useState([]);
-  console.log("users:", users);
   const token = localStorage.getItem("token");
 
   useEffect(() => {

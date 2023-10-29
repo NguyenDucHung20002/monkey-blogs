@@ -8,6 +8,7 @@ import { useAuth } from "../contexts/auth-context";
 
 const MeFollowingPage = () => {
   const [topics, setTopics] = useState([]);
+  console.log("topics:", topics);
   const [users, setUsers] = useState([]);
   const token = localStorage.getItem("token");
   const { userInfo } = useAuth();
@@ -78,13 +79,17 @@ const MeFollowingPage = () => {
           <h3 className="mb-5 text-base font-bold">Topics to follow</h3>
           {topics &&
             topics.length > 0 &&
-            topics.map((topic) => (
-              <TopicUserHandle
-                key={topic._id}
-                data={topic.topic}
-                initialFollowing={true}
-              ></TopicUserHandle>
-            ))}
+            topics.map((topic) => {
+              console.log("topic:", topic);
+
+              return (
+                <TopicUserHandle
+                  key={topic._id}
+                  data={topic}
+                  initialFollowing={true}
+                ></TopicUserHandle>
+              );
+            })}
         </div>
       </div>
     </div>

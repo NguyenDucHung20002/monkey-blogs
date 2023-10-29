@@ -100,10 +100,7 @@ const HomeSide = () => {
           {topics && topics.length > 0 && (
             <>
               <h3 className="mb-5 text-lg font-semibold">Topics followed</h3>
-              <TopicList
-                data={topicFollowings}
-                kind="topic-following?slug="
-              ></TopicList>
+              <TopicList data={topicFollowings}></TopicList>
             </>
           )}
         </div>

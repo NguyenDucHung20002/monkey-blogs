@@ -104,16 +104,14 @@ const icons = {
 };
 
 const HomeStyle = styled.header`
-  padding: 10px 20px;
-  background-color: white;
-  .header-main {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .logo {
-    display: block;
-    max-width: 50px;
+  .wrapper {
+    .logo {
+      display: block;
+      max-width: 50px;
+    }
+    .headroom {
+      z-index: 9999 !important;
+    }
   }
 `;
 
@@ -233,65 +231,67 @@ const Header = () => {
 
   return (
     <>
-      <Headroom>
-        <HomeStyle>
-          <div className="flex items-center justify-between ">
-            <div className="flex items-center justify-center header-right">
-              <NavLink to="/">
-                <img srcSet={logo} alt="monkey-blogging" className="logo" />
-              </NavLink>
-              <form
-                autoComplete="off"
-                onSubmit={handleSearchSubmit}
-                className="relative"
-              >
-                <SearchMain
-                  id="search"
-                  className="ml-4"
-                  onChange={handleSearch}
-                ></SearchMain>
-                {show && (
-                  <DropdownSearchMain
-                    ref={nodeRef}
-                    users={users}
-                    topics={topics}
-                  ></DropdownSearchMain>
-                )}
-              </form>
-            </div>
-            <div className="flex items-center justify-center header-left">
-              <NavLink to={`/write`}>
-                <Button kind="secondary" height="40px" className="">
-                  {icons.writeIcon}
-                  <p className="ml-2 text-lg font-medium">Write</p>
-                </Button>
-              </NavLink>
-
-              <Button
-                kind="secondary"
-                height="40px"
-                notification={"1"}
-                className=""
-              >
-                {icons.notificationIcon}
-              </Button>
-              <Space direction="vertical" wrap size={16} className="p-1 ml-5">
-                <Popover
-                  placement="bottomRight"
-                  content={() => content(data?.username, data?.fullname)}
-                  trigger="click"
+      <HomeStyle>
+        <div className="wrapper">
+          <Headroom>
+            <div className="flex items-center justify-between bg-white  px-5 py-[10px]">
+              <div className="flex items-center justify-between ">
+                <NavLink to="/">
+                  <img srcSet={logo} alt="monkey-blogging" className="logo" />
+                </NavLink>
+                <form
+                  autoComplete="off"
+                  onSubmit={handleSearchSubmit}
+                  className="relative"
                 >
-                  <Avatar
-                    className="cursor-pointer"
-                    size="large"
-                    src={<img src={data?.avatar} alt="avatar" />}
-                  />
-                </Popover>
-              </Space>
+                  <SearchMain
+                    id="search"
+                    className="ml-4"
+                    onChange={handleSearch}
+                  ></SearchMain>
+                  {show && (
+                    <DropdownSearchMain
+                      ref={nodeRef}
+                      users={users}
+                      topics={topics}
+                    ></DropdownSearchMain>
+                  )}
+                </form>
+              </div>
+              <div className="flex items-center justify-center header-left">
+                <NavLink to={`/write`}>
+                  <Button kind="secondary" height="40px" className="">
+                    {icons.writeIcon}
+                    <p className="ml-2 text-lg font-medium">Write</p>
+                  </Button>
+                </NavLink>
+
+                <Button
+                  kind="secondary"
+                  height="40px"
+                  notification={"1"}
+                  className=""
+                >
+                  {icons.notificationIcon}
+                </Button>
+                <Space direction="vertical" wrap size={16} className="p-1 ml-5">
+                  <Popover
+                    placement="bottomRight"
+                    content={() => content(data?.username, data?.fullname)}
+                    trigger="click"
+                  >
+                    <Avatar
+                      className="cursor-pointer"
+                      size="large"
+                      src={<img src={data?.avatar} alt="avatar" />}
+                    />
+                  </Popover>
+                </Space>
+              </div>
             </div>
-          </div>
-        </HomeStyle>
-      </Headroom>
+          </Headroom>
+        </div>
+      </HomeStyle>
     </>
   );
 };

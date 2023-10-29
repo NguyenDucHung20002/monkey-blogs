@@ -38,7 +38,7 @@ const BlogMeta = ({
   return (
     <BlogMetaStyles className={`post-meta ${className}`}>
       <Link to={`/profile/${to}`}>
-        <span className="post-author">{authorName}</span>
+        <span className="text-gray-700 post-author ">{authorName}</span>
       </Link>
       <span className="post-dot"></span>
       <span className="post-time">{formatDate(date)}</span>

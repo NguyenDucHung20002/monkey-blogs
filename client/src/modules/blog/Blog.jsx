@@ -43,7 +43,7 @@ const Blog = ({ blog }) => {
         </div>
         <p className="my-2"> </p>
         <BlogTitle to={`/blog/${slug}`} size="big">
-          <div className=" line-clamp-2">{title}</div>
+          {title}
         </BlogTitle>
         <p className="mt-2 text-base text-gray-400 line-clamp-2">{preview}</p>
         <div className="flex items-center justify-start gap-3 mt-3">

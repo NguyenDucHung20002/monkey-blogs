@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { Navigation, Pagination, Scrollbar, A11y } from "swiper/modules";
 
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -5,7 +6,7 @@ import styled from "styled-components";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 
-const TopicSlider = ({slug}) => {
+const TopicSlider = ({ slug }) => {
   const [activeSlide, setActiveSlide] = useState(-1);
   const handleClick = (index) => {
     setActiveSlide(index);
@@ -93,17 +94,40 @@ const TopicSlider = ({slug}) => {
         spaceBetween={3}
         autoHeight={true}
       >
-        <SwiperSlide>
+        <SwiperSlide style={{ zIndex: "1" }}>
           <div className="flex items-center">
-            <Link className={`${activeSlide === -1 ? 'active' : '' }`} onClick={() => handleClick('Explore-topics')} to={`/topic/Explore-topics`}>
-              <svg className="mr-1" viewBox="0 0 24 24" fill="none" height="24" width="24"><circle cx="12" cy="12" r="10" stroke="currentColor"></circle><path fillRule="evenodd" clipRule="evenodd" d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zm3.94-14.84l.14-1-.88.48-5.9 3.2-.22.12-.03.24-.99 6.64-.14.99.88-.48 5.9-3.2.22-.11.03-.25.99-6.63zM9.2 16l.72-4.85 3.59 2.51L9.2 16zm1.3-5.67l3.58 2.51L14.8 8l-4.3 2.33z" fill="currentColor"></path></svg>
-               Explore topics
+            <Link
+              className={`${activeSlide === -1 ? "active" : ""}`}
+              onClick={() => handleClick("Explore-topics")}
+              to={`/topic/Explore-topics`}
+            >
+              <svg
+                className="mr-1"
+                viewBox="0 0 24 24"
+                fill="none"
+                height="24"
+                width="24"
+              >
+                <circle cx="12" cy="12" r="10" stroke="currentColor"></circle>
+                <path
+                  fillRule="evenodd"
+                  clipRule="evenodd"
+                  d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zm3.94-14.84l.14-1-.88.48-5.9 3.2-.22.12-.03.24-.99 6.64-.14.99.88-.48 5.9-3.2.22-.11.03-.25.99-6.63zM9.2 16l.72-4.85 3.59 2.51L9.2 16zm1.3-5.67l3.58 2.51L14.8 8l-4.3 2.33z"
+                  fill="currentColor"
+                ></path>
+              </svg>
+              Explore topics
             </Link>
           </div>
         </SwiperSlide>
         {data.map((val, idx) => (
           <SwiperSlide key={idx}>
-            <Link className={`${idx === activeSlide ? 'active' : '' }`} key={idx} to={`/topic/${val.slug}`} onClick={() => handleClick(idx)} >
+            <Link
+              className={`${idx === activeSlide ? "active" : ""}`}
+              key={idx}
+              to={`/topic/${val.slug}`}
+              onClick={() => handleClick(idx)}
+            >
               {val.name}
             </Link>
           </SwiperSlide>
@@ -127,7 +151,7 @@ const SliderStyle = styled.div`
     border-radius: 18px;
   }
   .active {
-    border: 1px solid black; 
+    border: 1px solid black;
   }
   .swiper-button-next {
     background-color: #ffffff;
@@ -176,9 +200,9 @@ const SliderStyle = styled.div`
     font-size: 10px;
     font-weight: 600;
   }
-  a{
+  a {
     display: flex;
-    padding: 10px  10px 8px;
+    padding: 10px 10px 8px;
     font-size: 14px;
     align-items: center;
     border-radius: 18px;

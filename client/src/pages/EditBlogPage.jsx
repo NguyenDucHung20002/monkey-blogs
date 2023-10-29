@@ -53,13 +53,6 @@ const EditBlogPage = () => {
 
   function resetForm(data) {
     console.log("data:", data);
-    // formData.set("img", imageFilename);
-    // formData.set("title", title);
-    // formData.set("content", content);
-    // formData.set("preview", cutPreview);
-    // topics.forEach((value, index) => {
-    //   formData.set(`topics[${index}]`, value);
-    // });
     if (!data) return;
     if (data.length === 0) return;
     const title = data.title;
@@ -84,10 +77,9 @@ const EditBlogPage = () => {
         );
         if (response.data) resetForm(response.data.data);
       } catch (error) {
-        toast.error("Some thing was wrong!", {
-          pauseOnHover: false,
-          delay: 500,
-        });
+        if (error.response.status === 404) {
+          navigate("/*");
+        }
       }
     }
     fetchBlog();
@@ -178,7 +170,7 @@ const EditBlogPage = () => {
           navigate(`/profile/${authorSlug}`);
         }
       } catch (error) {
-        toast.error("Some thing was wrong!", {
+        toast.error(error?.response?.data?.error?.message, {
           pauseOnHover: false,
           delay: 500,
         });
