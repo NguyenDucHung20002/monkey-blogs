@@ -35,7 +35,7 @@ const addComment = asyncMiddleware(async (req, res, next) => {
     .select("-article")
     .populate({ path: "author", select: "avatar fullname username" });
 
-  addUrlToImg(result.avatar);
+  result.author.avatar = addUrlToImg(result.author.avatar);
 
   res.status(201).json({ success: true, data: result });
 });
