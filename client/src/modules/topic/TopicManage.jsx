@@ -18,14 +18,11 @@ const TopicManage = () => {
   useEffect(() => {
     async function fetchTopic() {
       try {
-        const response = await axios.get(
-          `${config.SERVER_HOST}:${config.SERVER_PORT}/api/topic`,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
+        const response = await axios.get(`${config.SERVER_HOST}/topic`, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
         if (response.data) setTopics(response.data.data);
       } catch (error) {
         toast.error("Some thing was wrong!", {
@@ -47,7 +44,7 @@ const TopicManage = () => {
       if (!token) return;
       try {
         const response = await axios.delete(
-          `${config.SERVER_HOST}:${config.SERVER_PORT}/api/topic/${value}`,
+          `${config.SERVER_HOST}/topic/${value}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

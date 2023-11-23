@@ -20,7 +20,7 @@ const FollowingPage = () => {
     async function fetchBlog() {
       try {
         const response = await axios.get(
-          `${config.SERVER_HOST}:${config.SERVER_PORT}/api/article/?feed=following`,
+          `${config.SERVER_HOST}/article/?feed=following`,
           {
             headers: {
               Authorization: "Bearer " + token,

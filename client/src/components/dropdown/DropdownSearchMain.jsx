@@ -10,7 +10,7 @@ const DropdownSearchMain = React.forwardRef((props, ref) => {
   return (
     <div
       ref={ref}
-      className="p-5 mt-3 bg-white shadow-xl w-[300px]  absolute top-full left-0"
+      className="p-5 mt-3 bg-white md:shadow-xl w-full md:w-[300px] relative  md:absolute top-full left-0 md:left-7"
     >
       <div>
         {users.length > 0 && (

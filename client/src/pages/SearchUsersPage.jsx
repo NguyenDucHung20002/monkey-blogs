@@ -12,7 +12,7 @@ const SearchUsersPage = () => {
     async function fetchTopics() {
       try {
         const response = await axios.post(
-          `${config.SERVER_HOST}:${config.SERVER_PORT}/api/user/search`,
+          `${config.SERVER_HOST}/user/search`,
           {
             search,
           },

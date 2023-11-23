@@ -61,6 +61,7 @@ const MyEditor = ({ content, setContent }) => {
           });
           if (response.data.data.url) {
             const src = response.data.data.url;
+            console.log("src:", src);
             const date = Date.now();
             setImageFiles((prev) => [...prev, { path: src, id: date }]);
           }

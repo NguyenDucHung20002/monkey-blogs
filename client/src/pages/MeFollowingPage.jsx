@@ -8,7 +8,6 @@ import { useAuth } from "../contexts/auth-context";
 
 const MeFollowingPage = () => {
   const [topics, setTopics] = useState([]);
-  console.log("topics:", topics);
   const [users, setUsers] = useState([]);
   const token = localStorage.getItem("token");
   const { userInfo } = useAuth();
@@ -17,7 +16,7 @@ const MeFollowingPage = () => {
     async function fetchTopic() {
       try {
         const response = await axios.get(
-          `${config.SERVER_HOST}:${config.SERVER_PORT}/api/user/me/following/topics`,
+          `${config.SERVER_HOST}/user/me/following/topics`,
           {
             headers: {
               authorization: "Bearer " + token,
@@ -39,7 +38,7 @@ const MeFollowingPage = () => {
     async function fetchTopic() {
       try {
         const response = await axios.get(
-          `${config.SERVER_HOST}:${config.SERVER_PORT}/api/user/${userInfo?.data?.username}/following `,
+          `${config.SERVER_HOST}/user/${userInfo?.data?.username}/following `,
           {
             headers: {
               authorization: "Bearer " + token,

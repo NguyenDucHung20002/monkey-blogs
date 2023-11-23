@@ -48,7 +48,7 @@ const TopicAddNew = () => {
       if (!token) return;
       try {
         const response = await axios.post(
-          `${config.SERVER_HOST}:${config.SERVER_PORT}/api/topic`,
+          `${config.SERVER_HOST}/topic`,
           { name },
           {
             headers: {

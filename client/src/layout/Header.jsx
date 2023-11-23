@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { Avatar, Space, Popover } from "antd";
 import styled from "styled-components";
-import logo from "../assets/logo.jpg";
+import logo from "../assets/logo.png";
 import { SearchMain } from "../components/search";
 import { Button } from "../components/button";
 import Headroom from "react-headroom";
@@ -15,6 +15,22 @@ import DropdownSearchMain from "../components/dropdown/DropdownSearchMain";
 import useClickOutSide from "../hooks/useClickOutSide";
 
 const icons = {
+  searchIcon: (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth="1.5"
+      stroke="currentColor"
+      className="w-6 h-6"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
+      />
+    </svg>
+  ),
   libraryIcon: (
     <svg
       width="24"
@@ -107,7 +123,7 @@ const HomeStyle = styled.header`
   .wrapper {
     .logo {
       display: block;
-      max-width: 50px;
+      max-width: 35px;
     }
     .headroom {
       z-index: 9999 !important;
@@ -124,6 +140,7 @@ const Header = () => {
   const [users, setUsers] = useState([]);
   const [topics, setTopics] = useState([]);
   const { show, setShow, nodeRef } = useClickOutSide("");
+  const [showSearch, setShowSearch] = useState(false);
 
   const handleSignOut = () => {
     setUserInfo({});
@@ -139,6 +156,12 @@ const Header = () => {
             ? fullname.slice(0, 8) + "..."
             : fullname}
         </h2>
+        <NavLink to={`/write`} className="md:hidden">
+          <div className="flex items-center justify-start my-4">
+            <span className="w-6 h-6">{icons.writeIcon}</span>{" "}
+            <p className="ml-3">Write</p>
+          </div>
+        </NavLink>
         <NavLink to={`/profile/${username}`}>
           <div className="flex items-center justify-start my-4">
             {icons.userIcon} <p className="ml-3">Profile</p>
@@ -166,23 +189,11 @@ const Header = () => {
     );
   }, []);
 
-  // const [windowWidth, setWindowWidth] = useState(window.innerWidth);
-  // const handleResize = debounce(() => {
-  //   setWindowWidth(window.innerWidth);
-  // }, 500);
-
-  // useEffect(() => {
-  //   window.addEventListener("resize", handleResize);
-  //   return () => {
-  //     window.removeEventListener("resize", handleResize);
-  //   };
-  // }, []);
-
   useEffect(() => {
     async function fetchUsers() {
       try {
         const response = await axios.post(
-          `${config.SERVER_HOST}:${config.SERVER_PORT}/api/user/search`,
+          `${config.SERVER_HOST}/user/search`,
           {
             search: inputSearch,
           },
@@ -200,7 +211,7 @@ const Header = () => {
     async function fetchTopics() {
       try {
         const response = await axios.post(
-          `${config.SERVER_HOST}:${config.SERVER_PORT}/api/article/topics`,
+          `${config.SERVER_HOST}/article/topics`,
           {
             search: inputSearch,
           },
@@ -244,28 +255,30 @@ const Header = () => {
                   onSubmit={handleSearchSubmit}
                   className="relative"
                 >
-                  <SearchMain
-                    id="search"
-                    className="ml-4"
-                    onChange={handleSearch}
-                  ></SearchMain>
-                  {show && (
-                    <DropdownSearchMain
-                      ref={nodeRef}
-                      users={users}
-                      topics={topics}
-                    ></DropdownSearchMain>
-                  )}
+                  <div className="hidden ml-4 md:block">
+                    <SearchMain
+                      id="search"
+                      onChange={handleSearch}
+                    ></SearchMain>
+                  </div>
                 </form>
               </div>
               <div className="flex items-center justify-center header-left">
-                <NavLink to={`/write`}>
+                <NavLink to={`/write`} className="hidden md:block">
                   <Button kind="secondary" height="40px" className="">
                     {icons.writeIcon}
                     <p className="ml-2 text-lg font-medium">Write</p>
                   </Button>
                 </NavLink>
-
+                <div className="md:hidden">
+                  <Button
+                    kind="secondary"
+                    height="40px"
+                    onClick={() => setShowSearch(!showSearch)}
+                  >
+                    {icons.searchIcon}
+                  </Button>
+                </div>
                 <Button
                   kind="secondary"
                   height="40px"
@@ -289,6 +302,22 @@ const Header = () => {
                 </Space>
               </div>
             </div>
+            {showSearch && (
+              <div className="py-5 pr-6 md:hidden">
+                <SearchMain
+                  id="search"
+                  className="ml-4"
+                  onChange={handleSearch}
+                ></SearchMain>
+              </div>
+            )}
+            {show && (
+              <DropdownSearchMain
+                ref={nodeRef}
+                users={users}
+                topics={topics}
+              ></DropdownSearchMain>
+            )}
           </Headroom>
         </div>
       </HomeStyle>

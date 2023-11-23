@@ -119,7 +119,7 @@ const WritePage = () => {
       if (!token) return;
       try {
         const response = await axios.post(
-          `${config.SERVER_HOST}:${config.SERVER_PORT}/api/article`,
+          `${config.SERVER_HOST}/article`,
           formData,
           {
             headers: {

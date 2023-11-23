@@ -48,7 +48,7 @@ const TopicUpdate = () => {
     async function fetchATopic() {
       try {
         const response = await axios.get(
-          `${config.SERVER_HOST}:${config.SERVER_PORT}/api/topic/${slug}`,
+          `${config.SERVER_HOST}/topic/${slug}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -81,7 +81,7 @@ const TopicUpdate = () => {
       if (!topic) return;
       try {
         const response = await axios.put(
-          `${config.SERVER_HOST}:${config.SERVER_PORT}/api/topic/${topic.slug}`,
+          `${config.SERVER_HOST}/topic/${topic.slug}`,
           { name },
           {
             headers: {

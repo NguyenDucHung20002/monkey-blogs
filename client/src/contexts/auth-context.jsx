@@ -24,7 +24,7 @@ function AuthProvider(props) {
     async function fetcher() {
       try {
         const response = await axios.post(
-          `${config.SERVER_HOST}:${config.SERVER_PORT}/api/auth/login`,
+          `${config.SERVER_HOST}/auth/login`,
           {},
           {
             headers: {

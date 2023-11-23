@@ -27,7 +27,7 @@ const HomeSide = () => {
     async function fetchTopic() {
       try {
         const response = await axios.get(
-          `${config.SERVER_HOST}:${config.SERVER_PORT}/api/user/me/following/topics`,
+          `${config.SERVER_HOST}/user/me/following/topics`,
           {
             headers: {
               authorization: "Bearer " + token,
@@ -50,7 +50,7 @@ const HomeSide = () => {
     async function fetchTopic() {
       try {
         const response = await axios.get(
-          `${config.SERVER_HOST}:${config.SERVER_PORT}/api/topic/me/suggestions`,
+          `${config.SERVER_HOST}/topic/me/suggestions`,
           {
             headers: {
               authorization: "Bearer " + token,
@@ -73,7 +73,7 @@ const HomeSide = () => {
     async function fetchTopic() {
       try {
         const response = await axios.get(
-          `${config.SERVER_HOST}:${config.SERVER_PORT}/api/user/me/suggestions`,
+          `${config.SERVER_HOST}/user/me/suggestions`,
           {
             headers: {
               authorization: "Bearer " + token,

@@ -3,7 +3,6 @@ import React from "react";
 import styled from "styled-components";
 
 const SearchStyled = styled.div`
-  max-width: 400px;
   width: 100%;
   display: flex;
   justify-content: center;
@@ -30,6 +29,8 @@ const SearchStyled = styled.div`
         opacity: 0;
       }
     }
+  }
+  @media screen and (max-width: 768px) {
   }
 `;
 

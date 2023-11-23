@@ -1,22 +1,25 @@
 /* eslint-disable react/prop-types */
 import Avatar from "../../modules/user/Avatar";
-import img from "../../assets/logo.jpg";
 import { useState } from "react";
 import CommentUser from "./CommentUser";
 import InputComment from "../input/InputComment";
 import { useEffect } from "react";
 import axios from "axios";
 import { config } from "../../utils/constants";
+import { useAuth } from "../../contexts/auth-context";
 
 const Comment = ({ slug = "" }) => {
   const token = localStorage.getItem("token");
+  const { userInfo } = useAuth();
+  const { data } = userInfo;
+  console.log("userInfo:", userInfo);
   const [commentBlog, setCommentBlog] = useState([]);
   const commentValue = { commentBlog, setCommentBlog };
   useEffect(() => {
     async function fetchCommentBlog() {
       try {
         const response = await axios.get(
-          `${config.SERVER_HOST}:${config.SERVER_PORT}/api/comment/${slug} `,
+          `${config.SERVER_HOST}/comment/${slug} `,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -38,8 +41,8 @@ const Comment = ({ slug = "" }) => {
     <>
       <div className="p-3 mb-5 shadow-lg ">
         <div className="flex items-center gap-4 mb-4 info">
-          <Avatar url={img} size="small"></Avatar>
-          <p>Duc hung</p>
+          <Avatar url={data.avatar} size="small"></Avatar>
+          <p>{data.fullname}</p>
         </div>
         <InputComment
           setCommentBlog={setCommentBlog}
@@ -52,7 +55,7 @@ const Comment = ({ slug = "" }) => {
         commentBlog.map((comment) => (
           <CommentUser
             type="parent"
-            img={img}
+            img={data.avatar}
             data={comment}
             key={comment._id}
             slug={slug}

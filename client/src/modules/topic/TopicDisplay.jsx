@@ -13,7 +13,7 @@ const TopicDisplay = ({ topic }) => {
     async function fetchTopic() {
       try {
         const response = await axios.get(
-          `${config.SERVER_HOST}:${config.SERVER_PORT}/api/topic/${topic.slug}/followers/amount`,
+          `${config.SERVER_HOST}/topic/${topic.slug}/followers/amount`,
           {
             headers: {
               "Content-Type": "application/json",
@@ -28,7 +28,7 @@ const TopicDisplay = ({ topic }) => {
     async function fetchBlog() {
       try {
         const response = await axios.get(
-          `${config.SERVER_HOST}:${config.SERVER_PORT}/api/topic/${topic.slug}/articles/amount`,
+          `${config.SERVER_HOST}/topic/${topic.slug}/articles/amount`,
           {
             headers: {
               "Content-Type": "application/json",

@@ -4,7 +4,7 @@ import React, { useCallback } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { Avatar, Space, Popover } from "antd";
 import styled from "styled-components";
-import logo from "../assets/logo.jpg";
+import logo from "../assets/logo.png";
 import { Button } from "../components/button";
 import { useAuth } from "../contexts/auth-context";
 
@@ -95,8 +95,7 @@ const HomeStyle = styled.header`
   }
   .logo {
     display: block;
-    width: 100%;
-    height: 100%;
+    width: 30px;
     object-fit: cover;
   }
 `;
@@ -155,7 +154,7 @@ const WriteHeader = () => {
             <NavLink to="/" className="w-10 h-10">
               <img srcSet={logo} alt="monkey-blogging" className="logo" />
             </NavLink>
-            <p className="ml-3 text-sm">
+            <p className="text-sm">
               Draft in{" "}
               {data?.fullname && data?.fullname?.length > 10
                 ? data?.fullname.slice(0, 10) + "..."

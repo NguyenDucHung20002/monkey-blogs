@@ -3,7 +3,7 @@ import React, { useCallback } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { Avatar, Space, Popover } from "antd";
 import styled from "styled-components";
-import logo from "../../assets/logo.jpg";
+import logo from "../../assets/logo.png";
 import { Button } from "../../components/button";
 import Headroom from "react-headroom";
 import { useAuth } from "../../contexts/auth-context";

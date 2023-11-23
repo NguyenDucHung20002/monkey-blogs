@@ -33,7 +33,7 @@ const HomeMain = () => {
     async function fetchBlog() {
       try {
         const response = await axios.get(
-          `${config.SERVER_HOST}:${config.SERVER_PORT}/api/article/?limit=${5}`,
+          `${config.SERVER_HOST}/article/?limit=${5}`,
           {
             headers: {
               Authorization: "Bearer " + token,
@@ -63,9 +63,7 @@ const HomeMain = () => {
       if (windowHeight + scrollY >= documentHeight && skipId) {
         try {
           const response = await axios.get(
-            `${config.SERVER_HOST}:${
-              config.SERVER_PORT
-            }/api/article/?skip=${skipId}&limit=${5}`,
+            `${config.SERVER_HOST}/article/?skip=${skipId}&limit=${5}`,
             {
               headers: {
                 Authorization: "Bearer " + token,

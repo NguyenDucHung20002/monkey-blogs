@@ -23,7 +23,7 @@ const InputComment = ({ slug = "", parentCommentId = "", commentValue }) => {
       try {
         const response = await axios
           .post(
-            `${config.SERVER_HOST}:${config.SERVER_PORT}/api/comment/${slug}`,
+            `${config.SERVER_HOST}/comment/${slug}`,
             {
               parentCommentId,
               content,
@@ -41,6 +41,7 @@ const InputComment = ({ slug = "", parentCommentId = "", commentValue }) => {
           });
 
         if (response.data) {
+          console.log("response.data:", response.data);
           const data = response.data.data;
           const commentClone = [...commentBlog];
           commentClone.unshift(data);

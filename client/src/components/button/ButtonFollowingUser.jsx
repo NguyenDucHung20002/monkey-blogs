@@ -11,7 +11,7 @@ const ButtonFollowingUser = ({ username = "", initialFollowing = false }) => {
   const handleFollow = async () => {
     const res = await axios
       .post(
-        `${config.SERVER_HOST}:${config.SERVER_PORT}/api/follow-user/${username}/follow-unfollow`,
+        `${config.SERVER_HOST}/follow-user/${username}/follow-unfollow`,
         {},
         {
           headers: {

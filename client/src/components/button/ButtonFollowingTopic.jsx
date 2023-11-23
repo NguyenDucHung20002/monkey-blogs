@@ -10,7 +10,7 @@ const ButtonFollowingTopic = ({ initialFollowing = false, slug = "" }) => {
   const handleFollow = async (slug) => {
     const res = await axios
       .post(
-        `${config.SERVER_HOST}:${config.SERVER_PORT}/api/follow-topic/${slug}/follow-unfollow`,
+        `${config.SERVER_HOST}/follow-topic/${slug}/follow-unfollow`,
         {},
         {
           headers: {

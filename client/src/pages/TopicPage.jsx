@@ -18,7 +18,7 @@ const TopicPage = () => {
     async function fetchTopic() {
       try {
         const response = await axios.get(
-          `${config.SERVER_HOST}:${config.SERVER_PORT}/api/topic/${slug}`,
+          `${config.SERVER_HOST}/topic/${slug}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -34,7 +34,7 @@ const TopicPage = () => {
     async function fetchBlog() {
       try {
         const response = await axios.get(
-          `${config.SERVER_HOST}:${config.SERVER_PORT}/api/topic/tag/${slug}/articles `,
+          `${config.SERVER_HOST}/topic/tag/${slug}/articles `,
           {
             headers: {
               "Content-Type": "application/json",

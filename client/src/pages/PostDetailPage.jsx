@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import PostImage from "../modules/post/PostImage";
-import img from "../assets/logo.jpg";
 import PostMeta from "../modules/post/PostMeta";
 import Avatar from "../modules/user/Avatar";
 import TopicList from "../modules/topic/TopicList";
@@ -94,7 +93,7 @@ const PostDetailPage = () => {
     async function fetchBlog() {
       try {
         const response = await axios.get(
-          `${config.SERVER_HOST}:${config.SERVER_PORT}/api/article/${slug} `,
+          `${config.SERVER_HOST}/article/${slug} `,
           {
             headers: {
               "Content-Type": "application/json",

@@ -48,7 +48,7 @@ const CommentUser = ({ data = [], type = "parent", slug = "" }) => {
     if (!hideReplies) {
       try {
         const response = await axios.get(
-          `${config.SERVER_HOST}:${config.SERVER_PORT}/api/comment/${slug}/${parentCommentId}/replies `,
+          `${config.SERVER_HOST}/comment/${slug}/${parentCommentId}/replies `,
           {
             headers: {
               "Content-Type": "application/json",
