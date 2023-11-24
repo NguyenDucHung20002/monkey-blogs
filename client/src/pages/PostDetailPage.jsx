@@ -6,12 +6,10 @@ import PostMeta from "../modules/post/PostMeta";
 import Avatar from "../modules/user/Avatar";
 import TopicList from "../modules/topic/TopicList";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { config } from "../utils/constants";
-import axios from "axios";
-import { toast } from "react-toastify";
 import PageNotFound from "./PageNotFound";
 import ActionComment from "../action/ActionComment";
 import ActionLike from "../action/ActionLike";
+import apiGetArticle from "../api/apiGetArticle";
 
 const PostDetailPagePageStyle = styled.div`
   padding: 50px 0;
@@ -92,23 +90,17 @@ const PostDetailPage = () => {
   useEffect(() => {
     async function fetchBlog() {
       try {
-        const response = await axios.get(
-          `${config.SERVER_HOST}/article/${slug} `,
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        if (response.data) setBlog(response.data.data);
+        const response = await apiGetArticle(slug);
+        if (!response) navigate("/*");
+
+        setBlog(response.data);
       } catch (error) {
-        if (error.response.data) {
-          navigate("/*");
-        }
+        console.log("error:", error);
+        navigate("/*");
       }
     }
     fetchBlog();
-  }, [slug]);
+  }, [navigate, slug]);
 
   if (!slug) return <PageNotFound></PageNotFound>;
 

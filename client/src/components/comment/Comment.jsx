@@ -4,9 +4,8 @@ import { useState } from "react";
 import CommentUser from "./CommentUser";
 import InputComment from "../input/InputComment";
 import { useEffect } from "react";
-import axios from "axios";
-import { config } from "../../utils/constants";
 import { useAuth } from "../../contexts/auth-context";
+import apiGetComment from "../../api/apiGetComment";
 
 const Comment = ({ slug = "" }) => {
   const token = localStorage.getItem("token");
@@ -17,20 +16,8 @@ const Comment = ({ slug = "" }) => {
   const commentValue = { commentBlog, setCommentBlog };
   useEffect(() => {
     async function fetchCommentBlog() {
-      try {
-        const response = await axios.get(
-          `${config.SERVER_HOST}/comment/${slug} `,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        if (response.data) setCommentBlog(response.data.data);
-      } catch (error) {
-        console.log("error:", error);
-      }
+      const response = await apiGetComment(slug, token);
+      if (response) setCommentBlog(response.data);
     }
     fetchCommentBlog();
   }, [slug, token]);

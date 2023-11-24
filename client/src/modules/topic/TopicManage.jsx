@@ -6,10 +6,9 @@ import ActionEdit from "../../action/ActionEdit";
 import ActionDelete from "../../action/ActionDelete";
 import { Table } from "../../components/table";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
-import { config } from "../../utils/constants";
-import axios from "axios";
 import Swal from "sweetalert2";
+import apiGetTopics from "../../api/apiGetTopics";
+import apiDeleteTopic from "../../api/apiDeleteTopic";
 
 const TopicManage = () => {
   const navigate = useNavigate();
@@ -17,19 +16,8 @@ const TopicManage = () => {
   const token = localStorage.getItem("token");
   useEffect(() => {
     async function fetchTopic() {
-      try {
-        const response = await axios.get(`${config.SERVER_HOST}/topic`, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        });
-        if (response.data) setTopics(response.data.data);
-      } catch (error) {
-        toast.error("Some thing was wrong!", {
-          pauseOnHover: false,
-          delay: 500,
-        });
-      }
+      const response = await apiGetTopics();
+      if (response) setTopics(response.data);
     }
     fetchTopic();
   }, []);
@@ -39,40 +27,12 @@ const TopicManage = () => {
     setTopics(topicDeleted);
   };
 
-  const handleDeleteTopic = (value) => {
+  const handleDeleteTopic = (slug) => {
     async function fetchAddTopic() {
       if (!token) return;
-      try {
-        const response = await axios.delete(
-          `${config.SERVER_HOST}/topic/${value}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
+      const response = await apiDeleteTopic(token, slug);
 
-        if (response.data.success) {
-          toast.success("Add successfully!", {
-            pauseOnHover: false,
-            delay: 500,
-          });
-          topicDeleted(value);
-        }
-      } catch (error) {
-        if (error.response.status === 409)
-          return Swal.fire(
-            "Deleted!",
-            "Your post has been deleted.",
-            "success"
-          );
-
-        toast.error("Some thing was wrong!", {
-          pauseOnHover: false,
-          delay: 500,
-        });
-      }
+      if (response) topicDeleted(slug);
     }
 
     Swal.fire({

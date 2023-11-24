@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import ButtonFollowingTopic from "../../components/button/ButtonFollowingTopic";
-import axios from "axios";
-import { config } from "../../utils/constants";
+import apiGetTopicFollowersAmount from "../../api/apiGetTopicFollowersAmount";
+import apiGetTopicArticlesAmount from "../../api/apiGetTopicArticlesAmount";
 
 const TopicDisplay = ({ topic }) => {
   const [followers, setFollowers] = useState(0);
@@ -12,30 +12,16 @@ const TopicDisplay = ({ topic }) => {
   useEffect(() => {
     async function fetchTopic() {
       try {
-        const response = await axios.get(
-          `${config.SERVER_HOST}/topic/${topic.slug}/followers/amount`,
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        if (response.data) setFollowers(response.data.data);
+        const response = await apiGetTopicFollowersAmount(topic.slug);
+        if (response) setFollowers(response.data);
       } catch (error) {
         console.log("error:", error);
       }
     }
     async function fetchBlog() {
       try {
-        const response = await axios.get(
-          `${config.SERVER_HOST}/topic/${topic.slug}/articles/amount`,
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        if (response.data) setStories(response.data.data);
+        const response = await apiGetTopicArticlesAmount(topic.slug);
+        if (response) setStories(response.data);
       } catch (error) {
         console.log("error:", error);
       }

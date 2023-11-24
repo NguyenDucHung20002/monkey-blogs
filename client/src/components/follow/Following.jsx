@@ -1,24 +1,14 @@
 /* eslint-disable react/prop-types */
 import { Popover } from "antd";
-import axios from "axios";
 import { useState } from "react";
-import { config } from "../../utils/constants.js";
 import ButtonFollowingUser from "../button/ButtonFollowingUser.jsx";
+import apiProfile from "../../api/apiProfile.jsx";
 const Following = ({ data = [], token, countFollow }) => {
   const [userFollow, setUserFollow] = useState({});
   async function fetchUserInf(username) {
-    const res = await axios
-      .get(`${config.SERVER_HOST}/api/user/${username}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-    if (res.data.success) {
-      const profileUser = res.data.data;
+    const res = await apiProfile(token, username);
+    if (res.success) {
+      const profileUser = res.data;
       setUserFollow({ ...profileUser });
     }
   }

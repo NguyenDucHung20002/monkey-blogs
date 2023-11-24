@@ -10,12 +10,12 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useAuth } from "../contexts/auth-context";
 import SearchAddTopics from "../components/search/SearchAddTopics";
-import { config } from "../utils/constants";
-import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "../components/button";
 import ImageUpload from "../components/image/ImageUpload";
 import MyEditor from "../components/input/MyEditor";
+import apiGetArticle from "../api/apiGetArticle";
+import apiUpdateArticle from "../api/apiUpdateArticle";
 
 const EditBlogPageStyle = styled.div`
   max-width: 1000px;
@@ -67,19 +67,10 @@ const EditBlogPage = () => {
   useEffect(() => {
     async function fetchBlog() {
       try {
-        const response = await axios.get(
-          `${config.SERVER_HOST}:${config.SERVER_PORT}/api/article/${slug} `,
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        if (response.data) resetForm(response.data.data);
+        const response = await apiGetArticle(slug);
+        if (response) resetForm(response.data);
       } catch (error) {
-        if (error.response.status === 404) {
-          navigate("/*");
-        }
+        navigate("/*");
       }
     }
     fetchBlog();
@@ -156,24 +147,12 @@ const EditBlogPage = () => {
     async function fetchAddBlog() {
       if (!token) return;
       try {
-        const response = await axios.put(
-          `${config.SERVER_HOST}:${config.SERVER_PORT}/api/article/${slug}`,
-          formData,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
+        const response = apiUpdateArticle(token, slug, formData);
         if (response) {
           navigate(`/profile/${authorSlug}`);
         }
       } catch (error) {
-        toast.error(error?.response?.data?.error?.message, {
-          pauseOnHover: false,
-          delay: 500,
-        });
+        console.log("error:", error);
       }
     }
     fetchAddBlog();

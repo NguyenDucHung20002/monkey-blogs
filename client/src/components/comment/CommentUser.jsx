@@ -4,8 +4,7 @@ import Avatar from "../../modules/user/Avatar";
 import InputComment from "../input/InputComment";
 import { Link } from "react-router-dom";
 import { useCallback } from "react";
-import axios from "axios";
-import { config } from "../../utils/constants";
+import apiGetCommentReplies from "../../api/apiGetCommentReplies";
 
 const CommentUser = ({ data = [], type = "parent", slug = "" }) => {
   const { _id: parentCommentId, content, author, createdAt, isAuthor } = data;
@@ -46,20 +45,8 @@ const CommentUser = ({ data = [], type = "parent", slug = "" }) => {
   const handleShowComment = useCallback(async () => {
     setHideReplies(!hideReplies);
     if (!hideReplies) {
-      try {
-        const response = await axios.get(
-          `${config.SERVER_HOST}/comment/${slug}/${parentCommentId}/replies `,
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        if (response.data) setCommentBlog(response.data.data);
-        console.log("response.data:", response.data);
-      } catch (error) {
-        console.log("error:", error);
-      }
+      const response = await apiGetCommentReplies(slug, parentCommentId);
+      if (response) setCommentBlog(response.data);
     }
   }, [hideReplies, parentCommentId, slug]);
 

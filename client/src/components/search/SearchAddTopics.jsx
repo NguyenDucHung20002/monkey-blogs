@@ -1,16 +1,9 @@
-import axios from "axios";
-import { config } from "../../utils/constants";
 import { useEffect, useRef, useState } from "react";
 import { debounce } from "lodash";
-import { toast } from "react-toastify";
+import apiTopicsSearch from "../../api/apiTopicsSearch";
 
 /* eslint-disable react/prop-types */
-const SearchAddTopics = ({
-  topics = [],
-  setTopics,
-  token = "",
-  placeholder = "",
-}) => {
+const SearchAddTopics = ({ topics = [], setTopics, placeholder = "" }) => {
   const [topicInput, setTopicInput] = useState("");
   const [addTopics, setAddTopics] = useState([]);
   const input = useRef(null);
@@ -23,30 +16,11 @@ const SearchAddTopics = ({
 
   useEffect(() => {
     async function fetchTopics() {
-      if (!token) return;
-      try {
-        const response = await axios.post(
-          `${config.SERVER_HOST}/article/topics`,
-          {
-            search: topicInput,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        if (response?.data) setAddTopics(response.data?.data);
-      } catch (error) {
-        toast.error("Some thing was wrong!", {
-          pauseOnHover: false,
-          delay: 500,
-        });
-      }
+      const response = await apiTopicsSearch(topicInput);
+      if (response?.data) setAddTopics(response?.data);
     }
     fetchTopics();
-  }, [setAddTopics, token, topicInput]);
+  }, [setAddTopics, topicInput]);
 
   const handleAddTopic = (value) => {
     const addTopicClone = [];

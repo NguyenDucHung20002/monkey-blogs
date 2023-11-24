@@ -1,39 +1,14 @@
 /* eslint-disable react/prop-types */
-import { config } from "../../utils/constants";
 import { useState } from "react";
-import axios from "axios";
-import { toast } from "react-toastify";
+import apiFollowUser from "../../api/apiFollowUser";
 
 const ButtonFollowingUser = ({ username = "", initialFollowing = false }) => {
   const [followed, setFollowed] = useState(initialFollowing);
   const token = localStorage.getItem("token");
 
   const handleFollow = async () => {
-    const res = await axios
-      .post(
-        `${config.SERVER_HOST}/follow-user/${username}/follow-unfollow`,
-        {},
-        {
-          headers: {
-            authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      )
-      .catch((err) => {
-        if (err.response.status == 404) {
-          toast.error("Can not find user!", {
-            pauseOnHover: false,
-            delay: 500,
-          });
-        } else {
-          toast.error("User banned!", {
-            pauseOnHover: false,
-            delay: 500,
-          });
-        }
-      });
-    if (res.data.success) {
+    const res = apiFollowUser(username, token);
+    if (res) {
       setFollowed(!followed);
     }
   };

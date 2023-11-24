@@ -12,6 +12,8 @@ import { toast } from "react-toastify";
 import { config } from "../../utils/constants";
 import axios from "axios";
 import { useParams } from "react-router-dom";
+import apiGetTopic from "../../api/apiGetTopic";
+import apiUpdateTopic from "../../api/apiUpdateTopic";
 
 const schema = yup.object({
   name: yup.string().required("Please fill out your name topic"),
@@ -46,69 +48,22 @@ const TopicUpdate = () => {
   useEffect(() => {
     if (!slug) return;
     async function fetchATopic() {
-      try {
-        const response = await axios.get(
-          `${config.SERVER_HOST}/topic/${slug}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        if (response.data.success) setTopic(response.data.data.topic);
-        console.log("Topic:", topic);
-        const name = topic.name;
-        reset({
-          name,
-        });
-      } catch (error) {
-        toast.error("Some thing was wrong!", {
-          pauseOnHover: false,
-          delay: 500,
-        });
-      }
+      const response = apiGetTopic(token, slug);
+      if (response.success) setTopic(response.data.topic);
+      const name = topic.name;
+      reset({
+        name,
+      });
     }
 
     fetchATopic();
   }, [reset, slug, token, topic.name]);
 
-  const handleAddTopic = ({ name }) => {
+  const handleUpdateTopic = ({ name }) => {
     if (!isValid) return;
     async function fetchAddTopic() {
       if (!token) return;
-      if (!topic) return;
-      try {
-        const response = await axios.put(
-          `${config.SERVER_HOST}/topic/${topic.slug}`,
-          { name },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        if (response.data.success) {
-          toast.success("Add successfully!", {
-            pauseOnHover: false,
-            delay: 500,
-          });
-        }
-      } catch (error) {
-        if (error.response.status === 409)
-          return toast.error(error.response.data.message, {
-            pauseOnHover: false,
-            delay: 500,
-          });
-
-        toast.error("Some thing was wrong!", {
-          pauseOnHover: false,
-          delay: 500,
-        });
-      }
+      await apiUpdateTopic(token, topic.slug, name);
     }
     fetchAddTopic();
   };
@@ -119,7 +74,7 @@ const TopicUpdate = () => {
         title="New topic"
         desc="Add new topic"
       ></DashboardHeading>
-      <form onSubmit={handleSubmit(handleAddTopic)} autoComplete="off">
+      <form onSubmit={handleSubmit(handleUpdateTopic)} autoComplete="off">
         <div className="form-layout">
           <Field>
             <Label>Name</Label>

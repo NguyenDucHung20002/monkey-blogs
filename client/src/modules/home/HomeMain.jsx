@@ -4,10 +4,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import Blog from "../blog/Blog";
-import { toast } from "react-toastify";
-import { config } from "../../utils/constants";
-import axios from "axios";
 import { debounce } from "lodash";
+import apiGetArticleSkip from "../../api/apiGetArticleSkip";
 
 const HomeMainStyled = styled.div`
   max-width: 700px;
@@ -31,25 +29,10 @@ const HomeMain = () => {
 
   useEffect(() => {
     async function fetchBlog() {
-      try {
-        const response = await axios.get(
-          `${config.SERVER_HOST}/article/?limit=${5}`,
-          {
-            headers: {
-              Authorization: "Bearer " + token,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        if (response.data) {
-          setBlogs([...response.data.data]);
-          setSkipId(response.data.skipID);
-        }
-      } catch (error) {
-        toast.error("Some thing was wrong!", {
-          pauseOnHover: false,
-          delay: 500,
-        });
+      const response = await apiGetArticleSkip("", token);
+      if (response.data) {
+        setBlogs([...response.data]);
+        setSkipId(response.skipID);
       }
     }
     fetchBlog();
@@ -61,26 +44,11 @@ const HomeMain = () => {
       setScrollY(window.scrollY);
       setDocumentHeight(document.documentElement.scrollHeight);
       if (windowHeight + scrollY >= documentHeight && skipId) {
-        try {
-          const response = await axios.get(
-            `${config.SERVER_HOST}/article/?skip=${skipId}&limit=${5}`,
-            {
-              headers: {
-                Authorization: "Bearer " + token,
-                "Content-Type": "application/json",
-              },
-            }
-          );
-          if (response.data) {
-            const blogsClone = [...blogs, ...response.data.data];
-            setBlogs([...blogsClone]);
-            setSkipId(response.data.skipID);
-          }
-        } catch (error) {
-          toast.error("Some thing was wrong!", {
-            pauseOnHover: false,
-            delay: 500,
-          });
+        const response = await apiGetArticleSkip(skipId, token);
+        if (response) {
+          const blogsClone = [...blogs, ...response.data];
+          setBlogs([...blogsClone]);
+          setSkipId(response.skipID);
         }
       }
     };

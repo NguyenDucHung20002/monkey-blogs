@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import FollowingUserHandle from "../components/following/FollowingUserHandle";
 import TopicUserHandle from "../components/topic/TopicUserHandle";
-import axios from "axios";
-import { config } from "../utils/constants";
-import { toast } from "react-toastify";
+import apiSuggestionTopics from "../api/apiSuggestionTopics";
+import apiSuggestionUsers from "../api/apiSuggestionUsers";
 
 const MeSuggestionPage = () => {
   const [topics, setTopics] = useState([]);
@@ -12,47 +11,15 @@ const MeSuggestionPage = () => {
 
   useEffect(() => {
     async function fetchTopic() {
-      try {
-        const response = await axios.get(
-          `${config.SERVER_HOST}topic/me/suggestions`,
-          {
-            headers: {
-              authorization: "Bearer " + token,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        if (response.data) setTopics(response.data.data);
-      } catch (error) {
-        console.log("error:", error);
-        toast.error("Some thing was wrong!", {
-          pauseOnHover: false,
-          delay: 500,
-        });
-      }
+      const response = await apiSuggestionTopics(token);
+      if (response) setTopics(response.data);
     }
     fetchTopic();
   }, [token]);
   useEffect(() => {
     async function fetchTopic() {
-      try {
-        const response = await axios.get(
-          `${config.SERVER_HOST}/user/me/suggestions`,
-          {
-            headers: {
-              authorization: "Bearer " + token,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        if (response.data) setUsers(response.data.data);
-      } catch (error) {
-        console.log("error:", error);
-        toast.error("Some thing was wrong!", {
-          pauseOnHover: false,
-          delay: 500,
-        });
-      }
+      const response = await apiSuggestionUsers(token);
+      if (response) setUsers(response.data);
     }
     fetchTopic();
   }, [token]);

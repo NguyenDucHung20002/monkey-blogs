@@ -13,6 +13,7 @@ import { useAuth } from "../../contexts/auth-context";
 import { config } from "../../utils/constants";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import apiAddTopic from "../../api/apiAddTopic";
 
 const schema = yup.object({
   name: yup.string().required("Please fill out your name topic"),
@@ -42,41 +43,11 @@ const TopicAddNew = () => {
   }, [errors]);
 
   const handleAddTopic = ({ name }) => {
-    console.log("name:", name);
     if (!isValid) return;
     async function fetchAddTopic() {
       if (!token) return;
-      try {
-        const response = await axios.post(
-          `${config.SERVER_HOST}/topic`,
-          { name },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        if (response.data.success) {
-          toast.success("Add successfully!", {
-            pauseOnHover: false,
-            delay: 500,
-          });
-          reset();
-        }
-      } catch (error) {
-        if (error.response.status === 409)
-          return toast.error(error.response.data.message, {
-            pauseOnHover: false,
-            delay: 500,
-          });
-
-        toast.error("Some thing was wrong!", {
-          pauseOnHover: false,
-          delay: 500,
-        });
-      }
+      const response = await apiAddTopic(token, name);
+      if (response) reset();
     }
     fetchAddTopic();
   };

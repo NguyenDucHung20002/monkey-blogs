@@ -2,10 +2,10 @@ import axios from "axios";
 import { config } from "../utils/constants";
 import { toast } from "react-toastify";
 
-const apiFollowTopic = async (slug, token) => {
+const apiFollowUser = async (username, token) => {
   const res = await axios
     .post(
-      `${config.SERVER_HOST}/follow-topic/${slug}/follow-unfollow`,
+      `${config.SERVER_HOST}/follow-user/${username}/follow-unfollow`,
       {},
       {
         headers: {
@@ -16,7 +16,12 @@ const apiFollowTopic = async (slug, token) => {
     )
     .catch((err) => {
       if (err.response.status == 404) {
-        toast.error("Can not find topic!", {
+        toast.error("Can not find user!", {
+          pauseOnHover: false,
+          delay: 500,
+        });
+      } else {
+        toast.error("User banned!", {
           pauseOnHover: false,
           delay: 500,
         });
@@ -29,4 +34,4 @@ const apiFollowTopic = async (slug, token) => {
   return false;
 };
 
-export default apiFollowTopic;
+export default apiFollowUser;

@@ -5,6 +5,7 @@ import { config } from "../utils/constants";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useAuth } from "../contexts/auth-context";
+import apiMyTopicsFollowing from "../api/apiMyTopicsFollowing";
 
 const MeFollowingPage = () => {
   const [topics, setTopics] = useState([]);
@@ -14,23 +15,8 @@ const MeFollowingPage = () => {
 
   useEffect(() => {
     async function fetchTopic() {
-      try {
-        const response = await axios.get(
-          `${config.SERVER_HOST}/user/me/following/topics`,
-          {
-            headers: {
-              authorization: "Bearer " + token,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        if (response.data) setTopics(response.data.data);
-      } catch (error) {
-        toast.error("Some thing was wrong!", {
-          pauseOnHover: false,
-          delay: 500,
-        });
-      }
+      const response = await apiMyTopicsFollowing(token);
+      if (response) setTopics(response.data);
     }
     fetchTopic();
   }, [token]);
