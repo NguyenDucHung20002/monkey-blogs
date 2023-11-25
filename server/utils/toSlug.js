@@ -2,7 +2,9 @@ const toSlug = (string) => {
   if (!string) {
     return "";
   }
-  let slug = string.split(" ");
+
+  const regex = /[\/\s]+/;
+  let slug = string.split(regex);
   slug = slug.join("-").toLowerCase();
   return slug;
 };

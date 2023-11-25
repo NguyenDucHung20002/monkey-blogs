@@ -16,27 +16,22 @@ passport.use(
     async (accessToken, refreshToken, profile, done) => {
       try {
         const role = await Role.findOne({ slug: "user" });
-        if (!role) {
-          throw new ErrorResponse(404, "role not found");
-        }
+        if (!role) throw new ErrorResponse(404, "role not found");
 
-        let user = await User.findOne({ email: profile.emails[0].value });
+        let user = await User.findOne({ email: profile._json.email });
         if (!user) {
-          const username = emailToUserName(profile.emails[0].value);
+          const username = emailToUserName(profile._json.email);
 
           user = new User({
-            avatar: profile.photos[0].value,
-            fullname: profile.displayName,
-            email: profile.emails[0].value,
+            avatar: profile._json.picture,
+            fullname: profile._json.name,
+            email: profile._json.email,
             username,
             role: role._id,
-            loginType: "Google",
-            status: "active",
           });
 
           await user.save();
         }
-
         return done(null, user);
       } catch (error) {
         return done(error, null);

@@ -1,7 +1,7 @@
 const User = require("../models/User");
 const addUrlToImg = require("../utils/addUrlToImg");
 
-const fetchProfile = async (req, res, next) => {
+const fetchUser = async (req, res, next) => {
   try {
     if (!req.params) {
       return res.status(400).json({
@@ -12,19 +12,19 @@ const fetchProfile = async (req, res, next) => {
 
     const username = req.params.username;
 
-    const userProfile = await User.findOne({ username }).select(
-      "avatar fullname username bio about"
-    );
-    if (!userProfile) {
-      return res.status(401).json({
+    const user = await User.findOne({ username })
+      .lean()
+      .select("-email -loginType -role -status");
+    if (!user || user.status === "banned") {
+      return res.status(404).json({
         success: false,
-        message: "Profile not found",
+        message: "User not found",
       });
     }
 
-    userProfile.avatar = addUrlToImg(userProfile.avatar);
+    user.avatar = addUrlToImg(user.avatar);
 
-    req.userProfile = userProfile;
+    req.user = user;
     next();
   } catch (error) {
     return res.status(500).json({
@@ -34,4 +34,4 @@ const fetchProfile = async (req, res, next) => {
   }
 };
 
-module.exports = fetchProfile;
+module.exports = fetchUser;

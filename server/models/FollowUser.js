@@ -19,4 +19,8 @@ const FollowUserSchema = new mongoose.Schema(
   }
 );
 
+FollowUserSchema.index({ follower: 1 });
+FollowUserSchema.index({ following: 1 });
+FollowUserSchema.index({ follower: 1, following: 1 });
+
 module.exports = mongoose.model("FollowUser", FollowUserSchema);

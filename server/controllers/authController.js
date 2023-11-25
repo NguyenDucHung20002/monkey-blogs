@@ -1,41 +1,30 @@
-const Role = require("../models/Role");
 const Token = require("../models/Token");
-const { ErrorResponse } = require("../response/ErrorResponse");
+const addUrlToImg = require("../utils/addUrlToImg");
 const { asyncMiddleware } = require("../middlewares/asyncMiddleware");
 
 // ==================== login ==================== //
 
 const login = asyncMiddleware(async (req, res, next) => {
-  const { myProfile } = req;
-
-  const selectedRole = await Role.findById(myProfile.role).select("slug");
-  if (!selectedRole) {
-    throw new ErrorResponse(404, "Role not found");
-  }
+  const { fullname, avatar, username, role } = req.me;
 
   const profile = {
-    avatar: myProfile.avatar,
-    fullname: myProfile.fullname,
-    username: myProfile.username,
-    role: selectedRole.slug,
+    avatar: addUrlToImg(avatar),
+    fullname,
+    username,
+    role: role.slug,
   };
 
-  res.status(200).json({
-    success: true,
-    data: profile,
-  });
+  res.status(200).json({ success: true, data: profile });
 });
 
 // ==================== Logout ==================== //
 
 const logout = asyncMiddleware(async (req, res, next) => {
-  const { myProfile } = req;
+  const { me, token } = req;
 
-  await Token.findOneAndDelete({ userId: myProfile._id });
+  await Token.findOneAndDelete({ userId: me._id, token });
 
-  res.status(200).json({
-    success: true,
-  });
+  res.status(200).json({ success: true });
 });
 
 module.exports = { login, logout };

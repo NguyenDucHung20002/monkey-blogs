@@ -6,31 +6,24 @@ const { asyncMiddleware } = require("../middlewares/asyncMiddleware");
 // ==================== follow or unfollow a topic ==================== //
 
 const followOrUnfollowATopic = asyncMiddleware(async (req, res, next) => {
-  const { myProfile } = req;
+  const { me } = req;
   const { slug } = req.params;
 
   const topic = await Topic.findOne({ slug });
-  if (!topic) {
-    throw new ErrorResponse(404, "topic not found");
-  }
+  if (!topic) throw new ErrorResponse(404, "topic not found");
 
-  let followTopic = await FollowTopic.findOne({
-    follower: myProfile._id,
-    topic: topic._id,
-  });
+  const data = { follower: me._id, topic: topic._id };
+
+  let followTopic = await FollowTopic.findOne(data).lean();
+
   if (!followTopic) {
-    followTopic = new FollowTopic({
-      follower: myProfile._id,
-      topic: topic._id,
-    });
+    followTopic = new FollowTopic(data);
     await followTopic.save();
   } else {
     await FollowTopic.deleteOne({ _id: followTopic._id });
   }
 
-  res.status(200).json({
-    success: true,
-  });
+  res.status(200).json({ success: true });
 });
 
 module.exports = { followOrUnfollowATopic };

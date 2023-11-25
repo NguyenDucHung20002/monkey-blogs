@@ -2,16 +2,15 @@ const mongoose = require("mongoose");
 
 const TokenSchema = new mongoose.Schema(
   {
-    userId: { type: String, required: true, unique: true },
+    userId: { type: String, required: true },
     token: { type: String, required: true, unique: true },
-    timestamps: { type: Date, required: true },
   },
   {
-    timestamps: false,
+    timestamps: true,
     versionKey: false,
   }
 );
 
-TokenSchema.index({ timestamps: 1 }, { expireAfterSeconds: 86400 });
+TokenSchema.index({ createdAt: 1 }, { expireAfterSeconds: 86400 });
 
 module.exports = mongoose.model("Token", TokenSchema);

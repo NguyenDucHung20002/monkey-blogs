@@ -1,59 +1,92 @@
 const express = require("express");
+const fetchMe = require("../middlewares/fetchMe");
+const fetchUser = require("../middlewares/fetchUser");
 const validator = require("../middlewares/validator");
 const userSchema = require("../validations/userSchema");
 const mongoUpload = require("../middlewares/mongoUpload");
 const requiredAuth = require("../middlewares/requiredAuth");
 const optionalAuth = require("../middlewares/optionalAuth");
 const userController = require("../controllers/userController");
-const fetchMyProfile = require("../middlewares/fetchMyProfile");
-const fetchUserProfile = require("../middlewares/fetchUserProfile");
 
 const router = express.Router();
 
+// get profile
 router.get(
   "/:username",
   optionalAuth,
-  fetchMyProfile,
-  fetchUserProfile,
+  fetchMe,
+  fetchUser,
   userController.getProfile
 );
 
+// count following
+router.get(
+  "/:username/following/amount",
+  fetchUser,
+  userController.countFollowing
+);
+
+// count followers
+router.get(
+  "/:username/followers/amount",
+  fetchUser,
+  userController.countFollowers
+);
+
+// get following
 router.get(
   "/:username/following",
   optionalAuth,
-  fetchMyProfile,
-  fetchUserProfile,
+  fetchMe,
+  fetchUser,
   userController.getFollowing
 );
 
+// get followers
 router.get(
   "/:username/followers",
   optionalAuth,
-  fetchMyProfile,
-  fetchUserProfile,
+  fetchMe,
+  fetchUser,
   userController.getFollowers
 );
 
-router.get(
-  "/:username/articles",
-  fetchUserProfile,
-  userController.getUserArticles
-);
+// get user articles
+router.get("/:username/articles", fetchUser, userController.getUserArticles);
 
+// get followed topics
 router.get(
   "/me/following/topics",
   requiredAuth,
-  fetchMyProfile,
+  fetchMe,
   userController.getMyFollowingTopics
 );
 
+// update my profile
 router.put(
   "/me/update",
   requiredAuth,
-  fetchMyProfile,
+  fetchMe,
   mongoUpload.single("avatar"),
   validator(userSchema.updateSchema),
   userController.updateMyProfile
+);
+
+// get random users suggestions
+router.get(
+  "/me/suggestions",
+  requiredAuth,
+  fetchMe,
+  userController.getRandomUsers
+);
+
+// search users
+router.post(
+  "/search",
+  optionalAuth,
+  fetchMe,
+  validator(userSchema.searchSchema),
+  userController.searchUser
 );
 
 module.exports = router;

@@ -4,7 +4,7 @@ const errorMiddleware = (err, req, res, next) => {
   // console.log(JSON.stringify(err, null, 2));
   const { code, message, details } = err;
 
-  console.log("==> Error middleware ");
+  console.log("==> Error middleware ", err);
 
   if (details) {
     const path = details[0].path;

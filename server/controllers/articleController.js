@@ -1,30 +1,28 @@
-const User = require("../models/User");
+const mongoose = require("mongoose");
+const Like = require("../models/Like");
 const Topic = require("../models/Topic");
 const toSlug = require("../utils/toSlug");
+const Comment = require("../models/Comment");
 const Article = require("../models/Article");
 const FollowUser = require("../models/FollowUser");
 const addUrlToImg = require("../utils/addUrlToImg");
-const FollowTopic = require("../models/FollowTopic");
 const { removeFile } = require("../utils/removeFile");
 const { ErrorResponse } = require("../response/ErrorResponse");
 const { asyncMiddleware } = require("../middlewares/asyncMiddleware");
-const Like = require("../models/Like");
 
 // ==================== create article ==================== //
 
 const createAnArticle = asyncMiddleware(async (req, res, next) => {
-  const { myProfile } = req;
+  const { me } = req;
   const { title, preview, content, topics } = req.body;
 
   const filename = req.file?.filename;
-  if (!filename) {
-    throw new ErrorResponse(422, "article image is required");
-  }
+  if (!filename) throw new ErrorResponse(422, "Article image is required");
 
   const slug = toSlug(title) + "-" + Date.now();
 
   const article = new Article({
-    author: myProfile._id,
+    author: me._id,
     title,
     preview,
     slug,
@@ -35,196 +33,282 @@ const createAnArticle = asyncMiddleware(async (req, res, next) => {
 
   await article.save();
 
-  res.status(201).json({
-    success: true,
-  });
+  res.status(201).json({ success: true });
 });
 
 // ==================== update article ==================== //
 
 const updateMyArticle = asyncMiddleware(async (req, res, next) => {
-  const { myProfile } = req;
+  const { me } = req;
   const { slug } = req.params;
   const { title, preview, content, topics } = req.body;
 
   const filename = req.file?.filename;
 
-  const oldArticle = await Article.findOne({ author: myProfile._id, slug });
-  if (!oldArticle) {
-    throw new ErrorResponse(404, "article not found");
-  }
+  const oldArticle = await Article.findOne({ slug })
+    .lean()
+    .select("_id slug img");
+  if (!oldArticle) throw new ErrorResponse(404, "Article not found");
 
-  let updatedSlug;
-
-  if (title) {
-    updatedSlug = toSlug(title) + "-" + Date.now();
-  } else {
-    updatedSlug = toSlug(oldArticle.title) + "-" + Date.now();
-  }
+  const updatedSlug = title
+    ? toSlug(title) + "-" + Date.now()
+    : oldArticle.slug;
 
   await Article.findOneAndUpdate(
-    { author: myProfile._id, slug },
+    { author: me._id, slug },
     { title, preview, slug: updatedSlug, img: filename, content, topics },
     { new: true }
   );
 
-  if (filename) {
-    removeFile(oldArticle.img);
-  }
+  if (filename) removeFile(oldArticle.img);
 
-  res.status(200).json({
-    success: true,
-  });
+  res.status(200).json({ success: true });
 });
 
 // ==================== delete article ==================== //
 
 const deleteMyArticle = asyncMiddleware(async (req, res, next) => {
-  const { myProfile } = req;
+  const { me } = req;
   const { slug } = req.params;
 
-  const article = await Article.findOneAndDelete({
-    author: myProfile._id,
-    slug,
-  });
-  if (article) {
-    removeFile(article.img);
-  }
+  const article = await Article.findOneAndDelete({ author: me._id, slug });
 
-  res.status(200).json({
-    success: true,
-  });
+  await Comment.deleteMany({ article: article._id });
+
+  await Like.deleteMany({ article: article._id });
+
+  if (article) removeFile(article.img);
+
+  res.status(200).json({ success: true });
 });
 
 // ==================== get an article ==================== //
 
 const getAnArticle = asyncMiddleware(async (req, res, next) => {
+  const { me } = req;
   const { slug } = req.params;
-  const { myProfile } = req;
 
   const article = await Article.findOne({ slug, status: "approved" })
-    .populate({
-      path: "author",
-      select: "avatar fullname username",
-    })
-    .populate({
-      path: "topics",
-      select: "name slug",
-    });
+    .lean()
+    .select("-status")
+    .populate({ path: "topics", select: "name slug" })
+    .populate({ path: "author", select: "avatar fullname username" });
 
-  if (!article) {
-    throw new ErrorResponse(404, "article not found");
+  if (!article) throw new ErrorResponse(404, "Article not found");
+
+  article.img = addUrlToImg(article.img);
+
+  article.author.avatar = addUrlToImg(article.author.avatar);
+
+  const result = { ...article };
+
+  if (me) {
+    result.isLiked = !!(await Like.exists({
+      user: me._id,
+      article: article._id,
+    }));
+    result.isMyArticle = me._id.toString() === article.author._id.toString();
+    if (!result.isMyArticle) {
+      result.authorFollowed = !!(await FollowUser.exists({
+        follower: me._id,
+        following: article.author._id,
+      }));
+    }
   }
 
-  const likeCount = await Like.countDocuments({ article: article._id });
+  res.status(200).json({ success: true, data: result });
+});
 
-  const result = { article, likeCount };
+// ==================== count article likes ==================== //
 
-  if (myProfile) {
-    result.isLiked = (await Like.findOne({
-      user: myProfile._id,
-    }))
-      ? true
-      : false;
-    result.isMyArticle =
-      myProfile._id.toString() === article.author._id.toString();
-  }
+const countArticleLikes = asyncMiddleware(async (req, res, next) => {
+  const { slug } = req.params;
 
-  res.status(200).json({
-    success: true,
-    data: result,
-  });
+  const article = await Article.exists({ slug, status: "approved" });
+
+  if (!article) throw new ErrorResponse(404, "Article not found");
+
+  const count = await Like.count({ article: article._id });
+
+  res.status(200).json({ success: true, data: count });
+});
+
+// ==================== count article commets ==================== //
+
+const countArticleComments = asyncMiddleware(async (req, res, next) => {
+  const { slug } = req.params;
+
+  const article = await Article.exists({ slug, status: "approved" });
+
+  if (!article) throw new ErrorResponse(404, "article not found");
+
+  const count = await Comment.count({ article: article._id });
+
+  res.status(200).json({ success: true, data: count });
 });
 
 // ==================== get all articles ==================== //
 
 const getAllArticles = asyncMiddleware(async (req, res, next) => {
-  const { myProfile } = req;
-  const { tag, feed } = req.query;
+  const { skip, limit = 15 } = req.query;
 
-  const findQuery = {
-    status: "approved",
-  };
+  const query = { status: "approved" };
 
-  if (tag) {
-    const topic = await Topic.findOne({ slug: tag }).lean();
-    if (!topic) {
-      throw new ErrorResponse(404, "topic tag not found");
-    }
-    findQuery.topics = topic._id;
-  }
+  if (skip) query._id = { $lt: skip };
 
-  if (feed) {
-    const myFollowing = await FollowUser.find({
-      follower: myProfile._id,
-    }).select("following");
-    const myFollowingIds = myFollowing.map((follow) => follow.following);
-    findQuery.author = { $in: myFollowingIds };
-  }
-
-  const articles = await Article.find(findQuery)
-    .select("author title preview img slug topics createdAt updatedAt")
-    .populate({
-      path: "topics",
-      options: { limit: 1 },
-      select: "name slug",
-    })
-    .sort({ createdAt: -1 })
-    .populate({
-      path: "author",
-      select: "avatar fullname username",
-    });
+  const articles = await Article.find(query)
+    .lean()
+    .limit(limit)
+    .select("-status -content")
+    .populate({ path: "author", select: "avatar fullname username" })
+    .populate({ path: "topics", options: { limit: 1 }, select: "name slug" })
+    .sort({ createdAt: -1 });
 
   articles.forEach((article) => {
-    if (article.author && article.author.avatar && article.img) {
-      article.author.avatar = addUrlToImg(article.author.avatar);
-      article.img = addUrlToImg(article.img);
-    }
+    article.author.avatar = addUrlToImg(article.author.avatar);
+    article.img = addUrlToImg(article.img);
   });
 
-  res.status(200).json({
-    success: true,
-    data: articles,
-  });
+  const skipID = articles.length > 0 ? articles[articles.length - 1]._id : null;
+
+  res.status(200).json({ success: true, data: articles, skipID });
 });
 
-// ==================== search topics for create article ==================== //
+// ==================== get followed topic articles ==================== //
+
+const getFollwedTopicArticles = asyncMiddleware(async (req, res, next) => {
+  const { tag } = req.params;
+  const { skip, limit = 15 } = req.query;
+
+  const topic = await Topic.findOne({ slug: tag });
+
+  if (!topic) throw new ErrorResponse(404, "Topic not found");
+
+  const query = { topics: topic._id, status: "approved" };
+
+  if (skip) query._id = { $lt: skip };
+
+  const articles = await Article.find(query)
+    .lean()
+    .limit(limit)
+    .select("-status -content")
+    .populate({ path: "author", select: "avatar fullname username" })
+    .populate({ path: "topics", options: { limit: 1 }, select: "name slug" })
+    .sort({ createdAt: -1 });
+
+  articles.forEach((article) => {
+    article.author.avatar = addUrlToImg(article.author.avatar);
+    article.img = addUrlToImg(article.img);
+  });
+
+  const skipID = articles.length > 0 ? articles[articles.length - 1]._id : null;
+
+  res.status(200).json({ success: true, data: articles, skipID });
+});
+
+// ==================== get followed authors articles ==================== //
+
+const getFollwedAuthorsArticles = asyncMiddleware(async (req, res, next) => {
+  const { me } = req;
+  const { skip, limit = 15 } = req.query;
+
+  const query = { author: { $ne: me._id }, status: "approved" };
+
+  if (skip) query._id = { $lt: new mongoose.Types.ObjectId(skip) };
+
+  const articles = await Article.aggregate()
+    .sort({ createdAt: -1 })
+    .match(query)
+    .lookup({
+      from: "followusers",
+      localField: "author",
+      foreignField: "following",
+      as: "followedArticles",
+    })
+    .match({ "followedArticles.follower": me._id })
+    .limit(parseInt(limit))
+    .project("-followedArticles -status -content");
+
+  const result = await Promise.all(
+    articles.map(async (val) => {
+      const populated = await Article.populate(
+        val,
+        { path: "author", select: "avatar fullname username" },
+        { path: "topics", options: { limit: 1 }, select: "name slug" }
+      );
+      populated.author.avatar = addUrlToImg(populated.author.avatar);
+      return populated;
+    })
+  );
+
+  const skipID = articles.length > 0 ? articles[articles.length - 1]._id : null;
+
+  res.status(200).json({ success: true, data: result, skipID });
+});
+
+// ==================== search topics ==================== //
 
 const searchTopics = asyncMiddleware(async (req, res, next) => {
   const { search } = req.body;
+  const { skip, limit = 15 } = req.query;
 
   let topics = [];
 
   if (search) {
-    const regex = new RegExp(search, "i");
-    topics = await Topic.find({ name: regex });
+    const query = { name: { $regex: search, $options: "i" } };
+
+    if (skip) query._id = { $gt: skip };
+
+    topics = await Topic.find(query).lean().limit(limit).sort({ _id: 1 });
   }
 
-  const topicsWithCounts = await Promise.all(
-    topics.map(async (topic) => {
-      const followersCount = await FollowTopic.countDocuments({
-        topic: topic._id,
-      });
-      return {
-        _id: topic._id,
-        name: topic.name,
-        slug: topic.slug,
-        followersCount,
-      };
-    })
-  );
+  const skipID = topics.length > 0 ? topics[topics.length - 1]._id : null;
 
-  res.status(200).json({
-    success: true,
-    data: topicsWithCounts,
-  });
+  res.status(200).json({ success: true, data: topics, skipID });
+});
+
+// ==================== search articles ==================== //
+
+const searchArticles = asyncMiddleware(async (req, res, next) => {
+  const { search } = req.body;
+  const { skip, limit = 15 } = req.query;
+
+  let articles = [];
+
+  if (search) {
+    const query = { $text: { $search: search }, status: "approved" };
+
+    if (skip) query._id = { $lt: skip };
+
+    articles = await Article.find(query)
+      .lean()
+      .limit(limit)
+      .select("-status -content")
+      .populate({ path: "topics", options: { limit: 1 }, select: "name slug" })
+      .populate({ path: "author", select: "avatar fullname username" })
+      .sort({ createdAt: -1 });
+
+    articles.forEach((article) => {
+      article.author.avatar = addUrlToImg(article.author.avatar);
+      article.img = addUrlToImg(article.img);
+    });
+  }
+
+  const skipID = articles.length > 0 ? articles[articles.length - 1]._id : null;
+
+  res.status(200).json({ success: true, data: articles, skipID });
 });
 
 module.exports = {
   createAnArticle,
   updateMyArticle,
   getAnArticle,
+  countArticleLikes,
+  countArticleComments,
   deleteMyArticle,
   getAllArticles,
+  getFollwedTopicArticles,
+  getFollwedAuthorsArticles,
   searchTopics,
+  searchArticles,
 };

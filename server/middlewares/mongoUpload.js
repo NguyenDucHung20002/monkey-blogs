@@ -38,7 +38,7 @@ const storage = new GridFsStorage({
 const fileFilter = (req, file, cb) => {
   const { originalname } = file;
   if (!originalname.match(/\.(jpg|png|jpeg)$/i)) {
-    return cb(new Error(`Not support ${path.extname(originalname)}`), false);
+    return cb(new Error(`Only support the JPG, PNG, and JPEG formats`), false);
   }
   cb(null, true);
 };
