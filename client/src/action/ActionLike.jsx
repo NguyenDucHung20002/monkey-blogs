@@ -1,7 +1,7 @@
-const ActionLike = () => {
+const ActionLike = ({sendLikeNotify}) => {
   return (
     <div>
-      <button className="flex items-center gap-2 text-gray-400 transition-all hover:text-black">
+      <button onClick={sendLikeNotify} className="flex items-center gap-2 text-gray-400 transition-all hover:text-black">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"

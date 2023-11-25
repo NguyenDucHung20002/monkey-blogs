@@ -8,6 +8,10 @@ import TopicRcmm from "../modules/topic/TopicRcm";
 import { useParams } from "react-router-dom";
 import ProfileBlogs from "../modules/profile/ProfileBlogs";
 import Following from "../components/follow/Following";
+import apiProfile from "../api/apiGetProfile";
+import apiGetUserBlogs from "../api/apiGetUserBlogs";
+import apiDeleteArticle from "../api/apiDeleteArticle";
+import apiGetUserFollowings from "../api/apiGetUserFollowings";
 const ProfilePage = () => {
   const [show, setShow] = useState(false);
   const [isfollowed, setIsFollowed] = useState(false);
@@ -19,74 +23,32 @@ const ProfilePage = () => {
   const token = localStorage.getItem("token");
   //fetch information user
   async function fetchUserInf() {
-    const res = await axios
-      .get(`${config.SERVER_HOST}:${config.SERVER_PORT}/api/user/${username}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-    if (res.data.success) {
-      const profileUser = res.data.data;
+      const profileUser = await apiProfile(token, username);
       setUser({ ...profileUser });
-      setIsFollowed(profileUser.isMe);
-    }
+      setIsFollowed(profileUser?.isMe);
   }
   //fetch list blogs of user
   async function fetchUserBlog() {
-    const res = await axios
-      .get(
-        `${config.SERVER_HOST}:${config.SERVER_PORT}/api/user/${username}/articles`
-      )
-      .catch((err) => {
-        console.log(err);
-      });
-    if (res.data.success) {
-      const dataBlogs = res.data.data;
+      const dataBlogs = await apiGetUserBlogs(username);
       setBlogs([...dataBlogs]);
-    }
   }
   //fetch btn delete article
   async function fetchDeleteArticle(slug) {
-    const res = await axios
-      .delete(
-        `${config.SERVER_HOST}:${config.SERVER_PORT}/api/article/${slug}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      )
-      .catch((err) => {
-        console.log(err);
-      });
-    if (res.data.success) {
+    const delArticle = await apiDeleteArticle(token,slug)
+    if (delArticle) {
       fetchUserBlog();
     }
   }
   //fetch list user following
   async function fetchUserFollowing() {
-    const res = await axios
-      .get(
-        `${config.SERVER_HOST}:${config.SERVER_PORT}/api/user/${username}/following`
-      )
-      .catch((err) => {
-        console.log(err);
-      });
-    if (res.data.success) {
-      const dataFollowings = res.data.data;
+      const dataFollowings = await apiGetUserFollowings(username);
       setFollowing([...dataFollowings]);
-    }
   }
   //count following
   async function fetchCountUserFollowing() {
     const res = await axios
       .get(
-        `${config.SERVER_HOST}:${config.SERVER_PORT}/api/user/${username}/following/amount`
+        `${config.SERVER_HOST}/user/${username}/following/amount`
       )
       .catch((err) => {
         console.log(err);
@@ -102,13 +64,13 @@ const ProfilePage = () => {
   async function fetchCountUserFollower() {
     const res = await axios
       .get(
-        `${config.SERVER_HOST}:${config.SERVER_PORT}/api/user/${username}/follower/amount`
+        `${config.SERVER_HOST}/user/${username}/follower/amount`
       )
       .catch((err) => {
         console.log(err);
       });
-    if (!res.data.success) {
-      console.log(res.data?.message);
+    if (!res?.data.success) {
+      console.log(res?.data?.message);
       return;
     }
     const dataCount = res.data.data;
@@ -121,7 +83,7 @@ const ProfilePage = () => {
     fetchUserBlog();
     fetchUserFollowing();
     fetchCountUserFollowing();
-    fetchCountUserFollower();
+    // fetchCountUserFollower();
   }, [username]);
   return (
     <>

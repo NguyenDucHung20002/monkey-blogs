@@ -1,0 +1,20 @@
+import axios from "axios";
+import { config } from "../utils/constants";
+
+const apiGetUserFollowings = async ( username) => {
+  try {
+    const res = await axios
+      .get(`${config.SERVER_HOST}/user/${username}/following`, {})
+      .catch((err) => {
+        console.log(err);
+      });
+    if (!res?.data.success){
+      return null
+    } 
+    return res.data.data;
+  } catch (error) {
+    console.log("error:", error);
+  }
+};
+
+export default apiGetUserFollowings;

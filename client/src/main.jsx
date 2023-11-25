@@ -11,13 +11,19 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import "swiper/css/scrollbar";
+import { AuthProvider } from "./contexts/auth-context.jsx";
+import { SocketProvider } from "./contexts/SocketContext.jsx";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <ThemeProvider theme={theme}>
     <React.StrictMode>
       <GlobalStyles></GlobalStyles>
       <BrowserRouter>
-        <App />
+        <AuthProvider>
+          <SocketProvider>
+            <App />
+          </SocketProvider>
+        </AuthProvider>
       </BrowserRouter>
     </React.StrictMode>
   </ThemeProvider>

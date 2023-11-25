@@ -14,6 +14,7 @@ import useClickOutSide from "../hooks/useClickOutSide";
 import apiUserSearch from "../api/apiUserSearch";
 import apiTopicsSearch from "../api/apiTopicsSearch";
 import { icons } from "../utils/constants";
+import  Notify  from "../modules/notification/Notify";
 
 const HomeStyle = styled.header`
   .wrapper {
@@ -35,7 +36,8 @@ const Header = () => {
   const navigation = useNavigate();
   const [users, setUsers] = useState([]);
   const [topics, setTopics] = useState([]);
-  const { show, setShow, nodeRef } = useClickOutSide("");
+  const { show, setShow, nodeRef } = useClickOutSide("searchMain");
+  const { show: showNotification,setShow: setShowNotification ,nodeRef: nodeRefNotification  } = useClickOutSide("notify");
   const [showSearch, setShowSearch] = useState(false);
 
   const handleSignOut = () => {
@@ -152,6 +154,8 @@ const Header = () => {
                   height="40px"
                   notification={"1"}
                   className=""
+                  id="notify"
+                  onClick={() => setShowNotification(!showNotification)}
                 >
                   {icons.notificationIcon}
                 </Button>
@@ -168,6 +172,7 @@ const Header = () => {
                     />
                   </Popover>
                 </Space>
+                {showNotification && <Notify ref={nodeRefNotification} ></Notify>}
               </div>
             </div>
             {showSearch && (

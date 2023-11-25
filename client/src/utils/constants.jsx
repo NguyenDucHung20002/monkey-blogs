@@ -19,6 +19,7 @@ export const config = {
   CLIENT_PORT: 5173,
   CLIENT_HOST: "http://127.0.0.1",
   SERVER_HOST: "http://localhost:8080/api",
+  SERVER_PORT: 8080,
 };
 
 export const icons = {

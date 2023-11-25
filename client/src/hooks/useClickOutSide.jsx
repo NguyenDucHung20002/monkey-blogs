@@ -1,11 +1,16 @@
 import { useEffect, useRef, useState } from "react";
 
-export default function useClickOutSide() {
+export default function useClickOutSide(dom) {
   const [show, setShow] = useState(false);
   const nodeRef = useRef(null);
+  const elementId = useRef(null)
   useEffect(() => {
     function handleClickOutSide(e) {
-      if (nodeRef.current && !nodeRef.current.contains(e.target)) {
+      const element = e.target.closest(`#${dom}`)
+      if(element){
+        elementId.current = element
+      }
+      if (nodeRef.current && !element) {
         setShow(false);
       }
     }

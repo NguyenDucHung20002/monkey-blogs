@@ -35,7 +35,6 @@ const SignInPage = React.lazy(() => import("./pages/SignInPage"));
 function App() {
   return (
     <div id="main">
-      <AuthProvider>
         <Suspense>
           <Routes>
             <Route element={<Layout></Layout>}>
@@ -124,7 +123,6 @@ function App() {
           </Routes>
         </Suspense>
         <ToastContainer></ToastContainer>
-      </AuthProvider>
     </div>
   );
 }
