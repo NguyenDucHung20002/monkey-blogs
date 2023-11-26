@@ -4,16 +4,18 @@ import toSlug from "../utils/toSlug.js";
 import Article from "../models/mysql/Article.js";
 import Topic from "../models/mysql/Topic.js";
 import Article_Topic from "../models/mysql/Article_Topic.js";
+import User from "../models/mysql/User.js";
+import Profile from "../models/mysql/Profile.js";
 
 // ==================== create article ==================== //
 const createArticle = asyncMiddleware(async (req, res, next) => {
-  const myUser = req.user;
+  const me = req.me;
   const { title, preview, content, topicNames } = req.body;
 
   const slug = toSlug(title) + "-" + Date.now();
 
   const article = await Article.create({
-    authorId: myUser.profileInfo.id,
+    authorId: me.profileInfo.id,
     title,
     preview,
     slug,
@@ -42,12 +44,12 @@ const createArticle = asyncMiddleware(async (req, res, next) => {
 
 // ==================== update article ==================== //
 const updateArticle = asyncMiddleware(async (req, res, next) => {
-  const myUser = req.user;
+  const me = req.me;
   const { id } = req.params;
   const { title, preview, content, topicNames } = req.body;
 
   const article = await Article.findOne({
-    where: { id, authorId: myUser.profileInfo.id },
+    where: { id, authorId: me.profileInfo.id },
     attributes: ["id"],
   });
 
@@ -84,20 +86,20 @@ const updateArticle = asyncMiddleware(async (req, res, next) => {
 
 // ==================== delete article ==================== //
 const deleteArticle = asyncMiddleware(async (req, res, next) => {
-  const myUser = req.user;
+  const me = req.me;
   const { id } = req.params;
 
-  await Article.destroy({ where: { id, authorId: myUser.profileInfo.id } });
+  await Article.destroy({ where: { id, authorId: me.profileInfo.id } });
 
   res.json({ success: true, message: "Article deleted successfully" });
 });
 
 // ==================== get my pending articles ==================== //
 const getMyPendingArticles = asyncMiddleware(async (req, res, next) => {
-  const myUser = req.user;
+  const me = req.me;
   const { skip, limit = 15 } = req.query;
 
-  const whereQuery = { authorId: myUser.profileInfo.id, status: "pending" };
+  const whereQuery = { authorId: me.profileInfo.id, status: "pending" };
 
   if (skip) whereQuery.id = { [Op.lt]: skip };
 
@@ -118,10 +120,10 @@ const getMyPendingArticles = asyncMiddleware(async (req, res, next) => {
 
 // ==================== get my approved articles ==================== //
 const getMyApprovedArticles = asyncMiddleware(async (req, res, next) => {
-  const myUser = req.user;
+  const me = req.me;
   const { skip, limit = 15 } = req.query;
 
-  const whereQuery = { authorId: myUser.profileInfo.id, status: "pending" };
+  const whereQuery = { authorId: me.profileInfo.id, status: "pending" };
 
   if (skip) whereQuery.id = { [Op.lt]: skip };
 
@@ -140,10 +142,76 @@ const getMyApprovedArticles = asyncMiddleware(async (req, res, next) => {
   res.json({ success: true, data: approvedArticles, newSkip });
 });
 
+// ==================== get profile articles ==================== //
+const getProfileArticles = asyncMiddleware(async (req, res, next) => {
+  const me = req.me ? req.me : null;
+  const { username } = req.params;
+  const { skip, limit = 15 } = req.query;
+
+  let user;
+
+  if (!me || (me && me.username !== username)) {
+    user = await User.findOne({
+      where: { username, status: "normal" },
+      attributes: [],
+      include: {
+        model: Profile,
+        as: "profileInfo",
+        attributes: ["id", "fullname"],
+      },
+    });
+  }
+
+  if (me && me.username === username) user = me;
+
+  if (!user) throw ErrorResponse("404", "Profile not found");
+
+  const whereQuery = { authorId: user.profileInfo.id, status: "approved" };
+
+  if (skip) whereQuery.id = { [Op.lt]: skip };
+
+  let articles = await Article.findAll({
+    where: whereQuery,
+    attributes: {
+      exclude: ["authorId", "content", "status", "likesCount", "commentsCount"],
+    },
+    order: [["id", "DESC"]],
+    limit: Number(limit) && Number.isInteger(limit) ? limit : 15,
+  });
+
+  articles = await Promise.all(
+    articles.map(async (article) => {
+      const topic = await Article_Topic.findOne({
+        attributes: [],
+        where: { articleId: article.id },
+        include: {
+          model: Topic,
+          as: "topic",
+          attributes: ["id", "name", "slug"],
+        },
+        order: [["id", "ASC"]],
+      });
+      return {
+        ...article.toJSON(),
+        topic: {
+          id: topic.topic.id,
+          name: topic.topic.name,
+          slug: topic.topic.slug,
+        },
+      };
+    })
+  );
+
+  const newSkip = articles.length > 0 ? articles[articles.length - 1].id : null;
+
+  res.json({ success: true, articles, newSkip });
+});
+
 export default {
   createArticle,
   updateArticle,
   deleteArticle,
   getMyPendingArticles,
   getMyApprovedArticles,
+  getProfileArticles,
 };

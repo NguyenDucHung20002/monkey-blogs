@@ -2,7 +2,7 @@ import express from "express";
 import requiredAuth from "../middlewares/requiredAuth.js";
 import optionalAuth from "../middlewares/optionalAuth.js";
 import followProfileController from "../controllers/followProfileController.js";
-import fetchMyUser from "../middlewares/fetchMyUser.js";
+import fetchMe from "../middlewares/fetchMe.js";
 import checkBanned from "../middlewares/checkBanned.js";
 
 const router = express.Router();
@@ -10,7 +10,7 @@ const router = express.Router();
 router.post(
   "/:id",
   requiredAuth,
-  fetchMyUser,
+  fetchMe,
   checkBanned,
   followProfileController.followAProfile
 );
@@ -18,7 +18,7 @@ router.post(
 router.delete(
   "/:id",
   requiredAuth,
-  fetchMyUser,
+  fetchMe,
   checkBanned,
   followProfileController.unFollowAProfile
 );
@@ -26,7 +26,7 @@ router.delete(
 router.get(
   "/:username/following",
   optionalAuth,
-  fetchMyUser,
+  fetchMe,
   checkBanned,
   followProfileController.getFolloweds
 );
@@ -34,7 +34,7 @@ router.get(
 router.get(
   "/:username/follower",
   optionalAuth,
-  fetchMyUser,
+  fetchMe,
   checkBanned,
   followProfileController.getFollowers
 );

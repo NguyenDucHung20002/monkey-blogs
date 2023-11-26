@@ -9,7 +9,7 @@ import Mute from "../models/mysql/Mute.js";
 // ==================== get profile ==================== //
 const getProfile = asyncMiddleware(async (req, res, next) => {
   const { username } = req.params;
-  const myUser = req.user ? req.user : null;
+  const me = req.me ? req.me : null;
 
   let user = await User.findOne({
     where: { username, status: "normal" },
@@ -24,12 +24,12 @@ const getProfile = asyncMiddleware(async (req, res, next) => {
 
   user.profileInfo.avatar = addUrlToImg(user.profileInfo.avatar);
 
-  if (myUser && myUser.id === user.id) {
+  if (me && me.id === user.id) {
     user.profileInfo = { ...user.profileInfo.toJSON(), isMyProfile: true };
-  } else if (myUser && myUser.id !== user.id) {
+  } else if (me && me.id !== user.id) {
     const isBlockedByUser = !!(await Block.findOne({
       where: {
-        blockedId: myUser.profileInfo.id,
+        blockedId: me.profileInfo.id,
         blockerId: user.profileInfo.id,
       },
       attributes: ["id"],
@@ -46,14 +46,14 @@ const getProfile = asyncMiddleware(async (req, res, next) => {
       Block.findOne({
         where: {
           blockedId: user.profileInfo.id,
-          blockerId: myUser.profileInfo.id,
+          blockerId: me.profileInfo.id,
         },
         attributes: ["id"],
       }),
       Mute.findOne({
         where: {
           mutedId: user.profileInfo.id,
-          muterId: myUser.profileInfo.id,
+          muterId: me.profileInfo.id,
         },
         attributes: ["id"],
       }),
@@ -71,7 +71,7 @@ const getProfile = asyncMiddleware(async (req, res, next) => {
 
 // ==================== update my profile ==================== //
 const updateMyProfile = asyncMiddleware(async (req, res, next) => {
-  const myUser = req.user;
+  const me = req.me;
   const { fullname, bio, about } = req.body;
 
   const filename = req.file?.filename;
@@ -84,10 +84,7 @@ const updateMyProfile = asyncMiddleware(async (req, res, next) => {
     throw ErrorResponse(400, `File too large. Maximum allowed size is 5 mb`);
   }
 
-  await Profile.update(
-    { fullname, avatar: filename, bio, about },
-    { where: { userId: myUser.id } }
-  );
+  await me.profileInfo.update({ fullname, avatar: filename, bio, about });
 
   res.json({ success: true, message: "Profile updated successfully" });
 });

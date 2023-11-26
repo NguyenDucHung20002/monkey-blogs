@@ -2,14 +2,14 @@ import express from "express";
 import draftController from "../controllers/draftController.js";
 import requiredAuth from "../middlewares/requiredAuth.js";
 import checkBanned from "../middlewares/checkBanned.js";
-import fetchMyUser from "../middlewares/fetchMyUser.js";
+import fetchMe from "../middlewares/fetchMe.js";
 
 const router = express.Router();
 
 router.post(
   "/",
   requiredAuth,
-  fetchMyUser,
+  fetchMe,
   checkBanned,
   draftController.createADraft
 );
@@ -17,7 +17,7 @@ router.post(
 router.patch(
   "/:id",
   requiredAuth,
-  fetchMyUser,
+  fetchMe,
   checkBanned,
   draftController.updateADraft
 );
@@ -25,7 +25,7 @@ router.patch(
 router.delete(
   "/:id",
   requiredAuth,
-  fetchMyUser,
+  fetchMe,
   checkBanned,
   draftController.deleteADraft
 );
@@ -33,7 +33,7 @@ router.delete(
 router.get(
   "/:id",
   requiredAuth,
-  fetchMyUser,
+  fetchMe,
   checkBanned,
   draftController.getADraft
 );
@@ -41,7 +41,7 @@ router.get(
 router.get(
   "/me/all",
   requiredAuth,
-  fetchMyUser,
+  fetchMe,
   checkBanned,
   draftController.getMyDrafts
 );

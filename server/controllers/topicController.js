@@ -3,8 +3,7 @@ import toSlug from "../utils/toSlug.js";
 import Topic from "../models/mysql/Topic.js";
 import { Op } from "sequelize";
 import ErrorResponse from "../responses/ErrorResponse.js";
-import Profile from "../models/mysql/Profile.js";
-// import Follow_Topic from "./Follow_Topic.js";
+import Follow_Topic from "../models/mysql/Follow_Topic.js";
 
 // ==================== create topic ==================== //
 const createTopic = asyncMiddleware(async (req, res, next) => {
@@ -61,59 +60,48 @@ const deleteTopic = asyncMiddleware(async (req, res, next) => {
   res.json({ success: true, message: "Topic deleted successfully" });
 });
 
-// // ==================== get a topic ==================== //
-// const getATopic = asyncMiddleware(async (req, res, next) => {
-//   const { slug } = req.params;
+// ==================== get a topic ==================== //
+const getATopic = asyncMiddleware(async (req, res, next) => {
+  const me = req.me ? req.me : null;
+  const { slug } = req.params;
 
-//   const myUserId =
-//     req.jwtPayLoad && req.jwtPayLoad.id ? req.jwtPayLoad.id : null;
+  let topic = await Topic.findOne({
+    where: { slug, status: "approved" },
+    attributes: ["id", "name", "followersCount", "articlesCount"],
+  });
 
-//   const topic = await Topic.findOne({ where: { slug } });
+  if (!topic) throw new ErrorResponse(404, "Topic not found");
 
-//   if (!topic) throw new ErrorResponse(404, "Topic not found");
+  if (me) {
+    const isFollowed = !!(await Follow_Topic.findOne({
+      where: { topicId: topic.id, profileId: me.profileInfo.id },
+      attributes: ["id"],
+    }));
+    topic = { ...topic.toJSON(), isFollowed };
+  }
 
-//   if (myUserId) {
-//     const myProfile = await Profile.findOne({ where: { userId: myUserId } });
-//     if (myProfile) {
-//       const isFollowed = !!(await Follow_Topic.findOne({
-//         where: { topicId: topic.id, profileId: myProfile.id },
-//         attributes: ["id"],
-//       }));
-//       return res.json({
-//         success: true,
-//         data: { ...topic.toJSON(), isFollowed },
-//       });
-//     }
-//   }
+  res.json({ success: true, data: topic });
+});
 
-//   res.json({ success: true, data: topic });
-// });
+// ==================== get all topics ==================== //
+const getAllTopics = asyncMiddleware(async (req, res, next) => {
+  const { skip = 0, limit = 15 } = req.query;
 
-// // ==================== get all topics ==================== //
-// const getAllTopics = asyncMiddleware(async (req, res, next) => {
-//   const { skip = 0, limit = 15, search } = req.query;
+  const topics = await Topic.findAll({
+    where: { id: { [Op.gt]: skip } },
+    attributes: ["id", "name", "slug"],
+    limit: Number(limit) && Number.isInteger(limit) ? limit : 15,
+  });
 
-//   const whereQuery = { id: { [Op.gt]: skip } };
+  const newSkip = topics.length > 0 ? topics[topics.length - 1].id : null;
 
-//   if (search) {
-//     whereQuery.slug = { [Op.substring]: search };
-//   }
-
-//   let topics = await Topic.findAll({
-//     where: whereQuery,
-//     limit: parseInt(limit, 10),
-//     attributes: ["id", "name", "slug"],
-//   });
-
-//   const skipID = topics.length > 0 ? topics[topics.length - 1].id : null;
-
-//   res.json({ success: true, data: topics, skipID });
-// });
+  res.json({ success: true, data: topics, newSkip });
+});
 
 export default {
   createTopic,
   updateTopic,
   deleteTopic,
-  // getATopic,
-  // getAllTopics,
+  getATopic,
+  getAllTopics,
 };

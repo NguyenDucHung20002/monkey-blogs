@@ -5,7 +5,7 @@ import Role from "../models/mysql/Role.js";
 import ErrorResponse from "../responses/ErrorResponse.js";
 import addUrlToImg from "../utils/addUrlToImg.js";
 
-const fetchMyUser = async (req, res, next) => {
+const fetchMe = async (req, res, next) => {
   try {
     const myUserId =
       req.jwtPayLoad && req.jwtPayLoad.id ? req.jwtPayLoad.id : null;
@@ -15,7 +15,7 @@ const fetchMyUser = async (req, res, next) => {
       return;
     }
 
-    const user = await User.findByPk(myUserId, {
+    const me = await User.findByPk(myUserId, {
       attributes: ["status", "bannedUntil", "id"],
       include: [
         {
@@ -27,11 +27,11 @@ const fetchMyUser = async (req, res, next) => {
       ],
     });
 
-    if (!user) throw ErrorResponse(404, "User not found");
+    if (!me) throw ErrorResponse(404, "User not found");
 
-    user.profileInfo.avatar = addUrlToImg(user.profileInfo.avatar);
+    me.profileInfo.avatar = addUrlToImg(me.profileInfo.avatar);
 
-    req.user = user;
+    req.me = me;
     next();
   } catch (error) {
     const err = getError(error);
@@ -42,4 +42,4 @@ const fetchMyUser = async (req, res, next) => {
   }
 };
 
-export default fetchMyUser;
+export default fetchMe;

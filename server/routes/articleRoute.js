@@ -2,14 +2,15 @@ import express from "express";
 import articleController from "../controllers/articleController.js";
 import requiredAuth from "../middlewares/requiredAuth.js";
 import checkBanned from "../middlewares/checkBanned.js";
-import fetchMyUser from "../middlewares/fetchMyUser.js";
+import fetchMe from "../middlewares/fetchMe.js";
+import optionalAuth from "../middlewares/optionalAuth.js";
 
 const router = express.Router();
 
 router.post(
   "/",
   requiredAuth,
-  fetchMyUser,
+  fetchMe,
   checkBanned,
   articleController.createArticle
 );
@@ -17,7 +18,7 @@ router.post(
 router.patch(
   "/:id",
   requiredAuth,
-  fetchMyUser,
+  fetchMe,
   checkBanned,
   articleController.updateArticle
 );
@@ -25,7 +26,7 @@ router.patch(
 router.delete(
   "/:id",
   requiredAuth,
-  fetchMyUser,
+  fetchMe,
   checkBanned,
   articleController.deleteArticle
 );
@@ -33,7 +34,7 @@ router.delete(
 router.get(
   "/me/pending",
   requiredAuth,
-  fetchMyUser,
+  fetchMe,
   checkBanned,
   articleController.getMyPendingArticles
 );
@@ -41,9 +42,17 @@ router.get(
 router.get(
   "/me/approved",
   requiredAuth,
-  fetchMyUser,
+  fetchMe,
   checkBanned,
   articleController.getMyApprovedArticles
+);
+
+router.get(
+  "/:username/all",
+  optionalAuth,
+  fetchMe,
+  checkBanned,
+  articleController.getProfileArticles
 );
 
 export default router;

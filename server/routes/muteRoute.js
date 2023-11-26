@@ -2,14 +2,14 @@ import express from "express";
 import muteController from "../controllers/muteController.js";
 import requiredAuth from "../middlewares/requiredAuth.js";
 import checkBanned from "../middlewares/checkBanned.js";
-import fetchMyUser from "../middlewares/fetchMyUser.js";
+import fetchMe from "../middlewares/fetchMe.js";
 
 const router = express.Router();
 
 router.post(
   "/:id",
   requiredAuth,
-  fetchMyUser,
+  fetchMe,
   checkBanned,
   muteController.muteAProfile
 );
@@ -17,7 +17,7 @@ router.post(
 router.delete(
   "/:id",
   requiredAuth,
-  fetchMyUser,
+  fetchMe,
   checkBanned,
   muteController.unMuteAProfile
 );
@@ -25,7 +25,7 @@ router.delete(
 router.get(
   "/me",
   requiredAuth,
-  fetchMyUser,
+  fetchMe,
   checkBanned,
   muteController.getMutedProfiles
 );

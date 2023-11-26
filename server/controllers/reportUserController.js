@@ -7,7 +7,7 @@ import { Op } from "sequelize";
 
 // ==================== report a user ==================== //
 const reportAUser = asyncMiddleware(async (req, res, next) => {
-  const myUser = req.user;
+  const me = req.me;
   const { id } = req.params;
   const { reason, description } = req.body;
 
@@ -23,12 +23,12 @@ const reportAUser = asyncMiddleware(async (req, res, next) => {
 
   if (!profile) throw ErrorResponse(404, "User not found");
 
-  if (profile.id === myUser.profileInfo.id) {
+  if (profile.id === me.profileInfo.id) {
     throw ErrorResponse(400, "You can not report yourself");
   }
 
   const reportUser = await Report_User.findOne({
-    where: { reportedId: profile.userInfo.id, reporterId: myUser.id },
+    where: { reportedId: profile.userInfo.id, reporterId: me.id },
     attributes: ["id", "status"],
   });
 
@@ -42,11 +42,11 @@ const reportAUser = asyncMiddleware(async (req, res, next) => {
   await Promise.all([
     Report_User.create({
       reportedId: profile.userInfo.id,
-      reporterId: myUser.id,
+      reporterId: me.id,
       reason,
       description,
     }),
-    user.increment({ reportsCount: 1 }),
+    profile.userInfo.increment({ reportsCount: 1 }),
   ]);
 
   res.status(201).json({

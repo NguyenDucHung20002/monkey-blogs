@@ -6,7 +6,7 @@ import Profile from "../models/mysql/Profile.js";
 
 // ==================== ban a user ==================== //
 const banAUser = asyncMiddleware(async (req, res, next) => {
-  const myUser = req.user;
+  const me = req.me;
   const { id } = req.params;
   const { banType } = req.body;
 
@@ -42,7 +42,7 @@ const banAUser = asyncMiddleware(async (req, res, next) => {
     status: "banned",
     banType,
     bannedUntil,
-    bannedById: myUser.id,
+    bannedById: me.id,
     bannedsCount: user.bannedsCount + 1,
   });
 
@@ -54,7 +54,7 @@ const banAUser = asyncMiddleware(async (req, res, next) => {
 
 // ==================== update user ban ==================== //
 const updateUserBan = asyncMiddleware(async (req, res, next) => {
-  const myUser = req.user;
+  const me = req.me;
   const { id } = req.params;
   const { banType } = req.body;
 
@@ -90,7 +90,7 @@ const updateUserBan = asyncMiddleware(async (req, res, next) => {
     status: "banned",
     banType,
     bannedUntil,
-    bannedById: myUser.id,
+    bannedById: me.id,
   });
 
   res.json({

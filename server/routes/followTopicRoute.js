@@ -1,7 +1,7 @@
 import express from "express";
 import requiredAuth from "../middlewares/requiredAuth.js";
 import followTopicController from "../controllers/followTopicController.js";
-import fetchMyUser from "../middlewares/fetchMyUser.js";
+import fetchMe from "../middlewares/fetchMe.js";
 import checkBanned from "../middlewares/checkBanned.js";
 
 const router = express.Router();
@@ -9,7 +9,7 @@ const router = express.Router();
 router.post(
   "/:id",
   requiredAuth,
-  fetchMyUser,
+  fetchMe,
   checkBanned,
   followTopicController.followATopic
 );
@@ -17,17 +17,17 @@ router.post(
 router.delete(
   "/:id",
   requiredAuth,
-  fetchMyUser,
+  fetchMe,
   checkBanned,
   followTopicController.unFollowATopic
 );
 
 router.get(
-  "/me/topics",
+  "/me/all",
   requiredAuth,
-  fetchMyUser,
+  fetchMe,
   checkBanned,
-  followTopicController.getMyFollowingTopics
+  followTopicController.getMyFollowedTopics
 );
 
 export default router;

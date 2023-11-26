@@ -5,7 +5,7 @@ import requiredAuth from "../middlewares/requiredAuth.js";
 import mongoUpload from "../middlewares/mongoUpload.js";
 import validator from "../middlewares/validator.js";
 import profileSchema from "../validations/profileSchema.js";
-import fetchMyUser from "../middlewares/fetchMyUser.js";
+import fetchMe from "../middlewares/fetchMe.js";
 import checkBanned from "../middlewares/checkBanned.js";
 
 const router = express.Router();
@@ -13,7 +13,7 @@ const router = express.Router();
 router.get(
   "/:username",
   optionalAuth,
-  fetchMyUser,
+  fetchMe,
   checkBanned,
   profileController.getProfile
 );
@@ -21,7 +21,7 @@ router.get(
 router.patch(
   "/me/update",
   requiredAuth,
-  fetchMyUser,
+  fetchMe,
   checkBanned,
   validator(profileSchema.updateProfileSchema, "body"),
   mongoUpload.single("avatar"),

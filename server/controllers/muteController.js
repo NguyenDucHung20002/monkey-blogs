@@ -8,7 +8,7 @@ import addUrlToImg from "../utils/addUrlToImg.js";
 
 // ==================== mute a profile ==================== //
 const muteAProfile = asyncMiddleware(async (req, res, next) => {
-  const myUser = req.user;
+  const me = req.me;
   const { id } = req.params;
 
   const profile = await Profile.findByPk(id, {
@@ -18,19 +18,19 @@ const muteAProfile = asyncMiddleware(async (req, res, next) => {
 
   if (!profile) throw ErrorResponse(404, "Profile not found");
 
-  if (profile.id === myUser.profileInfo.id) {
+  if (profile.id === me.profileInfo.id) {
     throw ErrorResponse(400, "You can not mute your own profile");
   }
 
   const mutes = await Mute.findOne({
-    where: { mutedId: profile.id, muterId: myUser.profileInfo.id },
+    where: { mutedId: profile.id, muterId: me.profileInfo.id },
     attributes: ["id"],
   });
 
   if (!mutes) {
     await Mute.create({
       mutedId: profile.id,
-      muterId: myUser.profileInfo.id,
+      muterId: me.profileInfo.id,
     });
   }
 
@@ -42,7 +42,7 @@ const muteAProfile = asyncMiddleware(async (req, res, next) => {
 
 // ==================== unmute a profile ==================== //
 const unMuteAProfile = asyncMiddleware(async (req, res, next) => {
-  const myUser = req.user;
+  const me = req.me;
   const { id } = req.params;
 
   const profile = await Profile.findOne({
@@ -53,12 +53,12 @@ const unMuteAProfile = asyncMiddleware(async (req, res, next) => {
 
   if (!profile) throw ErrorResponse(404, "Profile not found");
 
-  if (profile.id === myUser.profileInfo.id) {
+  if (profile.id === me.profileInfo.id) {
     throw ErrorResponse(400, "You can not unmute your own profile");
   }
 
   const mutes = await Mute.findOne({
-    where: { mutedId: profile.id, muterId: myUser.profileInfo.id },
+    where: { mutedId: profile.id, muterId: me.profileInfo.id },
     attributes: ["id"],
   });
 
@@ -72,11 +72,11 @@ const unMuteAProfile = asyncMiddleware(async (req, res, next) => {
 
 // ==================== get list of muted profiles ==================== //
 const getMutedProfiles = asyncMiddleware(async (req, res, next) => {
-  const myUser = req.user;
+  const me = req.me;
   const { skip = 0, limit = 15 } = req.query;
 
   const mutedProfiles = await Mute.findAll({
-    where: { muterId: myUser.profileInfo.id, id: { [Op.gt]: skip } },
+    where: { muterId: me.profileInfo.id, id: { [Op.gt]: skip } },
     attributes: ["id"],
     include: {
       model: Profile,

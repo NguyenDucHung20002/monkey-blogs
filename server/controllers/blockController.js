@@ -8,7 +8,7 @@ import addUrlToImg from "../utils/addUrlToImg.js";
 
 // ==================== block a profile ==================== //
 const blockAProfile = asyncMiddleware(async (req, res, next) => {
-  const myUser = req.user;
+  const me = req.me;
   const { id } = req.params;
 
   const profile = await Profile.findByPk(id, {
@@ -23,19 +23,19 @@ const blockAProfile = asyncMiddleware(async (req, res, next) => {
 
   if (!profile) throw ErrorResponse(404, "Profile not found");
 
-  if (profile.id === myUser.profileInfo.id) {
+  if (profile.id === me.profileInfo.id) {
     throw ErrorResponse(400, "You can not block your own profile");
   }
 
   const blocks = await Block.findOne({
-    where: { blockedId: profile.id, blockerId: myUser.profileInfo.id },
+    where: { blockedId: profile.id, blockerId: me.profileInfo.id },
     attributes: ["id"],
   });
 
   if (!blocks) {
     await Block.create({
       blockedId: profile.id,
-      blockerId: myUser.profileInfo.id,
+      blockerId: me.profileInfo.id,
     });
   }
 
@@ -47,7 +47,7 @@ const blockAProfile = asyncMiddleware(async (req, res, next) => {
 
 // ==================== unblock a profile ==================== //
 const unBlockAProfile = asyncMiddleware(async (req, res, next) => {
-  const myUser = req.user;
+  const me = req.me;
   const { id } = req.params;
 
   const profile = await Profile.findByPk(id, {
@@ -62,12 +62,12 @@ const unBlockAProfile = asyncMiddleware(async (req, res, next) => {
 
   if (!profile) throw ErrorResponse(404, "Profile not found");
 
-  if (profile.id === myUser.profileInfo.id) {
+  if (profile.id === me.profileInfo.id) {
     throw ErrorResponse(400, "You can not unblock your own profile");
   }
 
   const blocks = await Block.findOne({
-    where: { blockedId: profile.id, blockerId: myUser.profileInfo.id },
+    where: { blockedId: profile.id, blockerId: me.profileInfo.id },
     attributes: ["id"],
   });
 
@@ -81,11 +81,11 @@ const unBlockAProfile = asyncMiddleware(async (req, res, next) => {
 
 // ==================== get list of blockd profiles ==================== //
 const getBlockedProfiles = asyncMiddleware(async (req, res, next) => {
-  const myUser = req.user;
+  const me = req.me;
   const { skip = 0, limit = 15 } = req.query;
 
   const blockedProfiles = await Block.findAll({
-    where: { blockerId: myUser.profileInfo.id, id: { [Op.gt]: skip } },
+    where: { blockerId: me.profileInfo.id, id: { [Op.gt]: skip } },
     attributes: ["id"],
     include: {
       model: Profile,

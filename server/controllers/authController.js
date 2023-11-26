@@ -4,14 +4,14 @@ import asyncMiddleware from "../middlewares/asyncMiddleware.js";
 import User from "../models/mysql/User.js";
 
 const login = asyncMiddleware(async (req, res, next) => {
-  const user = req.user;
+  const me = req.me;
 
   res.json({
     success: true,
     data: {
-      ...user.profileInfo.toJSON(),
-      username: user.username,
-      role: user.role.slug,
+      ...me.profileInfo.toJSON(),
+      username: me.username,
+      role: me.role.slug,
     },
   });
 });

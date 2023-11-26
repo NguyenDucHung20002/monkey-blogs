@@ -3,7 +3,7 @@ import reportUserController from "../controllers/reportUserController.js";
 import requiredAuth from "../middlewares/requiredAuth.js";
 import authorize from "../middlewares/authorize.js";
 import checkBanned from "../middlewares/checkBanned.js";
-import fetchMyUser from "../middlewares/fetchMyUser.js";
+import fetchMe from "../middlewares/fetchMe.js";
 import reportProfileSchema from "../validations/reportProfileSchema.js";
 import validator from "../middlewares/validator.js";
 
@@ -12,7 +12,7 @@ const router = express.Router();
 router.post(
   "/:id",
   requiredAuth,
-  fetchMyUser,
+  fetchMe,
   checkBanned,
   authorize("user"),
   validator(reportProfileSchema.reportAProfileSchema),
@@ -22,7 +22,7 @@ router.post(
 router.get(
   "/pending",
   requiredAuth,
-  fetchMyUser,
+  fetchMe,
   authorize("staff", "admin"),
   reportUserController.getPendingReportedUsers
 );
@@ -30,7 +30,7 @@ router.get(
 router.get(
   "/:id",
   requiredAuth,
-  fetchMyUser,
+  fetchMe,
   authorize("staff", "admin"),
   reportUserController.getReportsOfUser
 );
@@ -38,7 +38,7 @@ router.get(
 router.patch(
   "/:id",
   requiredAuth,
-  fetchMyUser,
+  fetchMe,
   authorize("staff", "admin"),
   reportUserController.markAllResolved
 );

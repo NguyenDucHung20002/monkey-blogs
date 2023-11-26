@@ -2,14 +2,14 @@ import express from "express";
 import blockController from "../controllers/blockController.js";
 import requiredAuth from "../middlewares/requiredAuth.js";
 import checkBanned from "../middlewares/checkBanned.js";
-import fetchMyUser from "../middlewares/fetchMyUser.js";
+import fetchMe from "../middlewares/fetchMe.js";
 
 const router = express.Router();
 
 router.post(
   "/:id",
   requiredAuth,
-  fetchMyUser,
+  fetchMe,
   checkBanned,
   blockController.blockAProfile
 );
@@ -17,7 +17,7 @@ router.post(
 router.delete(
   "/:id",
   requiredAuth,
-  fetchMyUser,
+  fetchMe,
   checkBanned,
   blockController.unBlockAProfile
 );
@@ -25,7 +25,7 @@ router.delete(
 router.get(
   "/me",
   requiredAuth,
-  fetchMyUser,
+  fetchMe,
   checkBanned,
   blockController.getBlockedProfiles
 );

@@ -4,11 +4,11 @@ import Draft from "../models/mysql/Draft.js";
 
 // ==================== create draft ==================== //
 const createADraft = asyncMiddleware(async (req, res, next) => {
-  const myUser = req.user;
+  const me = req.me;
   const { title, content } = req.body;
 
   const draft = await Draft.create({
-    authorId: myUser.profileInfo.id,
+    authorId: me.profileInfo.id,
     title,
     content,
   });
@@ -22,12 +22,12 @@ const createADraft = asyncMiddleware(async (req, res, next) => {
 
 // ==================== update draft ==================== //
 const updateADraft = asyncMiddleware(async (req, res, next) => {
-  const myUser = req.user;
+  const me = req.me;
   const { id } = req.params;
   const { title, content } = req.body;
 
   const draft = await Draft.findOne({
-    where: { id, authorId: myUser.profileInfo.id },
+    where: { id, authorId: me.profileInfo.id },
   });
 
   if (!draft) throw ErrorResponse(404, "Draft not found");
@@ -39,21 +39,21 @@ const updateADraft = asyncMiddleware(async (req, res, next) => {
 
 // ==================== delete draft ==================== //
 const deleteADraft = asyncMiddleware(async (req, res, next) => {
-  const myUser = req.user;
+  const me = req.me;
   const { id } = req.params;
 
-  await Draft.destroy({ where: { id, authorId: myUser.profileInfo.id } });
+  await Draft.destroy({ where: { id, authorId: me.profileInfo.id } });
 
   res.json({ success: true, message: "Draft deleted successfully" });
 });
 
 // ==================== get a draft ==================== //
 const getADraft = asyncMiddleware(async (req, res, next) => {
-  const myUser = req.user;
+  const me = req.me;
   const { id } = req.params;
 
   const draft = await Draft.findOne({
-    where: { id, authorId: myUser.profileInfo.id },
+    where: { id, authorId: me.profileInfo.id },
   });
 
   if (!draft) throw ErrorResponse(404, "Draft not found");
@@ -63,15 +63,15 @@ const getADraft = asyncMiddleware(async (req, res, next) => {
 
 // ==================== get my draft ==================== //
 const getMyDrafts = asyncMiddleware(async (req, res, next) => {
-  const myUser = req.user;
+  const me = req.me;
   const { skip, limit = 15 } = req.query;
 
-  const whereQuery = { authorId: myUser.profileInfo.id };
+  const whereQuery = { authorId: me.profileInfo.id };
 
   if (skip) whereQuery.id = { [Op.lt]: skip };
 
   const drafts = await Draft.findAll({
-    where: { authorId: myUser.profileInfo.id },
+    where: { authorId: me.profileInfo.id },
     attributes: ["id", "title", "createdAt", "updatedAt"],
     order: [["id", "DESC"]],
     limit: Number(limit) && Number.isInteger(limit) ? limit : 15,

@@ -6,7 +6,7 @@ import { Op } from "sequelize";
 
 // ==================== follow a topic ==================== //
 const followATopic = asyncMiddleware(async (req, res, next) => {
-  const myUser = req.user;
+  const me = req.me;
   const { id } = req.params;
 
   const topic = await Topic.findOne({
@@ -16,10 +16,10 @@ const followATopic = asyncMiddleware(async (req, res, next) => {
 
   if (!topic) throw ErrorResponse(404, "Topic not found");
 
-  if (!myUser.profileInfo) throw ErrorResponse(404, "Profile not found");
+  if (!me.profileInfo) throw ErrorResponse(404, "Profile not found");
 
   const followTopic = await Follow_Topic.findOne({
-    where: { topicId: topic.id, profileId: myUser.profileInfo.id },
+    where: { topicId: topic.id, profileId: me.profileInfo.id },
     attributes: ["id"],
   });
 
@@ -27,7 +27,7 @@ const followATopic = asyncMiddleware(async (req, res, next) => {
     await Promise.all([
       Follow_Topic.create({
         topicId: topic.id,
-        profileId: myUser.profileInfo.id,
+        profileId: me.profileInfo.id,
       }),
       topic.increment({ followersCount: 1 }),
     ]);
@@ -38,7 +38,7 @@ const followATopic = asyncMiddleware(async (req, res, next) => {
 
 // ==================== unfollow a topic ==================== //
 const unFollowATopic = asyncMiddleware(async (req, res, next) => {
-  const myUser = req.user;
+  const me = req.me;
   const { id } = req.params;
 
   const topic = await Topic.findOne({
@@ -48,10 +48,10 @@ const unFollowATopic = asyncMiddleware(async (req, res, next) => {
 
   if (!topic) throw ErrorResponse(404, "Topic not found");
 
-  if (!myUser.profileInfo) throw ErrorResponse(404, "Profile not found");
+  if (!me.profileInfo) throw ErrorResponse(404, "Profile not found");
 
   const followTopic = await Follow_Topic.findOne({
-    where: { topicId: topic.id, profileId: myUser.profileInfo.id },
+    where: { topicId: topic.id, profileId: me.profileInfo.id },
     attributes: ["id"],
   });
 
@@ -66,25 +66,35 @@ const unFollowATopic = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== get my followed topics ==================== //
-const getMyFollowingTopics = asyncMiddleware(async (req, res, next) => {
-  const user = req.user;
+const getMyFollowedTopics = asyncMiddleware(async (req, res, next) => {
+  const me = req.me;
   const { skip = 0, limit = 15 } = req.query;
 
-  const followedTopics = await Follow_Topic.findAll({
-    where: { profileId: user.profileId.id, id: { [Op.gt]: skip } },
+  const followTopics = await Follow_Topic.findAll({
+    where: { profileId: me.profileInfo.id, id: { [Op.gt]: skip } },
+    attributes: ["id"],
     include: {
       model: Topic,
       as: "topicFollower",
-      attributes: ["id", "name", "slug"],
+      attributes: { exclude: ["status", "createdAt", "updatedAt"] },
     },
+    limit: Number(limit) && Number.isInteger(limit) ? limit : 15,
+  });
+
+  const followedTopics = followTopics.map((followTopic) => {
+    return {
+      id: followTopic.topicFollower.id,
+      name: followTopic.topicFollower.name,
+      followersCount: followTopic.topicFollower.followersCount,
+      articlesCount: followTopic.topicFollower.articlesCount,
+      slug: followTopic.topicFollower.slug,
+    };
   });
 
   const newSkip =
-    followedTopics.length > 0
-      ? followedTopics[followedTopics.length - 1].id
-      : null;
+    followTopics.length > 0 ? followTopics[followTopics.length - 1].id : null;
 
   res.json({ success: true, data: followedTopics, newSkip });
 });
 
-export default { followATopic, unFollowATopic, getMyFollowingTopics };
+export default { followATopic, unFollowATopic, getMyFollowedTopics };

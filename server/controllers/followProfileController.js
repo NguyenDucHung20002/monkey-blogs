@@ -9,7 +9,7 @@ import Block from "../models/mysql/Block.js";
 
 // ==================== follow a profile ==================== //
 const followAProfile = asyncMiddleware(async (req, res, next) => {
-  const myUser = req.user;
+  const me = req.me;
   const { id } = req.params;
 
   const profile = await Profile.findByPk(id, {
@@ -23,14 +23,14 @@ const followAProfile = asyncMiddleware(async (req, res, next) => {
 
   if (!profile) throw ErrorResponse(404, "Profile not found");
 
-  if (profile.id === myUser.profileInfo.id) {
+  if (profile.id === me.profileInfo.id) {
     throw ErrorResponse(400, "Can not follow yourself");
   }
 
   const followProfile = await Follow_Profile.findOne({
     where: {
       followedId: profile.id,
-      followerId: myUser.profileInfo.id,
+      followerId: me.profileInfo.id,
     },
     attributes: ["id"],
   });
@@ -39,9 +39,9 @@ const followAProfile = asyncMiddleware(async (req, res, next) => {
     await Promise.all([
       Follow_Profile.create({
         followedId: profile.id,
-        followerId: myUser.profileInfo.id,
+        followerId: me.profileInfo.id,
       }),
-      myUser.profileInfo.increment({ followingCount: 1 }),
+      me.profileInfo.increment({ followingCount: 1 }),
       profile.increment({ followersCount: 1 }),
     ]);
   }
@@ -54,7 +54,7 @@ const followAProfile = asyncMiddleware(async (req, res, next) => {
 
 // ==================== unfollow a profile ==================== //
 const unFollowAProfile = asyncMiddleware(async (req, res, next) => {
-  const myUser = req.user;
+  const me = req.me;
   const { id } = req.params;
 
   const profile = await Profile.findByPk(id, {
@@ -68,14 +68,14 @@ const unFollowAProfile = asyncMiddleware(async (req, res, next) => {
 
   if (!profile) throw ErrorResponse(404, "Profile not found");
 
-  if (profile.id === myUser.profileInfo.id) {
+  if (profile.id === me.profileInfo.id) {
     throw ErrorResponse(400, "Can not unfollow yourself");
   }
 
   const followProfile = await Follow_Profile.findOne({
     where: {
       followedId: profile.id,
-      followerId: myUser.profileInfo.id,
+      followerId: me.profileInfo.id,
     },
     attributes: ["id"],
   });
@@ -83,7 +83,7 @@ const unFollowAProfile = asyncMiddleware(async (req, res, next) => {
   if (followProfile) {
     await Promise.all([
       followProfile.destroy(),
-      myUser.profileInfo.increment({ followingCount: -1 }),
+      me.profileInfo.increment({ followingCount: -1 }),
       profile.increment({ followersCount: -1 }),
     ]);
   }
@@ -96,7 +96,7 @@ const unFollowAProfile = asyncMiddleware(async (req, res, next) => {
 
 // ==================== get list of followed profiles ==================== //
 const getFolloweds = asyncMiddleware(async (req, res, next) => {
-  const myUser = req.user ? req.user : null;
+  const me = req.me ? req.me : null;
   const { username } = req.params;
   const { skip = 0, limit = 15 } = req.query;
 
@@ -126,7 +126,7 @@ const getFolloweds = asyncMiddleware(async (req, res, next) => {
 
   let followeds;
 
-  if (!myUser) {
+  if (!me) {
     followeds = followProfiles.map((followProfile) => {
       followProfile.followed.avatar = addUrlToImg(
         followProfile.followed.avatar
@@ -141,7 +141,7 @@ const getFolloweds = asyncMiddleware(async (req, res, next) => {
     });
   }
 
-  if (myUser && myUser.profileInfo.id === user.profileInfo.id) {
+  if (me && me.profileInfo.id === user.profileInfo.id) {
     followeds = followProfiles.map((followProfile) => {
       followProfile.followed.avatar = addUrlToImg(
         followProfile.followed.avatar
@@ -157,10 +157,10 @@ const getFolloweds = asyncMiddleware(async (req, res, next) => {
     });
   }
 
-  if (myUser && myUser.profileInfo.id !== user.profileInfo.id) {
+  if (me && me.profileInfo.id !== user.profileInfo.id) {
     const isBlockedByUser = !!(await Block.findOne({
       where: {
-        blockedId: myUser.profileInfo.id,
+        blockedId: me.profileInfo.id,
         blockerId: user.profileInfo.id,
       },
       attributes: ["id"],
@@ -176,7 +176,7 @@ const getFolloweds = asyncMiddleware(async (req, res, next) => {
     followProfiles = await Follow_Profile.findAll({
       where: {
         "$blockedFollowed.blockedId$": null,
-        followedId: { [Op.ne]: myUser.profileInfo.id },
+        followedId: { [Op.ne]: me.profileInfo.id },
         followerId: user.profileInfo.id,
         id: { [Op.gt]: skip },
       },
@@ -186,7 +186,7 @@ const getFolloweds = asyncMiddleware(async (req, res, next) => {
           model: Block,
           attributes: [],
           as: "blockedFollowed",
-          where: { blockerId: myUser.profileInfo.id },
+          where: { blockerId: me.profileInfo.id },
           required: false,
         },
         {
@@ -213,7 +213,7 @@ const getFolloweds = asyncMiddleware(async (req, res, next) => {
           isFollowed: !!(await Follow_Profile.findOne({
             where: {
               followedId: followProfile.followed.id,
-              followerId: myUser.profileInfo.id,
+              followerId: me.profileInfo.id,
             },
           })),
         };
@@ -231,7 +231,7 @@ const getFolloweds = asyncMiddleware(async (req, res, next) => {
 
 // ==================== get list of follower profiles ==================== //
 const getFollowers = asyncMiddleware(async (req, res, next) => {
-  const myUser = req.user ? req.user : null;
+  const me = req.me ? req.me : null;
   const { username } = req.params;
   const { skip = 0, limit = 15 } = req.query;
 
@@ -261,7 +261,7 @@ const getFollowers = asyncMiddleware(async (req, res, next) => {
 
   let followers;
 
-  if (!myUser) {
+  if (!me) {
     followers = followerProfiles.map((followerProfile) => {
       followerProfile.follower.avatar = addUrlToImg(
         followerProfile.follower.avatar
@@ -276,7 +276,7 @@ const getFollowers = asyncMiddleware(async (req, res, next) => {
     });
   }
 
-  if (myUser && myUser.profileInfo.id === user.profileInfo.id) {
+  if (me && me.profileInfo.id === user.profileInfo.id) {
     followers = await Promise.all(
       followerProfiles.map(async (followerProfile) => {
         followerProfile.follower.avatar = addUrlToImg(
@@ -291,7 +291,7 @@ const getFollowers = asyncMiddleware(async (req, res, next) => {
           isFollowed: !!(await Follow_Profile.findOne({
             where: {
               followedId: followerProfile.follower.id,
-              followerId: myUser.profileInfo.id,
+              followerId: me.profileInfo.id,
             },
           })),
         };
@@ -299,10 +299,10 @@ const getFollowers = asyncMiddleware(async (req, res, next) => {
     );
   }
 
-  if (myUser && myUser.profileInfo.id !== user.profileInfo.id) {
+  if (me && me.profileInfo.id !== user.profileInfo.id) {
     const isBlockedByUser = !!(await Block.findOne({
       where: {
-        blockedId: myUser.profileInfo.id,
+        blockedId: me.profileInfo.id,
         blockerId: user.profileInfo.id,
       },
       attributes: ["id"],
@@ -319,7 +319,7 @@ const getFollowers = asyncMiddleware(async (req, res, next) => {
       where: {
         "$blockerFollower.blockedId$": null,
         followedId: user.profileInfo.id,
-        followerId: { [Op.ne]: myUser.profileInfo.id },
+        followerId: { [Op.ne]: me.profileInfo.id },
         id: { [Op.gt]: skip },
       },
       attributes: ["id"],
@@ -328,7 +328,7 @@ const getFollowers = asyncMiddleware(async (req, res, next) => {
           model: Block,
           attributes: [],
           as: "blockerFollower",
-          where: { blockerId: myUser.profileInfo.id },
+          where: { blockerId: me.profileInfo.id },
           required: false,
         },
         {
@@ -355,7 +355,7 @@ const getFollowers = asyncMiddleware(async (req, res, next) => {
           isFollowed: !!(await Follow_Profile.findOne({
             where: {
               followedId: followerProfile.follower.id,
-              followerId: myUser.profileInfo.id,
+              followerId: me.profileInfo.id,
             },
           })),
         };

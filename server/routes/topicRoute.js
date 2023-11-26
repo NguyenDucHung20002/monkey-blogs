@@ -5,14 +5,15 @@ import optionalAuth from "../middlewares/optionalAuth.js";
 import authorize from "../middlewares/authorize.js";
 import validator from "../middlewares/validator.js";
 import topicSchema from "../validations/topicSchema.js";
-import fetchMyUser from "../middlewares/fetchMyUser.js";
+import fetchMe from "../middlewares/fetchMe.js";
+import checkBanned from "../middlewares/checkBanned.js";
 
 const router = express.Router();
 
 router.post(
   "/",
   requiredAuth,
-  fetchMyUser,
+  fetchMe,
   authorize("admin"),
   validator(topicSchema.createTopicSchema, "body"),
   topicController.createTopic
@@ -21,7 +22,7 @@ router.post(
 router.patch(
   "/:id",
   requiredAuth,
-  fetchMyUser,
+  fetchMe,
   authorize("admin"),
   validator(topicSchema.updateTopicSchema, "body"),
   topicController.updateTopic
@@ -30,13 +31,19 @@ router.patch(
 router.delete(
   "/:id",
   requiredAuth,
-  fetchMyUser,
+  fetchMe,
   authorize("admin"),
   topicController.deleteTopic
 );
 
-// router.get("/:slug", optionalAuth, topicController.getATopic);
+router.get(
+  "/:slug",
+  optionalAuth,
+  fetchMe,
+  checkBanned,
+  topicController.getATopic
+);
 
-// router.get("/", topicController.getAllTopics);
+router.get("/", optionalAuth, fetchMe, topicController.getAllTopics);
 
 export default router;
