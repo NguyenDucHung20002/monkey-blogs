@@ -5,6 +5,7 @@ import ErrorResponse from "../responses/ErrorResponse.js";
 import addUrlToImg from "../utils/addUrlToImg.js";
 import Block from "../models/mysql/Block.js";
 import Mute from "../models/mysql/Mute.js";
+import Follow_Profile from "../models/mysql/Follow_Profile.js";
 
 // ==================== get profile ==================== //
 const getProfile = asyncMiddleware(async (req, res, next) => {
@@ -26,12 +27,11 @@ const getProfile = asyncMiddleware(async (req, res, next) => {
 
   if (me && me.id === user.id) {
     user.profileInfo = { ...user.profileInfo.toJSON(), isMyProfile: true };
-  } else if (me && me.id !== user.id) {
+  }
+
+  if (me && me.id !== user.id) {
     const isBlockedByUser = !!(await Block.findOne({
-      where: {
-        blockedId: me.profileInfo.id,
-        blockerId: user.profileInfo.id,
-      },
+      where: { blockedId: me.profileInfo.id, blockerId: user.profileInfo.id },
       attributes: ["id"],
     }));
 
@@ -42,18 +42,19 @@ const getProfile = asyncMiddleware(async (req, res, next) => {
       });
     }
 
-    const [isBlocked, isMuted] = await Promise.all([
+    const [isBlocked, isMuted, isFollowed] = await Promise.all([
       Block.findOne({
-        where: {
-          blockedId: user.profileInfo.id,
-          blockerId: me.profileInfo.id,
-        },
+        where: { blockedId: user.profileInfo.id, blockerId: me.profileInfo.id },
         attributes: ["id"],
       }),
       Mute.findOne({
+        where: { mutedId: user.profileInfo.id, muterId: me.profileInfo.id },
+        attributes: ["id"],
+      }),
+      Follow_Profile.findOne({
         where: {
-          mutedId: user.profileInfo.id,
-          muterId: me.profileInfo.id,
+          followedId: user.profileInfo.id,
+          followerId: me.profileInfo.id,
         },
         attributes: ["id"],
       }),
@@ -63,6 +64,7 @@ const getProfile = asyncMiddleware(async (req, res, next) => {
       ...user.profileInfo.toJSON(),
       isMuted: !!isMuted,
       isBlocked: !!isBlocked,
+      isFollowed: !!isFollowed,
     };
   }
 

@@ -28,10 +28,7 @@ const followAProfile = asyncMiddleware(async (req, res, next) => {
   }
 
   const followProfile = await Follow_Profile.findOne({
-    where: {
-      followedId: profile.id,
-      followerId: me.profileInfo.id,
-    },
+    where: { followedId: profile.id, followerId: me.profileInfo.id },
     attributes: ["id"],
   });
 
@@ -46,7 +43,7 @@ const followAProfile = asyncMiddleware(async (req, res, next) => {
     ]);
   }
 
-  res.json({
+  res.status(201).json({
     success: true,
     message: `Successfully followed ${profile.fullname}.`,
   });
@@ -73,10 +70,7 @@ const unFollowAProfile = asyncMiddleware(async (req, res, next) => {
   }
 
   const followProfile = await Follow_Profile.findOne({
-    where: {
-      followedId: profile.id,
-      followerId: me.profileInfo.id,
-    },
+    where: { followedId: profile.id, followerId: me.profileInfo.id },
     attributes: ["id"],
   });
 

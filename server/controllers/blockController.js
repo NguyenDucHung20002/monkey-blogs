@@ -33,10 +33,7 @@ const blockAProfile = asyncMiddleware(async (req, res, next) => {
   });
 
   if (!blocks) {
-    await Block.create({
-      blockedId: profile.id,
-      blockerId: me.profileInfo.id,
-    });
+    await Block.create({ blockedId: profile.id, blockerId: me.profileInfo.id });
   }
 
   res.status(201).json({

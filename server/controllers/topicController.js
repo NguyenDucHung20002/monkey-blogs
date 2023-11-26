@@ -85,39 +85,40 @@ const getATopic = asyncMiddleware(async (req, res, next) => {
 
 // ==================== get all topics ==================== //
 const getAllTopics = asyncMiddleware(async (req, res, next) => {
-  const { skipId, skipStatus, limit = 5, search, sort = "ASC" } = req.query;
+  const { skipId = 0, skipStas, limit = 15, search, sort = "ASC" } = req.query;
+  const me = req.me ? req.me : null;
 
-  let whereQuery = {};
+  let query = { id: { [Op.gt]: skipId }, attributes: ["id", "name", "slug"] };
 
-  if (search) {
-    whereQuery.slug = { [Op.substring]: search };
+  if (me && (me.role.slug === "admin" || me.role.slug === "staff")) {
+    query = { order: [["status", sort]] };
+
+    if (search) query.slug = { [Op.substring]: search };
+
+    if (skipId && skipStas) {
+      query[Op.or] = [
+        { status: { [Op.lt]: skipStas } },
+        { [Op.and]: [{ status: skipStas }, { id: { [Op.gt]: skipId } }] },
+      ];
+    }
+
+    if (skipId && skipStas && sort === "DESC") {
+      query[Op.or] = [
+        { status: { [Op.gt]: skipStas } },
+        { [Op.and]: [{ status: skipStas }, { id: { [Op.gt]: skipId } }] },
+      ];
+    }
   }
 
-  if (skipId && skipStatus) {
-    whereQuery[Op.or] = [
-      { status: { [Op.lt]: skipStatus } },
-      { [Op.and]: [{ status: skipStatus }, { id: { [Op.gt]: skipId } }] },
-    ];
-  }
+  query.limit = Number(limit) && Number.isInteger(limit) ? limit : 15;
 
-  if (skipId && skipStatus && sort === "DESC") {
-    whereQuery[Op.or] = [
-      { status: { [Op.gt]: skipStatus } },
-      { [Op.and]: [{ status: skipStatus }, { id: { [Op.gt]: skipId } }] },
-    ];
-  }
-
-  const topics = await Topic.findAll({
-    where: whereQuery,
-    order: [["status", sort]],
-    limit: Number(limit) && Number.isInteger(limit) ? limit : 15,
-  });
+  const topics = await Topic.findAll(query);
 
   const newSkipId = topics.length > 0 ? topics[topics.length - 1].id : null;
-  const newSkipStatus =
+  const newSkipStas =
     topics.length > 0 ? topics[topics.length - 1].status : null;
 
-  res.json({ success: true, data: topics, newSkipId, newSkipStatus });
+  res.json({ success: true, data: topics, newSkipId, newSkipStas });
 });
 
 export default {

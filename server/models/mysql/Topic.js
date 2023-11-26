@@ -1,5 +1,6 @@
 import { DataTypes } from "sequelize";
 import sequelize from "../../databases/mysql/connect.js";
+import User from "../mysql/User.js";
 
 const Topic = sequelize.define(
   "Topic",
@@ -21,6 +22,15 @@ const Topic = sequelize.define(
     },
 
     slug: { type: DataTypes.STRING, allowNull: false, unique: true },
+
+    approvedById: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: User,
+        key: "id",
+      },
+    },
 
     status: {
       type: DataTypes.ENUM("pending", "approved"),

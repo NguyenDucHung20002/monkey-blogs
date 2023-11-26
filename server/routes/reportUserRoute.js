@@ -15,7 +15,7 @@ router.post(
   fetchMe,
   checkBanned,
   authorize("user"),
-  // validator(reportProfileSchema.reportAProfileSchema),
+  validator(reportProfileSchema.reportAProfileSchema),
   reportUserController.reportAUser
 );
 

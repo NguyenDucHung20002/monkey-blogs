@@ -28,10 +28,7 @@ const muteAProfile = asyncMiddleware(async (req, res, next) => {
   });
 
   if (!mutes) {
-    await Mute.create({
-      mutedId: profile.id,
-      muterId: me.profileInfo.id,
-    });
+    await Mute.create({ mutedId: profile.id, muterId: me.profileInfo.id });
   }
 
   res.status(201).json({

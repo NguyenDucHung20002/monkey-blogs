@@ -23,7 +23,7 @@ router.delete(
 );
 
 router.get(
-  "/me",
+  "/me/all",
   requiredAuth,
   fetchMe,
   checkBanned,

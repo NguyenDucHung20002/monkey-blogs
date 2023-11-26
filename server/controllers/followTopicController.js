@@ -25,15 +25,15 @@ const followATopic = asyncMiddleware(async (req, res, next) => {
 
   if (!followTopic) {
     await Promise.all([
-      Follow_Topic.create({
-        topicId: topic.id,
-        profileId: me.profileInfo.id,
-      }),
+      Follow_Topic.create({ topicId: topic.id, profileId: me.profileInfo.id }),
       topic.increment({ followersCount: 1 }),
     ]);
   }
 
-  res.json({ success: true, message: `Successfully followed ${topic.name}` });
+  res.status(201).json({
+    success: true,
+    message: `Successfully followed ${topic.name}`,
+  });
 });
 
 // ==================== unfollow a topic ==================== //

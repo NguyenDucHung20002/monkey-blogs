@@ -44,12 +44,6 @@ router.get(
   topicController.getATopic
 );
 
-router.get(
-  "/",
-  requiredAuth,
-  fetchMe,
-  authorize("admin", "staff"),
-  topicController.getAllTopics
-);
+router.get("/", optionalAuth, fetchMe, topicController.getAllTopics);
 
 export default router;

@@ -45,6 +45,6 @@ router.get(
 
 router.post("/login", requiredAuth, fetchMe, checkBanned, authController.login);
 
-router.delete("/logout", requiredAuth, fetchMe, authController.logout);
+router.delete("/logout", requiredAuth, authController.logout);
 
 export default router;
