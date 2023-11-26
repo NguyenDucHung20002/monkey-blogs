@@ -1,8 +1,9 @@
-const Token = require("../models/Token");
+import Token from "../models/mongodb/Token.js";
+import jwt from "jsonwebtoken";
+import env from "../config/env.js";
 
-const requiredAuth = async (req, res, next) => {
+const redirectAuth = async (req, res, next) => {
   const headerToken = req.headers.authorization;
-
   if (!headerToken || !headerToken.startsWith("Bearer ")) {
     return res.status(401).json({
       success: false,
@@ -18,16 +19,17 @@ const requiredAuth = async (req, res, next) => {
     });
   }
 
-  try {
-    const tokenDoc = await Token.findOne({ token });
-    if (!tokenDoc) {
-      return res.status(401).json({
-        success: false,
-        message: "Unauthorized",
-      });
-    }
+  const tokenDoc = await Token.findOne({ token });
+  if (!tokenDoc) {
+    return res.status(401).json({
+      success: false,
+      message: "Unauthorized",
+    });
+  }
 
-    req.token = token;
+  try {
+    const jwtPayLoad = jwt.verify(tokenDoc.token, env.JWT_SECRET);
+    req.jwtPayLoad = jwtPayLoad;
     next();
   } catch (error) {
     return res.status(401).json({
@@ -37,4 +39,4 @@ const requiredAuth = async (req, res, next) => {
   }
 };
 
-module.exports = requiredAuth;
+export default redirectAuth;

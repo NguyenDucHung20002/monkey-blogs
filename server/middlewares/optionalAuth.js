@@ -1,32 +1,38 @@
-const Token = require("../models/Token");
+import Token from "../models/mongodb/Token.js";
+import getError from "../utils/getError.js";
+import jwt from "jsonwebtoken";
+import env from "../config/env.js";
 
 const optionalAuth = async (req, res, next) => {
+  const headerToken = req.headers.authorization;
+  if (!headerToken || !headerToken.startsWith("Bearer ")) {
+    req.jwtPayLoad = null;
+    next();
+    return;
+  }
+
+  const token = headerToken.split(" ")[1];
+  if (!token) {
+    req.jwtPayLoad = null;
+    next();
+    return;
+  }
+
+  const tokenDoc = await Token.findOne({ token });
+  if (!tokenDoc) {
+    req.jwtPayLoad = null;
+    next();
+    return;
+  }
+
   try {
-    const headerToken = req.headers.authorization;
-
-    if (!headerToken || !headerToken.startsWith("Bearer ")) {
-      req.token = null;
-      return next();
-    }
-
-    const token = headerToken.split(" ")[1];
-    if (!token) {
-      req.token = null;
-      return next();
-    }
-
-    const tokenDoc = await Token.findOne({ token });
-    if (!tokenDoc) {
-      req.token = null;
-      return next();
-    }
-
-    req.token = token;
+    const jwtPayLoad = jwt.verify(tokenDoc.token, env.JWT_SECRET);
+    req.jwtPayLoad = jwtPayLoad;
     next();
   } catch (error) {
-    req.user = null;
+    req.payload = null;
     next();
   }
 };
 
-module.exports = optionalAuth;
+export default optionalAuth;

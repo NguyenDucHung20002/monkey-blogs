@@ -1,13 +1,9 @@
-const Joi = require("./joi");
+import Joi from "joi";
 
-const updateSchema = Joi.object({
-  fullname: Joi.string().min(3).max(50),
-  bio: Joi.string().allow("").max(160),
-  about: Joi.string().allow("").max(300),
+const banAUserSchema = Joi.object({
+  banType: Joi.string()
+    .valid("1week", "1month", "1year", "permanent")
+    .required(),
 });
 
-const searchSchema = Joi.object({
-  search: Joi.string().allow(""),
-});
-
-module.exports = { updateSchema, searchSchema };
+export default { banAUserSchema };

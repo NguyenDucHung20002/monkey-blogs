@@ -1,30 +1,31 @@
-const Token = require("../models/Token");
-const addUrlToImg = require("../utils/addUrlToImg");
-const { asyncMiddleware } = require("../middlewares/asyncMiddleware");
-
-// ==================== login ==================== //
+import Token from "../models/mongodb/Token.js";
+import ErrorResponse from "../responses/ErrorResponse.js";
+import asyncMiddleware from "../middlewares/asyncMiddleware.js";
+import User from "../models/mysql/User.js";
 
 const login = asyncMiddleware(async (req, res, next) => {
-  const { fullname, avatar, username, role } = req.me;
+  const user = req.user;
 
-  const profile = {
-    avatar: addUrlToImg(avatar),
-    fullname,
-    username,
-    role: role.slug,
-  };
-
-  res.status(200).json({ success: true, data: profile });
+  res.json({
+    success: true,
+    data: {
+      ...user.profileInfo.toJSON(),
+      username: user.username,
+      role: user.role.slug,
+    },
+  });
 });
-
-// ==================== Logout ==================== //
 
 const logout = asyncMiddleware(async (req, res, next) => {
-  const { me, token } = req;
+  const { id: myUserId, iat, exp } = req.jwtPayLoad;
 
-  await Token.findOneAndDelete({ userId: me._id, token });
+  const myProfile = await User.findByPk(myUserId, { attributes: ["id"] });
 
-  res.status(200).json({ success: true });
+  if (!myProfile) throw ErrorResponse(404, "Profile not found");
+
+  await Token.deleteOne({ userId: myProfile.id, iat, exp });
+
+  res.json({ success: true, message: "Successfully logout" });
 });
 
-module.exports = { login, logout };
+export default { login, logout };

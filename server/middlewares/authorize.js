@@ -1,21 +1,26 @@
-const Role = require("../models/Role");
-const User = require("../models/User");
+import getError from "../utils/getError.js";
 
-exports.authorize = (requiredRole) => async (req, res, next) => {
-  try {
-    const { role } = req.me;
+const authorize =
+  (...role) =>
+  (req, res, next) => {
+    try {
+      const user = req.user;
 
-    if (role.slug !== requiredRole) {
-      return res.status(403).json({
+      if (!role.includes(user.role.slug)) {
+        return res.status(403).json({
+          success: false,
+          message: "No Permission",
+        });
+      }
+
+      next();
+    } catch (error) {
+      const err = getError(error);
+      return res.status(err.code).json({
         success: false,
-        message: "No Permission",
+        message: err.message,
       });
     }
-    next();
-  } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: "Internal Server Error",
-    });
-  }
-};
+  };
+
+export default authorize;

@@ -1,213 +1,119 @@
-const Like = require("../models/Like");
-const Topic = require("../models/Topic");
-const toSlug = require("../utils/toSlug");
-const Article = require("../models/Article");
-const Comment = require("../models/Comment");
-const addUrlToImg = require("../utils/addUrlToImg");
-const FollowTopic = require("../models/FollowTopic");
-const { ErrorResponse } = require("../response/ErrorResponse");
-const { asyncMiddleware } = require("../middlewares/asyncMiddleware");
+import asyncMiddleware from "../middlewares/asyncMiddleware.js";
+import toSlug from "../utils/toSlug.js";
+import Topic from "../models/mysql/Topic.js";
+import { Op } from "sequelize";
+import ErrorResponse from "../responses/ErrorResponse.js";
+import Profile from "../models/mysql/Profile.js";
+// import Follow_Topic from "./Follow_Topic.js";
 
 // ==================== create topic ==================== //
-
 const createTopic = asyncMiddleware(async (req, res, next) => {
   const { name } = req.body;
 
   const slug = toSlug(name);
 
-  const existingTopic = await Topic.exists().or([{ name }, { slug }]);
+  const existingTopic = await Topic.findOne({
+    where: { [Op.or]: [{ name }, { slug }] },
+    attributes: ["id"],
+  });
 
-  if (existingTopic) throw new ErrorResponse(409, "Topic already exists");
+  if (existingTopic) throw ErrorResponse(409, "Topic already exists");
 
-  const topic = new Topic({ name, slug });
+  await Topic.create({ name, slug });
 
-  await topic.save();
-
-  res.status(201).json({ success: true });
+  res.status(201).json({
+    success: true,
+    message: "Topic created successfully",
+  });
 });
 
 // ==================== update topic ==================== //
-
 const updateTopic = asyncMiddleware(async (req, res, next) => {
-  const { slug } = req.params;
+  const { id } = req.params;
   const { name } = req.body;
 
-  const existingTopic = await Topic.exists({ slug });
-  if (!existingTopic) throw new ErrorResponse(404, "Topic not found");
+  const existingTopic = await Topic.findByPk(id);
+
+  if (!existingTopic) throw ErrorResponse(404, "Topic not found");
 
   const updatedSlug = toSlug(name);
 
-  const NewName = await Topic.exists().or([{ name }, { slug: updatedSlug }]);
+  const newNameTopic = await Topic.findOne({
+    where: { [Op.or]: [{ name }, { slug: updatedSlug }] },
+    attributes: ["id"],
+  });
 
-  if (NewName && NewName._id.toString() !== existingTopic._id.toString()) {
-    throw new ErrorResponse(409, "Topic name already exist");
+  if (newNameTopic && newNameTopic.id !== existingTopic.id) {
+    throw ErrorResponse(409, "Topic name already exist");
   }
 
-  await Topic.findOneAndUpdate(
-    { slug },
-    { name, slug: updatedSlug },
-    { new: true }
-  );
+  await existingTopic.update({ name, slug: updatedSlug });
 
-  res.status(200).json({ success: true });
+  res.json({ success: true, message: "Topic updated successfully" });
 });
 
 // ==================== delete topic ==================== //
-
 const deleteTopic = asyncMiddleware(async (req, res, next) => {
-  const { slug } = req.params;
+  const { id } = req.params;
 
-  const deletedTopic = await Topic.findOneAndDelete({ slug });
-  if (!deletedTopic) throw new ErrorResponse(404, "Topic not found");
+  await Topic.destroy({ where: { id } });
 
-  await FollowTopic.deleteMany({ slug });
-
-  await Article.updateMany(
-    { topics: deletedTopic._id },
-    { $pull: { topics: deletedTopic._id } }
-  );
-
-  res.status(200).json({ success: true });
+  res.json({ success: true, message: "Topic deleted successfully" });
 });
 
-// ==================== get a topic ==================== //
+// // ==================== get a topic ==================== //
+// const getATopic = asyncMiddleware(async (req, res, next) => {
+//   const { slug } = req.params;
 
-const getATopic = asyncMiddleware(async (req, res, next) => {
-  const { slug } = req.params;
-  const { me } = req;
+//   const myUserId =
+//     req.jwtPayLoad && req.jwtPayLoad.id ? req.jwtPayLoad.id : null;
 
-  const topic = await Topic.findOne({ slug }).lean();
-  if (!topic) throw new ErrorResponse(404, "Topic not found");
+//   const topic = await Topic.findOne({ where: { slug } });
 
-  const result = { ...topic };
+//   if (!topic) throw new ErrorResponse(404, "Topic not found");
 
-  if (me) {
-    result.isFollowed = !!(await FollowTopic.exists({
-      follower: me._id,
-      topic: topic._id,
-    }));
-  }
+//   if (myUserId) {
+//     const myProfile = await Profile.findOne({ where: { userId: myUserId } });
+//     if (myProfile) {
+//       const isFollowed = !!(await Follow_Topic.findOne({
+//         where: { topicId: topic.id, profileId: myProfile.id },
+//         attributes: ["id"],
+//       }));
+//       return res.json({
+//         success: true,
+//         data: { ...topic.toJSON(), isFollowed },
+//       });
+//     }
+//   }
 
-  res.status(200).json({ success: true, data: result });
-});
+//   res.json({ success: true, data: topic });
+// });
 
-// ==================== count topic articles ==================== //
+// // ==================== get all topics ==================== //
+// const getAllTopics = asyncMiddleware(async (req, res, next) => {
+//   const { skip = 0, limit = 15, search } = req.query;
 
-const countTopicArticles = asyncMiddleware(async (req, res, next) => {
-  const { slug } = req.params;
+//   const whereQuery = { id: { [Op.gt]: skip } };
 
-  const topic = await Topic.findOne({ slug }).lean();
-  if (!topic) throw new ErrorResponse(404, "Topic not found");
+//   if (search) {
+//     whereQuery.slug = { [Op.substring]: search };
+//   }
 
-  const count = await Article.count({ topics: topic._id });
+//   let topics = await Topic.findAll({
+//     where: whereQuery,
+//     limit: parseInt(limit, 10),
+//     attributes: ["id", "name", "slug"],
+//   });
 
-  res.status(200).json({ success: true, data: count });
-});
+//   const skipID = topics.length > 0 ? topics[topics.length - 1].id : null;
 
-// ==================== count topic followers ==================== //
+//   res.json({ success: true, data: topics, skipID });
+// });
 
-const countTopicFollowers = asyncMiddleware(async (req, res, next) => {
-  const { slug } = req.params;
-
-  const topic = await Topic.findOne({ slug }).lean();
-  if (!topic) throw new ErrorResponse(404, "Topic not found");
-
-  const count = await FollowTopic.count({ topic: topic._id });
-
-  res.status(200).json({ success: true, data: count });
-});
-
-// ==================== get topic articles ==================== //
-
-const getTopicArticles = asyncMiddleware(async (req, res, next) => {
-  const { me } = req;
-  const { slug } = req.params;
-  const { skip, limit = 15 } = req.query;
-
-  const topic = await Topic.exists({ slug });
-  if (!topic) throw new ErrorResponse(404, "Topic not found");
-
-  const query = { topics: topic._id };
-  if (skip) query._id = { $lt: skip };
-
-  const articles = await Article.find(query)
-    .lean()
-    .limit(limit)
-    .select("-content -topics -status")
-    .populate({ path: "author", select: "avatar fullname username" })
-    .sort({ createdAt: -1 });
-
-  const result = await Promise.all(
-    articles.map(async (val) => {
-      val.author.avatar = addUrlToImg(val.author.avatar);
-      val.img = addUrlToImg(val.img);
-      const likeCount = await Like.count({ article: val._id });
-      const commentCount = await Comment.count({ article: val._id });
-      return me
-        ? {
-            ...val,
-            likeCount,
-            commentCount,
-            isLiked: !!(await Like.exists({
-              user: me._id,
-              article: val._id,
-            })),
-          }
-        : { ...val, likeCount, commentCount };
-    })
-  );
-
-  const skipID = articles.length > 0 ? articles[articles.length - 1]._id : null;
-
-  res.status(200).json({ success: true, data: result, skipID });
-});
-
-// ==================== get all topics ==================== //
-
-const getAllTopics = asyncMiddleware(async (req, res, next) => {
-  const { search, limit = 15, skip } = req.query;
-
-  const query = {};
-
-  if (skip) query._id = { $gt: skip };
-
-  if (search) query.name = { $regex: search, $options: "i" };
-
-  const topics = await Topic.find(query)
-    .lean()
-    .limit(limit)
-    .select("name slug")
-    .sort({ _id: 1 });
-
-  const skipID = topics.length > 0 ? topics[topics.length - 1]._id : null;
-
-  res.status(200).json({ success: true, data: topics, skipID });
-});
-
-// ==================== get random topics suggestions ==================== //
-
-const getRandomTopics = asyncMiddleware(async (req, res, next) => {
-  const { me } = req;
-
-  const myFollowingTopics = await FollowTopic.find({ follower: me._id })
-    .lean()
-    .distinct("topic");
-
-  const topics = await Topic.aggregate()
-    .match({ _id: { $nin: myFollowingTopics } })
-    .sample(8);
-
-  res.status(200).json({ success: true, data: topics });
-});
-
-module.exports = {
+export default {
   createTopic,
   updateTopic,
   deleteTopic,
-  getATopic,
-  countTopicArticles,
-  countTopicFollowers,
-  getAllTopics,
-  getTopicArticles,
-  getRandomTopics,
+  // getATopic,
+  // getAllTopics,
 };

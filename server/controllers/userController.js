@@ -1,275 +1,168 @@
-const User = require("../models/User");
-const Article = require("../models/Article");
-const FollowUser = require("../models/FollowUser");
-const addUrlToImg = require("../utils/addUrlToImg");
-const FollowTopic = require("../models/FollowTopic");
-const { removeFile } = require("../utils/removeFile");
-const { asyncMiddleware } = require("../middlewares/asyncMiddleware");
+import { Op } from "sequelize";
+import asyncMiddleware from "../middlewares/asyncMiddleware.js";
+import User from "../models/mysql/User.js";
+import ErrorResponse from "../responses/ErrorResponse.js";
+import Profile from "../models/mysql/Profile.js";
 
-// ==================== get profile ==================== //
+// ==================== ban a user ==================== //
+const banAUser = asyncMiddleware(async (req, res, next) => {
+  const myUser = req.user;
+  const { id } = req.params;
+  const { banType } = req.body;
 
-const getProfile = asyncMiddleware(async (req, res, next) => {
-  const { me, user } = req;
+  const user = await User.findByPk(id, {
+    attributes: ["id", "bannedsCount", "status"],
+    include: { model: Profile, as: "profileInfo", attributes: ["fullname"] },
+  });
 
-  const result = { ...user };
+  if (!user) throw ErrorResponse(404, "User not found");
 
-  if (!me) return res.status(200).json({ success: true, data: result });
-
-  result.isMe = me._id.toString() === user._id.toString();
-
-  if (!result.isMe) {
-    result.isFollowed = !!(await FollowUser.exists({
-      follower: me._id,
-      following: user._id,
-    }));
+  if (user.status === "banned") {
+    throw ErrorResponse(404, `${user.profileInfo.fullname} already banned`);
   }
 
-  res.status(200).json({ success: true, data: result });
-});
+  let bannedUntil = null;
 
-// ==================== count following ==================== //
-
-const countFollowing = asyncMiddleware(async (req, res, next) => {
-  const { user } = req;
-
-  const count = await FollowUser.count({ follower: user._id });
-
-  res.status(200).json({ success: true, data: count });
-});
-
-// ==================== count followers ==================== //
-
-const countFollowers = asyncMiddleware(async (req, res, next) => {
-  const { user } = req;
-
-  const count = await FollowUser.count({ following: user._id });
-
-  res.status(200).json({ success: true, data: count });
-});
-
-// ==================== get following ==================== //
-
-const getFollowing = asyncMiddleware(async (req, res, next) => {
-  const { me, user } = req;
-  const { skip, limit = 15 } = req.query;
-
-  const query = { follower: user._id, following: { $ne: me ? me._id : null } };
-  if (skip) query._id = { $gt: skip };
-
-  const following = await FollowUser.find(query)
-    .lean()
-    .limit(limit)
-    .select("follower following")
-    .populate({ path: "following", select: "avatar fullname username bio" });
-
-  const result = following.map((val) => {
-    const following = { ...val.following };
-    following.avatar = addUrlToImg(following.avatar);
-    return me && me._id.toString() !== user._id.toString()
-      ? {
-          ...following,
-          isFollowed: me._id.toString() === val.follower._id.toString(),
-        }
-      : following;
-  });
-
-  const skipID =
-    following.length > 0 ? following[following.length - 1]._id : null;
-
-  res.status(200).json({ success: true, data: result, skipID });
-});
-
-// ==================== get follower ==================== //
-
-const getFollowers = asyncMiddleware(async (req, res, next) => {
-  const { me, user } = req;
-  const { skip, limit = 15 } = req.query;
-
-  const query = { follower: { $ne: me ? me._id : null }, following: user._id };
-  if (skip) query._id = { $gt: skip };
-
-  const followers = await FollowUser.find(query)
-    .lean()
-    .limit(limit)
-    .select("follower")
-    .populate({ path: "follower", select: "avatar fullname username bio" });
-
-  const result = await Promise.all(
-    followers.map(async (val) => {
-      val.follower.avatar = addUrlToImg(val.follower.avatar);
-      return me
-        ? {
-            ...val.follower,
-            isFollowed: !!(await FollowUser.exists({
-              follower: me._id,
-              following: val.follower,
-            })),
-          }
-        : val.follower;
-    })
-  );
-
-  const skipID =
-    followers.length > 0 ? followers[followers.length - 1]._id : null;
-
-  res.status(200).json({ success: true, data: result, skipID });
-});
-
-// ==================== get user articles ==================== //
-
-const getUserArticles = asyncMiddleware(async (req, res, next) => {
-  const { user } = req;
-  const { skip, limit = 15 } = req.query;
-
-  const query = { author: user._id };
-  if (skip) query._id = { $lt: skip };
-
-  const articles = await Article.find(query)
-    .lean()
-    .limit(limit)
-    .select("-author -content -status")
-    .populate({ path: "topics", options: { limit: 1 }, select: "name slug" })
-    .sort({ createdAt: -1 });
-
-  articles.forEach((val) => (val.img = addUrlToImg(val.img)));
-
-  const skipID = articles.length > 0 ? articles[articles.length - 1]._id : null;
-
-  res.status(200).json({ success: true, data: articles, skipID });
-});
-
-// ==================== get followed topics ==================== //
-
-const getMyFollowingTopics = asyncMiddleware(async (req, res, next) => {
-  const { me } = req;
-  const { skip, limit = 15 } = req.query;
-
-  const query = { follower: me._id };
-  if (skip) query._id = { $gt: skip };
-
-  const topics = await FollowTopic.find(query)
-    .lean()
-    .limit(limit)
-    .select("topic")
-    .populate({ path: "topic", select: "name slug" })
-    .sort({ _id: 1 });
-
-  const result = topics.map((val) => {
-    return val.topic;
-  });
-
-  const skipID = topics.length > 0 ? topics[topics.length - 1]._id : null;
-
-  res.status(200).json({ success: true, data: result, skipID });
-});
-
-// ==================== update my profile ==================== //
-
-const updateMyProfile = asyncMiddleware(async (req, res, next) => {
-  const { me } = req;
-  const { fullname, bio, about } = req.body;
-
-  const filename = req.file?.filename;
-  const size = req.file?.size;
-
-  const FILE_LIMIT = 10 * 1024 * 1024;
-  if (size && size > FILE_LIMIT) {
-    throw new ErrorResponse(
-      400,
-      "File too large. Maximum allowed size is 10mb"
-    );
+  if (banType === "1week") {
+    bannedUntil = new Date();
+    bannedUntil.setDate(bannedUntil.getDate() + 7);
   }
 
-  await User.findByIdAndUpdate(
-    me._id,
-    {
-      fullname,
-      bio,
-      about,
-      avatar: filename,
-    },
-    { new: true }
-  );
+  if (banType === "1month") {
+    bannedUntil = new Date();
+    bannedUntil.setMonth(bannedUntil.getMonth() + 1);
+  }
 
-  if (filename) removeFile(me.avatar);
+  if (banType === "1year") {
+    bannedUntil = new Date();
+    bannedUntil.setFullYear(bannedUntil.getFullYear() + 1);
+  }
 
-  res.status(200).json({ success: true });
-});
-
-// ==================== random users suggestions ==================== //
-
-const getRandomUsers = asyncMiddleware(async (req, res, next) => {
-  const { me } = req;
-
-  const myFollowing = await FollowUser.find({ follower: me._id })
-    .lean()
-    .distinct("following");
-
-  const users = await User.aggregate()
-    .match({ _id: { $nin: myFollowing, $ne: me._id } })
-    .project("avatar fullname username bio")
-    .sample(15);
-
-  users.forEach((user) => {
-    user.avatar = addUrlToImg(user.avatar);
+  await user.update({
+    status: "banned",
+    banType,
+    bannedUntil,
+    bannedById: myUser.id,
+    bannedsCount: user.bannedsCount + 1,
   });
 
-  res.status(200).json({ success: true, data: users });
+  res.status(201).json({
+    success: true,
+    message: `${user.profileInfo.fullname} has been banned`,
+  });
 });
 
-// ==================== search users ==================== //
+// ==================== update user ban ==================== //
+const updateUserBan = asyncMiddleware(async (req, res, next) => {
+  const myUser = req.user;
+  const { id } = req.params;
+  const { banType } = req.body;
 
-const searchUser = asyncMiddleware(async (req, res, next) => {
-  const { me } = req;
-  const { search } = req.body;
-  const { skip, limit = 15 } = req.query;
+  const user = await User.findByPk(id, {
+    attributes: ["id", "bannedsCount", "status"],
+    include: { model: Profile, as: "profileInfo", attributes: ["fullname"] },
+  });
 
-  let result = [];
+  if (!user) throw ErrorResponse(404, "User not found");
+
+  if (user.status === "normal") {
+    throw ErrorResponse(404, `${user.profileInfo.fullname} not banned`);
+  }
+
+  let bannedUntil = null;
+
+  if (banType === "1week") {
+    bannedUntil = new Date();
+    bannedUntil.setDate(bannedUntil.getDate() + 7);
+  }
+
+  if (banType === "1month") {
+    bannedUntil = new Date();
+    bannedUntil.setMonth(bannedUntil.getMonth() + 1);
+  }
+
+  if (banType === "1year") {
+    bannedUntil = new Date();
+    bannedUntil.setFullYear(bannedUntil.getFullYear() + 1);
+  }
+
+  await user.update({
+    status: "banned",
+    banType,
+    bannedUntil,
+    bannedById: myUser.id,
+  });
+
+  res.json({
+    success: true,
+    message: `Update ${user.profileInfo.fullname} ban successfully`,
+  });
+});
+
+// ==================== unban a user ==================== //
+const unBanAUser = asyncMiddleware(async (req, res, next) => {
+  const { id } = req.params;
+
+  const user = await User.findByPk(id, {
+    attributes: ["id", "bannedsCount"],
+    include: { model: Profile, as: "profileInfo", attributes: ["fullname"] },
+  });
+
+  if (!user) throw ErrorResponse(404, "User not found");
+
+  await user.update({
+    status: "normal",
+    banType: null,
+    bannedUntil: null,
+    bannedBy: null,
+    bannedsCount: user.bannedsCount - 1,
+  });
+
+  res.json({
+    success: true,
+    message: `${user.profileInfo.fullname} has been unbanned`,
+  });
+});
+
+// ==================== get all users ==================== //
+const getAllUsers = asyncMiddleware(async (req, res, next) => {
+  const { skip = 0, limit = 15, search } = req.query;
+
+  let whereQuery = { id: { [Op.gt]: skip }, roleId: 1 };
 
   if (search) {
-    const query = {
-      $text: { $search: search },
-      _id: { $ne: me ? me._id : null },
-      status: "normal",
-    };
-
-    if (skip) query._id.$lt = skip;
-
-    const users = await User.find(query)
-      .lean()
-      .limit(limit)
-      .select("avatar fullname username bio");
-
-    result = await Promise.all(
-      users.map(async (val) => {
-        val.avatar = addUrlToImg(val.avatar);
-        return me
-          ? {
-              ...val,
-              isFollowed: !!(await FollowUser.exists({
-                follower: me._id,
-                following: val._id,
-              })),
-            }
-          : val;
-      })
-    );
+    whereQuery[Op.or] = [
+      { username: { [Op.substring]: search } },
+      { email: { [Op.substring]: search } },
+    ];
   }
 
-  const skipID = result.length > 0 ? result[result.length - 1]._id : null;
+  let users = await User.findAll({
+    where: whereQuery,
+    attributes: { exclude: ["roleId", "bannedById"] },
+    include: { model: User, as: "bannedBy", attributes: ["username"] },
+    limit: Number(limit) && Number.isInteger(limit) ? limit : 15,
+    order: [["reportsCount", "DESC"]],
+  });
 
-  res.status(200).json({ success: true, data: result, skipID });
+  users = users.map((user) => {
+    return {
+      id: user.id,
+      username: user.username,
+      reportsCount: user.reportsCount,
+      bannedsCount: user.bannedsCount,
+      banType: user.banType,
+      bannedUntil: user.bannedUntil,
+      status: user.status,
+      bannedBy: user.bannedBy ? user.bannedBy.username : null,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    };
+  });
+
+  const newSkip = users.length > 0 ? users[users.length - 1].id : null;
+
+  res.json({ success: true, data: users, newSkip });
 });
 
-module.exports = {
-  getProfile,
-  countFollowing,
-  countFollowers,
-  getFollowing,
-  getFollowers,
-  getMyFollowingTopics,
-  updateMyProfile,
-  getUserArticles,
-  getRandomUsers,
-  searchUser,
-};
+export default { banAUser, unBanAUser, updateUserBan, getAllUsers };

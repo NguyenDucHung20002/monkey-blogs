@@ -1,4 +1,4 @@
-const { env } = require("../config/env");
+import env from "../config/env.js";
 
 const addUrlToImg = (img) => {
   if (!img) {
@@ -12,4 +12,4 @@ const addUrlToImg = (img) => {
   return img;
 };
 
-module.exports = addUrlToImg;
+export default addUrlToImg;

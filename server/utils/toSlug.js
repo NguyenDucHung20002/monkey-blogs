@@ -9,4 +9,4 @@ const toSlug = (string) => {
   return slug;
 };
 
-module.exports = toSlug;
+export default toSlug;

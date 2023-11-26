@@ -1,11 +1,11 @@
-const Joi = require("./joi");
+import Joi from "joi";
 
-const createSchema = Joi.object({
-  name: Joi.string().min(2).required(),
+const createTopicSchema = Joi.object({
+  name: Joi.string().min(1).required(),
 });
 
-const updateSchema = Joi.object({
-  name: Joi.string().min(2),
+const updateTopicSchema = Joi.object({
+  name: Joi.string().min(1),
 });
 
-module.exports = { createSchema, updateSchema };
+export default { createTopicSchema, updateTopicSchema };
