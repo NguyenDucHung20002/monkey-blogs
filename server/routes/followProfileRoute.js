@@ -32,7 +32,7 @@ router.get(
 );
 
 router.get(
-  "/:username/follower",
+  "/:username/followers",
   optionalAuth,
   fetchMe,
   checkBanned,

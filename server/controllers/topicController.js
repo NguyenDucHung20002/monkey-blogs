@@ -85,15 +85,14 @@ const getATopic = asyncMiddleware(async (req, res, next) => {
 
 // ==================== get all topics ==================== //
 const getAllTopics = asyncMiddleware(async (req, res, next) => {
-  const { skip = 0, limit = 15 } = req.query;
+  const { skip, limit = 15, search, sort } = req.query;
 
   const topics = await Topic.findAll({
     where: { id: { [Op.gt]: skip } },
     attributes: ["id", "name", "slug"],
     limit: Number(limit) && Number.isInteger(limit) ? limit : 15,
+    order: [["status", sort]],
   });
-
-  const newSkip = topics.length > 0 ? topics[topics.length - 1].id : null;
 
   res.json({ success: true, data: topics, newSkip });
 });
