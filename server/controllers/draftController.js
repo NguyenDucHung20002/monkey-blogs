@@ -28,6 +28,7 @@ const updateADraft = asyncMiddleware(async (req, res, next) => {
 
   const draft = await Draft.findOne({
     where: { id, authorId: me.profileInfo.id },
+    attributes: ["id"],
   });
 
   if (!draft) throw ErrorResponse(404, "Draft not found");
@@ -54,6 +55,7 @@ const getADraft = asyncMiddleware(async (req, res, next) => {
 
   const draft = await Draft.findOne({
     where: { id, authorId: me.profileInfo.id },
+    attributes: { exclude: ["authorId"] },
   });
 
   if (!draft) throw ErrorResponse(404, "Draft not found");

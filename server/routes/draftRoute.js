@@ -3,6 +3,8 @@ import draftController from "../controllers/draftController.js";
 import requiredAuth from "../middlewares/requiredAuth.js";
 import checkBanned from "../middlewares/checkBanned.js";
 import fetchMe from "../middlewares/fetchMe.js";
+import validator from "../middlewares/validator.js";
+import draftSchema from "../validations/draftSchema.js";
 
 const router = express.Router();
 
@@ -11,6 +13,7 @@ router.post(
   requiredAuth,
   fetchMe,
   checkBanned,
+  validator(draftSchema.createDraftSchema, "body"),
   draftController.createADraft
 );
 
@@ -19,6 +22,7 @@ router.patch(
   requiredAuth,
   fetchMe,
   checkBanned,
+  validator(draftSchema.updateDraftSchema, "body"),
   draftController.updateADraft
 );
 
