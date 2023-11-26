@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 const apiFollowUser = async (username, token) => {
   const res = await axios
     .post(
-      `${config.SERVER_HOST}/follow-user/${username}/follow-unfollow`,
+      `${config.SERVER_HOST}/follow-profile/${username}`,
       {},
       {
         headers: {

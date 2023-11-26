@@ -15,6 +15,7 @@ const apiGetArticleSkip = async (skipId, token) => {
     );
     if (response.data) return response.data;
   } catch (error) {
+    console.log("error:", error);
     toast.error("Some thing was wrong!", {
       pauseOnHover: false,
       delay: 500,

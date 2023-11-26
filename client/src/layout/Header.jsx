@@ -13,8 +13,9 @@ import DropdownSearchMain from "../components/dropdown/DropdownSearchMain";
 import useClickOutSide from "../hooks/useClickOutSide";
 import apiUserSearch from "../api/apiUserSearch";
 import apiTopicsSearch from "../api/apiTopicsSearch";
-import { icons } from "../utils/constants";
-import  Notify  from "../modules/notification/Notify";
+import { config, icons } from "../utils/constants";
+import Notify from "../modules/notification/Notify";
+import axios from "axios";
 
 const HomeStyle = styled.header`
   .wrapper {
@@ -37,22 +38,45 @@ const Header = () => {
   const [users, setUsers] = useState([]);
   const [topics, setTopics] = useState([]);
   const { show, setShow, nodeRef } = useClickOutSide("searchMain");
-  const { show: showNotification,setShow: setShowNotification ,nodeRef: nodeRefNotification  } = useClickOutSide("notify");
+  const {
+    show: showNotification,
+    setShow: setShowNotification,
+    nodeRef: nodeRefNotification,
+  } = useClickOutSide("notify");
   const [showSearch, setShowSearch] = useState(false);
 
-  const handleSignOut = () => {
+  const handleSignOut = async () => {
     setUserInfo({});
+    const token = localStorage.getItem("token");
     localStorage.removeItem("token");
+    try {
+      const response = await axios.post(
+        `${config.SERVER_HOST}/auth/login`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (response.data) setUserInfo(response.data);
+    } catch (error) {
+      if (error.response.status === 401) {
+        localStorage.removeItem("token");
+        navigate("/sign-in");
+      }
+    }
     navigate("/sign-in");
   };
 
-  const content = useCallback(function (username, fullname) {
+  const content = useCallback(function (username) {
     return (
       <div className="w-[250px] block">
         <h2 className="pb-2 text-sm font-semibold border-b border-gray-300">
-          {fullname && fullname?.length > 8
-            ? fullname.slice(0, 8) + "..."
-            : fullname}
+          {username && username?.length > 8
+            ? username.slice(0, 8) + "..."
+            : username}
         </h2>
         <NavLink to={`/write`} className="md:hidden">
           <div className="flex items-center justify-start my-4">
@@ -162,7 +186,7 @@ const Header = () => {
                 <Space direction="vertical" wrap size={16} className="p-1 ml-5">
                   <Popover
                     placement="bottomRight"
-                    content={() => content(data?.username, data?.fullname)}
+                    content={() => content(data?.username, data?.username)}
                     trigger="click"
                   >
                     <Avatar
@@ -172,7 +196,9 @@ const Header = () => {
                     />
                   </Popover>
                 </Space>
-                {showNotification && <Notify ref={nodeRefNotification} ></Notify>}
+                {showNotification && (
+                  <Notify ref={nodeRefNotification}></Notify>
+                )}
               </div>
             </div>
             {showSearch && (

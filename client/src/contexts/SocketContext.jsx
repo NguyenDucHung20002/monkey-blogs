@@ -1,10 +1,8 @@
 // SocketContext.js
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { io } from 'socket.io-client';
-import { useAuth } from './auth-context';
-import apiGetNotification from '../api/apiGetNotification';
-
-
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { io } from "socket.io-client";
+import { useAuth } from "./auth-context";
+import apiGetNotification from "../api/apiGetNotification";
 
 const SocketContext = createContext();
 export function useSocket() {
@@ -24,34 +22,35 @@ export function SocketProvider({ children }) {
     setNotifications(profileUser);
   }
 
-  useEffect(() => {
-    const newSocket = io('http://localhost:5000');
-    setSocket(newSocket);
-    fetchNotification();
-    return () => {
-      newSocket.disconnect();
-    };
-  }, []);
+  // useEffect(() => {
+  //   const newSocket = io("http://localhost:5000");
+  //   if (newSocket) return;
+  //   setSocket(newSocket);
+  //   fetchNotification();
+  //   return () => {
+  //     newSocket.disconnect();
+  //   };
+  // }, []);
 
   useEffect(() => {
-    socket?.emit("newUser",{userName})
+    socket?.emit("newUser", { userName });
     socket?.on("getNotification", (data) => {
       setNotifications(data);
     });
-    socket?.on("error",(data)=>{
-      setError(data)
-    })
-  },[socket]);
+    socket?.on("error", (data) => {
+      setError(data);
+    });
+  }, [socket]);
 
-  useEffect(()=>{
-    if(error){
-      console.log("Error Socket:",error);
+  useEffect(() => {
+    if (error) {
+      console.log("Error Socket:", error);
     }
-  },[error])
+  }, [error]);
 
-  const sendNotification = ( receiverName, type, slug) => {
-    socket.emit('sendNotification', {
-      senderName:userName,
+  const sendNotification = (receiverName, type, slug) => {
+    socket.emit("sendNotification", {
+      senderName: userName,
       receiverName,
       type,
       slug,
@@ -62,10 +61,8 @@ export function SocketProvider({ children }) {
     socket,
     sendNotification,
     notifications,
-  }
+  };
   return (
-    <SocketContext.Provider value={value}>
-      {children}
-    </SocketContext.Provider>
+    <SocketContext.Provider value={value}>{children}</SocketContext.Provider>
   );
 }

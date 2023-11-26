@@ -20,7 +20,7 @@ const SignInPage = () => {
       <Button
         hover="#0984e3"
         type="button"
-        to={"http://localhost:8080/api/auth/google"}
+        to={"http://localhost:8080/api/v1/auth/google"}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"

@@ -4,7 +4,7 @@ import { config } from "../utils/constants";
 const apiProfile = async (token, username) => {
   try {
     const res = await axios
-      .get(`${config.SERVER_HOST}/user/${username}`, {
+      .get(`${config.SERVER_HOST}/profile/${username}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -13,9 +13,9 @@ const apiProfile = async (token, username) => {
       .catch((err) => {
         console.log(err);
       });
-    if (!res?.data.success){
-      return null
-    } 
+    if (!res?.data.success) {
+      return null;
+    }
     return res.data.data;
   } catch (error) {
     console.log("error:", error);

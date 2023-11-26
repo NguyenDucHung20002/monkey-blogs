@@ -18,7 +18,7 @@ const apiAddTopic = async (token, name) => {
     if (response.data.success) {
       toast.success("Add successfully!", {
         pauseOnHover: false,
-        delay: 500,
+        delay: 300,
       });
       return true;
     }

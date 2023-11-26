@@ -20,6 +20,7 @@ function AuthProvider(props) {
       setSearchParams("");
     }
     const token = localStorage.getItem("token");
+    console.log("token:", token);
     if (!token) navigate("/sign-in");
     async function fetcher() {
       try {
