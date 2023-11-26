@@ -85,16 +85,39 @@ const getATopic = asyncMiddleware(async (req, res, next) => {
 
 // ==================== get all topics ==================== //
 const getAllTopics = asyncMiddleware(async (req, res, next) => {
-  const { skip, limit = 15, search, sort } = req.query;
+  const { skipId, skipStatus, limit = 5, search, sort = "ASC" } = req.query;
+
+  let whereQuery = {};
+
+  if (search) {
+    whereQuery.slug = { [Op.substring]: search };
+  }
+
+  if (skipId && skipStatus) {
+    whereQuery[Op.or] = [
+      { status: { [Op.lt]: skipStatus } },
+      { [Op.and]: [{ status: skipStatus }, { id: { [Op.gt]: skipId } }] },
+    ];
+  }
+
+  if (skipId && skipStatus && sort === "DESC") {
+    whereQuery[Op.or] = [
+      { status: { [Op.gt]: skipStatus } },
+      { [Op.and]: [{ status: skipStatus }, { id: { [Op.gt]: skipId } }] },
+    ];
+  }
 
   const topics = await Topic.findAll({
-    where: { id: { [Op.gt]: skip } },
-    attributes: ["id", "name", "slug"],
-    limit: Number(limit) && Number.isInteger(limit) ? limit : 15,
+    where: whereQuery,
     order: [["status", sort]],
+    limit: Number(limit) && Number.isInteger(limit) ? limit : 15,
   });
 
-  res.json({ success: true, data: topics, newSkip });
+  const newSkipId = topics.length > 0 ? topics[topics.length - 1].id : null;
+  const newSkipStatus =
+    topics.length > 0 ? topics[topics.length - 1].status : null;
+
+  res.json({ success: true, data: topics, newSkipId, newSkipStatus });
 });
 
 export default {

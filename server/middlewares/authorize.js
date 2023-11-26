@@ -4,9 +4,9 @@ const authorize =
   (...role) =>
   (req, res, next) => {
     try {
-      const user = req.user;
+      const me = req.me;
 
-      if (!role.includes(user.role.slug)) {
+      if (!role.includes(me.role.slug)) {
         return res.status(403).json({
           success: false,
           message: "No Permission",
