@@ -6,6 +6,7 @@ import Topic from "../models/mysql/Topic.js";
 import Article_Topic from "../models/mysql/Article_Topic.js";
 import User from "../models/mysql/User.js";
 import Profile from "../models/mysql/Profile.js";
+import { Op } from "sequelize";
 
 // ==================== create article ==================== //
 const createArticle = asyncMiddleware(async (req, res, next) => {
@@ -207,6 +208,27 @@ const getProfileArticles = asyncMiddleware(async (req, res, next) => {
   res.json({ success: true, articles, newSkip });
 });
 
+// ==================== get all articles ==================== //
+const getAllArticles = asyncMiddleware(async (req, res, next) => {
+  const { skip, limit = 15 } = req.query;
+
+  let query = {
+    attributes: {
+      exclude: ["content", "likesCount", "commentsCount", "banner", "authorId"],
+    },
+    order: [["id", "DESC"]],
+    limit: Number(limit) && Number.isInteger(limit) ? limit : 15,
+  };
+
+  if (skip) query.where = { id: { [Op.lt]: skip } };
+
+  const articles = await Article.findAll(query);
+
+  const newSkip = articles.length > 0 ? articles[articles.length - 1].id : null;
+
+  res.json({ success: true, data: articles, newSkip });
+});
+
 export default {
   createArticle,
   updateArticle,
@@ -214,4 +236,5 @@ export default {
   getMyPendingArticles,
   getMyApprovedArticles,
   getProfileArticles,
+  getAllArticles,
 };

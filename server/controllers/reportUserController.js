@@ -80,7 +80,7 @@ const getPendingReportedUsers = asyncMiddleware(async (req, res, next) => {
     ];
   }
 
-  let reports = await Report_User.findAll({
+  const reports = await Report_User.findAll({
     where: { status: "pending" },
     attributes: ["reportedId"],
     include: [
@@ -90,29 +90,17 @@ const getPendingReportedUsers = asyncMiddleware(async (req, res, next) => {
         attributes: {
           exclude: ["roleId", "createdAt", "updatedAt", "bannedById"],
         },
-        include: { model: User, as: "bannedBy", attributes: ["username"] },
+        include: {
+          model: User,
+          as: "bannedBy",
+          attributes: ["username", "email"],
+        },
         where: whereQuery,
       },
     ],
     order: [[{ model: User, as: "reported" }, "reportsCount", "DESC"]],
     group: ["reportedId"],
     limit: Number(limit) && Number.isInteger(limit) ? limit : 15,
-  });
-
-  reports = reports.map((reportedUser) => {
-    return {
-      id: reportedUser.reported.id,
-      email: reportedUser.reported.email,
-      username: reportedUser.reported.username,
-      reportsCount: reportedUser.reported.reportsCount,
-      bannedsCount: reportedUser.reported.bannedsCount,
-      banType: reportedUser.reported.banType,
-      bannedUntil: reportedUser.reported.bannedUntil,
-      bannedBy: reportedUser.reported.bannedBy
-        ? reportedUser.reported.bannedBy.username
-        : null,
-      status: reportedUser.reported.status,
-    };
   });
 
   const newSkipId = reports.length > 0 ? reports[reports.length - 1].id : null;
@@ -140,18 +128,6 @@ const getReportsOfUser = asyncMiddleware(async (req, res, next) => {
     ],
     order: [["id", "DESC"]],
     limit: Number(limit) && Number.isInteger(limit) ? limit : 15,
-  });
-
-  reports = reports.map((report) => {
-    return {
-      id: report.id,
-      reason: report.reason,
-      description: report.description,
-      status: report.status,
-      reporter: report.reporter.username,
-      createdAt: report.createdAt,
-      updatedAt: report.updatedAt,
-    };
   });
 
   const newSkip = reports.length > 0 ? reports[reports.length - 1].id : null;

@@ -4,6 +4,7 @@ import requiredAuth from "../middlewares/requiredAuth.js";
 import checkBanned from "../middlewares/checkBanned.js";
 import fetchMe from "../middlewares/fetchMe.js";
 import optionalAuth from "../middlewares/optionalAuth.js";
+import authorize from "../middlewares/authorize.js";
 
 const router = express.Router();
 
@@ -53,6 +54,14 @@ router.get(
   fetchMe,
   checkBanned,
   articleController.getProfileArticles
+);
+
+router.get(
+  "/",
+  requiredAuth,
+  fetchMe,
+  authorize("admin", "staff"),
+  articleController.getAllArticles
 );
 
 export default router;

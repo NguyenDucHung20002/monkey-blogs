@@ -137,27 +137,12 @@ const getAllUsers = asyncMiddleware(async (req, res, next) => {
     ];
   }
 
-  let users = await User.findAll({
+  const users = await User.findAll({
     where: whereQuery,
     attributes: { exclude: ["roleId", "bannedById"] },
-    include: { model: User, as: "bannedBy", attributes: ["username"] },
+    include: { model: User, as: "bannedBy", attributes: ["email", "username"] },
     limit: Number(limit) && Number.isInteger(limit) ? limit : 15,
     order: [["reportsCount", "DESC"]],
-  });
-
-  users = users.map((user) => {
-    return {
-      id: user.id,
-      username: user.username,
-      reportsCount: user.reportsCount,
-      bannedsCount: user.bannedsCount,
-      banType: user.banType,
-      bannedUntil: user.bannedUntil,
-      status: user.status,
-      bannedBy: user.bannedBy ? user.bannedBy.username : null,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-    };
   });
 
   const newSkip = users.length > 0 ? users[users.length - 1].id : null;

@@ -4,6 +4,7 @@ import Topic from "../models/mysql/Topic.js";
 import { Op } from "sequelize";
 import ErrorResponse from "../responses/ErrorResponse.js";
 import Follow_Topic from "../models/mysql/Follow_Topic.js";
+import User from "../models/mysql/User.js";
 
 // ==================== create topic ==================== //
 const createTopic = asyncMiddleware(async (req, res, next) => {
@@ -85,40 +86,52 @@ const getATopic = asyncMiddleware(async (req, res, next) => {
 
 // ==================== get all topics ==================== //
 const getAllTopics = asyncMiddleware(async (req, res, next) => {
-  const { skipId = 0, skipStas, limit = 15, search, sort = "ASC" } = req.query;
+  const { skip = 0, limit = 15, search } = req.query;
   const me = req.me ? req.me : null;
 
-  let query = { id: { [Op.gt]: skipId }, attributes: ["id", "name", "slug"] };
+  let query = { id: { [Op.gt]: skip }, attributes: ["id", "name", "slug"] };
 
   if (me && (me.role.slug === "admin" || me.role.slug === "staff")) {
-    query = { order: [["status", sort]] };
+    query = {
+      order: [["id", "DESC"]],
+      include: {
+        model: User,
+        as: "approvedBy",
+        attributes: ["email", "username"],
+      },
+      attributes: { exclude: ["approvedById"] },
+    };
 
-    if (search) query.slug = { [Op.substring]: search };
+    if (skip) query.where = { id: { [Op.lt]: skip } };
 
-    if (skipId && skipStas) {
-      query[Op.or] = [
-        { status: { [Op.lt]: skipStas } },
-        { [Op.and]: [{ status: skipStas }, { id: { [Op.gt]: skipId } }] },
-      ];
-    }
-
-    if (skipId && skipStas && sort === "DESC") {
-      query[Op.or] = [
-        { status: { [Op.gt]: skipStas } },
-        { [Op.and]: [{ status: skipStas }, { id: { [Op.gt]: skipId } }] },
-      ];
-    }
+    if (search) query.where[Op.and] = { slug: { [Op.substring]: search } };
   }
 
   query.limit = Number(limit) && Number.isInteger(limit) ? limit : 15;
 
   const topics = await Topic.findAll(query);
 
-  const newSkipId = topics.length > 0 ? topics[topics.length - 1].id : null;
-  const newSkipStas =
-    topics.length > 0 ? topics[topics.length - 1].status : null;
+  const newSkip = topics.length > 0 ? topics[topics.length - 1].id : null;
 
-  res.json({ success: true, data: topics, newSkipId, newSkipStas });
+  res.json({ success: true, data: topics, newSkip });
+});
+
+// ==================== mark topic as approved ==================== //
+const martTopicAsApproved = asyncMiddleware(async (req, res, next) => {
+  const me = req.me;
+  const { id } = req.params;
+
+  const topic = await Topic.findByPk(id);
+
+  if (!topic) throw ErrorResponse(404, "Topic not found ");
+
+  if (topic.status === "approved") {
+    throw ErrorResponse(400, "Topic already arrpoved");
+  }
+
+  await topic.update({ status: "approved", approvedById: me.id });
+
+  res.json({ success: true, message: `${topic.name} approved successfully` });
 });
 
 export default {
@@ -127,4 +140,5 @@ export default {
   deleteTopic,
   getATopic,
   getAllTopics,
+  martTopicAsApproved,
 };

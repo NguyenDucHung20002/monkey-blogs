@@ -193,3 +193,12 @@ Article_Topic.belongsTo(Topic, {
   foreignKey: "topicId",
   as: "topic",
 });
+
+// User - Topic (1-n)
+User.hasMany(Topic, {
+  foreignKey: "approvedById",
+});
+Topic.belongsTo(User, {
+  foreignKey: "approvedById",
+  as: "approvedBy",
+});

@@ -44,6 +44,14 @@ router.get(
   topicController.getATopic
 );
 
+router.patch(
+  "/:id/approve",
+  requiredAuth,
+  fetchMe,
+  authorize("admin", "staff"),
+  topicController.martTopicAsApproved
+);
+
 router.get("/", optionalAuth, fetchMe, topicController.getAllTopics);
 
 export default router;
