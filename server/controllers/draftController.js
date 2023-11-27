@@ -76,7 +76,7 @@ const getMyDrafts = asyncMiddleware(async (req, res, next) => {
     where: { authorId: me.profileInfo.id },
     attributes: ["id", "title", "createdAt", "updatedAt"],
     order: [["id", "DESC"]],
-    limit: Number(limit) && Number.isInteger(limit) ? limit : 15,
+    limit: Number(limit) ? Number(limit) : 15,
   });
 
   const newSkip = drafts.length > 0 ? drafts[drafts.length - 1].id : null;

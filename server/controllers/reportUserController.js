@@ -4,6 +4,7 @@ import User from "../models/mysql/User.js";
 import ErrorResponse from "../responses/ErrorResponse.js";
 import Report_User from "../models/mysql/Report_User.js";
 import { Op } from "sequelize";
+import Role from "../models/mysql/Role.js";
 
 // ==================== report a user ==================== //
 const reportAUser = asyncMiddleware(async (req, res, next) => {
@@ -28,7 +29,11 @@ const reportAUser = asyncMiddleware(async (req, res, next) => {
   }
 
   const reportUser = await Report_User.findOne({
-    where: { reportedId: profile.userInfo.id, reporterId: me.id },
+    where: {
+      reportedId: profile.userInfo.id,
+      reporterId: me.id,
+      status: "pending",
+    },
     attributes: ["id", "status"],
   });
 
@@ -93,25 +98,28 @@ const getPendingReportedUsers = asyncMiddleware(async (req, res, next) => {
         include: {
           model: User,
           as: "bannedBy",
-          attributes: ["username", "email"],
+          attributes: ["id", "username", "email"],
         },
         where: whereQuery,
       },
     ],
     order: [[{ model: User, as: "reported" }, "reportsCount", "DESC"]],
     group: ["reportedId"],
-    limit: Number(limit) && Number.isInteger(limit) ? limit : 15,
+    limit: Number(limit) ? Number(limit) : 15,
   });
 
-  const newSkipId = reports.length > 0 ? reports[reports.length - 1].id : null;
+  const newSkipId =
+    reports.length > 0 ? reports[reports.length - 1].reportedId : null;
   const newSkipReportsCount =
-    reports.length > 0 ? reports[reports.length - 1].reportsCount : null;
+    reports.length > 0
+      ? reports[reports.length - 1].reported.reportsCount
+      : null;
 
   res.json({ success: true, data: reports, newSkipId, newSkipReportsCount });
 });
 
-// ==================== Get reports of the user ==================== //
-const getReportsOfUser = asyncMiddleware(async (req, res, next) => {
+// ==================== Get pending reports of the user ==================== //
+const getPendingReportsOfUser = asyncMiddleware(async (req, res, next) => {
   const { skip, limit = 15 } = req.query;
   const { id } = req.params;
 
@@ -124,10 +132,54 @@ const getReportsOfUser = asyncMiddleware(async (req, res, next) => {
     attributes: { exclude: ["reportedId", "reporterId", "resolvedById"] },
     include: [
       { model: User, as: "reported", where: { id }, attributes: [] },
-      { model: User, as: "reporter", attributes: ["username", "email"] },
+      { model: User, as: "reporter", attributes: ["id", "username", "email"] },
+      {
+        model: User,
+        as: "resolvedBy",
+        attributes: ["id", "username", "email"],
+        include: {
+          model: Role,
+          as: "role",
+          attributes: ["name", "slug"],
+        },
+      },
     ],
     order: [["id", "DESC"]],
-    limit: Number(limit) && Number.isInteger(limit) ? limit : 15,
+    limit: Number(limit) ? Number(limit) : 15,
+  });
+
+  const newSkip = reports.length > 0 ? reports[reports.length - 1].id : null;
+
+  res.json({ success: true, data: reports, newSkip });
+});
+
+// ==================== Get resolved reports ==================== //
+const getResolvedReports = asyncMiddleware(async (req, res, next) => {
+  const { skip, limit = 15 } = req.query;
+
+  let whereQuery = { status: "resolved" };
+
+  if (skip) whereQuery.id = { [Op.lt]: skip };
+
+  let reports = await Report_User.findAll({
+    where: whereQuery,
+    attributes: { exclude: ["reportedId", "reporterId", "resolvedById"] },
+    include: [
+      { model: User, as: "reported", attributes: ["id", "username", "email"] },
+      { model: User, as: "reporter", attributes: ["id", "username", "email"] },
+      {
+        model: User,
+        as: "resolvedBy",
+        attributes: ["id", "username", "email"],
+        include: {
+          model: Role,
+          as: "role",
+          attributes: ["name", "slug"],
+        },
+      },
+    ],
+    order: [["id", "DESC"]],
+    limit: Number(limit) ? Number(limit) : 15,
   });
 
   const newSkip = reports.length > 0 ? reports[reports.length - 1].id : null;
@@ -137,6 +189,7 @@ const getReportsOfUser = asyncMiddleware(async (req, res, next) => {
 
 // ==================== Mark all reports of the user as resolved ==================== //
 const markAllResolved = asyncMiddleware(async (req, res, next) => {
+  const me = req.me;
   const { id } = req.params;
 
   const reported = await User.findByPk(id, {
@@ -147,7 +200,7 @@ const markAllResolved = asyncMiddleware(async (req, res, next) => {
 
   await Promise.all([
     Report_User.update(
-      { status: "resolved" },
+      { status: "resolved", resolvedById: me.id },
       { where: { status: "pending", reportedId: reported.id } }
     ),
     reported.update({ reportsCount: 0 }),
@@ -156,9 +209,30 @@ const markAllResolved = asyncMiddleware(async (req, res, next) => {
   res.json({ success: true });
 });
 
+// ==================== Mark a report of the user as resolved ==================== //
+const markAReportAsResolved = asyncMiddleware(async (req, res, next) => {
+  const me = req.me;
+  const { id } = req.params;
+
+  const report = await Report_User.findByPk(id, {
+    attributes: ["id"],
+  });
+
+  if (!report) throw ErrorResponse(404, "Report not found");
+
+  await report.update({ status: "resolved", resolvedById: me.id });
+
+  res.json({
+    success: true,
+    message: "Report marked as resolved successfully",
+  });
+});
+
 export default {
   reportAUser,
   getPendingReportedUsers,
-  getReportsOfUser,
+  getPendingReportsOfUser,
   markAllResolved,
+  markAReportAsResolved,
+  getResolvedReports,
 };

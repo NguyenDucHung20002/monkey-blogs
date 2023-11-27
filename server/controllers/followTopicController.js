@@ -32,7 +32,7 @@ const followATopic = asyncMiddleware(async (req, res, next) => {
 
   res.status(201).json({
     success: true,
-    message: `Successfully followed ${topic.name}`,
+    message: `Successfully followed topic ${topic.name}`,
   });
 });
 
@@ -62,7 +62,10 @@ const unFollowATopic = asyncMiddleware(async (req, res, next) => {
     ]);
   }
 
-  res.json({ success: true, message: `Successfully unfollowed ${topic.name}` });
+  res.json({
+    success: true,
+    message: `Successfully unfollowed topic ${topic.name}`,
+  });
 });
 
 // ==================== get my followed topics ==================== //
@@ -78,7 +81,7 @@ const getMyFollowedTopics = asyncMiddleware(async (req, res, next) => {
       as: "topicFollower",
       attributes: { exclude: ["status", "createdAt", "updatedAt"] },
     },
-    limit: Number(limit) && Number.isInteger(limit) ? limit : 15,
+    limit: Number(limit) ? Number(limit) : 15,
   });
 
   const followedTopics = followTopics.map((followTopic) => {

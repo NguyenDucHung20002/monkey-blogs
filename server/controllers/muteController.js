@@ -81,7 +81,7 @@ const getMutedProfiles = asyncMiddleware(async (req, res, next) => {
       attributes: ["id", "fullname", "avatar", "bio"],
       include: { model: User, as: "userInfo", attributes: ["username"] },
     },
-    limit: Number(limit) && Number.isInteger(limit) ? limit : 15,
+    limit: Number(limit) ? Number(limit) : 15,
   });
 
   const muteds = mutedProfiles.map((mutedProfile) => {

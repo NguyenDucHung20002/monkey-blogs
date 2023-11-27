@@ -3,6 +3,7 @@ import asyncMiddleware from "../middlewares/asyncMiddleware.js";
 import User from "../models/mysql/User.js";
 import ErrorResponse from "../responses/ErrorResponse.js";
 import Profile from "../models/mysql/Profile.js";
+import Role from "../models/mysql/Role.js";
 
 // ==================== ban a user ==================== //
 const banAUser = asyncMiddleware(async (req, res, next) => {
@@ -140,8 +141,13 @@ const getAllUsers = asyncMiddleware(async (req, res, next) => {
   const users = await User.findAll({
     where: whereQuery,
     attributes: { exclude: ["roleId", "bannedById"] },
-    include: { model: User, as: "bannedBy", attributes: ["email", "username"] },
-    limit: Number(limit) && Number.isInteger(limit) ? limit : 15,
+    include: {
+      model: User,
+      as: "bannedBy",
+      attributes: ["email", "username"],
+      include: { model: Role, as: "role", attributes: ["name", "slug"] },
+    },
+    limit: Number(limit) ? Number(limit) : 15,
     order: [["reportsCount", "DESC"]],
   });
 

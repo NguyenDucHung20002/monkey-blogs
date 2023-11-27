@@ -28,11 +28,19 @@ router.get(
 );
 
 router.get(
-  "/:id",
+  "/resolved",
   requiredAuth,
   fetchMe,
   authorize("staff", "admin"),
-  reportUserController.getReportsOfUser
+  reportUserController.getResolvedReports
+);
+
+router.get(
+  "/:id/pending",
+  requiredAuth,
+  fetchMe,
+  authorize("staff", "admin"),
+  reportUserController.getPendingReportsOfUser
 );
 
 router.patch(
@@ -41,6 +49,14 @@ router.patch(
   fetchMe,
   authorize("staff", "admin"),
   reportUserController.markAllResolved
+);
+
+router.patch(
+  "/report/:id/resolve",
+  requiredAuth,
+  fetchMe,
+  authorize("staff", "admin"),
+  reportUserController.markAReportAsResolved
 );
 
 export default router;

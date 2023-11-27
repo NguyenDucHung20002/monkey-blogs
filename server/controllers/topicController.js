@@ -5,6 +5,7 @@ import { Op } from "sequelize";
 import ErrorResponse from "../responses/ErrorResponse.js";
 import Follow_Topic from "../models/mysql/Follow_Topic.js";
 import User from "../models/mysql/User.js";
+import Role from "../models/mysql/Role.js";
 
 // ==================== create topic ==================== //
 const createTopic = asyncMiddleware(async (req, res, next) => {
@@ -89,7 +90,10 @@ const getAllTopics = asyncMiddleware(async (req, res, next) => {
   const { skip = 0, limit = 15, search } = req.query;
   const me = req.me ? req.me : null;
 
-  let query = { id: { [Op.gt]: skip }, attributes: ["id", "name", "slug"] };
+  let query = {
+    where: { id: { [Op.gt]: skip } },
+    attributes: ["id", "name", "slug"],
+  };
 
   if (me && (me.role.slug === "admin" || me.role.slug === "staff")) {
     query = {
@@ -97,17 +101,19 @@ const getAllTopics = asyncMiddleware(async (req, res, next) => {
       include: {
         model: User,
         as: "approvedBy",
-        attributes: ["email", "username"],
+        attributes: ["id", "email", "username"],
+        include: { model: Role, as: "role", attributes: ["name", "slug"] },
       },
       attributes: { exclude: ["approvedById"] },
+      where: {},
     };
 
-    if (skip) query.where = { id: { [Op.lt]: skip } };
+    if (skip) query.where.id = { [Op.lt]: skip };
 
-    if (search) query.where[Op.and] = { slug: { [Op.substring]: search } };
+    if (search) query.where.slug = { [Op.substring]: search };
   }
 
-  query.limit = Number(limit) && Number.isInteger(limit) ? limit : 15;
+  query.limit = Number(limit) ? Number(limit) : 15;
 
   const topics = await Topic.findAll(query);
 
@@ -126,12 +132,15 @@ const martTopicAsApproved = asyncMiddleware(async (req, res, next) => {
   if (!topic) throw ErrorResponse(404, "Topic not found ");
 
   if (topic.status === "approved") {
-    throw ErrorResponse(400, "Topic already arrpoved");
+    throw ErrorResponse(400, "Topic already approved");
   }
 
   await topic.update({ status: "approved", approvedById: me.id });
 
-  res.json({ success: true, message: `${topic.name} approved successfully` });
+  res.json({
+    success: true,
+    message: `Topic ${topic.name} approved successfully`,
+  });
 });
 
 export default {

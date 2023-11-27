@@ -81,16 +81,16 @@ User.belongsTo(User, {
 });
 
 // Report - User (n-n)
-User.belongsToMany(User, {
-  through: Report_User,
-  foreignKey: "reportedId",
-  as: "reporters",
-});
-User.belongsToMany(User, {
-  through: Report_User,
-  foreignKey: "reporterId",
-  as: "reporteds",
-});
+// User.belongsToMany(User, {
+//   through: Report_User,
+//   foreignKey: "reportedId",
+//   as: "reporters",
+// });
+// User.belongsToMany(User, {
+//   through: Report_User,
+//   foreignKey: "reporterId",
+//   as: "reporteds",
+// });
 Report_User.belongsTo(User, {
   foreignKey: "reportedId",
   as: "reported",
@@ -98,6 +98,9 @@ Report_User.belongsTo(User, {
 Report_User.belongsTo(User, {
   foreignKey: "reporterId",
   as: "reporter",
+});
+User.hasMany(Report_User, {
+  foreignKey: "resolvedById",
 });
 Report_User.belongsTo(User, {
   foreignKey: "resolvedById",

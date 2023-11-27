@@ -32,8 +32,6 @@ export default {
     process.env.GOOGLE_CLIENT_SECRET || "your google client secret",
 
   getMongodbUri() {
-    return this.MONGODB_USERNAME && this.MONGODB_PASSWORD
-      ? `mongodb://${this.MONGODB_USERNAME}:${this.MONGODB_PASSWORD}@${this.MONGODB_HOST}:${this.MONGODB_PORT}/${this.MONGODB_DATABASE}?authSource=admin`
-      : `mongodb://${this.MONGODB_HOST}:${this.MONGODB_PORT}/${this.MONGODB_DATABASE}`;
+    return `mongodb://${this.MONGODB_HOST}:${this.MONGODB_PORT}/${this.MONGODB_DATABASE}`;
   },
 };

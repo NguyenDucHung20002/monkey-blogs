@@ -115,7 +115,7 @@ const getFolloweds = asyncMiddleware(async (req, res, next) => {
       attributes: ["id", "fullname", "avatar", "bio"],
       include: { model: User, as: "userInfo", attributes: ["username"] },
     },
-    limit: Number(limit) && Number.isInteger(limit) ? limit : null,
+    limit: Number(limit) ? Number(limit) : null,
   });
 
   let followeds;
@@ -190,7 +190,7 @@ const getFolloweds = asyncMiddleware(async (req, res, next) => {
           include: { model: User, as: "userInfo", attributes: ["username"] },
         },
       ],
-      limit: Number(limit) && Number.isInteger(limit) ? limit : null,
+      limit: Number(limit) ? Number(limit) : null,
     });
 
     followeds = await Promise.all(
@@ -250,7 +250,7 @@ const getFollowers = asyncMiddleware(async (req, res, next) => {
       attributes: ["id", "fullname", "avatar", "bio"],
       include: { model: User, as: "userInfo", attributes: ["username"] },
     },
-    limit: Number(limit) && Number.isInteger(limit) ? limit : null,
+    limit: Number(limit) ? Number(limit) : null,
   });
 
   let followers;
@@ -332,7 +332,7 @@ const getFollowers = asyncMiddleware(async (req, res, next) => {
           include: { model: User, as: "userInfo", attributes: ["username"] },
         },
       ],
-      limit: Number(limit) && Number.isInteger(limit) ? limit : null,
+      limit: Number(limit) ? Number(limit) : null,
     });
 
     followers = await Promise.all(
