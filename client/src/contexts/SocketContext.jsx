@@ -2,7 +2,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import { useAuth } from "./auth-context";
-import { apiGetNotification } from "../api/api";
+// import { apiGetNotification } from "../api/api";
 
 const SocketContext = createContext();
 export function useSocket() {
@@ -17,10 +17,10 @@ export function SocketProvider({ children }) {
   const userName = userInfo?.data?.username;
   const token = localStorage.getItem("token");
 
-  async function fetchNotification() {
-    const profileUser = await apiGetNotification(token);
-    setNotifications(profileUser);
-  }
+  // async function fetchNotification() {
+  //   const profileUser = await apiGetNotification(token);
+  //   setNotifications(profileUser);
+  // }
 
   // useEffect(() => {
   //   const newSocket = io("http://localhost:5000");

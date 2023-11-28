@@ -137,10 +137,10 @@ const apiFollowTopic = async (slug, token) => {
   return false;
 };
 
-const apiFollowUser = async (username, token) => {
+const apiFollowUser = async (userID, token) => {
   const res = await axios
     .post(
-      `${config.SERVER_HOST}/follow-profile/${username}`,
+      `${config.SERVER_HOST}/follow-profile/${userID}`,
       {},
       {
         headers: {
@@ -162,10 +162,9 @@ const apiFollowUser = async (username, token) => {
         });
       }
     });
-  if (res.data.success) {
+  if (res?.data.success) {
     return true;
   }
-
   return false;
 };
 
@@ -387,14 +386,14 @@ const apiGetTopics = async () => {
 const apiGetUserBlogs = async (username) => {
   try {
     const res = await axios
-      .get(`${config.SERVER_HOST}/follow-profile/${username}/follower`, {})
+      .get(`${config.SERVER_HOST}/article/${username}`, {})
       .catch((err) => {
         console.log(err);
       });
     if (!res?.data.success) {
-      return null;
+      return [];
     }
-    return res.data.data;
+    return res.data.articles;
   } catch (error) {
     console.log("error:", error);
   }
@@ -408,7 +407,7 @@ const apiGetUserFollowings = async (username) => {
         console.log(err);
       });
     if (!res?.data.success) {
-      return null;
+      return [];
     }
     return res.data.data;
   } catch (error) {
@@ -518,11 +517,10 @@ const apiTopicsSearch = async (inputSearch) => {
   }
 };
 
-const apiUnFollowUser = async (username, token) => {
+const apiUnFollowUser = async (userID, token) => {
   const res = await axios
     .delete(
-      `${config.SERVER_HOST}/follow-profile/${username}`,
-      {},
+      `${config.SERVER_HOST}/follow-profile/${userID}`,
       {
         headers: {
           authorization: `Bearer ${token}`,
@@ -543,7 +541,7 @@ const apiUnFollowUser = async (username, token) => {
         });
       }
     });
-  if (res.data.success) {
+  if (res?.data.success) {
     return true;
   }
 
@@ -632,6 +630,72 @@ const apiUserSearch = async (inputSearch) => {
   }
 };
 
+const apiUpdateProfile = async (token,formData) => {
+  try {
+    const res = await axios
+      .patch(`${config.SERVER_HOST}/profile/me/update`,formData,{
+        headers:{
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+    if (!res?.data.success) {
+      return false;
+    }
+    return true;
+  } catch (error) {
+    console.log("error:", error);
+  }
+};
+
+const apiMuteUser = async (type='post',token, userId) => {
+  try {
+    const data = await fetch(`${config.SERVER_HOST}/mute/${userId}`,{
+      method:type,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      }
+    }).then((response) => response.json())
+      .catch((err) => {
+        console.log(err);
+      });
+
+      if (!data?.success) {
+        console.log("apiMuteUser:",data.message);
+        return false;
+      }
+      return true;
+  } catch (error) {
+    console.log("error:", error);
+  }
+};
+
+const apiBlockUser = async (type='post',token, userId) => {
+  try {
+    const data = await fetch(`${config.SERVER_HOST}/block/${userId}`,{
+      method:type,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      }
+    }).then((response) => response.json())
+      .catch((err) => {
+        console.log(err);
+      });
+
+      if (!data?.success) {
+        console.log("apiBlockUser:",data.message);
+        return false;
+      }
+      return true;
+  } catch (error) {
+    console.log("error:", error);
+  }
+};
 export {
   apiAddTopic,
   apiAddComment,
@@ -662,4 +726,8 @@ export {
   apiUpdateArticle,
   apiUpdateTopic,
   apiUserSearch,
+  apiUpdateProfile,
+  apiMuteUser,
+  apiBlockUser,
+
 };

@@ -4,13 +4,12 @@ import { useState } from "react";
 import ButtonFollowingUser from "../button/ButtonFollowingUser.jsx";
 import { apiGetProfile } from "../../api/api.jsx";
 
-const Following = ({ data = [], token, countFollow }) => {
+const Following = ({ data = [], token, user }) => {
   const [userFollow, setUserFollow] = useState({});
   async function fetchUserInf(username) {
     const data = await apiGetProfile(token, username);
-    setUserFollow({ ...data });
+      setUserFollow({ ...data });
   }
-
   const SmallInf = () => {
     return (
       <>
@@ -25,10 +24,10 @@ const Following = ({ data = [], token, countFollow }) => {
           <div className="h-[1px] my-3 bg-stone-400"></div>
           <div className="flex items-center justify-between">
             <div className="">
-              <p>{countFollow?.follower} Followers</p>
+              <p>{userFollow?.followingCount} Followers</p>
             </div>
             <ButtonFollowingUser
-              username={userFollow?.username}
+              userId={userFollow?.id}
               initialFollowing={userFollow.isFollowed}
             />
           </div>
@@ -85,7 +84,7 @@ const Following = ({ data = [], token, countFollow }) => {
         </div>
         <div className="py-2 my-3">
           <button>
-            See all <span>({countFollow?.following})</span>
+            See all <span>({user?.followingCount})</span>
           </button>
         </div>
       </div>

@@ -2,19 +2,18 @@
 import ButtonFollowingUser from "../../components/button/ButtonFollowingUser";
 
 // eslint-disable-next-line react/prop-types
-const ProfileInfor = ({ setShow, user, isfollowed, username }) => {
-  const profile = user;
-  // console.log(profile);
+const ProfileInfor =({ setShow, user }) => {
+
   return (
     <>
       <div className="mb-8">
         <div className="w-20 h-20 overflow-hidden rounded-1/2 ">
-          <img className="w-full h-full" src={profile?.avatar} alt="" />
+          <img className="w-full h-full" src={user?.avatar} alt="" />
         </div>
-        <p className="my-4">{profile?.fullname}</p>
-        <p className="mb-4">{profile?.bio ? profile.bio : ""} </p>
-        <p className="mb-4">{profile?.about ? profile.about : ""}</p>
-        {user.isMe ? (
+        <p className="my-4">{user?.fullname}</p>
+        <p className="mb-4">{user?.bio ? user.bio : ""} </p>
+        <p className="mb-4">{user?.about ? user.about : ""}</p>
+        {user.isMyProfile ? (
           <button
             className="text-green-500 duration-300 hover:text-black"
             onClick={() => setShow(true)}
@@ -23,10 +22,10 @@ const ProfileInfor = ({ setShow, user, isfollowed, username }) => {
           </button>
         ) : (
           <div className="flex items-center">
-            <ButtonFollowingUser
-              username={username}
-              initialFollowing={isfollowed}
-            />
+              <ButtonFollowingUser
+                userId={user.id}
+                initialFollowing={user.isFollowed }
+              />
             <button className="ml-2 overflow-hidden bg-green-600 w-9 h-9 rounded-1/2">
               <svg
                 xmlns="http://www.w3.org/2000/svg"

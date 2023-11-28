@@ -63,12 +63,12 @@ const ProfileBlogs = ({ blogs, user, fetchDeleteArticle }) => {
             <div className="w-6 h-6 overflow-hidden rounded-1/2">
               <img
                 className="w-full h-full "
-                src={user.profile?.avatar}
+                src={user?.avatar}
                 alt=""
               />
             </div>
             <div className="flex items-center justify-between px-2">
-              {user.profile?.fullname}
+              {user?.fullname}
             </div>
           </div>
           <h1 className="py-5 text-xl font-bold">Reading Story</h1>

@@ -8,12 +8,8 @@ import TopicRcmm from "../modules/topic/TopicRcm";
 import { useParams } from "react-router-dom";
 import ProfileBlogs from "../modules/profile/ProfileBlogs";
 import Following from "../components/follow/Following";
-import {
-  apiDeleteArticle,
-  apiGetProfile,
-  apiGetUserBlogs,
-  apiGetUserFollowings,
-} from "../api/api";
+import { apiDeleteArticle, apiGetProfile, apiGetUserBlogs, apiGetUserFollowings } from "../api/api";
+
 const ProfilePage = () => {
   const [show, setShow] = useState(false);
   const [isfollowed, setIsFollowed] = useState(false);
@@ -26,13 +22,13 @@ const ProfilePage = () => {
   //fetch information user
   async function fetchUserInf() {
     const profileUser = await apiGetProfile(token, username);
-    console.log("profileUser:", profileUser);
     setUser({ ...profileUser });
-    setIsFollowed(profileUser?.isMe);
+    setIsFollowed(profileUser?.isFollowed);
   }
   //fetch list blogs of user
   async function fetchUserBlog() {
     const dataBlogs = await apiGetUserBlogs(username);
+    // console.log(dataBlogs);
     setBlogs([...dataBlogs]);
   }
   //fetch btn delete article
@@ -83,16 +79,16 @@ const ProfilePage = () => {
   useEffect(() => {
     fetchUserBlog();
     fetchUserFollowing();
-    fetchCountUserFollowing();
+    // fetchCountUserFollowing();
     // fetchCountUserFollower();
   }, [username]);
   return (
     <>
       <div className="w-full border-t border-gray-300"></div>
-      {user.isMe && <UpdateProfile user={user} show={show} setShow={setShow} />}
+      {user.isMyProfile && <UpdateProfile user={user} show={show} setShow={setShow} />}
       <div className="container max-w-[1336px] mx-auto flex">
         <div className="w-full md:px-14 md:max-w-[70%] ">
-          <ProfileContext user={user} />
+          <ProfileContext token={token} user={user} />
           <ProfileBlogs
             blogs={blogs}
             user={user}
@@ -101,19 +97,17 @@ const ProfilePage = () => {
         </div>
         <div className="  max-w-[30%] md:block  ">
           <div className="w-full h-screen p-8 text-gray-500 border-l border-l-gray-300 ">
+            {user.id &&             
             <ProfileInfor
               show={show}
               setShow={setShow}
               user={user}
-              isfollowed={isfollowed}
-              username={username}
-              countFollow={countFollow}
-            />
+            />}
+
             <Following
               data={following}
               token={token}
               user={user}
-              countFollow={countFollow}
             />
             <TopicRcmm />
           </div>
