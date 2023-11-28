@@ -12,7 +12,7 @@ const banAUser = asyncMiddleware(async (req, res, next) => {
   const { banType } = req.body;
 
   const user = await User.findByPk(id, {
-    attributes: ["id", "bannedsCount", "status"],
+    attributes: ["id", "bansCount", "status"],
     include: { model: Profile, as: "profileInfo", attributes: ["fullname"] },
   });
 
@@ -44,7 +44,7 @@ const banAUser = asyncMiddleware(async (req, res, next) => {
     banType,
     bannedUntil,
     bannedById: me.id,
-    bannedsCount: user.bannedsCount + 1,
+    bansCount: user.bansCount + 1,
   });
 
   res.status(201).json({
@@ -60,7 +60,7 @@ const updateUserBan = asyncMiddleware(async (req, res, next) => {
   const { banType } = req.body;
 
   const user = await User.findByPk(id, {
-    attributes: ["id", "bannedsCount", "status"],
+    attributes: ["id", "bansCount", "status"],
     include: { model: Profile, as: "profileInfo", attributes: ["fullname"] },
   });
 
@@ -105,7 +105,7 @@ const unBanAUser = asyncMiddleware(async (req, res, next) => {
   const { id } = req.params;
 
   const user = await User.findByPk(id, {
-    attributes: ["id", "bannedsCount"],
+    attributes: ["id", "bansCount"],
     include: { model: Profile, as: "profileInfo", attributes: ["fullname"] },
   });
 
@@ -116,7 +116,7 @@ const unBanAUser = asyncMiddleware(async (req, res, next) => {
     banType: null,
     bannedUntil: null,
     bannedBy: null,
-    bannedsCount: user.bannedsCount - 1,
+    bansCount: user.bansCount - 1,
   });
 
   res.json({

@@ -26,6 +26,7 @@ import draftRoute from "./routes/draftRoute.js";
 import topicRoute from "./routes/topicRoute.js";
 import followTopicRoute from "./routes/followTopicRoute.js";
 import artcileRoute from "./routes/articleRoute.js";
+import likeRoute from "./routes/likeRoute.js";
 
 app.use(express.json());
 app.use(morgan("dev"));
@@ -34,7 +35,7 @@ app.use(cors());
 MongoDB.connect();
 
 sequelize
-  .sync({ force: false, logging: true })
+  .sync({ force: true, logging: true })
   .then(() => {
     console.log("connect to mysql database successfully");
   })
@@ -61,6 +62,7 @@ app.use("/api/v1/draft", draftRoute);
 app.use("/api/v1/topic", topicRoute);
 app.use("/api/v1/follow-topic", followTopicRoute);
 app.use("/api/v1/article", artcileRoute);
+app.use("/api/v1/like", likeRoute);
 
 app.use(errorMiddleware);
 

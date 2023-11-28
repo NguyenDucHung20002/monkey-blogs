@@ -5,6 +5,7 @@ import Profile from "../models/mysql/Profile.js";
 import User from "../models/mysql/User.js";
 import ErrorResponse from "../responses/ErrorResponse.js";
 import addUrlToImg from "../utils/addUrlToImg.js";
+import Follow_Profile from "../models/mysql/Follow_Profile.js";
 
 // ==================== block a profile ==================== //
 const blockAProfile = asyncMiddleware(async (req, res, next) => {
@@ -33,7 +34,15 @@ const blockAProfile = asyncMiddleware(async (req, res, next) => {
   });
 
   if (!blocks) {
-    await Block.create({ blockedId: profile.id, blockerId: me.profileInfo.id });
+    await Promise.all([
+      Block.create({ blockedId: profile.id, blockerId: me.profileInfo.id }),
+      Follow_Profile.destroy({
+        where: { followedId: me.profileInfo.id, followerId: profile.id },
+      }),
+      Follow_Profile.destroy({
+        where: { followedId: profile.id, followerId: me.profileInfo.id },
+      }),
+    ]);
   }
 
   res.status(201).json({

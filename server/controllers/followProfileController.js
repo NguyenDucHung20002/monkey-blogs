@@ -19,6 +19,7 @@ const followAProfile = asyncMiddleware(async (req, res, next) => {
       where: { status: "normal" },
       attributes: [],
     },
+    attributes: ["id", "fullname"],
   });
 
   if (!profile) throw ErrorResponse(404, "Profile not found");
@@ -26,6 +27,17 @@ const followAProfile = asyncMiddleware(async (req, res, next) => {
   if (profile.id === me.profileInfo.id) {
     throw ErrorResponse(400, "Can not follow yourself");
   }
+
+  const block = await Block.findOne({
+    blockerId: profile.id,
+    blockedId: me.profileInfo.id,
+  });
+
+  if (block)
+    throw ErrorResponse(
+      400,
+      `You can't follow ${profile.fullname}, they already blocked you`
+    );
 
   const followProfile = await Follow_Profile.findOne({
     where: { followedId: profile.id, followerId: me.profileInfo.id },
@@ -61,6 +73,7 @@ const unFollowAProfile = asyncMiddleware(async (req, res, next) => {
       where: { status: "normal" },
       attributes: [],
     },
+    attributes: ["id", "fullname"],
   });
 
   if (!profile) throw ErrorResponse(404, "Profile not found");
@@ -153,10 +166,7 @@ const getFolloweds = asyncMiddleware(async (req, res, next) => {
 
   if (me && me.profileInfo.id !== user.profileInfo.id) {
     const isBlockedByUser = !!(await Block.findOne({
-      where: {
-        blockedId: me.profileInfo.id,
-        blockerId: user.profileInfo.id,
-      },
+      where: { blockedId: me.profileInfo.id, blockerId: user.profileInfo.id },
       attributes: ["id"],
     }));
 
@@ -166,32 +176,6 @@ const getFolloweds = asyncMiddleware(async (req, res, next) => {
         `You have been blocked by ${user.profileInfo.fullname}`
       );
     }
-
-    followProfiles = await Follow_Profile.findAll({
-      where: {
-        "$blockedFollowed.blockedId$": null,
-        followedId: { [Op.ne]: me.profileInfo.id },
-        followerId: user.profileInfo.id,
-        id: { [Op.gt]: skip },
-      },
-      attributes: ["id"],
-      include: [
-        {
-          model: Block,
-          attributes: [],
-          as: "blockedFollowed",
-          where: { blockerId: me.profileInfo.id },
-          required: false,
-        },
-        {
-          model: Profile,
-          as: "followed",
-          attributes: ["id", "fullname", "avatar", "bio"],
-          include: { model: User, as: "userInfo", attributes: ["username"] },
-        },
-      ],
-      limit: Number(limit) ? Number(limit) : null,
-    });
 
     followeds = await Promise.all(
       followProfiles.map(async (followProfile) => {
@@ -209,6 +193,13 @@ const getFolloweds = asyncMiddleware(async (req, res, next) => {
               followedId: followProfile.followed.id,
               followerId: me.profileInfo.id,
             },
+          })),
+          isBlocked: !!(await Block.findOne({
+            where: {
+              blockedId: followProfile.followed.id,
+              blockerId: me.profileInfo.id,
+            },
+            attributes: ["id"],
           })),
         };
       })
@@ -295,10 +286,7 @@ const getFollowers = asyncMiddleware(async (req, res, next) => {
 
   if (me && me.profileInfo.id !== user.profileInfo.id) {
     const isBlockedByUser = !!(await Block.findOne({
-      where: {
-        blockedId: me.profileInfo.id,
-        blockerId: user.profileInfo.id,
-      },
+      where: { blockedId: me.profileInfo.id, blockerId: user.profileInfo.id },
       attributes: ["id"],
     }));
 
@@ -308,32 +296,6 @@ const getFollowers = asyncMiddleware(async (req, res, next) => {
         `You have been blocked by ${user.profileInfo.fullname}`
       );
     }
-
-    followerProfiles = await Follow_Profile.findAll({
-      where: {
-        "$blockerFollower.blockedId$": null,
-        followedId: user.profileInfo.id,
-        followerId: { [Op.ne]: me.profileInfo.id },
-        id: { [Op.gt]: skip },
-      },
-      attributes: ["id"],
-      include: [
-        {
-          model: Block,
-          attributes: [],
-          as: "blockerFollower",
-          where: { blockerId: me.profileInfo.id },
-          required: false,
-        },
-        {
-          model: Profile,
-          as: "follower",
-          attributes: ["id", "fullname", "avatar", "bio"],
-          include: { model: User, as: "userInfo", attributes: ["username"] },
-        },
-      ],
-      limit: Number(limit) ? Number(limit) : null,
-    });
 
     followers = await Promise.all(
       followerProfiles.map(async (followerProfile) => {
@@ -351,6 +313,14 @@ const getFollowers = asyncMiddleware(async (req, res, next) => {
               followedId: followerProfile.follower.id,
               followerId: me.profileInfo.id,
             },
+            attributes: ["id"],
+          })),
+          isBlocked: !!(await Block.findOne({
+            where: {
+              blockedId: followerProfile.follower.id,
+              blockerId: me.profileInfo.id,
+            },
+            attributes: ["id"],
           })),
         };
       })

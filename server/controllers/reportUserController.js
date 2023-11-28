@@ -108,6 +108,20 @@ const getPendingReportedUsers = asyncMiddleware(async (req, res, next) => {
     limit: Number(limit) ? Number(limit) : 15,
   });
 
+  const reportedUsers = reports.map((report) => {
+    return {
+      id: report.reported.id,
+      username: report.reported.username,
+      email: report.reported.email,
+      reportsCount: report.reported.reportsCount,
+      bannedsCount: report.reported.bannedsCount,
+      banType: report.reported.banType,
+      bannedUntil: report.reported.bannedUntil,
+      status: report.reported.status,
+      bannedBy: report.reported ? report.reported.bannedBy : null,
+    };
+  });
+
   const newSkipId =
     reports.length > 0 ? reports[reports.length - 1].reportedId : null;
   const newSkipReportsCount =
@@ -115,7 +129,12 @@ const getPendingReportedUsers = asyncMiddleware(async (req, res, next) => {
       ? reports[reports.length - 1].reported.reportsCount
       : null;
 
-  res.json({ success: true, data: reports, newSkipId, newSkipReportsCount });
+  res.json({
+    success: true,
+    data: reportedUsers,
+    newSkipId,
+    newSkipReportsCount,
+  });
 });
 
 // ==================== Get pending reports of the user ==================== //

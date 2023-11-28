@@ -10,6 +10,7 @@ import Follow_Topic from "./Follow_Topic.js";
 import Article from "./Article.js";
 import Article_Topic from "./Article_Topic.js";
 import Draft from "./Draft.js";
+import Like from "./Like.js";
 
 // Role - User (1-n)
 Role.hasMany(User, {
@@ -81,16 +82,6 @@ User.belongsTo(User, {
 });
 
 // Report - User (n-n)
-// User.belongsToMany(User, {
-//   through: Report_User,
-//   foreignKey: "reportedId",
-//   as: "reporters",
-// });
-// User.belongsToMany(User, {
-//   through: Report_User,
-//   foreignKey: "reporterId",
-//   as: "reporteds",
-// });
 Report_User.belongsTo(User, {
   foreignKey: "reportedId",
   as: "reported",
@@ -204,4 +195,24 @@ User.hasMany(Topic, {
 Topic.belongsTo(User, {
   foreignKey: "approvedById",
   as: "approvedBy",
+});
+
+// Article - Profile (n-n)
+Article.belongsToMany(Profile, {
+  through: Like,
+  foreignKey: "articleId",
+  as: "articleLikes",
+});
+Profile.belongsToMany(Article, {
+  through: Like,
+  foreignKey: "profileId",
+  as: "likedArticles",
+});
+Like.belongsTo(Article, {
+  foreignKey: "articleId",
+  as: "likedArticle",
+});
+Like.belongsTo(Profile, {
+  foreignKey: "profileId",
+  as: "articleLike",
 });

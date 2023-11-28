@@ -85,37 +85,65 @@ const getATopic = asyncMiddleware(async (req, res, next) => {
   res.json({ success: true, data: topic });
 });
 
+// // ==================== get all topics ==================== //
+// const getAllTopics = asyncMiddleware(async (req, res, next) => {
+//   const { skip = 0, limit = 15, search } = req.query;
+//   const me = req.me ? req.me : null;
+
+//   let query = {
+//     where: { id: { [Op.gt]: skip } },
+//     attributes: ["id", "name", "slug"],
+//   };
+
+//   if (me && (me.role.slug === "admin" || me.role.slug === "staff")) {
+//     query = {
+//       order: [["id", "DESC"]],
+//       include: {
+//         model: User,
+//         as: "approvedBy",
+//         attributes: ["id", "email", "username"],
+//         include: { model: Role, as: "role", attributes: ["name", "slug"] },
+//       },
+//       attributes: { exclude: ["approvedById"] },
+//       where: {},
+//     };
+
+//     if (skip) query.where.id = { [Op.lt]: skip };
+
+//     if (search) query.where.slug = { [Op.substring]: search };
+//   }
+
+//   query.limit = Number(limit) ? Number(limit) : 15;
+
+//   const topics = await Topic.findAll(query);
+
+//   const newSkip = topics.length > 0 ? topics[topics.length - 1].id : null;
+
+//   res.json({ success: true, data: topics, newSkip });
+// });
+
 // ==================== get all topics ==================== //
 const getAllTopics = asyncMiddleware(async (req, res, next) => {
-  const { skip = 0, limit = 15, search } = req.query;
-  const me = req.me ? req.me : null;
+  const { skip, limit = 15, search } = req.query;
 
-  let query = {
-    where: { id: { [Op.gt]: skip } },
-    attributes: ["id", "name", "slug"],
-  };
+  let whereQuery = {};
 
-  if (me && (me.role.slug === "admin" || me.role.slug === "staff")) {
-    query = {
-      order: [["id", "DESC"]],
-      include: {
-        model: User,
-        as: "approvedBy",
-        attributes: ["id", "email", "username"],
-        include: { model: Role, as: "role", attributes: ["name", "slug"] },
-      },
-      attributes: { exclude: ["approvedById"] },
-      where: {},
-    };
+  if (skip) whereQuery.id = { [Op.lt]: skip };
 
-    if (skip) query.where.id = { [Op.lt]: skip };
+  if (search) whereQuery.slug = { [Op.substring]: search };
 
-    if (search) query.where.slug = { [Op.substring]: search };
-  }
-
-  query.limit = Number(limit) ? Number(limit) : 15;
-
-  const topics = await Topic.findAll(query);
+  const topics = await Topic.findAll({
+    where: whereQuery,
+    include: {
+      model: User,
+      as: "approvedBy",
+      attributes: ["id", "email", "username"],
+      include: { model: Role, as: "role", attributes: ["name", "slug"] },
+    },
+    attributes: { exclude: ["approvedById"] },
+    limit: Number(limit) ? Number(limit) : 15,
+    order: [["id", "DESC"]],
+  });
 
   const newSkip = topics.length > 0 ? topics[topics.length - 1].id : null;
 

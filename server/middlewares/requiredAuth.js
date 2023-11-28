@@ -2,7 +2,7 @@ import Token from "../models/mongodb/Token.js";
 import jwt from "jsonwebtoken";
 import env from "../config/env.js";
 
-const redirectAuth = async (req, res, next) => {
+const requiredAuth = async (req, res, next) => {
   const headerToken = req.headers.authorization;
   if (!headerToken || !headerToken.startsWith("Bearer ")) {
     return res.status(401).json({
@@ -39,4 +39,4 @@ const redirectAuth = async (req, res, next) => {
   }
 };
 
-export default redirectAuth;
+export default requiredAuth;

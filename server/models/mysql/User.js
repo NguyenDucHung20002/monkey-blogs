@@ -17,7 +17,7 @@ const User = sequelize.define(
       defaultValue: 0,
     },
 
-    bannedsCount: {
+    bansCount: {
       type: DataTypes.INTEGER,
       allowNull: false,
       defaultValue: 0,

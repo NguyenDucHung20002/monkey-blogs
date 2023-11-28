@@ -108,7 +108,7 @@ const getMyPendingArticles = asyncMiddleware(async (req, res, next) => {
     where: whereQuery,
     attributes: ["id", "title", "slug", "createdAt", "updatedAt"],
     order: [["id", "DESC"]],
-    limit: Number(limit) && Number.isInteger(limit) ? limit : 15,
+    limit: Number(limit) ? limit : 15,
   });
 
   const newSkip =
@@ -132,7 +132,7 @@ const getMyApprovedArticles = asyncMiddleware(async (req, res, next) => {
     where: whereQuery,
     attributes: ["id", "title", "slug", "createdAt", "updatedAt"],
     order: [["id", "DESC"]],
-    limit: Number(limit) && Number.isInteger(limit) ? limit : 15,
+    limit: Number(limit) ? limit : 15,
   });
 
   const newSkip =
@@ -189,17 +189,21 @@ const getProfileArticles = asyncMiddleware(async (req, res, next) => {
           model: Topic,
           as: "topic",
           attributes: ["id", "name", "slug"],
+          where: { status: "approved" },
         },
         order: [["id", "ASC"]],
       });
-      return {
-        ...article.toJSON(),
-        topic: {
-          id: topic.topic.id,
-          name: topic.topic.name,
-          slug: topic.topic.slug,
-        },
-      };
+      if (topic) {
+        return {
+          ...article.toJSON(),
+          topic: {
+            id: topic.topic.id,
+            name: topic.topic.name,
+            slug: topic.topic.slug,
+          },
+        };
+      }
+      return { ...article.toJSON(), topic: null };
     })
   );
 
@@ -212,17 +216,18 @@ const getProfileArticles = asyncMiddleware(async (req, res, next) => {
 const getAllArticles = asyncMiddleware(async (req, res, next) => {
   const { skip, limit = 15 } = req.query;
 
-  let query = {
+  let whereQuery = {};
+
+  if (skip) whereQuery.where = { id: { [Op.lt]: skip } };
+
+  const articles = await Article.findAll({
+    where: whereQuery,
     attributes: {
       exclude: ["content", "likesCount", "commentsCount", "banner", "authorId"],
     },
     order: [["id", "DESC"]],
     limit: Number(limit) && Number.isInteger(limit) ? limit : 15,
-  };
-
-  if (skip) query.where = { id: { [Op.lt]: skip } };
-
-  const articles = await Article.findAll(query);
+  });
 
   const newSkip = articles.length > 0 ? articles[articles.length - 1].id : null;
 
