@@ -6,7 +6,6 @@ import fetchMe from "../middlewares/fetchMe.js";
 import validator from "../middlewares/validator.js";
 import userSchema from "../validations/userSchema.js";
 import fetchUser from "../middlewares/fetchUser.js";
-import checkBannedByUser from "../middlewares/checBlockedByUser.js";
 
 const router = express.Router();
 

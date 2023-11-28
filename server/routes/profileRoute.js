@@ -5,7 +5,7 @@ import requiredAuth from "../middlewares/requiredAuth.js";
 import validator from "../middlewares/validator.js";
 import profileSchema from "../validations/profileSchema.js";
 import fetchMe from "../middlewares/fetchMe.js";
-import checkBanned from "../middlewares/checkBanned.js";
+import checkUserBanned from "../middlewares/checkUserBanned.js";
 import fetchUser from "../middlewares/fetchUser.js";
 import checkBlockedByUser from "../middlewares/checBlockedByUser.js";
 
@@ -15,8 +15,8 @@ router.get(
   "/:username",
   optionalAuth,
   fetchMe,
-  checkBanned,
   fetchUser,
+  checkUserBanned,
   checkBlockedByUser,
   profileController.getProfile
 );
@@ -25,7 +25,6 @@ router.patch(
   "/me/update",
   requiredAuth,
   fetchMe,
-  checkBanned,
   validator(profileSchema.updateProfileSchema, "body"),
   profileController.updateMyProfile
 );

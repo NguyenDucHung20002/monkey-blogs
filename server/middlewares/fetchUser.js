@@ -20,9 +20,7 @@ const fetchUser = async (req, res, next) => {
     }
 
     const user = await User.findOne({
-      where: {
-        [Op.or]: [{ id: userId }, { username }],
-      },
+      where: { [Op.or]: [{ id: userId }, { username }] },
       attributes: ["status", "bannedUntil", "id", "username"],
       include: [
         {
@@ -33,8 +31,6 @@ const fetchUser = async (req, res, next) => {
         { model: Role, as: "role", attributes: ["slug"] },
       ],
     });
-
-    if (!user) throw ErrorResponse(404, "User not found");
 
     user.profileInfo.avatar = addUrlToImg(user.profileInfo.avatar);
 

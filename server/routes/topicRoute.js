@@ -6,7 +6,6 @@ import authorize from "../middlewares/authorize.js";
 import validator from "../middlewares/validator.js";
 import topicSchema from "../validations/topicSchema.js";
 import fetchMe from "../middlewares/fetchMe.js";
-import checkBanned from "../middlewares/checkBanned.js";
 
 const router = express.Router();
 
@@ -36,13 +35,7 @@ router.delete(
   topicController.deleteTopic
 );
 
-router.get(
-  "/:slug",
-  optionalAuth,
-  fetchMe,
-  checkBanned,
-  topicController.getATopic
-);
+router.get("/:slug", optionalAuth, fetchMe, topicController.getATopic);
 
 router.patch(
   "/:id/approve",
@@ -52,6 +45,12 @@ router.patch(
   topicController.martTopicAsApproved
 );
 
-router.get("/", optionalAuth, fetchMe, topicController.getAllTopics);
+router.get(
+  "/",
+  requiredAuth,
+  fetchMe,
+  authorize("admin", "staff"),
+  topicController.getAllTopics
+);
 
 export default router;

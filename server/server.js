@@ -27,6 +27,7 @@ import topicRoute from "./routes/topicRoute.js";
 import followTopicRoute from "./routes/followTopicRoute.js";
 import artcileRoute from "./routes/articleRoute.js";
 import likeRoute from "./routes/likeRoute.js";
+import roleRoute from "./routes/roleRoute.js";
 
 app.use(express.json());
 app.use(morgan("dev"));
@@ -63,6 +64,7 @@ app.use("/api/v1/topic", topicRoute);
 app.use("/api/v1/follow-topic", followTopicRoute);
 app.use("/api/v1/article", artcileRoute);
 app.use("/api/v1/like", likeRoute);
+app.use("/api/v1/role", roleRoute);
 
 app.use(errorMiddleware);
 

@@ -2,12 +2,11 @@ import express from "express";
 import reportUserController from "../controllers/reportUserController.js";
 import requiredAuth from "../middlewares/requiredAuth.js";
 import authorize from "../middlewares/authorize.js";
-import checkBanned from "../middlewares/checkBanned.js";
 import fetchMe from "../middlewares/fetchMe.js";
 import reportProfileSchema from "../validations/reportProfileSchema.js";
 import validator from "../middlewares/validator.js";
 import fetchUser from "../middlewares/fetchUser.js";
-import checkBlockedByUser from "../middlewares/checBlockedByUser.js";
+import checkUserBanned from "../middlewares/checkUserBanned.js";
 
 const router = express.Router();
 
@@ -15,10 +14,9 @@ router.post(
   "/:id",
   requiredAuth,
   fetchMe,
-  checkBanned,
   authorize("user"),
   fetchUser,
-  checkBlockedByUser,
+  checkUserBanned,
   validator(reportProfileSchema.reportAProfileSchema),
   reportUserController.reportAUser
 );

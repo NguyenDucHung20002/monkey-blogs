@@ -2,24 +2,19 @@ import getError from "../utils/getError.js";
 
 const checkBanned = async (req, res, next) => {
   try {
-    const user = req.user ? req.user : null;
-
-    if (!user) {
-      next();
-      return;
-    }
+    const user = req.user;
 
     if (user.status === "banned") {
       if (user.bannedUntil === null) {
         return res.status(403).json({
           success: false,
-          message: `You have been permanent banned`,
+          message: `This user have been permanent banned`,
         });
       }
 
       return res.status(403).json({
         success: false,
-        message: `You have been banned until ${user.bannedUntil}`,
+        message: `This user have been temporary banned`,
       });
     }
 

@@ -29,6 +29,20 @@ const fetchMe = async (req, res, next) => {
 
     if (!me) throw ErrorResponse(404, "User not found");
 
+    if (me.status === "banned") {
+      if (me.bannedUntil === null) {
+        return res.status(403).json({
+          success: false,
+          message: `You have been permanent banned`,
+        });
+      }
+
+      return res.status(403).json({
+        success: false,
+        message: `You have been banned until ${me.bannedUntil}`,
+      });
+    }
+
     me.profileInfo.avatar = addUrlToImg(me.profileInfo.avatar);
 
     req.me = me;

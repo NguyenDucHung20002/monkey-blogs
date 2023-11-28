@@ -1,7 +1,7 @@
 import express from "express";
 import muteController from "../controllers/muteController.js";
 import requiredAuth from "../middlewares/requiredAuth.js";
-import checkBanned from "../middlewares/checkBanned.js";
+import checkUserBanned from "../middlewares/checkUserBanned.js";
 import fetchMe from "../middlewares/fetchMe.js";
 import fetchUser from "../middlewares/fetchUser.js";
 import checkBlockedByUser from "../middlewares/checBlockedByUser.js";
@@ -12,8 +12,8 @@ router.post(
   "/:id",
   requiredAuth,
   fetchMe,
-  checkBanned,
   fetchUser,
+  checkUserBanned,
   checkBlockedByUser,
   muteController.muteAProfile
 );
@@ -22,17 +22,10 @@ router.delete(
   "/:id",
   requiredAuth,
   fetchMe,
-  checkBanned,
   fetchUser,
   muteController.unMuteAProfile
 );
 
-router.get(
-  "/me/all",
-  requiredAuth,
-  fetchMe,
-  checkBanned,
-  muteController.getMutedProfiles
-);
+router.get("/me/all", requiredAuth, fetchMe, muteController.getMutedProfiles);
 
 export default router;

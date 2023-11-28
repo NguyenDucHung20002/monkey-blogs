@@ -8,7 +8,6 @@ import authController from "../controllers/authController.js";
 import User from "../models/mysql/User.js";
 import Profile from "../models/mysql/Profile.js";
 import fetchMe from "../middlewares/fetchMe.js";
-import checkBanned from "../middlewares/checkBanned.js";
 
 const router = express.Router();
 
@@ -43,7 +42,7 @@ router.get(
   }
 );
 
-router.post("/login", requiredAuth, fetchMe, checkBanned, authController.login);
+router.post("/login", requiredAuth, fetchMe, authController.login);
 
 router.delete("/logout", requiredAuth, authController.logout);
 
