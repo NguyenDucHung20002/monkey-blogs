@@ -15,6 +15,8 @@ router.post(
   draftController.createADraft
 );
 
+router.get("/me", requiredAuth, fetchMe, draftController.getMyDrafts);
+
 router.patch(
   "/:id",
   requiredAuth,
@@ -26,7 +28,5 @@ router.patch(
 router.delete("/:id", requiredAuth, fetchMe, draftController.deleteADraft);
 
 router.get("/:id", requiredAuth, fetchMe, draftController.getADraft);
-
-router.get("/me/all", requiredAuth, fetchMe, draftController.getMyDrafts);
 
 export default router;

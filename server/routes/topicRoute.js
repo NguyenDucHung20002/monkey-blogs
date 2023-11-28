@@ -18,6 +18,23 @@ router.post(
   topicController.createTopic
 );
 
+router.get(
+  "/",
+  requiredAuth,
+  fetchMe,
+  authorize("admin", "staff"),
+  topicController.getAllTopics
+);
+
+router.get(
+  "/create-article",
+  requiredAuth,
+  fetchMe,
+  topicController.searchTopicsCreateArticle
+);
+
+router.get("/explore-topics", topicController.exploreAllTopics);
+
 router.patch(
   "/:id",
   requiredAuth,
@@ -35,8 +52,6 @@ router.delete(
   topicController.deleteTopic
 );
 
-router.get("/:slug", optionalAuth, fetchMe, topicController.getATopic);
-
 router.patch(
   "/:id/approve",
   requiredAuth,
@@ -45,12 +60,6 @@ router.patch(
   topicController.martTopicAsApproved
 );
 
-router.get(
-  "/",
-  requiredAuth,
-  fetchMe,
-  authorize("admin", "staff"),
-  topicController.getAllTopics
-);
+router.get("/:slug", optionalAuth, fetchMe, topicController.getATopic);
 
 export default router;

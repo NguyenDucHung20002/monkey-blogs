@@ -8,6 +8,8 @@ import checkBlockedByUser from "../middlewares/checBlockedByUser.js";
 
 const router = express.Router();
 
+router.get("/me", requiredAuth, fetchMe, muteController.getMutedProfiles);
+
 router.post(
   "/:id",
   requiredAuth,
@@ -25,7 +27,5 @@ router.delete(
   fetchUser,
   muteController.unMuteAProfile
 );
-
-router.get("/me/all", requiredAuth, fetchMe, muteController.getMutedProfiles);
 
 export default router;

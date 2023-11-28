@@ -8,6 +8,14 @@ import checkUserBanned from "../middlewares/checkUserBanned.js";
 
 const router = express.Router();
 
+router.get(
+  "/staffs",
+  requiredAuth,
+  fetchMe,
+  authorize("admin"),
+  roleController.getAllStaffs
+);
+
 router.patch(
   "/make-staff/:id",
   requiredAuth,
@@ -26,14 +34,6 @@ router.patch(
   fetchUser,
   checkUserBanned,
   roleController.makeUserUser
-);
-
-router.get(
-  "/staffs",
-  requiredAuth,
-  fetchMe,
-  authorize("admin"),
-  roleController.getAllStaffs
 );
 
 export default router;

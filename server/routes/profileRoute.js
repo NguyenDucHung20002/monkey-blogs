@@ -11,6 +11,14 @@ import checkBlockedByUser from "../middlewares/checBlockedByUser.js";
 
 const router = express.Router();
 
+router.patch(
+  "/me/update",
+  requiredAuth,
+  fetchMe,
+  validator(profileSchema.updateProfileSchema, "body"),
+  profileController.updateMyProfile
+);
+
 router.get(
   "/:username",
   optionalAuth,
@@ -19,14 +27,6 @@ router.get(
   checkUserBanned,
   checkBlockedByUser,
   profileController.getProfile
-);
-
-router.patch(
-  "/me/update",
-  requiredAuth,
-  fetchMe,
-  validator(profileSchema.updateProfileSchema, "body"),
-  profileController.updateMyProfile
 );
 
 export default router;

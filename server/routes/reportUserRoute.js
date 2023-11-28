@@ -10,17 +10,6 @@ import checkUserBanned from "../middlewares/checkUserBanned.js";
 
 const router = express.Router();
 
-router.post(
-  "/:id",
-  requiredAuth,
-  fetchMe,
-  authorize("user"),
-  fetchUser,
-  checkUserBanned,
-  validator(reportProfileSchema.reportAProfileSchema),
-  reportUserController.reportAUser
-);
-
 router.get(
   "/pending",
   requiredAuth,
@@ -35,6 +24,17 @@ router.get(
   fetchMe,
   authorize("staff", "admin"),
   reportUserController.getResolvedReports
+);
+
+router.post(
+  "/:id",
+  requiredAuth,
+  fetchMe,
+  authorize("user"),
+  fetchUser,
+  checkUserBanned,
+  validator(reportProfileSchema.reportAProfileSchema),
+  reportUserController.reportAUser
 );
 
 router.get(

@@ -9,10 +9,6 @@ const router = express.Router();
 
 router.post("/", requiredAuth, fetchMe, articleController.createArticle);
 
-router.patch("/:id", requiredAuth, fetchMe, articleController.updateArticle);
-
-router.delete("/:id", requiredAuth, fetchMe, articleController.deleteArticle);
-
 router.get(
   "/me/pending",
   requiredAuth,
@@ -28,18 +24,22 @@ router.get(
 );
 
 router.get(
-  "/:username/all",
-  optionalAuth,
-  fetchMe,
-  articleController.getProfileArticles
-);
-
-router.get(
   "/",
   requiredAuth,
   fetchMe,
   authorize("admin", "staff"),
   articleController.getAllArticles
+);
+
+router.patch("/:id", requiredAuth, fetchMe, articleController.updateArticle);
+
+router.delete("/:id", requiredAuth, fetchMe, articleController.deleteArticle);
+
+router.get(
+  "/:username",
+  optionalAuth,
+  fetchMe,
+  articleController.getProfileArticles
 );
 
 export default router;

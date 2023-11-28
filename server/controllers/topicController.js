@@ -72,7 +72,7 @@ const getATopic = asyncMiddleware(async (req, res, next) => {
     attributes: ["id", "name", "followersCount", "articlesCount"],
   });
 
-  if (!topic) throw new ErrorResponse(404, "Topic not found");
+  if (!topic) throw ErrorResponse(404, "Topic not found");
 
   if (me) {
     const isFollowed = !!(await Follow_Topic.findOne({
@@ -84,43 +84,6 @@ const getATopic = asyncMiddleware(async (req, res, next) => {
 
   res.json({ success: true, data: topic });
 });
-
-// // ==================== get all topics ==================== //
-// const getAllTopics = asyncMiddleware(async (req, res, next) => {
-//   const { skip = 0, limit = 15, search } = req.query;
-//   const me = req.me ? req.me : null;
-
-//   let query = {
-//     where: { id: { [Op.gt]: skip } },
-//     attributes: ["id", "name", "slug"],
-//   };
-
-//   if (me && (me.role.slug === "admin" || me.role.slug === "staff")) {
-//     query = {
-//       order: [["id", "DESC"]],
-//       include: {
-//         model: User,
-//         as: "approvedBy",
-//         attributes: ["id", "email", "username"],
-//         include: { model: Role, as: "role", attributes: ["name", "slug"] },
-//       },
-//       attributes: { exclude: ["approvedById"] },
-//       where: {},
-//     };
-
-//     if (skip) query.where.id = { [Op.lt]: skip };
-
-//     if (search) query.where.slug = { [Op.substring]: search };
-//   }
-
-//   query.limit = Number(limit) ? Number(limit) : 15;
-
-//   const topics = await Topic.findAll(query);
-
-//   const newSkip = topics.length > 0 ? topics[topics.length - 1].id : null;
-
-//   res.json({ success: true, data: topics, newSkip });
-// });
 
 // ==================== get all topics ==================== //
 const getAllTopics = asyncMiddleware(async (req, res, next) => {
@@ -171,6 +134,44 @@ const martTopicAsApproved = asyncMiddleware(async (req, res, next) => {
   });
 });
 
+// ==================== search for topics during create article ==================== //
+const searchTopicsCreateArticle = asyncMiddleware(async (req, res, next) => {
+  const { skip = 0, limit = 15, search } = req.query;
+
+  let topics = [];
+
+  if (search) {
+    topics = await Topic.findAll({
+      where: {
+        id: { [Op.gt]: skip },
+        status: "approved",
+        name: { [Op.substring]: search },
+      },
+      attributes: ["id", "name", "slug", "articlesCount"],
+      limit: Number(limit) ? Number(limit) : 15,
+    });
+  }
+
+  const newSkip = topics.length > 0 ? topics[topics.length - 1].id : null;
+
+  res.json({ success: true, data: topics, newSkip });
+});
+
+// ==================== explore all topics ==================== //
+const exploreAllTopics = asyncMiddleware(async (req, res, next) => {
+  const { skip = 0, limit = 15 } = req.query;
+
+  const topics = await Topic.findAll({
+    where: { id: { [Op.gt]: skip }, status: "approved" },
+    attributes: ["id", "name", "slug"],
+    limit: Number(limit) ? Number(limit) : 15,
+  });
+
+  const newSkip = topics.length > 0 ? topics[topics.length - 1].id : null;
+
+  res.json({ success: true, data: topics, newSkip });
+});
+
 export default {
   createTopic,
   updateTopic,
@@ -178,4 +179,6 @@ export default {
   getATopic,
   getAllTopics,
   martTopicAsApproved,
+  searchTopicsCreateArticle,
+  exploreAllTopics,
 };

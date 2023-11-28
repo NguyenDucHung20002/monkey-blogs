@@ -1,6 +1,7 @@
 import asyncMiddleware from "../middlewares/asyncMiddleware.js";
 import ErrorResponse from "../responses/ErrorResponse.js";
 import Draft from "../models/mysql/Draft.js";
+import { Op } from "sequelize";
 
 // ==================== create draft ==================== //
 const createADraft = asyncMiddleware(async (req, res, next) => {

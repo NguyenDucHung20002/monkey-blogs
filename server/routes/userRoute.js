@@ -9,6 +9,14 @@ import fetchUser from "../middlewares/fetchUser.js";
 
 const router = express.Router();
 
+router.get(
+  "/",
+  requiredAuth,
+  fetchMe,
+  authorize("staff", "admin"),
+  userController.getAllUsers
+);
+
 router.patch(
   "/ban/:id",
   requiredAuth,
@@ -29,20 +37,12 @@ router.patch(
 );
 
 router.patch(
-  "/update/:id",
+  "/update-ban/:id",
   requiredAuth,
   fetchMe,
   authorize("staff", "admin"),
   fetchUser,
   userController.updateUserBan
-);
-
-router.get(
-  "/",
-  requiredAuth,
-  fetchMe,
-  authorize("staff", "admin"),
-  userController.getAllUsers
 );
 
 export default router;
