@@ -2,8 +2,9 @@ import express from "express";
 import articleController from "../controllers/articleController.js";
 import requiredAuth from "../middlewares/requiredAuth.js";
 import fetchMe from "../middlewares/fetchMe.js";
-import optionalAuth from "../middlewares/optionalAuth.js";
 import authorize from "../middlewares/authorize.js";
+import fetchUser from "../middlewares/fetchUser.js";
+import checkUserBanned from "../middlewares/checkUserBanned.js";
 
 const router = express.Router();
 
@@ -37,8 +38,8 @@ router.delete("/:id", requiredAuth, fetchMe, articleController.deleteArticle);
 
 router.get(
   "/:username",
-  optionalAuth,
-  fetchMe,
+  fetchUser,
+  checkUserBanned,
   articleController.getProfileArticles
 );
 

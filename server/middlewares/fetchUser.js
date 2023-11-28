@@ -26,11 +26,13 @@ const fetchUser = async (req, res, next) => {
         {
           model: Profile,
           as: "profileInfo",
-          attributes: ["id", "fullname", "avatar"],
+          attributes: { exclude: ["userId"] },
         },
         { model: Role, as: "role", attributes: ["slug"] },
       ],
     });
+
+    if (!user) throw ErrorResponse(404, "User not found");
 
     user.profileInfo.avatar = addUrlToImg(user.profileInfo.avatar);
 
@@ -39,7 +41,7 @@ const fetchUser = async (req, res, next) => {
   } catch (error) {
     const err = getError(error);
     return res.status(err.code).json({
-      success: true,
+      success: false,
       message: err.message,
     });
   }

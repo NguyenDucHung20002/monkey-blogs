@@ -145,29 +145,10 @@ const getMyApprovedArticles = asyncMiddleware(async (req, res, next) => {
 
 // ==================== get profile articles ==================== //
 const getProfileArticles = asyncMiddleware(async (req, res, next) => {
-  const me = req.me ? req.me : null;
-  const { username } = req.params;
+  const user = req.user;
   const { skip, limit = 15 } = req.query;
 
-  let user;
-
-  if (!me || (me && me.username !== username)) {
-    user = await User.findOne({
-      where: { username, status: "normal" },
-      attributes: [],
-      include: {
-        model: Profile,
-        as: "profileInfo",
-        attributes: ["id", "fullname"],
-      },
-    });
-  }
-
-  if (me && me.username === username) user = me;
-
-  if (!user) throw ErrorResponse("404", "Profile not found");
-
-  const whereQuery = { authorId: user.profileInfo.id, status: "approved" };
+  let whereQuery = { authorId: user.profileInfo.id, status: "approved" };
 
   if (skip) whereQuery.id = { [Op.lt]: skip };
 
@@ -177,7 +158,7 @@ const getProfileArticles = asyncMiddleware(async (req, res, next) => {
       exclude: ["authorId", "content", "status", "likesCount", "commentsCount"],
     },
     order: [["id", "DESC"]],
-    limit: Number(limit) && Number.isInteger(limit) ? limit : 15,
+    limit: Number(limit) ? Number(limit) : 15,
   });
 
   articles = await Promise.all(
