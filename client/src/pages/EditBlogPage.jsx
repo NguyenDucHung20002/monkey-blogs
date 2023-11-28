@@ -14,8 +14,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "../components/button";
 import ImageUpload from "../components/image/ImageUpload";
 import MyEditor from "../components/input/MyEditor";
-import apiGetArticle from "../api/apiGetArticle";
-import apiUpdateArticle from "../api/apiUpdateArticle";
+import { apiGetArticle, apiUpdateArticle } from "../api/api";
 
 const EditBlogPageStyle = styled.div`
   max-width: 1000px;

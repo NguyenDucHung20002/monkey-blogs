@@ -5,7 +5,7 @@ import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import Blog from "../blog/Blog";
 import { debounce } from "lodash";
-import apiGetArticleSkip from "../../api/apiGetArticleSkip";
+import { apiGetArticleSkip } from "../../api/api";
 
 const HomeMainStyled = styled.div`
   max-width: 700px;

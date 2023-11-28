@@ -9,8 +9,8 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import PageNotFound from "./PageNotFound";
 import ActionComment from "../action/ActionComment";
 import ActionLike from "../action/ActionLike";
-import apiGetArticle from "../api/apiGetArticle";
 import { useSocket } from "../contexts/SocketContext";
+import { apiGetArticle } from "../api/api";
 
 const PostDetailPagePageStyle = styled.div`
   padding: 50px 0;
@@ -87,7 +87,7 @@ const PostDetailPage = () => {
   const { slug } = useParams("slug");
   const [blog, setBlog] = useState(null);
   const navigate = useNavigate();
-  const {sendNotification} = useSocket()
+  const { sendNotification } = useSocket();
   useEffect(() => {
     async function fetchBlog() {
       try {
@@ -125,7 +125,15 @@ const PostDetailPage = () => {
             <TopicList data={blog.topics}></TopicList>
             <div className="py-2 mt-5 border-gray-200 action border-y">
               <div className="flex items-center gap-5 communicate">
-                <ActionLike sendLikeNotify={()=>sendNotification(blog?.author.username,"likeArt",blog.slug)} ></ActionLike>
+                <ActionLike
+                  sendLikeNotify={() =>
+                    sendNotification(
+                      blog?.author.username,
+                      "likeArt",
+                      blog.slug
+                    )
+                  }
+                ></ActionLike>
                 <ActionComment slug={blog.slug}></ActionComment>
               </div>
             </div>

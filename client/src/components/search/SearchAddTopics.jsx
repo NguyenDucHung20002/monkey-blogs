@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { debounce } from "lodash";
-import apiTopicsSearch from "../../api/apiTopicsSearch";
+import { apiTopicsSearch } from "../../api/api";
 
 /* eslint-disable react/prop-types */
 const SearchAddTopics = ({ topics = [], setTopics, placeholder = "" }) => {

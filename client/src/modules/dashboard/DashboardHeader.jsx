@@ -4,8 +4,6 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { Avatar, Space, Popover } from "antd";
 import styled from "styled-components";
 import logo from "../../assets/logo.png";
-import { Button } from "../../components/button";
-import Headroom from "react-headroom";
 import { useAuth } from "../../contexts/auth-context";
 
 const icons = {
@@ -159,47 +157,30 @@ const DashboardHeader = () => {
 
   return (
     <>
-      <Headroom>
-        <HomeStyle>
-          <div className="flex items-center justify-between ">
-            <div className="flex items-center justify-center header-right">
-              <NavLink to="/">
-                <img srcSet={logo} alt="monkey-blogging" className="logo" />
-              </NavLink>
-            </div>
-            <div className="flex items-center justify-center header-left">
-              <NavLink to={`/write`}>
-                <Button kind="secondary" height="40px" className="">
-                  {icons.writeIcon}
-                  <p className="ml-2 text-lg font-medium">Write</p>
-                </Button>
-              </NavLink>
-
-              <Button
-                kind="secondary"
-                height="40px"
-                notification={"1"}
-                className=""
-              >
-                {icons.notificationIcon}
-              </Button>
-              <Space direction="vertical" wrap size={16} className="p-1 ml-5">
-                <Popover
-                  placement="bottomRight"
-                  content={() => content(data?.username, data?.fullname)}
-                  trigger="click"
-                >
-                  <Avatar
-                    className="cursor-pointer"
-                    size="large"
-                    src={<img src={data?.avatar} alt="avatar" />}
-                  />
-                </Popover>
-              </Space>
-            </div>
+      <HomeStyle>
+        <div className="flex items-center justify-between ">
+          <div className="flex items-center justify-center header-right">
+            <NavLink to="/">
+              <img srcSet={logo} alt="monkey-blogging" className="logo" />
+            </NavLink>
           </div>
-        </HomeStyle>
-      </Headroom>
+          <div className="flex items-center justify-center header-left">
+            <Space direction="vertical" wrap size={16} className="p-1 ml-5">
+              <Popover
+                placement="bottomRight"
+                content={() => content(data?.username, data?.fullname)}
+                trigger="click"
+              >
+                <Avatar
+                  className="cursor-pointer"
+                  size="large"
+                  src={<img src={data?.avatar} alt="avatar" />}
+                />
+              </Popover>
+            </Space>
+          </div>
+        </div>
+      </HomeStyle>
     </>
   );
 };

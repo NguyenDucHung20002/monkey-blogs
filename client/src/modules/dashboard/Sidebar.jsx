@@ -7,6 +7,9 @@ const SidebarStyles = styled.div`
   background: #ffffff;
   box-shadow: 10px 10px 20px rgba(218, 213, 213, 0.15);
   border-radius: 12px;
+  position: sticky;
+  top: 30px;
+  left: 30px;
   .menu-item {
     display: flex;
     align-items: center;
@@ -52,7 +55,7 @@ const Sidebar = () => {
       ),
     },
     {
-      title: "Post",
+      title: "Article",
       url: "/manage/posts",
       icon: (
         <svg
@@ -92,7 +95,7 @@ const Sidebar = () => {
       ),
     },
     {
-      title: "User",
+      title: "Users",
       url: "/manage/user",
       icon: (
         <svg
@@ -137,7 +140,6 @@ const Sidebar = () => {
       },
     },
   ];
-
   return (
     <SidebarStyles className="sidebar">
       {sidebarLinks.map((link) => {

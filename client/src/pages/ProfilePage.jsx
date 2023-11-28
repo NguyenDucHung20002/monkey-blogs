@@ -8,10 +8,12 @@ import TopicRcmm from "../modules/topic/TopicRcm";
 import { useParams } from "react-router-dom";
 import ProfileBlogs from "../modules/profile/ProfileBlogs";
 import Following from "../components/follow/Following";
-import apiProfile from "../api/apiGetProfile";
-import apiGetUserBlogs from "../api/apiGetUserBlogs";
-import apiDeleteArticle from "../api/apiDeleteArticle";
-import apiGetUserFollowings from "../api/apiGetUserFollowings";
+import {
+  apiDeleteArticle,
+  apiGetProfile,
+  apiGetUserBlogs,
+  apiGetUserFollowings,
+} from "../api/api";
 const ProfilePage = () => {
   const [show, setShow] = useState(false);
   const [isfollowed, setIsFollowed] = useState(false);
@@ -23,7 +25,8 @@ const ProfilePage = () => {
   const token = localStorage.getItem("token");
   //fetch information user
   async function fetchUserInf() {
-    const profileUser = await apiProfile(token, username);
+    const profileUser = await apiGetProfile(token, username);
+    console.log("profileUser:", profileUser);
     setUser({ ...profileUser });
     setIsFollowed(profileUser?.isMe);
   }

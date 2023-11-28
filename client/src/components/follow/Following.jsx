@@ -2,12 +2,13 @@
 import { Popover } from "antd";
 import { useState } from "react";
 import ButtonFollowingUser from "../button/ButtonFollowingUser.jsx";
-import apiProfile from "../../api/apiGetProfile.jsx";
+import { apiGetProfile } from "../../api/api.jsx";
+
 const Following = ({ data = [], token, countFollow }) => {
   const [userFollow, setUserFollow] = useState({});
   async function fetchUserInf(username) {
-    const data = await apiProfile(token, username);
-      setUserFollow({ ...data });
+    const data = await apiGetProfile(token, username);
+    setUserFollow({ ...data });
   }
 
   const SmallInf = () => {

@@ -5,7 +5,7 @@ import CommentUser from "./CommentUser";
 import InputComment from "../input/InputComment";
 import { useEffect } from "react";
 import { useAuth } from "../../contexts/auth-context";
-import apiGetComment from "../../api/apiGetComment";
+import { apiGetComment } from "../../api/api";
 
 const Comment = ({ slug = "" }) => {
   const token = localStorage.getItem("token");

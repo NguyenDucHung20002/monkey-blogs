@@ -4,9 +4,11 @@ import TopicList from "../topic/TopicList";
 import styled from "styled-components";
 import FollowingUserHandle from "../../components/following/FollowingUserHandle";
 import { NavLink } from "react-router-dom";
-import apiSuggestionTopics from "../../api/apiSuggestionTopics";
-import apiSuggestionUsers from "../../api/apiSuggestionUsers";
-import apiGetMyFollowingTopics from "../../api/apiGetMyFollowingTopics";
+import {
+  apiGetMyFollowingTopics,
+  apiSuggestionTopics,
+  apiSuggestionUsers,
+} from "../../api/api";
 const HomeSideStyle = styled.div`
   padding: 30px 0 0 30px;
   min-height: calc(100vh - 70px);

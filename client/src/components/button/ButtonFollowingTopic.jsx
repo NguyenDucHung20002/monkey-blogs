@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import { useState } from "react";
-import apiFollowTopic from "../../api/apiFollowTopic";
+import { apiFollowTopic } from "../../api/api";
 
 const ButtonFollowingTopic = ({ initialFollowing = false, slug = "" }) => {
   const [followed, setFollowed] = useState(initialFollowing);

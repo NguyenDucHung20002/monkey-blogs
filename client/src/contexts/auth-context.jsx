@@ -9,6 +9,7 @@ const { createContext, useContext, useState } = React;
 const AuthContext = createContext();
 function AuthProvider(props) {
   const [userInfo, setUserInfo] = useState({});
+  console.log("userInfo:", userInfo);
   const value = { userInfo, setUserInfo };
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();

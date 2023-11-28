@@ -12,8 +12,7 @@ import { toast } from "react-toastify";
 import { config } from "../../utils/constants";
 import axios from "axios";
 import { useParams } from "react-router-dom";
-import apiGetTopic from "../../api/apiGetTopic";
-import apiUpdateTopic from "../../api/apiUpdateTopic";
+import { apiGetTopic, apiUpdateTopic } from "../../api/api";
 
 const schema = yup.object({
   name: yup.string().required("Please fill out your name topic"),

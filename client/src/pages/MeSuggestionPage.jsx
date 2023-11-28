@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import FollowingUserHandle from "../components/following/FollowingUserHandle";
 import TopicUserHandle from "../components/topic/TopicUserHandle";
-import apiSuggestionTopics from "../api/apiSuggestionTopics";
-import apiSuggestionUsers from "../api/apiSuggestionUsers";
+import { apiSuggestionTopics, apiSuggestionUsers } from "../api/api";
 
 const MeSuggestionPage = () => {
   const [topics, setTopics] = useState([]);

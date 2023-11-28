@@ -11,11 +11,10 @@ import { useAuth } from "../contexts/auth-context";
 import { debounce } from "lodash";
 import DropdownSearchMain from "../components/dropdown/DropdownSearchMain";
 import useClickOutSide from "../hooks/useClickOutSide";
-import apiUserSearch from "../api/apiUserSearch";
-import apiTopicsSearch from "../api/apiTopicsSearch";
 import { config, icons } from "../utils/constants";
 import Notify from "../modules/notification/Notify";
 import axios from "axios";
+import { apiTopicsSearch, apiUserSearch } from "../api/api";
 
 const HomeStyle = styled.header`
   .wrapper {

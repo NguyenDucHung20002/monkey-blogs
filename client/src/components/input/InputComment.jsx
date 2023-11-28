@@ -2,7 +2,7 @@
 import { Input } from "antd";
 import { useState } from "react";
 import { useEffect } from "react";
-import apiAddComment from "../../api/apiAddComment";
+import { apiAddComment } from "../../api/api";
 
 const { TextArea } = Input;
 const InputComment = ({ slug = "", parentCommentId = "", commentValue }) => {

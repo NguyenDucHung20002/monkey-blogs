@@ -7,8 +7,7 @@ import ActionDelete from "../../action/ActionDelete";
 import { Table } from "../../components/table";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
-import apiGetTopics from "../../api/apiGetTopics";
-import apiDeleteTopic from "../../api/apiDeleteTopic";
+import { apiDeleteTopic, apiGetTopics } from "../../api/api";
 
 const TopicManage = () => {
   const navigate = useNavigate();

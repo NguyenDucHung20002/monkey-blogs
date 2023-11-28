@@ -13,7 +13,7 @@ import { useAuth } from "../../contexts/auth-context";
 import { config } from "../../utils/constants";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import apiAddTopic from "../../api/apiAddTopic";
+import { apiAddTopic } from "../../api/api";
 
 const schema = yup.object({
   name: yup.string().required("Please fill out your name topic"),

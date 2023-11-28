@@ -1,16 +1,20 @@
 /* eslint-disable react/prop-types */
 import { useState } from "react";
-import apiFollowUser from "../../api/apiFollowUser";
+import { apiFollowUser, apiUnFollowUser } from "../../api/api";
 
-const ButtonFollowingUser = ({ username = "", initialFollowing = false }) => {
-  const [followed, setFollowed] = useState(initialFollowing);
+const ButtonFollowingUser = ({ username = "" }) => {
+  const [followed, setFollowed] = useState(true);
   const token = localStorage.getItem("token");
 
   const handleFollow = async () => {
-    const res = apiFollowUser(username, token);
-    if (res) {
-      setFollowed(!followed);
+    if (followed) {
+      const res = await apiFollowUser(username, token);
+      console.log("res:", res);
+    } else {
+      const res = await apiUnFollowUser(username, token);
+      console.log("res:", res);
     }
+    setFollowed(!followed);
   };
 
   return (

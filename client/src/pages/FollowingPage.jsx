@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import Blog from "../modules/blog/Blog";
-import apiMyArticleFollowing from "../api/apiMyArticleFollowing";
+import { apiMyArticleFollowing } from "../api/api";
 
 const FollowingPageStyled = styled.div`
   max-width: 700px;

@@ -2,8 +2,11 @@
 
 import { useEffect, useState } from "react";
 import ButtonFollowingTopic from "../../components/button/ButtonFollowingTopic";
-import apiGetTopicFollowersAmount from "../../api/apiGetTopicFollowersAmount";
-import apiGetTopicArticlesAmount from "../../api/apiGetTopicArticlesAmount";
+
+import {
+  apiGetTopicArticlesAmount,
+  apiGetTopicFollowersAmount,
+} from "../../api/api";
 
 const TopicDisplay = ({ topic }) => {
   const [followers, setFollowers] = useState(0);

@@ -5,7 +5,7 @@ import { config } from "../utils/constants";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useAuth } from "../contexts/auth-context";
-import apiMyTopicsFollowing from "../api/apiMyTopicsFollowing";
+import { apiMyTopicsFollowing } from "../api/api";
 
 const MeFollowingPage = () => {
   const [topics, setTopics] = useState([]);

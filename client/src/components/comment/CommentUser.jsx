@@ -4,7 +4,7 @@ import Avatar from "../../modules/user/Avatar";
 import InputComment from "../input/InputComment";
 import { Link } from "react-router-dom";
 import { useCallback } from "react";
-import apiGetCommentReplies from "../../api/apiGetCommentReplies";
+import { apiGetCommentReplies } from "../../api/api";
 
 const CommentUser = ({ data = [], type = "parent", slug = "" }) => {
   const { _id: parentCommentId, content, author, createdAt, isAuthor } = data;
