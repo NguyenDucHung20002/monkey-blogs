@@ -9,53 +9,41 @@ import addUrlToImg from "../utils/addUrlToImg.js";
 // ==================== mute a profile ==================== //
 const muteAProfile = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
-  const { id } = req.params;
+  const user = req.user;
 
-  const profile = await Profile.findByPk(id, {
-    attributes: ["id", "fullname"],
-    include: { model: User, as: "userInfo", where: { status: "normal" } },
-  });
-
-  if (!profile) throw ErrorResponse(404, "Profile not found");
-
-  if (profile.id === me.profileInfo.id) {
+  if (user.profileInfo.id === me.profileInfo.id) {
     throw ErrorResponse(400, "You can not mute your own profile");
   }
 
   const mutes = await Mute.findOne({
-    where: { mutedId: profile.id, muterId: me.profileInfo.id },
+    where: { mutedId: user.profileInfo.id, muterId: me.profileInfo.id },
     attributes: ["id"],
   });
 
   if (!mutes) {
-    await Mute.create({ mutedId: profile.id, muterId: me.profileInfo.id });
+    await Mute.create({
+      mutedId: user.profileInfo.id,
+      muterId: me.profileInfo.id,
+    });
   }
 
   res.status(201).json({
     success: true,
-    message: `${profile.fullname} has been muted`,
+    message: `${user.profileInfo.fullname} has been muted`,
   });
 });
 
 // ==================== unmute a profile ==================== //
 const unMuteAProfile = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
-  const { id } = req.params;
+  const user = req.user;
 
-  const profile = await Profile.findOne({
-    where: { id },
-    attributes: ["id", "fullname"],
-    include: { model: User, as: "userInfo", where: { status: "normal" } },
-  });
-
-  if (!profile) throw ErrorResponse(404, "Profile not found");
-
-  if (profile.id === me.profileInfo.id) {
+  if (user.profileInfo.id === me.profileInfo.id) {
     throw ErrorResponse(400, "You can not unmute your own profile");
   }
 
   const mutes = await Mute.findOne({
-    where: { mutedId: profile.id, muterId: me.profileInfo.id },
+    where: { mutedId: user.profileInfo.id, muterId: me.profileInfo.id },
     attributes: ["id"],
   });
 
@@ -63,7 +51,7 @@ const unMuteAProfile = asyncMiddleware(async (req, res, next) => {
 
   res.json({
     success: true,
-    message: `${profile.fullname} has been unmuted`,
+    message: `${user.profileInfo.fullname} has been unmuted`,
   });
 });
 

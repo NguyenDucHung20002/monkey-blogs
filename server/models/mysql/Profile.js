@@ -7,7 +7,7 @@ const Profile = sequelize.define(
   {
     id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
 
-    avatar: { type: DataTypes.STRING, allowNull: false },
+    avatar: { type: DataTypes.STRING, allowNull: true },
 
     fullname: { type: DataTypes.STRING, allowNull: false },
 

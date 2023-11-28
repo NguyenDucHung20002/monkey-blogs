@@ -2,21 +2,13 @@ import { Op } from "sequelize";
 import asyncMiddleware from "../middlewares/asyncMiddleware.js";
 import User from "../models/mysql/User.js";
 import ErrorResponse from "../responses/ErrorResponse.js";
-import Profile from "../models/mysql/Profile.js";
 import Role from "../models/mysql/Role.js";
 
 // ==================== ban a user ==================== //
 const banAUser = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
-  const { id } = req.params;
+  const user = req.user;
   const { banType } = req.body;
-
-  const user = await User.findByPk(id, {
-    attributes: ["id", "bansCount", "status"],
-    include: { model: Profile, as: "profileInfo", attributes: ["fullname"] },
-  });
-
-  if (!user) throw ErrorResponse(404, "User not found");
 
   if (user.status === "banned") {
     throw ErrorResponse(404, `${user.profileInfo.fullname} already banned`);
@@ -49,22 +41,15 @@ const banAUser = asyncMiddleware(async (req, res, next) => {
 
   res.status(201).json({
     success: true,
-    message: `${user.profileInfo.fullname} has been banned`,
+    message: `${user.username} has been banned`,
   });
 });
 
 // ==================== update user ban ==================== //
 const updateUserBan = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
-  const { id } = req.params;
+  const user = req.user;
   const { banType } = req.body;
-
-  const user = await User.findByPk(id, {
-    attributes: ["id", "bansCount", "status"],
-    include: { model: Profile, as: "profileInfo", attributes: ["fullname"] },
-  });
-
-  if (!user) throw ErrorResponse(404, "User not found");
 
   if (user.status === "normal") {
     throw ErrorResponse(404, `${user.profileInfo.fullname} not banned`);
@@ -96,32 +81,25 @@ const updateUserBan = asyncMiddleware(async (req, res, next) => {
 
   res.json({
     success: true,
-    message: `Update ${user.profileInfo.fullname} ban successfully`,
+    message: `Update ${user.username} ban successfully`,
   });
 });
 
 // ==================== unban a user ==================== //
 const unBanAUser = asyncMiddleware(async (req, res, next) => {
-  const { id } = req.params;
-
-  const user = await User.findByPk(id, {
-    attributes: ["id", "bansCount"],
-    include: { model: Profile, as: "profileInfo", attributes: ["fullname"] },
-  });
-
-  if (!user) throw ErrorResponse(404, "User not found");
+  const user = req.user;
 
   await user.update({
     status: "normal",
     banType: null,
     bannedUntil: null,
-    bannedBy: null,
+    bannedById: null,
     bansCount: user.bansCount - 1,
   });
 
   res.json({
     success: true,
-    message: `${user.profileInfo.fullname} has been unbanned`,
+    message: `${user.username} has been unbanned`,
   });
 });
 
@@ -140,7 +118,7 @@ const getAllUsers = asyncMiddleware(async (req, res, next) => {
 
   const users = await User.findAll({
     where: whereQuery,
-    attributes: { exclude: ["roleId", "bannedById"] },
+    attributes: { exclude: ["roleId", "bannedById", "reportsCount"] },
     include: {
       model: User,
       as: "bannedBy",

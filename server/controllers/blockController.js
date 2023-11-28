@@ -6,74 +6,72 @@ import User from "../models/mysql/User.js";
 import ErrorResponse from "../responses/ErrorResponse.js";
 import addUrlToImg from "../utils/addUrlToImg.js";
 import Follow_Profile from "../models/mysql/Follow_Profile.js";
+import Mute from "../models/mysql/Mute.js";
 
 // ==================== block a profile ==================== //
 const blockAProfile = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
-  const { id } = req.params;
+  const user = req.user;
 
-  const profile = await Profile.findByPk(id, {
-    attributes: ["id", "fullname"],
-    include: {
-      model: User,
-      as: "userInfo",
-      where: { status: "normal" },
-      attributes: [],
-    },
-  });
-
-  if (!profile) throw ErrorResponse(404, "Profile not found");
-
-  if (profile.id === me.profileInfo.id) {
+  if (user.profileInfo.id === me.profileInfo.id) {
     throw ErrorResponse(400, "You can not block your own profile");
   }
 
   const blocks = await Block.findOne({
-    where: { blockedId: profile.id, blockerId: me.profileInfo.id },
+    where: { blockedId: user.profileInfo.id, blockerId: me.profileInfo.id },
     attributes: ["id"],
   });
 
   if (!blocks) {
     await Promise.all([
-      Block.create({ blockedId: profile.id, blockerId: me.profileInfo.id }),
-      Follow_Profile.destroy({
-        where: { followedId: me.profileInfo.id, followerId: profile.id },
+      Block.create({
+        blockedId: user.profileInfo.id,
+        blockerId: me.profileInfo.id,
       }),
       Follow_Profile.destroy({
-        where: { followedId: profile.id, followerId: me.profileInfo.id },
+        where: {
+          followedId: me.profileInfo.id,
+          followerId: user.profileInfo.id,
+        },
+      }),
+      Follow_Profile.destroy({
+        where: {
+          followedId: user.profileInfo.id,
+          followerId: me.profileInfo.id,
+        },
+      }),
+      Mute.destroy({
+        where: {
+          mutedId: user.profileInfo.id,
+          muterId: me.profileInfo.id,
+        },
+      }),
+      Mute.destroy({
+        where: {
+          mutedId: me.profileInfo.id,
+          muterId: user.profileInfo.id,
+        },
       }),
     ]);
   }
 
   res.status(201).json({
     success: true,
-    message: `${profile.fullname} has been blocked`,
+    message: `${user.profileInfo.fullname} has been blocked`,
   });
 });
 
 // ==================== unblock a profile ==================== //
 const unBlockAProfile = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
-  const { id } = req.params;
+  const user = req.user;
 
-  const profile = await Profile.findByPk(id, {
-    attributes: ["id", "fullname"],
-    include: {
-      model: User,
-      as: "userInfo",
-      where: { status: "normal" },
-      attributes: [],
-    },
-  });
-
-  if (!profile) throw ErrorResponse(404, "Profile not found");
-
-  if (profile.id === me.profileInfo.id) {
+  if (user.profileInfo.id === me.profileInfo.id) {
     throw ErrorResponse(400, "You can not unblock your own profile");
   }
 
   const blocks = await Block.findOne({
-    where: { blockedId: profile.id, blockerId: me.profileInfo.id },
+    where: { blockedId: user.profileInfo.id, blockerId: me.profileInfo.id },
     attributes: ["id"],
   });
 
@@ -81,7 +79,7 @@ const unBlockAProfile = asyncMiddleware(async (req, res, next) => {
 
   res.json({
     success: true,
-    message: `${profile.fullname} has been unblocked`,
+    message: `${user.profileInfo.fullname} has been unblocked`,
   });
 });
 

@@ -3,6 +3,8 @@ import muteController from "../controllers/muteController.js";
 import requiredAuth from "../middlewares/requiredAuth.js";
 import checkBanned from "../middlewares/checkBanned.js";
 import fetchMe from "../middlewares/fetchMe.js";
+import fetchUser from "../middlewares/fetchUser.js";
+import checkBlockedByUser from "../middlewares/checBlockedByUser.js";
 
 const router = express.Router();
 
@@ -11,6 +13,8 @@ router.post(
   requiredAuth,
   fetchMe,
   checkBanned,
+  fetchUser,
+  checkBlockedByUser,
   muteController.muteAProfile
 );
 
@@ -19,6 +23,7 @@ router.delete(
   requiredAuth,
   fetchMe,
   checkBanned,
+  fetchUser,
   muteController.unMuteAProfile
 );
 

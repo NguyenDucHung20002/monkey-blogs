@@ -3,6 +3,8 @@ import blockController from "../controllers/blockController.js";
 import requiredAuth from "../middlewares/requiredAuth.js";
 import checkBanned from "../middlewares/checkBanned.js";
 import fetchMe from "../middlewares/fetchMe.js";
+import fetchUser from "../middlewares/fetchUser.js";
+import checkBlockByUser from "../middlewares/checBlockedByUser.js";
 
 const router = express.Router();
 
@@ -11,6 +13,8 @@ router.post(
   requiredAuth,
   fetchMe,
   checkBanned,
+  fetchUser,
+  checkBlockByUser,
   blockController.blockAProfile
 );
 
@@ -19,6 +23,7 @@ router.delete(
   requiredAuth,
   fetchMe,
   checkBanned,
+  fetchUser,
   blockController.unBlockAProfile
 );
 

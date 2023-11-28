@@ -5,6 +5,8 @@ import authorize from "../middlewares/authorize.js";
 import fetchMe from "../middlewares/fetchMe.js";
 import validator from "../middlewares/validator.js";
 import userSchema from "../validations/userSchema.js";
+import fetchUser from "../middlewares/fetchUser.js";
+import checkBannedByUser from "../middlewares/checBlockedByUser.js";
 
 const router = express.Router();
 
@@ -13,6 +15,7 @@ router.patch(
   requiredAuth,
   fetchMe,
   authorize("staff", "admin"),
+  fetchUser,
   validator(userSchema.banAUserSchema),
   userController.banAUser
 );
@@ -22,6 +25,7 @@ router.patch(
   requiredAuth,
   fetchMe,
   authorize("staff", "admin"),
+  fetchUser,
   userController.unBanAUser
 );
 
@@ -30,6 +34,7 @@ router.patch(
   requiredAuth,
   fetchMe,
   authorize("staff", "admin"),
+  fetchUser,
   userController.updateUserBan
 );
 

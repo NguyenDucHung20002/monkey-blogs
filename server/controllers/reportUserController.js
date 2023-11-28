@@ -1,5 +1,4 @@
 import asyncMiddleware from "../middlewares/asyncMiddleware.js";
-import Profile from "../models/mysql/Profile.js";
 import User from "../models/mysql/User.js";
 import ErrorResponse from "../responses/ErrorResponse.js";
 import Report_User from "../models/mysql/Report_User.js";
@@ -9,28 +8,16 @@ import Role from "../models/mysql/Role.js";
 // ==================== report a user ==================== //
 const reportAUser = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
-  const { id } = req.params;
+  const user = req.user;
   const { reason, description } = req.body;
 
-  const profile = await Profile.findByPk(id, {
-    attributes: ["fullname"],
-    include: {
-      model: User,
-      as: "userInfo",
-      where: { status: "normal" },
-      attributes: ["id"],
-    },
-  });
-
-  if (!profile) throw ErrorResponse(404, "User not found");
-
-  if (profile.id === me.profileInfo.id) {
+  if (user.id === me.id) {
     throw ErrorResponse(400, "You can not report yourself");
   }
 
   const reportUser = await Report_User.findOne({
     where: {
-      reportedId: profile.userInfo.id,
+      reportedId: user.id,
       reporterId: me.id,
       status: "pending",
     },
@@ -46,17 +33,17 @@ const reportAUser = asyncMiddleware(async (req, res, next) => {
 
   await Promise.all([
     Report_User.create({
-      reportedId: profile.userInfo.id,
+      reportedId: user.id,
       reporterId: me.id,
       reason,
       description,
     }),
-    profile.userInfo.increment({ reportsCount: 1 }),
+    user.increment({ reportsCount: 1 }),
   ]);
 
   res.status(201).json({
     success: true,
-    message: `${profile.fullname} has been reported`,
+    message: `${user.profileInfo.fullname} has been reported`,
   });
 });
 
@@ -209,23 +196,20 @@ const getResolvedReports = asyncMiddleware(async (req, res, next) => {
 // ==================== Mark all reports of the user as resolved ==================== //
 const markAllResolved = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
-  const { id } = req.params;
-
-  const reported = await User.findByPk(id, {
-    attributes: ["id"],
-  });
-
-  if (!reported) throw ErrorResponse(404, "User not found");
+  const user = req.user;
 
   await Promise.all([
     Report_User.update(
       { status: "resolved", resolvedById: me.id },
-      { where: { status: "pending", reportedId: reported.id } }
+      { where: { status: "pending", reportedId: user.id } }
     ),
-    reported.update({ reportsCount: 0 }),
+    user.update({ reportsCount: 0 }),
   ]);
 
-  res.json({ success: true });
+  res.json({
+    success: true,
+    message: "All reports marked as resolved successfully",
+  });
 });
 
 // ==================== Mark a report of the user as resolved ==================== //
