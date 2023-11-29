@@ -11,6 +11,7 @@ import Follow_Profile from "../models/mysql/Follow_Profile.js";
 import Block from "../models/mysql/Block.js";
 import Like from "../models/mysql/Like.js";
 import addUrlToImg from "../utils/addUrlToImg.js";
+import Follow_Topic from "../models/mysql/Follow_Topic.js";
 
 // ==================== create article ==================== //
 const createArticle = asyncMiddleware(async (req, res, next) => {
@@ -298,7 +299,7 @@ const getAnArticle = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== get following articles ==================== //
-const getFollowingArticles = asyncMiddleware(async (req, res, next) => {
+const getFollowedProfilesArticles = asyncMiddleware(async (req, res, next) => {
   const { skip, limit = 15 } = req.query;
   const me = req.me;
 
@@ -372,6 +373,68 @@ const getFollowingArticles = asyncMiddleware(async (req, res, next) => {
   res.json({ success: true, data: articles, newSkip });
 });
 
+// ==================== get following articles ==================== //
+const getFollowedTopicArticles = asyncMiddleware(async (req, res, next) => {
+  const { skip, limit = 15 } = req.query;
+  const { slug } = req.params;
+  const me = req.me;
+
+  const topic = await Topic.findOne({
+    where: { slug },
+    attributes: ["id", "name", "slug"],
+  });
+
+  if (!topic) throw ErrorResponse(404, "Topic not found");
+
+  let whereQuery = {
+    authorId: { [Op.ne]: me.profileInfo.id },
+    status: "approved",
+  };
+
+  if (skip) whereQuery = { id: { [Op.lt]: skip } };
+
+  let articles = await Article.findAll({
+    where: whereQuery,
+    attributes: {
+      exclude: [
+        "authorId",
+        "content",
+        "likesCount",
+        "commentsCount",
+        "approvedById",
+        "status",
+      ],
+    },
+    include: [
+      {
+        model: Profile,
+        as: "author",
+        attributes: ["id", "fullname", "avatar"],
+        include: { model: User, as: "userInfo", attributes: ["username"] },
+      },
+      {
+        model: Topic,
+        as: "articleTopics",
+        where: { id: topic.id },
+        attributes: [],
+      },
+    ],
+    order: [["id", "DESC"]],
+    limit: Number(limit) ? Number(limit) : 15,
+  });
+
+  articles = await Promise.all(
+    articles.map(async (article) => {
+      article.author.avatar = addUrlToImg(article.author.avatar);
+      return { ...article.toJSON(), topic };
+    })
+  );
+
+  const newSkip = articles.length > 0 ? articles[articles.length - 1].id : null;
+
+  res.json({ success: true, data: articles, newSkip });
+});
+
 export default {
   createArticle,
   updateArticle,
@@ -381,5 +444,6 @@ export default {
   getProfileArticles,
   getAllArticles,
   getAnArticle,
-  getFollowingArticles,
+  getFollowedProfilesArticles,
+  getFollowedTopicArticles,
 };

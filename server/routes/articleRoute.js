@@ -29,7 +29,7 @@ router.get(
   "/following",
   requiredAuth,
   fetchMe,
-  articleController.getFollowingArticles
+  articleController.getFollowedProfilesArticles
 );
 
 router.get(
@@ -49,6 +49,13 @@ router.get(
   fetchUser,
   checkUserBanned,
   articleController.getProfileArticles
+);
+
+router.get(
+  "/topic/:slug",
+  requiredAuth,
+  fetchMe,
+  articleController.getFollowedTopicArticles
 );
 
 router.get("/:slug", optionalAuth, fetchMe, articleController.getAnArticle);

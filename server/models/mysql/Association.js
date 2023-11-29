@@ -224,7 +224,7 @@ Article.belongsTo(Profile, {
   as: "author",
 });
 
-// Article - Follow
+// Article - Follow Profile
 Article.hasOne(Follow_Profile, {
   sourceKey: "authorId",
   foreignKey: "followedId",
