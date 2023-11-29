@@ -216,3 +216,10 @@ Like.belongsTo(Profile, {
   foreignKey: "profileId",
   as: "articleLike",
 });
+Profile.hasMany(Article, {
+  foreignKey: "authorId",
+});
+Article.belongsTo(Profile, {
+  foreignKey: "authorId",
+  as: "author",
+});

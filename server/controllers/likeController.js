@@ -16,10 +16,14 @@ const likeAnArticle = asyncMiddleware(async (req, res, next) => {
 
   const article = await Article.findOne({
     where: { id, status: "approved" },
-    attributes: ["id"],
+    attributes: ["id", "authorId"],
   });
 
   if (!article) throw ErrorResponse(404, "Article not found");
+
+  if (article.authorId === me.profileInfo.id) {
+    throw ErrorResponse(400, "You can not like you own article");
+  }
 
   const like = await Like.findOne({
     where: { articleId: article.id, profileId: me.profileInfo.id },

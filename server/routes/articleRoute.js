@@ -5,6 +5,7 @@ import fetchMe from "../middlewares/fetchMe.js";
 import authorize from "../middlewares/authorize.js";
 import fetchUser from "../middlewares/fetchUser.js";
 import checkUserBanned from "../middlewares/checkUserBanned.js";
+import optionalAuth from "../middlewares/optionalAuth.js";
 
 const router = express.Router();
 
@@ -37,10 +38,12 @@ router.patch("/:id", requiredAuth, fetchMe, articleController.updateArticle);
 router.delete("/:id", requiredAuth, fetchMe, articleController.deleteArticle);
 
 router.get(
-  "/:username",
+  "/:username/all",
   fetchUser,
   checkUserBanned,
   articleController.getProfileArticles
 );
+
+router.get("/:slug", optionalAuth, fetchMe, articleController.getAnArticle);
 
 export default router;

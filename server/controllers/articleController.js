@@ -4,9 +4,12 @@ import toSlug from "../utils/toSlug.js";
 import Article from "../models/mysql/Article.js";
 import Topic from "../models/mysql/Topic.js";
 import Article_Topic from "../models/mysql/Article_Topic.js";
-import User from "../models/mysql/User.js";
-import Profile from "../models/mysql/Profile.js";
 import { Op } from "sequelize";
+import Profile from "../models/mysql/Profile.js";
+import User from "../models/mysql/User.js";
+import Follow_Profile from "../models/mysql/Follow_Profile.js";
+import Block from "../models/mysql/Block.js";
+import Like from "../models/mysql/Like.js";
 
 // ==================== create article ==================== //
 const createArticle = asyncMiddleware(async (req, res, next) => {
@@ -155,7 +158,14 @@ const getProfileArticles = asyncMiddleware(async (req, res, next) => {
   let articles = await Article.findAll({
     where: whereQuery,
     attributes: {
-      exclude: ["authorId", "content", "status", "likesCount", "commentsCount"],
+      exclude: [
+        "authorId",
+        "content",
+        "status",
+        "likesCount",
+        "commentsCount",
+        "approvedById",
+      ],
     },
     order: [["id", "DESC"]],
     limit: Number(limit) ? Number(limit) : 15,
@@ -215,6 +225,75 @@ const getAllArticles = asyncMiddleware(async (req, res, next) => {
   res.json({ success: true, data: articles, newSkip });
 });
 
+// ==================== get an article ==================== //
+const getAnArticle = asyncMiddleware(async (req, res, next) => {
+  const { slug } = req.params;
+  const me = req.me ? req.me : null;
+
+  let article = await Article.findOne({
+    where: { slug, status: "approved" },
+    attributes: {
+      exclude: ["approvedById", "preview", "slug", "authorId", "status"],
+    },
+    include: [
+      {
+        model: Profile,
+        as: "author",
+        attributes: ["id", "fullname"],
+        include: { model: User, as: "userInfo", attributes: ["username"] },
+      },
+      {
+        model: Topic,
+        as: "articleTopics",
+        through: { attributes: [] },
+        attributes: ["id", "name", "slug"],
+        where: { status: "approved" },
+        required: false,
+      },
+    ],
+  });
+
+  if (!article) throw ErrorResponse(404, "Article not found");
+
+  if (me && me.profileInfo.id === article.author.id) {
+    article = { ...article.toJSON(), isMyArticle: true };
+  }
+
+  if (me && me.profileInfo.id !== article.author.id) {
+    const isBlockedByUser = !!(await Block.findOne({
+      where: { blockedId: me.profileInfo.id, blockerId: article.author.id },
+      attributes: ["id"],
+    }));
+
+    if (isBlockedByUser) {
+      return res.json({
+        success: true,
+        message: `You can not view this article because the author already blocked you`,
+      });
+    }
+    const [authorBlocked, authorFollowed, articleLiked] = await Promise.all([
+      Block.findOne({
+        where: { blockedId: article.author.id, blockerId: me.profileInfo.id },
+      }),
+      Follow_Profile.findOne({
+        where: { followedId: article.author.id, followerId: me.profileInfo.id },
+      }),
+      Like.findOne({
+        where: { articleId: article.id, profileId: me.profileInfo.id },
+      }),
+    ]);
+
+    article = {
+      ...article.toJSON(),
+      authorBlocked: !!authorBlocked,
+      authorFollowed: !!authorFollowed,
+      articleLiked: !!articleLiked,
+    };
+  }
+
+  res.json({ success: true, data: article });
+});
+
 export default {
   createArticle,
   updateArticle,
@@ -223,4 +302,5 @@ export default {
   getMyApprovedArticles,
   getProfileArticles,
   getAllArticles,
+  getAnArticle,
 };

@@ -10,6 +10,8 @@ const fetchMe = async (req, res, next) => {
     const myUserId =
       req.jwtPayLoad && req.jwtPayLoad.id ? req.jwtPayLoad.id : null;
 
+    console.log(myUserId);
+
     if (!myUserId) {
       next();
       return;
