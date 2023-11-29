@@ -49,4 +49,12 @@ router.patch(
   reportArticleController.markAReportAsResolved
 );
 
+router.get(
+  "/resolved",
+  requiredAuth,
+  fetchMe,
+  authorize("staff", "admin"),
+  reportArticleController.getResolvedReports
+);
+
 export default router;

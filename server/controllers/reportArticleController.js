@@ -194,6 +194,44 @@ const markAllResolved = asyncMiddleware(async (req, res, next) => {
   });
 });
 
+// ==================== Get resolved reports ==================== //
+const getResolvedReports = asyncMiddleware(async (req, res, next) => {
+  const { skip, limit = 15 } = req.query;
+
+  let whereQuery = { status: "resolved" };
+
+  if (skip) whereQuery.id = { [Op.lt]: skip };
+
+  let reports = await Report_Article.findAll({
+    where: whereQuery,
+    attributes: { exclude: ["articleId", "userId", "resolvedById"] },
+    include: [
+      {
+        model: Article,
+        as: "article",
+        attributes: ["id", "title", "banner", "slug", "reportsCount", "status"],
+      },
+      { model: User, as: "user", attributes: ["id", "username", "email"] },
+      {
+        model: User,
+        as: "resolvedBy",
+        attributes: ["id", "username", "email"],
+        include: {
+          model: Role,
+          as: "role",
+          attributes: ["name", "slug"],
+        },
+      },
+    ],
+    order: [["id", "DESC"]],
+    limit: Number(limit) ? Number(limit) : 15,
+  });
+
+  const newSkip = reports.length > 0 ? reports[reports.length - 1].id : null;
+
+  res.json({ success: true, data: reports, newSkip });
+});
+
 export default {
   reportAnArticle,
   getPendingReportedArticles,
