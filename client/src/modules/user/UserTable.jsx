@@ -5,28 +5,66 @@ import useTimeAgo from "../../hooks/useTimeAgo";
 import { NavLink } from "react-router-dom";
 import { Tag, Table, Popover } from "antd";
 import Column from "antd/es/table/Column";
-import { apiGetAllUser } from "../../api/api";
+import {
+  apiBanUser,
+  apiGetAllUser,
+  apiLiftTheBan,
+  apiUpdateBan,
+} from "../../api/api";
+import { toast } from "react-toastify";
 
 const UserTable = () => {
   const getTimeAgo = useTimeAgo;
   const [users, setUsers] = useState([]);
   console.log("users:", users);
+  const token = localStorage.getItem("token");
+  const [statusRender, setStatusRender] = useState(false);
   const banTypes = ["1week", "1month", "1year", "permanent"];
 
   useEffect(() => {
     async function fetchUsers() {
-      const response = await apiGetAllUser();
+      const response = await apiGetAllUser(token);
       if (response) {
-        console.log("response:", response);
         setUsers(response.data);
       }
       return [];
     }
 
     fetchUsers();
-  }, []);
+  }, [statusRender]);
 
-  const handleLiftTheBan = () => {};
+  const handleLiftTheBan = async (userId) => {
+    const response = await apiLiftTheBan(token, userId);
+    if (response.success) {
+      toast.success(response.message, {
+        pauseOnHover: true,
+        delay: 200,
+      });
+      setStatusRender(!statusRender);
+    }
+  };
+
+  const handleUpdateBan = async (type, userId) => {
+    const response = await apiUpdateBan(token, userId, type);
+    if (response.success) {
+      toast.success(response.message, {
+        pauseOnHover: true,
+        delay: 200,
+      });
+      setStatusRender(!statusRender);
+    }
+  };
+
+  const handleBanUser = async (type, userId) => {
+    const response = await apiBanUser(token, userId, type);
+    if (response.success) {
+      toast.success(response.message, {
+        pauseOnHover: true,
+        delay: 200,
+      });
+      setStatusRender(!statusRender);
+    }
+  };
 
   const ButtonBaned = ({ bannedBy, banType, bannedUntil }) => (
     <Popover
@@ -77,10 +115,11 @@ const UserTable = () => {
                 placement="left"
                 content={
                   <>
-                    {banTypes.map((type) => (
+                    {banTypes.map((type, index) => (
                       <button
-                        key={type}
+                        key={index}
                         className="block w-full p-1 hover:text-blue-400 text-left"
+                        onClick={() => handleBanUser(type, user.id)}
                       >
                         {type}
                       </button>
@@ -100,10 +139,11 @@ const UserTable = () => {
                   placement="left"
                   content={
                     <>
-                      {banTypes.map((type) => (
+                      {banTypes.map((type, index) => (
                         <button
-                          key={type}
+                          key={index}
                           className="block w-full p-1 hover:text-blue-400 text-left"
+                          onClick={() => handleUpdateBan(type, user.id)}
                         >
                           {type}
                         </button>
@@ -117,7 +157,7 @@ const UserTable = () => {
                 </Popover>
                 <button
                   className="block w-full py-2 hover:text-blue-400 text-left"
-                  onClick={(type) => handleLiftTheBan(type)}
+                  onClick={() => handleLiftTheBan(user.id)}
                 >
                   Lift the ban
                 </button>

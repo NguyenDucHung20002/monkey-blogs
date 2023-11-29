@@ -168,8 +168,7 @@ const apiFollowUser = async (userID, token) => {
   return false;
 };
 
-const apiGetAllUser = async () => {
-  const token = localStorage.getItem("token");
+const apiGetAllUser = async (token) => {
   if (!token) return;
   try {
     const response = await axios.get(`${config.SERVER_HOST}/user?limit=10 `, {
@@ -519,15 +518,12 @@ const apiTopicsSearch = async (inputSearch) => {
 
 const apiUnFollowUser = async (userID, token) => {
   const res = await axios
-    .delete(
-      `${config.SERVER_HOST}/follow-profile/${userID}`,
-      {
-        headers: {
-          authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      }
-    )
+    .delete(`${config.SERVER_HOST}/follow-profile/${userID}`, {
+      headers: {
+        authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    })
     .catch((err) => {
       if (err.response.status == 404) {
         toast.error("Can not find user!", {
@@ -630,14 +626,90 @@ const apiUserSearch = async (inputSearch) => {
   }
 };
 
-const apiUpdateProfile = async (token,formData) => {
+const apiUpdateBan = async (token, userId, banType) => {
+  if ((!token, !userId)) return null;
+  try {
+    const response = await axios.patch(
+      `${config.SERVER_HOST}/user/update/${userId}`,
+      {
+        banType,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response?.data) return response.data;
+  } catch (error) {
+    if (error.response.status == 404) {
+      toast.error("Users empty!", {
+        pauseOnHover: true,
+        delay: 300,
+      });
+    }
+  }
+};
+
+const apiBanUser = async (token, userId, banType) => {
+  if (!userId && !banType && !token) return null;
+  try {
+    const response = await axios.patch(
+      `${config.SERVER_HOST}/user/ban/${userId}`,
+      {
+        banType,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response?.data) return response.data;
+  } catch (error) {
+    if (error.response.status == 404) {
+      toast.error("Users empty!", {
+        pauseOnHover: true,
+        delay: 300,
+      });
+    }
+  }
+};
+
+const apiLiftTheBan = async (token, userId) => {
+  if (!userId && !token) return null;
+  try {
+    const response = await axios.patch(
+      `${config.SERVER_HOST}/user/unban/${userId}`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response?.data) return response.data;
+  } catch (error) {
+    if (error.response.status == 404) {
+      toast.error("Users empty!", {
+        pauseOnHover: true,
+        delay: 300,
+      });
+    }
+  }
+};
+
+const apiUpdateProfile = async (token, formData) => {
   try {
     const res = await axios
-      .patch(`${config.SERVER_HOST}/profile/me/update`,formData,{
-        headers:{
+      .patch(`${config.SERVER_HOST}/profile/me/update`, formData, {
+        headers: {
           Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        }
+          "Content-Type": "application/json",
+        },
       })
       .catch((err) => {
         console.log(err);
@@ -651,47 +723,49 @@ const apiUpdateProfile = async (token,formData) => {
   }
 };
 
-const apiMuteUser = async (type='post',token, userId) => {
+const apiMuteUser = async (type = "post", token, userId) => {
   try {
-    const data = await fetch(`${config.SERVER_HOST}/mute/${userId}`,{
-      method:type,
+    const data = await fetch(`${config.SERVER_HOST}/mute/${userId}`, {
+      method: type,
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
-      }
-    }).then((response) => response.json())
+      },
+    })
+      .then((response) => response.json())
       .catch((err) => {
         console.log(err);
       });
 
-      if (!data?.success) {
-        console.log("apiMuteUser:",data.message);
-        return false;
-      }
-      return true;
+    if (!data?.success) {
+      console.log("apiMuteUser:", data.message);
+      return false;
+    }
+    return true;
   } catch (error) {
     console.log("error:", error);
   }
 };
 
-const apiBlockUser = async (type='post',token, userId) => {
+const apiBlockUser = async (type = "post", token, userId) => {
   try {
-    const data = await fetch(`${config.SERVER_HOST}/block/${userId}`,{
-      method:type,
+    const data = await fetch(`${config.SERVER_HOST}/block/${userId}`, {
+      method: type,
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
-      }
-    }).then((response) => response.json())
+      },
+    })
+      .then((response) => response.json())
       .catch((err) => {
         console.log(err);
       });
 
-      if (!data?.success) {
-        console.log("apiBlockUser:",data.message);
-        return false;
-      }
-      return true;
+    if (!data?.success) {
+      console.log("apiBlockUser:", data.message);
+      return false;
+    }
+    return true;
   } catch (error) {
     console.log("error:", error);
   }
@@ -718,8 +792,10 @@ const apiReportUser = async (token, userId,reason,description) => {
 export {
   apiAddTopic,
   apiAddComment,
+  apiBanUser,
   apiDeleteArticle,
   apiDeleteTopic,
+  apiLiftTheBan,
   apiFollowTopic,
   apiFollowUser,
   apiGetAllUser,
@@ -740,13 +816,14 @@ export {
   apiMyTopicsFollowing,
   apiSuggestionTopics,
   apiSuggestionUsers,
-  apiTopicsSearch,
   apiUnFollowUser,
   apiUpdateArticle,
   apiUpdateTopic,
+  apiUpdateBan,
   apiUserSearch,
+  apiTopicsSearch,
   apiUpdateProfile,
   apiMuteUser,
   apiBlockUser,
-  apiReportUser,
+
 };

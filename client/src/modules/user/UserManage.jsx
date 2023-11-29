@@ -7,12 +7,7 @@ const UserManage = () => {
   // if (userInfo.role !== userRole.ADMIN) return null;
   return (
     <div>
-      <DashboardHeading title="Users" desc="Manage your user">
-        <Button kind="primary" height="50px" to="/manage/add-user">
-          Create user
-        </Button>
-      </DashboardHeading>
-
+      <DashboardHeading title="Users"></DashboardHeading>
       <UserTable></UserTable>
     </div>
   );
