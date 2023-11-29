@@ -75,11 +75,13 @@ const getATopic = asyncMiddleware(async (req, res, next) => {
   if (!topic) throw ErrorResponse(404, "Topic not found");
 
   if (me) {
-    const isFollowed = !!(await Follow_Topic.findOne({
-      where: { topicId: topic.id, profileId: me.profileInfo.id },
-      attributes: ["id"],
-    }));
-    topic = { ...topic.toJSON(), isFollowed };
+    topic = {
+      ...topic.toJSON(),
+      isFollowed: !!(await Follow_Topic.findOne({
+        where: { topicId: topic.id, profileId: me.profileInfo.id },
+        attributes: ["id"],
+      })),
+    };
   }
 
   res.json({ success: true, data: topic });

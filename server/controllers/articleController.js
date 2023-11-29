@@ -10,6 +10,7 @@ import User from "../models/mysql/User.js";
 import Follow_Profile from "../models/mysql/Follow_Profile.js";
 import Block from "../models/mysql/Block.js";
 import Like from "../models/mysql/Like.js";
+import addUrlToImg from "../utils/addUrlToImg.js";
 
 // ==================== create article ==================== //
 const createArticle = asyncMiddleware(async (req, res, next) => {
@@ -217,7 +218,7 @@ const getAllArticles = asyncMiddleware(async (req, res, next) => {
       exclude: ["content", "likesCount", "commentsCount", "banner", "authorId"],
     },
     order: [["id", "DESC"]],
-    limit: Number(limit) && Number.isInteger(limit) ? limit : 15,
+    limit: Number(limit) ? Number(limit) : 15,
   });
 
   const newSkip = articles.length > 0 ? articles[articles.length - 1].id : null;
@@ -239,7 +240,7 @@ const getAnArticle = asyncMiddleware(async (req, res, next) => {
       {
         model: Profile,
         as: "author",
-        attributes: ["id", "fullname"],
+        attributes: ["id", "fullname", "fullname"],
         include: { model: User, as: "userInfo", attributes: ["username"] },
       },
       {
@@ -254,6 +255,8 @@ const getAnArticle = asyncMiddleware(async (req, res, next) => {
   });
 
   if (!article) throw ErrorResponse(404, "Article not found");
+
+  article.author.avatar = addUrlToImg(article.author.avatar);
 
   if (me && me.profileInfo.id === article.author.id) {
     article = { ...article.toJSON(), isMyArticle: true };
@@ -294,6 +297,81 @@ const getAnArticle = asyncMiddleware(async (req, res, next) => {
   res.json({ success: true, data: article });
 });
 
+// ==================== get following articles ==================== //
+const getFollowingArticles = asyncMiddleware(async (req, res, next) => {
+  const { skip, limit = 15 } = req.query;
+  const me = req.me;
+
+  let whereQuery = {
+    authorId: { [Op.ne]: me.profileInfo.id },
+    status: "approved",
+  };
+
+  if (skip) whereQuery = { id: { [Op.lt]: skip } };
+
+  let articles = await Article.findAll({
+    where: whereQuery,
+    attributes: {
+      exclude: [
+        "authorId",
+        "content",
+        "likesCount",
+        "commentsCount",
+        "approvedById",
+        "status",
+      ],
+    },
+    include: [
+      {
+        model: Follow_Profile,
+        as: "authorFollowed",
+        where: { followerId: me.profileInfo.id },
+        attributes: [],
+      },
+      {
+        model: Profile,
+        as: "author",
+        attributes: ["id", "fullname", "avatar"],
+        include: { model: User, as: "userInfo", attributes: ["username"] },
+      },
+    ],
+    order: [["id", "DESC"]],
+    limit: Number(limit) ? Number(limit) : 15,
+  });
+
+  articles = await Promise.all(
+    articles.map(async (article) => {
+      article.author.avatar = addUrlToImg(article.author.avatar);
+      const topic = await Article_Topic.findOne({
+        attributes: [],
+        where: { articleId: article.id },
+        include: {
+          model: Topic,
+          as: "topic",
+          attributes: ["id", "name", "slug"],
+          where: { status: "approved" },
+        },
+        order: [["id", "ASC"]],
+      });
+      if (topic) {
+        return {
+          ...article.toJSON(),
+          topic: {
+            id: topic.topic.id,
+            name: topic.topic.name,
+            slug: topic.topic.slug,
+          },
+        };
+      }
+      return { ...article.toJSON(), topic: null };
+    })
+  );
+
+  const newSkip = articles.length > 0 ? articles[articles.length - 1].id : null;
+
+  res.json({ success: true, data: articles, newSkip });
+});
+
 export default {
   createArticle,
   updateArticle,
@@ -303,4 +381,5 @@ export default {
   getProfileArticles,
   getAllArticles,
   getAnArticle,
+  getFollowingArticles,
 };

@@ -26,6 +26,13 @@ router.get(
 );
 
 router.get(
+  "/following",
+  requiredAuth,
+  fetchMe,
+  articleController.getFollowingArticles
+);
+
+router.get(
   "/",
   requiredAuth,
   fetchMe,
