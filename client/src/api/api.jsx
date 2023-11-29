@@ -392,7 +392,7 @@ const apiGetTopics = async (token, limit = "10", search = "", skip = "") => {
 const apiGetUserBlogs = async (username) => {
   try {
     const res = await axios
-      .get(`${config.SERVER_HOST}/article/${username}`, {})
+      .get(`${config.SERVER_HOST}/article/${username}/all`, {})
       .catch((err) => {
         console.log(err);
       });
@@ -801,6 +801,25 @@ const apiApproveTopic = async (token, id) => {
     console.log("error:", error);
   }
 };
+const apiReportUser = async (token, userId, reason, description) => {
+  try {
+    const res = await fetch(`${config.SERVER_HOST}/report-user/${userId}`, {
+      method: "post",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ reason, description }),
+    })
+      .then((response) => response.json())
+      .catch((err) => {
+        console.log(err);
+      });
+    return res;
+  } catch (error) {
+    console.log("error:", error);
+  }
+};
 
 export {
   apiAddTopic,
@@ -839,4 +858,5 @@ export {
   apiTopicsSearch,
   apiMuteUser,
   apiBlockUser,
+  apiReportUser,
 };
