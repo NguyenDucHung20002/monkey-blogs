@@ -11,7 +11,7 @@ import Follow_Profile from "../models/mysql/Follow_Profile.js";
 import Block from "../models/mysql/Block.js";
 import Like from "../models/mysql/Like.js";
 import addUrlToImg from "../utils/addUrlToImg.js";
-import Follow_Topic from "../models/mysql/Follow_Topic.js";
+import Mute from "../models/mysql/Mute.js";
 
 // ==================== create article ==================== //
 const createArticle = asyncMiddleware(async (req, res, next) => {
@@ -306,6 +306,7 @@ const getFollowedProfilesArticles = asyncMiddleware(async (req, res, next) => {
   let whereQuery = {
     authorId: { [Op.ne]: me.profileInfo.id },
     status: "approved",
+    "$authorMuted.mutedId$": null,
   };
 
   if (skip) whereQuery = { id: { [Op.lt]: skip } };
@@ -328,6 +329,13 @@ const getFollowedProfilesArticles = asyncMiddleware(async (req, res, next) => {
         as: "authorFollowed",
         where: { followerId: me.profileInfo.id },
         attributes: [],
+      },
+      {
+        model: Mute,
+        as: "authorMuted",
+        where: { muterId: me.profileInfo.id },
+        attributes: [],
+        required: false,
       },
       {
         model: Profile,
@@ -373,7 +381,7 @@ const getFollowedProfilesArticles = asyncMiddleware(async (req, res, next) => {
   res.json({ success: true, data: articles, newSkip });
 });
 
-// ==================== get following articles ==================== //
+// ==================== get followed topic articles ==================== //
 const getFollowedTopicArticles = asyncMiddleware(async (req, res, next) => {
   const { skip, limit = 15 } = req.query;
   const { slug } = req.params;
@@ -389,6 +397,7 @@ const getFollowedTopicArticles = asyncMiddleware(async (req, res, next) => {
   let whereQuery = {
     authorId: { [Op.ne]: me.profileInfo.id },
     status: "approved",
+    "$authorBlocked.blockedId$": null,
   };
 
   if (skip) whereQuery = { id: { [Op.lt]: skip } };
@@ -418,7 +427,15 @@ const getFollowedTopicArticles = asyncMiddleware(async (req, res, next) => {
         where: { id: topic.id },
         attributes: [],
       },
+      {
+        model: Block,
+        as: "authorBlocked",
+        attributes: [],
+        where: { blockerId: me.profileInfo.id },
+        required: false,
+      },
     ],
+    subQuery: false,
     order: [["id", "DESC"]],
     limit: Number(limit) ? Number(limit) : 15,
   });

@@ -12,6 +12,7 @@ import Article_Topic from "./Article_Topic.js";
 import Draft from "./Draft.js";
 import Like from "./Like.js";
 import Report_Article from "./Report_Article.js";
+import Comment from "./Comment.js";
 
 // Role - User (1-n)
 Role.hasMany(User, {
@@ -232,6 +233,20 @@ Article.hasOne(Follow_Profile, {
   as: "authorFollowed",
 });
 
+// Article - Mute
+Article.hasOne(Mute, {
+  sourceKey: "authorId",
+  foreignKey: "mutedId",
+  as: "authorMuted",
+});
+
+// Article - Block
+Article.hasOne(Block, {
+  sourceKey: "authorId",
+  foreignKey: "blockedId",
+  as: "authorBlocked",
+});
+
 // Article - User (n-n)
 Report_Article.belongsTo(Article, {
   foreignKey: "articleId",
@@ -254,4 +269,13 @@ User.hasMany(Article, {
 Article.belongsTo(User, {
   foreignKey: "approvedById",
   as: "approvedBy",
+});
+
+// Comment - Comment (1-n)
+Comment.hasMany(Comment, {
+  foreignKey: "parentCommentId",
+});
+Comment.belongsTo(Comment, {
+  foreignKey: "parentCommentId",
+  as: "repliesComment",
 });

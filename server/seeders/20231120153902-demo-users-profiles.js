@@ -1,40 +1,46 @@
 "use strict";
 const { faker } = require("@faker-js/faker");
 
+const generateDate = () => new Date();
+
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    const users = [];
+    const data = [];
 
     for (let i = 0; i < 1000; i++) {
       const email = faker.internet.email();
 
-      users.push({
+      const user = {
         username: `@${email.split("@")[0]}`,
         email: email,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      });
-    }
+        createdAt: generateDate(),
+        updatedAt: generateDate(),
+      };
 
-    await queryInterface.bulkInsert("users", users);
-
-    const profiles = [];
-
-    for (let i = 1; i <= 1000; i++) {
-      profiles.push({
+      const profile = {
         fullname: faker.person.fullName(),
         avatar: faker.image.avatar(),
-        userId: i,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      });
+        userId: i + 1,
+        createdAt: generateDate(),
+        updatedAt: generateDate(),
+      };
+
+      data.push({ user, profile });
     }
 
-    await queryInterface.bulkInsert("profiles", profiles);
+    const users = data.map((item) => item.user);
+    const profiles = data.map((item) => item.profile);
+
+    await Promise.all([
+      queryInterface.bulkInsert("users", users),
+      queryInterface.bulkInsert("profiles", profiles),
+    ]);
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.bulkDelete("profiles", null, {});
-    await queryInterface.bulkDelete("users", null, {});
+    await Promise.all([
+      queryInterface.bulkDelete("profiles", null, {}),
+      queryInterface.bulkDelete("users", null, {}),
+    ]);
   },
 };

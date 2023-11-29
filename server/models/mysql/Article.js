@@ -54,7 +54,7 @@ const Article = sequelize.define(
     status: {
       type: DataTypes.ENUM("pending", "approved"),
       allowNull: false,
-      defaultValue: "pending",
+      defaultValue: "approved",
     },
   },
 

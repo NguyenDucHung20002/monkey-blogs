@@ -29,6 +29,7 @@ import artcileRoute from "./routes/articleRoute.js";
 import likeRoute from "./routes/likeRoute.js";
 import roleRoute from "./routes/roleRoute.js";
 import reportArticleRoute from "./routes/reportArticleRoute.js";
+import commentRoute from "./routes/commentRoute.js";
 
 app.use(express.json());
 app.use(morgan("dev"));
@@ -67,6 +68,7 @@ app.use("/api/v1/article", artcileRoute);
 app.use("/api/v1/like", likeRoute);
 app.use("/api/v1/role", roleRoute);
 app.use("/api/v1/report-article", reportArticleRoute);
+app.use("/api/v1/comment", commentRoute);
 
 app.use(errorMiddleware);
 
