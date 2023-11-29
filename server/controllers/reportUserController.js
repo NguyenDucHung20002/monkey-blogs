@@ -49,7 +49,7 @@ const reportAUser = asyncMiddleware(async (req, res, next) => {
 
 // ==================== get list of peding reported users ==================== //
 const getPendingReportedUsers = asyncMiddleware(async (req, res, next) => {
-  const { skipId, skipReportsCount, limit = 15, search } = req.query;
+  const { skipId, skipCount, limit = 15, search } = req.query;
 
   let whereQuery = {};
 
@@ -60,14 +60,11 @@ const getPendingReportedUsers = asyncMiddleware(async (req, res, next) => {
     ];
   }
 
-  if (skipId && skipReportsCount) {
+  if (skipId && skipCount) {
     whereQuery[Op.or] = [
-      { reportsCount: { [Op.lt]: skipReportsCount } },
+      { reportsCount: { [Op.lt]: skipCount } },
       {
-        [Op.and]: [
-          { reportsCount: skipReportsCount },
-          { id: { [Op.gt]: skipId } },
-        ],
+        [Op.and]: [{ reportsCount: skipCount }, { id: { [Op.gt]: skipId } }],
       },
     ];
   }
@@ -111,7 +108,7 @@ const getPendingReportedUsers = asyncMiddleware(async (req, res, next) => {
 
   const newSkipId =
     reports.length > 0 ? reports[reports.length - 1].reportedId : null;
-  const newSkipReportsCount =
+  const newSkipCount =
     reports.length > 0
       ? reports[reports.length - 1].reported.reportsCount
       : null;
@@ -120,7 +117,7 @@ const getPendingReportedUsers = asyncMiddleware(async (req, res, next) => {
     success: true,
     data: reportedUsers,
     newSkipId,
-    newSkipReportsCount,
+    newSkipCount,
   });
 });
 

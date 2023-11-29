@@ -11,6 +11,7 @@ import Article from "./Article.js";
 import Article_Topic from "./Article_Topic.js";
 import Draft from "./Draft.js";
 import Like from "./Like.js";
+import Report_Article from "./Report_Article.js";
 
 // Role - User (1-n)
 Role.hasMany(User, {
@@ -229,4 +230,28 @@ Article.hasOne(Follow_Profile, {
   sourceKey: "authorId",
   foreignKey: "followedId",
   as: "authorFollowed",
+});
+
+// Article - User (n-n)
+Report_Article.belongsTo(Article, {
+  foreignKey: "articleId",
+  as: "article",
+});
+Report_Article.belongsTo(User, {
+  foreignKey: "userId",
+  as: "user",
+});
+User.hasMany(Report_Article, {
+  foreignKey: "resolvedById",
+});
+Report_Article.belongsTo(User, {
+  foreignKey: "resolvedById",
+  as: "resolvedBy",
+});
+User.hasMany(Article, {
+  foreignKey: "approvedById",
+});
+Article.belongsTo(User, {
+  foreignKey: "approvedById",
+  as: "approvedBy",
 });

@@ -1,6 +1,7 @@
 import { DataTypes } from "sequelize";
 import sequelize from "../../databases/mysql/connect.js";
 import Profile from "../mysql/Profile.js";
+import User from "./User.js";
 
 const Article = sequelize.define(
   "Article",
@@ -35,9 +36,19 @@ const Article = sequelize.define(
       defaultValue: 0,
     },
 
+    reportsCount: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
+    },
+
     approvedById: {
       type: DataTypes.INTEGER,
       allowNull: true,
+      references: {
+        model: User,
+        key: "id",
+      },
     },
 
     status: {

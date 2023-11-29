@@ -298,7 +298,7 @@ const getAnArticle = asyncMiddleware(async (req, res, next) => {
   res.json({ success: true, data: article });
 });
 
-// ==================== get following articles ==================== //
+// ==================== get followed profiles articles ==================== //
 const getFollowedProfilesArticles = asyncMiddleware(async (req, res, next) => {
   const { skip, limit = 15 } = req.query;
   const me = req.me;
