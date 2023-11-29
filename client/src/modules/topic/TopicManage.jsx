@@ -12,6 +12,7 @@ import { apiDeleteTopic, apiGetTopics } from "../../api/api";
 const TopicManage = () => {
   const navigate = useNavigate();
   const [topics, setTopics] = useState([]);
+  console.log("topics:", topics);
   const token = localStorage.getItem("token");
   useEffect(() => {
     async function fetchTopic() {
@@ -72,7 +73,7 @@ const TopicManage = () => {
             topics.length > 0 &&
             topics.map((topic, index) => (
               <tr key={index}>
-                <td>{topic._id}</td>
+                <td>{topic.id}</td>
                 <td>{topic.name}</td>
                 <td>
                   <span className="italic text-gray-400">{topic.slug}</span>

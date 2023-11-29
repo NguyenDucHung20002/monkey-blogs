@@ -169,8 +169,7 @@ const apiFollowUser = async (username, token) => {
   return false;
 };
 
-const apiGetAllUser = async () => {
-  const token = localStorage.getItem("token");
+const apiGetAllUser = async (token) => {
   if (!token) return;
   try {
     const response = await axios.get(`${config.SERVER_HOST}/user?limit=10 `, {
@@ -632,11 +631,89 @@ const apiUserSearch = async (inputSearch) => {
   }
 };
 
+const apiUpdateBan = async (token, userId, banType) => {
+  if ((!token, !userId)) return null;
+  try {
+    const response = await axios.patch(
+      `${config.SERVER_HOST}/user/update/${userId}`,
+      {
+        banType,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response?.data) return response.data;
+  } catch (error) {
+    if (error.response.status == 404) {
+      toast.error("Users empty!", {
+        pauseOnHover: true,
+        delay: 300,
+      });
+    }
+  }
+};
+
+const apiBanUser = async (token, userId, banType) => {
+  if (!userId && !banType && !token) return null;
+  try {
+    const response = await axios.patch(
+      `${config.SERVER_HOST}/user/ban/${userId}`,
+      {
+        banType,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response?.data) return response.data;
+  } catch (error) {
+    if (error.response.status == 404) {
+      toast.error("Users empty!", {
+        pauseOnHover: true,
+        delay: 300,
+      });
+    }
+  }
+};
+
+const apiLiftTheBan = async (token, userId) => {
+  if (!userId && !token) return null;
+  try {
+    const response = await axios.patch(
+      `${config.SERVER_HOST}/user/unban/${userId}`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response?.data) return response.data;
+  } catch (error) {
+    if (error.response.status == 404) {
+      toast.error("Users empty!", {
+        pauseOnHover: true,
+        delay: 300,
+      });
+    }
+  }
+};
+
 export {
   apiAddTopic,
   apiAddComment,
+  apiBanUser,
   apiDeleteArticle,
   apiDeleteTopic,
+  apiLiftTheBan,
   apiFollowTopic,
   apiFollowUser,
   apiGetAllUser,
@@ -657,9 +734,10 @@ export {
   apiMyTopicsFollowing,
   apiSuggestionTopics,
   apiSuggestionUsers,
-  apiTopicsSearch,
   apiUnFollowUser,
   apiUpdateArticle,
   apiUpdateTopic,
+  apiUpdateBan,
   apiUserSearch,
+  apiTopicsSearch,
 };
