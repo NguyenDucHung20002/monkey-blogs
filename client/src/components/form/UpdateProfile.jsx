@@ -4,7 +4,6 @@ import styled from "styled-components";
 import {useForm, useWatch} from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from '@hookform/resolvers/yup';
-import axios from "axios"
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { apiUpdateProfile } from "../../api/api";
@@ -12,7 +11,6 @@ import { apiUpdateProfile } from "../../api/api";
 const UpdateProfile = ({show, setShow, user}) => {
   const [imageSrc, setImageSrc] = useState(null);
   const [showAnimation, setShowAnimation] = useState(false);
-  const url = "http://localhost:8080/api/";
   const token =localStorage.getItem('token')
   const formData = new FormData();
   const options={
@@ -67,12 +65,6 @@ const UpdateProfile = ({show, setShow, user}) => {
       formData.set('avatar', imageSrc.avatar);
     }
 
-    // const res= await axios.put(`${url}user/me/update`,formData,{
-    //   headers:{
-    //     Authorization: `Bearer ${token}`,
-    //     'Content-Type': 'multipart/form-data',
-    //   }
-    // })
     const res = await apiUpdateProfile(token,formData)
     if(res){
       setShow(false)

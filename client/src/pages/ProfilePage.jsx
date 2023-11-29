@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import UpdateProfile from "../components/form/UpdateProfile";
 import ProfileInfor from "../modules/profile/ProfileInfor";
 import ProfileContext from "../modules/profile/ProfileContext";
-import { config } from "../utils/constants";
 import TopicRcmm from "../modules/topic/TopicRcm";
 import { useParams } from "react-router-dom";
 import ProfileBlogs from "../modules/profile/ProfileBlogs";
@@ -12,9 +10,7 @@ import { apiDeleteArticle, apiGetProfile, apiGetUserBlogs, apiGetUserFollowings 
 
 const ProfilePage = () => {
   const [show, setShow] = useState(false);
-  const [isfollowed, setIsFollowed] = useState(false);
   const [user, setUser] = useState({});
-  const [countFollow, setCountFollow] = useState({});
   const [blogs, setBlogs] = useState([]);
   const [following, setFollowing] = useState([]);
   const { username } = useParams();
@@ -23,7 +19,6 @@ const ProfilePage = () => {
   async function fetchUserInf() {
     const profileUser = await apiGetProfile(token, username);
     setUser({ ...profileUser });
-    setIsFollowed(profileUser?.isFollowed);
   }
   //fetch list blogs of user
   async function fetchUserBlog() {
@@ -43,44 +38,13 @@ const ProfilePage = () => {
     const dataFollowings = await apiGetUserFollowings(username);
     setFollowing([...dataFollowings]);
   }
-  //count following
-  async function fetchCountUserFollowing() {
-    const res = await axios
-      .get(`${config.SERVER_HOST}/user/${username}/following/amount`)
-      .catch((err) => {
-        console.log(err);
-      });
-    if (!res.data.success) {
-      console.log(res.data?.message);
-      return;
-    }
-    const dataCount = res.data.data;
-    setCountFollow({ ...countFollow, following: dataCount });
-  }
-  //count follower
-  // async function fetchCountUserFollower() {
-  //   const res = await axios
-  //     .get(
-  //       `${config.SERVER_HOST}/user/${username}/follower/amount`
-  //     )
-  //     .catch((err) => {
-  //       console.log(err);
-  //     });
-  //   if (!res?.data.success) {
-  //     console.log(res?.data?.message);
-  //     return;
-  //   }
-  //   const dataCount = res.data.data;
-  //   setCountFollow({ ...countFollow, follower: dataCount });
-  // }
+
   useEffect(() => {
     fetchUserInf();
   }, [show, username]);
   useEffect(() => {
     fetchUserBlog();
     fetchUserFollowing();
-    // fetchCountUserFollowing();
-    // fetchCountUserFollower();
   }, [username]);
   return (
     <>
@@ -119,9 +83,3 @@ const ProfilePage = () => {
 
 export default ProfilePage;
 
-// const ProfilePageStyle = styled.div`
-//   .container {
-//     max-width: 1200px;
-//     margin: auto;
-//   }
-// `;

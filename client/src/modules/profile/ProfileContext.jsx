@@ -1,16 +1,18 @@
-import { Popover } from "antd";
+import { Button, Modal, Popover } from "antd";
 import React, { useEffect, useState } from "react";
-import { apiBlockUser, apiMuteUser } from "../../api/api";
+import { apiBlockUser, apiMuteUser, apiReportUser } from "../../api/api";
 import { toast } from "react-toastify";
-
-const More =({handleMute,isMuted,handleBlock,isBlock,handleCopyToClipboard})=>{
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+import { useForm } from "react-hook-form";
+const More =({handleMute,isMuted,handleBlock,isBlock,handleCopyToClipboard,showModal})=>{
     return (
         <>
         <div className=" text-stone-500">
             <div onClick={handleCopyToClipboard} className="cursor-pointer p-1 hover:text-black">Copy link to profile</div>
             <div onClick={handleMute} className="cursor-pointer p-1 hover:text-black">{isMuted ? "UnMute":"Mute"} this author</div>
             <div onClick={handleBlock} className="cursor-pointer p-1 hover:text-black">{isBlock ? "Unblock":"Block"} this author</div>
-            <div className="cursor-pointer p-1 hover:text-black">Report this author</div>
+            <div onClick={showModal} className="cursor-pointer p-1 hover:text-black">Report this author</div>
         </div>
         </>
     )
@@ -28,6 +30,9 @@ const ProfileContext = ({user,token}) =>
 {
     const [isMuted,setMuted] = useState(false)
     const [isBlock,setBlock] = useState(false)
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [openPopover, setOpenPopover] = useState(false);
+    const [loading, setLoading] = useState(false);
     useEffect(()=>{
         setMuted(user?.isMuted)
         setBlock(user?.isBlocked)
@@ -36,43 +41,94 @@ const ProfileContext = ({user,token}) =>
         try {
             const currentURL = window.location.href;
             await navigator.clipboard.writeText(currentURL);
-            toast.success("Copy to ClipBoard successfully!", {
-                pauseOnHover: false,
-                delay: 500,
-              });
+            toast.success("Copy to ClipBoard successfully!", {pauseOnHover: false, delay: 500,});
         } catch (error) {
             console.error('error when add clipboard:');
         }
     }
     const handleMute = async()=>{
         const type = isMuted ? "delete" : "post";
+        console.log(user);
+        const toastContent = !isMuted ? "You will no longer see their stories on your homepage " :  `${user.fullname} has been unmuted`
         const res = await apiMuteUser(type,token,user.id)
         if(res){
             setMuted(!isMuted)
-        }
+            toast.success(toastContent, { pauseOnHover: false, delay: 500, });
+        } 
     }
     const handleBlock = async()=>{
         const type = isBlock ? "delete" : "post";
+        const toastContent = !isBlock ? "Successfully blocked user" :  "Successfully Unblocked user"
         const res = await apiBlockUser(type,token,user.id)
         if(res){
             setBlock(!isBlock)
+            toast.success(toastContent, { pauseOnHover: false, delay: 500, });
         }
     }
+    const schema = yup.object({
+        reason:yup.string().required().max(80).min(3),
+        description:yup.string().max(250),
+    })
+    const {register, handleSubmit, formState:{errors }, control ,setValue } = useForm({
+        mode:"onChange",
+        resolver: yupResolver(schema)
+      })
+    const handleOpenChange = (newOpen) => {
+        setOpenPopover(newOpen);
+      };
+    
+    const showModal = () => {
+        setIsModalOpen(true);
+        setOpenPopover(false)
+    };
+    
+    const handleOk = async(values) => {
+        setLoading(true)
+        const reason = values.reason;
+        const description = values.description;
+        const res = await apiReportUser(token,user.id,reason,description)
+        console.log(res);
+        if(res?.success){
+            toast.success(res.message, { pauseOnHover: false, delay: 500, });
+        }
+        else{
+            toast.error(res.message, { pauseOnHover: false, delay: 500, });
+        }
+        setValue("reason","");
+        setValue("description","");
+        setIsModalOpen(false);
+        setLoading(false)
+    };
+    
+    const handleCancel = () => {
+        setIsModalOpen(false);
+    };
+
+    const btnModal = (
+        [
+            <Button key="back" className="rounded-3xl" onClick={handleCancel}>
+              Cancel
+            </Button>,
+            <Button key="submit" danger className="rounded-3xl" loading={loading} onClick={handleSubmit(handleOk)}>
+              Report
+            </Button>,
+        ]
+    )
     return (<>
         <div className="w-full py-8">
             <div className="w-full h-20 py-4 flex items-center justify-between">
                 <div className="text-[25px] text-black py-3 font-bold" >{user.fullname}</div>
                 <div className="">
-                    <Popover trigger={"click"} 
+                    <Popover trigger={"click"} open={openPopover} onOpenChange={handleOpenChange}
                         content={
                             user?.isMyProfile ? 
                             <MoreMe handleCopyToClipboard={handleCopyToClipboard}/>
                             :
-                            <More handleMute={handleMute} isMuted={isMuted} isBlock={isBlock} handleBlock={handleBlock} handleCopyToClipboard={handleCopyToClipboard}/>
+                            <More showModal={showModal} handleMute={handleMute} isMuted={isMuted} isBlock={isBlock} handleBlock={handleBlock} handleCopyToClipboard={handleCopyToClipboard}/>
                         } 
                         placement="bottom"
                     >
-                        <button className="">
+                        <button className="" onClick={()=>setOpenPopover(!openPopover)}>
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                             <path
                             fillRule="evenodd"
@@ -84,6 +140,24 @@ const ProfileContext = ({user,token}) =>
                         </button>
                     </Popover>
                 </div>
+                <Modal footer={btnModal} title={"Report this user?"} open={isModalOpen} onCancel={handleCancel}>
+                    <div className="py-2">
+                        <label htmlFor="input-reason">Reason*:</label>
+                        <input className=" border-b border-black w-full" type="text" id="input-reason"  {...register('reason')}/>
+                        <div className="input-bottom">
+                            <p className={errors.reason ? "text-red-500":""} >{errors.reason ? errors.reason?.message:""}</p>
+                            {/* <p className={usernameValue?.length>50 ?"warning":""}><span>{usernameValue ? usernameValue.length :"0"}</span>/50</p> */}
+                        </div>
+                    </div>
+                    <div className="py-2">
+                        <label htmlFor="input-description">Description:</label>
+                        <input className=" border-b border-black w-full" type="text" id="input-description"  {...register('description')}/>
+                        <div className="input-bottom">
+                            <p className={errors.description ? "warning":""} >{errors.description ? errors.description?.message:"can be empty, max 250 characters"}</p>
+                            {/* <p className={usernameValue?.length>50 ?"warning":""}><span>{usernameValue ? usernameValue.length :"0"}</span>/50</p> */}
+                        </div>
+                    </div>
+                </Modal>
             </div>
             <div className="px-[1px] text-sm border-b border-stone-300 border-collapse box-border h-[53px]">
                 <div className="inline-block py-4 border-b border-stone-800 ">Home</div>

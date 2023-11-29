@@ -3,16 +3,16 @@ import ButtonFollowingUser from "../../components/button/ButtonFollowingUser";
 
 // eslint-disable-next-line react/prop-types
 const ProfileInfor =({ setShow, user }) => {
-
   return (
     <>
       <div className="mb-8">
         <div className="w-20 h-20 overflow-hidden rounded-1/2 ">
           <img className="w-full h-full" src={user?.avatar} alt="" />
         </div>
-        <p className="my-4">{user?.fullname}</p>
-        <p className="mb-4">{user?.bio ? user.bio : ""} </p>
-        <p className="mb-4">{user?.about ? user.about : ""}</p>
+        <p className="my-2">{user?.fullname}</p>
+        {user?.followersCount ? <p className="my-2">{user?.followersCount} Follower</p>:""}
+        <p className="mb-2">{user?.bio ? user.bio : ""} </p>
+        <p className="mb-2">{user?.about ? user.about : ""}</p>
         {user.isMyProfile ? (
           <button
             className="text-green-500 duration-300 hover:text-black"
