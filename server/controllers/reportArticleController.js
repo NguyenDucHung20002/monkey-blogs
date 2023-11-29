@@ -236,7 +236,7 @@ export default {
   reportAnArticle,
   getPendingReportedArticles,
   getPendingReportsOfArticle,
-  getPendingReportedArticles,
+  getResolvedReports,
   markAReportAsResolved,
   markAllResolved,
 };
