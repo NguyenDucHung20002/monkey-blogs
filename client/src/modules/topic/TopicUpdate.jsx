@@ -7,12 +7,10 @@ import { Label } from "../../components/label";
 import { Button } from "../../components/button";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { toast } from "react-toastify";
-import { config } from "../../utils/constants";
-import axios from "axios";
-import { useParams } from "react-router-dom";
-import { apiGetTopic, apiUpdateTopic } from "../../api/api";
+import { useSearchParams } from "react-router-dom";
+import { apiUpdateTopic } from "../../api/api";
 
 const schema = yup.object({
   name: yup.string().required("Please fill out your name topic"),
@@ -20,59 +18,53 @@ const schema = yup.object({
 
 const TopicUpdate = () => {
   const token = localStorage.getItem("token");
-  const { slug } = useParams();
   const {
     control,
     setValue,
     reset,
     handleSubmit,
-    formState: { errors, isSubmitting, isValid },
+    formState: { errors, isValid },
   } = useForm({
     mode: "onChange",
     resolver: yupResolver(schema),
   });
 
-  const [topic, setTopic] = useState({});
+  const [searchParams] = useSearchParams();
+  const nameParam = searchParams.get("name");
+  const id = searchParams.get("id");
 
   useEffect(() => {
-    const arrErorrs = Object.values(errors);
-    if (arrErorrs.length > 0) {
-      toast.error(arrErorrs[0]?.message, {
+    if (nameParam) {
+      reset({
+        name: nameParam,
+      });
+    }
+  }, [nameParam, reset]);
+
+  useEffect(() => {
+    const arrBug = Object.values(errors);
+    if (arrBug.length > 0) {
+      toast.error(arrBug[0]?.message, {
         pauseOnHover: false,
         delay: 500,
       });
     }
   }, [errors]);
 
-  useEffect(() => {
-    if (!slug) return;
-    async function fetchATopic() {
-      const response = apiGetTopic(token, slug);
-      if (response.success) setTopic(response.data.topic);
-      const name = topic.name;
-      reset({
-        name,
-      });
-    }
-
-    fetchATopic();
-  }, [reset, slug, token, topic.name]);
-
-  const handleUpdateTopic = ({ name }) => {
+  const handleUpdateTopic = async ({ name }) => {
     if (!isValid) return;
+    const nameTopic = name.charAt(0).toUpperCase() + name.slice(1);
+    console.log("nameTopic:", nameTopic);
     async function fetchAddTopic() {
       if (!token) return;
-      await apiUpdateTopic(token, topic.slug, name);
+      await apiUpdateTopic(token, id, nameTopic);
     }
     fetchAddTopic();
   };
 
   return (
     <div>
-      <DashboardHeading
-        title="New topic"
-        desc="Add new topic"
-      ></DashboardHeading>
+      <DashboardHeading title="Update topic"></DashboardHeading>
       <form onSubmit={handleSubmit(handleUpdateTopic)} autoComplete="off">
         <div className="form-layout">
           <Field>

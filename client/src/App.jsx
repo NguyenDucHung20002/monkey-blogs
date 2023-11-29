@@ -96,7 +96,7 @@ function App() {
               element={<TopicAddNew></TopicAddNew>}
             ></Route>
             <Route
-              path="/manage/update-topic/:slug"
+              path="/manage/update-topic"
               element={<TopicUpdate></TopicUpdate>}
             ></Route>
             <Route

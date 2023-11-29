@@ -4,6 +4,9 @@ import Sidebar from "./Sidebar";
 import PageNotFound from "../../pages/PageNotFound";
 import { useAuth } from "../../contexts/auth-context";
 import DashboardHeader from "./DashboardHeader";
+import Button from "../../components/button/Button";
+import { icons } from "../../utils/constants";
+import { useState } from "react";
 const DashboardStyles = styled.div`
   max-width: 1600px;
   margin: 0 auto;
@@ -21,7 +24,7 @@ const DashboardStyles = styled.div`
     &-main {
       display: grid;
       grid-template-columns: 300px minmax(0, 1fr);
-      padding: 40px 20px;
+      padding: 20px 20px;
       gap: 0 40px;
       align-items: start;
     }
@@ -38,7 +41,28 @@ const DashboardStyles = styled.div`
 `;
 const DashboardLayout = () => {
   const { userInfo } = useAuth();
+  const [visible, setVisible] = useState(false);
+
+  const toggleVisible = () => {
+    const scrolled = document.documentElement.scrollTop;
+    if (scrolled > 300) {
+      setVisible(true);
+    } else if (scrolled <= 300) {
+      setVisible(false);
+    }
+  };
+
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
+
+  window.addEventListener("scroll", toggleVisible);
+
   if (!userInfo) return <PageNotFound></PageNotFound>;
+
   return (
     <DashboardStyles>
       <DashboardHeader></DashboardHeader>
@@ -47,6 +71,14 @@ const DashboardLayout = () => {
         <div className="dashboard-children">
           <Outlet></Outlet>
         </div>
+      </div>
+      <div
+        className="fixed right-8 bottom-8"
+        style={{ display: visible ? "inline" : "none" }}
+      >
+        <Button height="40px" width="40px" onClick={scrollToTop}>
+          {icons.chevronUpIcon}
+        </Button>
       </div>
     </DashboardStyles>
   );

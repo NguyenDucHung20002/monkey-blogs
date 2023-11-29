@@ -1,6 +1,5 @@
 import UserTable from "./UserTable.jsx";
 import DashboardHeading from "../dashboard/DashboardHeading";
-import Button from "../../components/button/Button.jsx";
 
 const UserManage = () => {
   // const { userInfo } = useAuth();

@@ -3,12 +3,12 @@
 const ActionDelete = ({ onClick = () => {} }) => {
   return (
     <span
-      className="flex items-center justify-center w-10 h-10 border border-gray-200 rounded cursor-pointer"
+      className="flex items-center justify-center w-8 h-8 transition-all border border-gray-200 rounded cursor-pointer hover:bg-red-400 hover:text-white"
       onClick={onClick}
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        className="w-5 h-5"
+        className="w-4 h-4"
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"
