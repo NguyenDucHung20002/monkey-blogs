@@ -1,14 +1,15 @@
 /* eslint-disable react/prop-types */
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { apiFollowUser, apiUnFollowUser } from "../../api/api";
-
 
 const ButtonFollowingUser = ({ userId, initialFollowing = false }) => {
   const [followed, setFollowed] = useState(initialFollowing);
   const token = localStorage.getItem("token");
 
   const handleFollow = async () => {
-    const res =  followed ? await apiUnFollowUser(userId, token): await apiFollowUser(userId, token);
+    const res = followed
+      ? await apiUnFollowUser(userId, token)
+      : await apiFollowUser(userId, token);
     if (res) {
       setFollowed(!followed);
     }
@@ -20,7 +21,7 @@ const ButtonFollowingUser = ({ userId, initialFollowing = false }) => {
         <button
           className="px-4 py-1 text-blue-600 border border-blue-600 cursor-pointer rounded-2xl"
           onClick={() => handleFollow()}
-        > 
+        >
           Follow
         </button>
       ) : (
