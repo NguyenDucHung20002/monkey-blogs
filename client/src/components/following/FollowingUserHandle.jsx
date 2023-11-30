@@ -4,8 +4,7 @@ import Avatar from "../../modules/user/Avatar";
 import ButtonFollowingUser from "../button/ButtonFollowingUser";
 
 const FollowingUserHandle = ({ data = {}, initialFollowing = false }) => {
-  const { username, avatar, fullname, bio } = data;
-
+  const {id, username, avatar, fullname, bio } = data;
   if (!data) return;
   return (
     <div className="flex items-center justify-between">
@@ -21,7 +20,7 @@ const FollowingUserHandle = ({ data = {}, initialFollowing = false }) => {
         </div>
       </div>
       <ButtonFollowingUser
-        username={username}
+        userId={id}
         initialFollowing={initialFollowing}
       ></ButtonFollowingUser>
     </div>

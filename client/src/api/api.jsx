@@ -825,5 +825,5 @@ export {
   apiUpdateProfile,
   apiMuteUser,
   apiBlockUser,
-
+  apiReportUser,
 };

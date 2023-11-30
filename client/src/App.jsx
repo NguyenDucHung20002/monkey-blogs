@@ -1,6 +1,9 @@
 import React, { Suspense } from "react";
 import { Route, Routes } from "react-router";
 import { ToastContainer } from "react-toastify";
+import ProfileFollower from "./modules/profile/ProfileFollower";
+import ProfileFollowing from "./modules/profile/ProfileFollowing";
+import ProfileHome from "./modules/profile/ProfileHome";
 const MeFollowingPage = React.lazy(() => import("./pages/MeFollowingPage"));
 const MeSuggestionPage = React.lazy(() => import("./pages/MeSuggestionPage"));
 const SearchPage = React.lazy(() => import("./pages/SearchPage"));
@@ -62,10 +65,11 @@ function App() {
               path="/topic/:slug"
               element={<TopicPage></TopicPage>}
             ></Route>
-            <Route
-              path="/profile/:username"
-              element={<ProfilePage></ProfilePage>}
-            ></Route>
+            <Route element={<ProfilePage></ProfilePage>}>
+              <Route path="/profile/:username" element={<ProfileHome/>}/>
+              <Route path="/profile/follower/:username" element={<ProfileFollower/>}/>
+              <Route path="/profile/following/:username" element={<ProfileFollowing/>}/>
+            </Route>
 
             <Route element={<SearchPage></SearchPage>}>
               <Route

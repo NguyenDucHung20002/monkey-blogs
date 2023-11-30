@@ -4,6 +4,8 @@ import { Popover } from "antd";
 import TopicList from "../topic/TopicList";
 import Swal from "sweetalert2";
 import BlogImage from "../blog/BlogImage";
+
+
 const ProfileBlogs = ({ blogs, user, fetchDeleteArticle }) => {
   const handleDelete = (slug) => {
     Swal.fire({
@@ -88,7 +90,7 @@ const ProfileBlogs = ({ blogs, user, fetchDeleteArticle }) => {
   return (
     <>
       {blogs.map((val) => (
-        <div key={val._id} className="h-64 pt-6 border-b">
+        <div key={val.id} className="h-64 pt-6 border-b">
           <div className="">
             <p className="text-sm">2 days ago</p>
           </div>

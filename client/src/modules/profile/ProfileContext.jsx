@@ -159,9 +159,9 @@ const ProfileContext = ({user,token}) =>
                     </div>
                 </Modal>
             </div>
-            <div className="px-[1px] text-sm border-b border-stone-300 border-collapse box-border h-[53px]">
+            {/* <div className="px-[1px] text-sm border-b border-stone-300 border-collapse box-border h-[53px]">
                 <div className="inline-block py-4 border-b border-stone-800 ">Home</div>
-            </div>
+            </div> */}
 
         </div>
     </>)
