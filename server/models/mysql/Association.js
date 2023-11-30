@@ -279,3 +279,24 @@ Comment.belongsTo(Comment, {
   foreignKey: "parentCommentId",
   as: "repliesComment",
 });
+
+// Comment - Block (1-1)
+Comment.hasOne(Block, {
+  sourceKey: "authorId",
+  foreignKey: "blockedId",
+  as: "authorBlocked",
+});
+Comment.hasOne(Block, {
+  sourceKey: "authorId",
+  foreignKey: "blockerId",
+  as: "authorBlocker",
+});
+
+// Commnet - Profile (1-n)
+Profile.hasMany(Comment, {
+  foreignKey: "authorId",
+});
+Comment.belongsTo(Profile, {
+  foreignKey: "authorId",
+  as: "author",
+});

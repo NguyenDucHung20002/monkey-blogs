@@ -1,208 +1,400 @@
-// import Comment from "../models/mysql/Comment.js";
-// import Article from "../models/mysql/Article.js";
-// import addUrlToImg from "../utils/addUrlToImg.js";
-// import asyncMiddleware from "../middlewares/asyncMiddleware.js";
-// import ErrorResponse from "../responses/ErrorResponse.js";
-// import Profile from "../models/mysql/Profile.js";
+import Comment from "../models/mysql/Comment.js";
+import Article from "../models/mysql/Article.js";
+import addUrlToImg from "../utils/addUrlToImg.js";
+import asyncMiddleware from "../middlewares/asyncMiddleware.js";
+import ErrorResponse from "../responses/ErrorResponse.js";
+import Profile from "../models/mysql/Profile.js";
+import Block from "../models/mysql/Block.js";
+import User from "../models/mysql/User.js";
+import { Op } from "sequelize";
 
-// // ==================== add comment ==================== //
-// const createComment = asyncMiddleware(async (req, res, next) => {
-//   const me = req.me;
-//   const { id } = req.params;
-//   const { parentCommentId, content } = req.body;
+// ==================== add comment ==================== //
+const createComment = asyncMiddleware(async (req, res, next) => {
+  const me = req.me;
+  const { id } = req.params;
+  const { parentCommentId, content } = req.body;
 
-//   const article = await Article.findById(id);
+  const article = await Article.findByPk(id);
 
-//   if (!article) throw ErrorResponse(404, "Article not found");
+  if (!article) throw ErrorResponse(404, "Article not found");
 
-//   let newCommentData = {
-//     articleId: article.id,
-//     authorId: me.ProfileInfo.id,
-//     content,
-//   };
+  let newCommentData = {
+    articleId: article.id,
+    authorId: me.profileInfo.id,
+    content,
+  };
 
-//   if (parentCommentId) {
-//     const parentComment = await Comment.findByPk(parentCommentId);
-//     if (!parentComment) throw ErrorResponse(404, "Comment not found");
+  if (parentCommentId) {
+    const parentComment = await Comment.findByPk(parentCommentId, {
+      attributes: ["id", "depth"],
+    });
 
-//     newCommentData = {
-//       ...newCommentData,
-//       parentCommentId,
-//       depth: parentComment.depth + 1,
-//     };
-//   }
+    if (!parentComment) throw ErrorResponse(404, "Comment not found");
 
-//   const newComment = await Promise.all([
-//     Comment.create(newCommentData),
-//     article.increment({ commentsCount: 1 }),
-//   ]);
+    newCommentData = {
+      ...newCommentData,
+      parentCommentId,
+      depth: parentComment.depth + 1,
+    };
 
-//   //   const resultComment = await Comment.findByPk(newComment.id, {
-//   //     include: { model: Profile, as: "author" },
-//   //   });
+    await parentComment.increment({ repliesCount: 1 });
+  }
 
-//   //   resultComment.author.avatar = addUrlToImg(resultComment.author.avatar);
+  const [newComment] = await Promise.all([
+    Comment.create(newCommentData),
+    article.increment({ commentsCount: 1 }),
+  ]);
 
-//   //   const isMyComment = myProfile.id === resultComment.author.id;
+  const isAuthor = me.profileInfo.id === article.authorId;
 
-//   res.status(201).json({
-//     success: true,
-//     data: { ...resultComment.toJSON(), isMyComment },
-//   });
-// });
+  res.status(201).json({
+    success: true,
+    data: {
+      id: newComment.id,
+      repliesCount: newComment.repliesCount,
+      content: newComment.content,
+      depth: newComment.depth,
+      author: {
+        fullname: me.profileInfo.fullname,
+        username: me.username,
+        avatar: me.profileInfo.avatar,
+        isAuthor,
+      },
+      createdAt: newComment.createdAt,
+      updatedAt: newComment.updatedAt,
+      isMyComment: true,
+    },
+  });
+});
 
-// // // ==================== update comment ==================== //
-// // const updateComment = asyncMiddleware(async (req, res, next) => {
-// //   const { id: myUserId } = req.payload;
-// //   const { id } = req.params;
-// //   const { content } = req.body;
+// ==================== update comment ==================== //
+const updateComment = asyncMiddleware(async (req, res, next) => {
+  const me = req.me;
+  const { id } = req.params;
+  const { content } = req.body;
 
-// //   const myProfile = await Profile.findOne({ where: { userId: myUserId } });
+  const comment = await Comment.findOne({
+    where: { id, authorId: me.profileInfo.id },
+    attributes: ["id"],
+  });
 
-// //   if (!myProfile) throw ErrorResponse(404, "Profile not found");
+  if (!comment) throw ErrorResponse(404, "Comment not found");
 
-// //   const comment = await Comment.findOne({
-// //     where: { id, authorId: myProfile.id },
-// //   });
+  await comment.update({ content });
 
-// //   if (!comment) throw ErrorResponse(404, "Comment not found");
+  res.json({ success: true, message: "Comment updated successfully" });
+});
 
-// //   await comment.update({ content });
+// ==================== delete comment ==================== //
+const deleteComment = asyncMiddleware(async (req, res, next) => {
+  const me = req.me;
+  const { id } = req.params;
 
-// //   res.json({ success: true, message: "Comment updated successfully" });
-// // });
+  const deleteCommentAndReplies = async (comment) => {
+    const replyComments = await Comment.findAll({
+      where: { parentCommentId: comment.id },
+      attributes: ["id", "articleId", "parentCommentId"],
+    });
 
-// // // ==================== delete comment ==================== //
-// // const deleteComment = asyncMiddleware(async (req, res, next) => {
-// //   const { id: myUserId } = req.payload;
-// //   const { id } = req.params;
+    await Promise.all(
+      replyComments.map(async (replyComment) => {
+        deleteCommentAndReplies(replyComment);
+        Comment.destroy({ where: { id: replyComment.id } });
+        Article.increment(
+          { commentsCount: -1 },
+          { where: { id: replyComment.articleId } }
+        );
+      })
+    );
+  };
 
-// //   const myProfile = await Profile.findOne({ where: { userId: myUserId } });
+  const comment = await Comment.findOne({
+    where: { id, authorId: me.profileInfo.id },
+    attributes: ["id", "articleId", "parentCommentId"],
+  });
 
-// //   if (!myProfile) throw ErrorResponse(404, "Profile not found");
+  if (comment) {
+    await Promise.all([
+      deleteCommentAndReplies(comment),
+      comment.destroy(),
+      Article.increment(
+        { commentsCount: -1 },
+        { where: { id: comment.articleId } }
+      ),
+      Comment.increment(
+        { repliesCount: -1 },
+        { where: { id: comment.parentCommentId } }
+      ),
+    ]);
+  }
 
-// //   const deleteCommentAndReplies = async (comment) => {
-// //     const replyComments = await Comment.find({
-// //       where: { parentCommentId: comment.id },
-// //     });
+  res.json({
+    success: true,
+    message: "Comment deleted successfully",
+  });
+});
 
-// //     await Promise.all(
-// //       replyComments.map(async (replyComment) => {
-// //         await deleteCommentAndReplies(replyComment._id);
-// //         await Comment.destroy({ where: { id: replyComment.id } });
-// //       })
-// //     );
-// //   };
+// ==================== get article main comments ==================== //
+const getMainComments = asyncMiddleware(async (req, res, next) => {
+  const me = req.me ? req.me : null;
+  const { id } = req.params;
+  const { skip, limit = 15 } = req.query;
 
-// //   const comment = await Comment.findOne({
-// //     where: { id, authorId: myProfile.id },
-// //   });
+  const article = await Article.findByPk(id);
 
-// //   if (comment) {
-// //     await Promise.all([
-// //       deleteCommentAndReplies(comment),
-// //       comment.destroy(),
-// //       Article.update(
-// //         { commentsCount: commentsCount - 1 },
-// //         { where: { id: comment.articleId } }
-// //       ),
-// //     ]);
-// //   }
+  if (!article) throw ErrorResponse(404, "Article not found");
 
-// //   res.status(200).json({
-// //     success: true,
-// //     message: "Comment deleted successfully",
-// //   });
-// // });
+  let whereQuery = { articleId: article.id, depth: 1 };
 
-// // // ==================== get article main comments ==================== //
-// // const getMainComments = asyncMiddleware(async (req, res, next) => {
-// //   const { id: myUserId } = req.payload;
-// //   const { slug } = req.params;
-// //   const { skip = 0, limit = 15 } = req.query;
+  if (skip) whereQuery.id = { [Op.lt]: skip };
 
-// //   const article = await Article.findOne({ where: { slug } });
+  let comments;
 
-// //   if (!article) throw ErrorResponse(404, "Article not found");
+  if (me) {
+    whereQuery["$authorBlocker.blockerId$"] = null;
+    whereQuery["$authorBlocked.blockedId$"] = null;
+    comments = await Comment.findAll({
+      where: whereQuery,
+      attributes: { exclude: ["articleId", "authorId"] },
+      include: [
+        {
+          model: Profile,
+          as: "author",
+          attributes: ["id", "fullname", "avatar"],
+          include: {
+            model: User,
+            as: "userInfo",
+            attributes: ["username"],
+          },
+        },
+        {
+          model: Block,
+          as: "authorBlocker",
+          where: { blockedId: me.profileInfo.id },
+          attributes: [],
+          required: false,
+        },
+        {
+          model: Block,
+          as: "authorBlocked",
+          where: { blockerId: me.profileInfo.id },
+          attributes: [],
+          required: false,
+        },
+      ],
+      order: [["id", "DESC"]],
+      limit: Number(limit) ? Number(limit) : null,
+    });
+    comments = comments.map((comment) => {
+      comment.author.avatar = addUrlToImg(comment.author.avatar);
+      const isAuthor = comment.authorId === article.authorId;
+      const isMyComment = me === comment.authorId;
+      return {
+        id: comment.id,
+        parentCommentId: comment.parentCommentId
+          ? comment.parentCommentId
+          : null,
+        repliesCount: comment.repliesCount,
+        depth: comment.depth,
+        author: {
+          id: comment.author.id,
+          fullname: comment.author.fullname,
+          avatar: comment.author.avatar,
+          username: comment.author.userInfo.username,
+          isAuthor,
+        },
+        content: comment.content,
+        createdAt: comment.createdAt,
+        updatedAt: comment.updatedAt,
+        isMyComment,
+      };
+    });
+  } else {
+    comments = await Comment.findAll({
+      where: whereQuery,
+      attributes: { exclude: ["articleId", "authorId"] },
+      include: [
+        {
+          model: Profile,
+          as: "author",
+          attributes: ["id", "fullname", "avatar"],
+          include: {
+            model: User,
+            as: "userInfo",
+            attributes: ["username"],
+          },
+        },
+      ],
+      order: [["id", "DESC"]],
+      limit: Number(limit) ? Number(limit) : null,
+    });
+    comments = comments.map((comment) => {
+      comment.author.avatar = addUrlToImg(comment.author.avatar);
+      const isAuthor = comment.authorId === article.authorId;
+      return {
+        id: comment.id,
+        parentCommentId: comment.parentCommentId
+          ? comment.parentCommentId
+          : null,
+        repliesCount: comment.repliesCount,
+        depth: comment.depth,
+        author: {
+          id: comment.author.id,
+          fullname: comment.author.fullname,
+          avatar: comment.author.avatar,
+          username: comment.author.userInfo.username,
+          isAuthor,
+        },
+        content: comment.content,
+        createdAt: comment.createdAt,
+        updatedAt: comment.updatedAt,
+      };
+    });
+  }
 
-// //   const commentsDoc = await Comment.findAll({
-// //     where: {
-// //       article: article.id,
-// //       depth: 1,
-// //       id: { [Op.gt]: skip },
-// //       include: { model: Profile, as: "author" },
-// //     },
-// //     limit,
-// //   });
+  const newSkip = comments.length > 0 ? comments[comments.length - 1].id : null;
 
-// //   let comments = commentsDoc.map((commentDoc) => {
-// //     commentDoc.author.avatar = addUrlToImg(commentDoc.author.avatar);
-// //     return { commentDoc };
-// //   });
+  res.json({ success: true, data: comments, newSkip });
+});
 
-// //   if (myUserId) {
-// //     const myProfile = await Profile.findOne({ where: { userId: myUserId } });
-// //     if (myProfile) {
-// //       comments = await Promise.all([
-// //         comments.map(async (comment) => {
-// //           const isAuthor = comment.author.id === article.authorId;
-// //           const isMyComment = myProfile.id === comment.author.id;
-// //           return { ...comment.toJSON(), isAuthor, isMyComment };
-// //         }),
-// //       ]);
-// //     }
-// //   }
+// ==================== get article nested comments of main comment ==================== //
+const getNestedComments = asyncMiddleware(async (req, res, next) => {
+  const me = req.me ? req.me : null;
+  const { id } = req.params;
+  const { skip, limit = 15 } = req.query;
 
-// //   const skipID = comments.length > 0 ? comments[comments.length - 1]._id : null;
+  const parentComment = await Comment.findByPk(id);
 
-// //   res.json({ success: true, data: comments, skipID });
-// // });
+  if (!parentComment) throw ErrorResponse(404, "Comment not found");
 
-// // // ==================== get article nested comments of main comment ==================== //
-// // const getNestedComments = asyncMiddleware(async (req, res, next) => {
-// //   const { id: myUserId } = req.payload;
-// //   const { slug, commentId } = req.params;
-// //   const { skip = 0, limit = 15 } = req.query;
+  const article = await Article.findByPk(parentComment.articleId, {
+    attributes: ["id"],
+  });
 
-// //   const article = await Article.findOne({ where: { slug } });
+  if (!article) throw ErrorResponse(404, "Article not found");
 
-// //   if (!article) throw ErrorResponse(404, "Article not found");
+  let whereQuery = { parentCommentId: parentComment.id };
 
-// //   const parentComment = await Comment.findById(commentId);
+  if (skip) whereQuery.id = { [Op.lt]: skip };
 
-// //   if (!parentComment) throw ErrorResponse(404, "Comment not found");
+  let replyComments;
 
-// //   const commentsDoc = await Comment.findAll({
-// //     where: {
-// //       parentCommentId: parentComment.id,
-// //       id: { [Op.gt]: skip },
-// //       include: { model: Profile, as: "author" },
-// //     },
-// //     limit,
-// //   });
+  if (me) {
+    whereQuery["$authorBlocker.blockerId$"] = null;
+    whereQuery["$authorBlocked.blockedId$"] = null;
+    replyComments = await Comment.findAll({
+      where: whereQuery,
+      attributes: { exclude: ["articleId", "authorId"] },
+      include: [
+        {
+          model: Profile,
+          as: "author",
+          attributes: ["id", "fullname", "avatar"],
+          include: {
+            model: User,
+            as: "userInfo",
+            attributes: ["username"],
+          },
+        },
+        {
+          model: Block,
+          as: "authorBlocker",
+          where: { blockedId: me.profileInfo.id },
+          attributes: [],
+          required: false,
+        },
+        {
+          model: Block,
+          as: "authorBlocked",
+          where: { blockerId: me.profileInfo.id },
+          attributes: [],
+          required: false,
+        },
+      ],
+      order: [["id", "DESC"]],
+      limit: Number(limit) ? Number(limit) : null,
+    });
+    replyComments = replyComments.map((replyComment) => {
+      replyComment.author.avatar = addUrlToImg(replyComment.author.avatar);
+      const isAuthor = replyComment.authorId === article.authorId;
+      const isMyComment = me === replyComment.authorId;
+      return {
+        id: replyComment.id,
+        parentCommentId: replyComment.parentCommentId
+          ? replyComment.parentCommentId
+          : null,
+        repliesCount: replyComment.repliesCount,
+        depth: replyComment.depth,
+        author: {
+          id: replyComment.author.id,
+          fullname: replyComment.author.fullname,
+          avatar: replyComment.author.avatar,
+          username: replyComment.author.userInfo.username,
+          isAuthor,
+        },
+        content: replyComment.content,
+        createdAt: replyComment.createdAt,
+        updatedAt: replyComment.updatedAt,
+        isMyComment,
+      };
+    });
+  } else {
+    replyComments = await Comment.findAll({
+      where: whereQuery,
+      attributes: { exclude: ["articleId", "authorId"] },
+      include: [
+        {
+          model: Profile,
+          as: "author",
+          attributes: ["id", "fullname", "avatar"],
+          include: {
+            model: User,
+            as: "userInfo",
+            attributes: ["username"],
+          },
+        },
+      ],
+      order: [["id", "DESC"]],
+      limit: Number(limit) ? Number(limit) : null,
+    });
+    replyComments = replyComments.map((replyComment) => {
+      replyComment.author.avatar = addUrlToImg(
+        replyCommentcomment.author.avatar
+      );
+      const isAuthor = replyComment.authorId === article.authorId;
+      return {
+        id: replyComment.id,
+        parentCommentId: replyComment.parentCommentId
+          ? replyComment.parentCommentId
+          : null,
+        repliesCount: replyComment.repliesCount,
+        depth: replyComment.depth,
+        author: {
+          id: replyComment.author.id,
+          fullname: replyComment.author.fullname,
+          avatar: replyComment.author.avatar,
+          username: replyComment.author.userInfo.username,
+          isAuthor,
+        },
+        content: replyComment.content,
+        createdAt: replyComment.createdAt,
+        updatedAt: replyComment.updatedAt,
+      };
+    });
+  }
 
-// //   let replyComments = commentsDoc.map((commentDoc) => {
-// //     commentDoc.author.avatar = addUrlToImg(commentDoc.author.avatar);
-// //     return { commentDoc };
-// //   });
+  const newSkip =
+    replyComments.length > 0
+      ? replyComments[replyComments.length - 1].id
+      : null;
 
-// //   if (myUserId) {
-// //     const myProfile = await Profile.findOne({ where: { userId: myUserId } });
-// //     if (myProfile) {
-// //       replyComments = replyComments.map((replyComment) => {
-// //         const isAuthor = replyComment.author.id === article.authorId;
-// //         const isMyComment = myProfile.id === replyComment.author.id;
-// //         return { ...replyComment.toJSON(), isAuthor, isMyComment };
-// //       });
-// //     }
-// //   }
+  res.json({ success: true, data: replyComments, newSkip });
+});
 
-// //   const skipID =
-// //     commentsDoc.length > 0 ? commentsDoc[commentsDoc.length - 1]._id : null;
-
-// //   res.json({ success: true, data: replyComments, skipID });
-// // });
-
-// export default {
-//   createComment,
-// };
+export default {
+  createComment,
+  updateComment,
+  deleteComment,
+  getMainComments,
+  getNestedComments,
+};
