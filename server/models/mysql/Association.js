@@ -13,6 +13,7 @@ import Draft from "./Draft.js";
 import Like from "./Like.js";
 import Report_Article from "./Report_Article.js";
 import Comment from "./Comment.js";
+import History_Reading from "./History_Reading.js";
 
 // Role - User (1-n)
 Role.hasMany(User, {
@@ -338,4 +339,24 @@ Follow_Profile.hasOne(Block, {
   sourceKey: "followerId",
   foreignKey: "blockerId",
   as: "followerBlocker",
+});
+
+// History - Article (n-n)
+Article.belongsToMany(Profile, {
+  through: History_Reading,
+  foreignKey: "articleId",
+  as: "readingProfiles",
+});
+Profile.belongsToMany(Article, {
+  through: History_Reading,
+  foreignKey: "profileId",
+  as: "readArticles",
+});
+History_Reading.belongsTo(Article, {
+  foreignKey: "articleId",
+  as: "readArticle",
+});
+History_Reading.belongsTo(Profile, {
+  foreignKey: "profileId",
+  as: "readingProfile",
 });
