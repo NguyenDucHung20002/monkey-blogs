@@ -246,6 +246,11 @@ Article.hasOne(Block, {
   foreignKey: "blockedId",
   as: "authorBlocked",
 });
+Article.hasOne(Block, {
+  sourceKey: "authorId",
+  foreignKey: "blockerId",
+  as: "authorBlocker",
+});
 
 // Article - User (n-n)
 Report_Article.belongsTo(Article, {
@@ -299,4 +304,38 @@ Profile.hasMany(Comment, {
 Comment.belongsTo(Profile, {
   foreignKey: "authorId",
   as: "author",
+});
+
+// Like - Block (1-1)
+Like.hasOne(Block, {
+  sourceKey: "profileId",
+  foreignKey: "blockedId",
+  as: "likerBlocked",
+});
+Like.hasOne(Block, {
+  sourceKey: "profileId",
+  foreignKey: "blockerId",
+  as: "likerBlocker",
+});
+
+// Follow - Blokc (1-1)
+Follow_Profile.hasOne(Block, {
+  sourceKey: "followedId",
+  foreignKey: "blockedId",
+  as: "followedBlocked",
+});
+Follow_Profile.hasOne(Block, {
+  sourceKey: "followedId",
+  foreignKey: "blockerId",
+  as: "followedBlocker",
+});
+Follow_Profile.hasOne(Block, {
+  sourceKey: "followerId",
+  foreignKey: "blockedId",
+  as: "followerBlocked",
+});
+Follow_Profile.hasOne(Block, {
+  sourceKey: "followerId",
+  foreignKey: "blockerId",
+  as: "followerBlocker",
 });

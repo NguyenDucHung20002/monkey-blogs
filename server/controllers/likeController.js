@@ -77,21 +77,24 @@ const getArticleLiker = asyncMiddleware(async (req, res, next) => {
 
   if (!article) throw ErrorResponse(404, "Article not found");
 
-  let likeProfiles = await Like.findAll({
-    where: { articleId: article.id, id: { [Op.gt]: skip } },
-    attributes: ["id"],
-    include: {
-      model: Profile,
-      as: "articleLike",
-      attributes: ["id", "fullname", "avatar", "bio"],
-      include: { model: User, as: "userInfo", attributes: ["username"] },
-    },
-    limit: Number(limit) ? Number(limit) : null,
-  });
+  let likeProfiles;
 
   let likers;
 
   if (!me) {
+    likeProfiles = await Like.findAll({
+      where: { articleId: article.id, id: { [Op.gt]: skip } },
+      attributes: ["id"],
+      include: [
+        {
+          model: Profile,
+          as: "articleLike",
+          attributes: ["id", "fullname", "avatar", "bio"],
+          include: { model: User, as: "userInfo", attributes: ["username"] },
+        },
+      ],
+      limit: Number(limit) ? Number(limit) : null,
+    });
     likers = likeProfiles.map((likeProfile) => {
       likeProfile.articleLike.avatar = addUrlToImg(
         likeProfile.articleLike.avatar
@@ -107,6 +110,19 @@ const getArticleLiker = asyncMiddleware(async (req, res, next) => {
   }
 
   if (me && me.profileInfo.id === article.authorId) {
+    likeProfiles = await Like.findAll({
+      where: { articleId: article.id, id: { [Op.gt]: skip } },
+      attributes: ["id"],
+      include: [
+        {
+          model: Profile,
+          as: "articleLike",
+          attributes: ["id", "fullname", "avatar", "bio"],
+          include: { model: User, as: "userInfo", attributes: ["username"] },
+        },
+      ],
+      limit: Number(limit) ? Number(limit) : null,
+    });
     likers = await Promise.all(
       likeProfiles.map(async (likeProfile) => {
         likeProfile.articleLike.avatar = addUrlToImg(
@@ -130,6 +146,39 @@ const getArticleLiker = asyncMiddleware(async (req, res, next) => {
   }
 
   if (me && me.profileInfo.id !== article.authorId) {
+    likeProfiles = await Like.findAll({
+      where: {
+        articleId: article.id,
+        id: { [Op.gt]: skip },
+        "$likerBlocker.blockerId$": null,
+        "$likerBlocked.blockedId$": null,
+      },
+      attributes: ["id"],
+      include: [
+        {
+          model: Profile,
+          as: "articleLike",
+          attributes: ["id", "fullname", "avatar", "bio"],
+          include: { model: User, as: "userInfo", attributes: ["username"] },
+          where: { id: { [Op.ne]: me.profileInfo.id } },
+        },
+        {
+          model: Block,
+          as: "likerBlocker",
+          where: { blockedId: me.profileInfo.id },
+          attributes: [],
+          required: false,
+        },
+        {
+          model: Block,
+          as: "likerBlocked",
+          attributes: [],
+          where: { blockerId: me.profileInfo.id },
+          required: false,
+        },
+      ],
+      limit: Number(limit) ? Number(limit) : null,
+    });
     likers = await Promise.all(
       likeProfiles.map(async (likeProfile) => {
         likeProfile.articleLike.avatar = addUrlToImg(

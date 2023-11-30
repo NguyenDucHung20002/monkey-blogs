@@ -398,6 +398,7 @@ const getFollowedTopicArticles = asyncMiddleware(async (req, res, next) => {
     authorId: { [Op.ne]: me.profileInfo.id },
     status: "approved",
     "$authorBlocked.blockedId$": null,
+    "$authorBlocker.blockerId$": null,
   };
 
   if (skip) whereQuery = { id: { [Op.lt]: skip } };
@@ -426,6 +427,13 @@ const getFollowedTopicArticles = asyncMiddleware(async (req, res, next) => {
         as: "articleTopics",
         where: { id: topic.id },
         attributes: [],
+      },
+      {
+        model: Block,
+        as: "authorBlocker",
+        where: { blockedId: me.profileInfo.id },
+        attributes: [],
+        required: false,
       },
       {
         model: Block,

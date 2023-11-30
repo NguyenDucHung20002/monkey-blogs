@@ -72,21 +72,22 @@ const getFolloweds = asyncMiddleware(async (req, res, next) => {
   const user = req.user;
   const { skip = 0, limit = 15 } = req.query;
 
-  let followProfiles = await Follow_Profile.findAll({
-    where: { followerId: user.profileInfo.id, id: { [Op.gt]: skip } },
-    attributes: ["id"],
-    include: {
-      model: Profile,
-      as: "followed",
-      attributes: ["id", "fullname", "avatar", "bio"],
-      include: { model: User, as: "userInfo", attributes: ["username"] },
-    },
-    limit: Number(limit) ? Number(limit) : null,
-  });
+  let followProfiles;
 
   let followeds;
 
   if (!me) {
+    followProfiles = await Follow_Profile.findAll({
+      where: { followerId: user.profileInfo.id, id: { [Op.gt]: skip } },
+      attributes: ["id"],
+      include: {
+        model: Profile,
+        as: "followed",
+        attributes: ["id", "fullname", "avatar", "bio"],
+        include: { model: User, as: "userInfo", attributes: ["username"] },
+      },
+      limit: Number(limit) ? Number(limit) : null,
+    });
     followeds = followProfiles.map((followProfile) => {
       followProfile.followed.avatar = addUrlToImg(
         followProfile.followed.avatar
@@ -102,6 +103,19 @@ const getFolloweds = asyncMiddleware(async (req, res, next) => {
   }
 
   if (me && me.profileInfo.id === user.profileInfo.id) {
+    followProfiles = await Follow_Profile.findAll({
+      where: { followerId: user.profileInfo.id, id: { [Op.gt]: skip } },
+      attributes: ["id"],
+      include: [
+        {
+          model: Profile,
+          as: "followed",
+          attributes: ["id", "fullname", "avatar", "bio"],
+          include: { model: User, as: "userInfo", attributes: ["username"] },
+        },
+      ],
+      limit: Number(limit) ? Number(limit) : null,
+    });
     followeds = followProfiles.map((followProfile) => {
       followProfile.followed.avatar = addUrlToImg(
         followProfile.followed.avatar
@@ -118,6 +132,39 @@ const getFolloweds = asyncMiddleware(async (req, res, next) => {
   }
 
   if (me && me.profileInfo.id !== user.profileInfo.id) {
+    followProfiles = await Follow_Profile.findAll({
+      where: {
+        followerId: user.profileInfo.id,
+        id: { [Op.gt]: skip },
+        "$followedBlocker.blockerId$": null,
+        "$followedBlocked.blockedId$": null,
+      },
+      attributes: ["id"],
+      include: [
+        {
+          model: Profile,
+          as: "followed",
+          attributes: ["id", "fullname", "avatar", "bio"],
+          include: { model: User, as: "userInfo", attributes: ["username"] },
+          where: { id: { [Op.ne]: me.profileInfo.id } },
+        },
+        {
+          model: Block,
+          as: "followedBlocker",
+          where: { blockedId: me.profileInfo.id },
+          attributes: [],
+          required: false,
+        },
+        {
+          model: Block,
+          as: "followedBlocked",
+          attributes: [],
+          where: { blockerId: me.profileInfo.id },
+          required: false,
+        },
+      ],
+      limit: Number(limit) ? Number(limit) : null,
+    });
     followeds = await Promise.all(
       followProfiles.map(async (followProfile) => {
         followProfile.followed.avatar = addUrlToImg(
@@ -134,13 +181,6 @@ const getFolloweds = asyncMiddleware(async (req, res, next) => {
               followedId: followProfile.followed.id,
               followerId: me.profileInfo.id,
             },
-          })),
-          isBlocked: !!(await Block.findOne({
-            where: {
-              blockedId: followProfile.followed.id,
-              blockerId: me.profileInfo.id,
-            },
-            attributes: ["id"],
           })),
         };
       })
@@ -161,21 +201,22 @@ const getFollowers = asyncMiddleware(async (req, res, next) => {
   const user = req.user;
   const { skip = 0, limit = 15 } = req.query;
 
-  let followerProfiles = await Follow_Profile.findAll({
-    where: { followedId: user.profileInfo.id, id: { [Op.gt]: skip } },
-    attributes: ["id"],
-    include: {
-      model: Profile,
-      as: "follower",
-      attributes: ["id", "fullname", "avatar", "bio"],
-      include: { model: User, as: "userInfo", attributes: ["username"] },
-    },
-    limit: Number(limit) ? Number(limit) : null,
-  });
+  let followerProfiles;
 
   let followers;
 
   if (!me) {
+    followerProfiles = await Follow_Profile.findAll({
+      where: { followedId: user.profileInfo.id, id: { [Op.gt]: skip } },
+      attributes: ["id"],
+      include: {
+        model: Profile,
+        as: "follower",
+        attributes: ["id", "fullname", "avatar", "bio"],
+        include: { model: User, as: "userInfo", attributes: ["username"] },
+      },
+      limit: Number(limit) ? Number(limit) : null,
+    });
     followers = followerProfiles.map((followerProfile) => {
       followerProfile.follower.avatar = addUrlToImg(
         followerProfile.follower.avatar
@@ -191,6 +232,17 @@ const getFollowers = asyncMiddleware(async (req, res, next) => {
   }
 
   if (me && me.profileInfo.id === user.profileInfo.id) {
+    followerProfiles = await Follow_Profile.findAll({
+      where: { followedId: user.profileInfo.id, id: { [Op.gt]: skip } },
+      attributes: ["id"],
+      include: {
+        model: Profile,
+        as: "follower",
+        attributes: ["id", "fullname", "avatar", "bio"],
+        include: { model: User, as: "userInfo", attributes: ["username"] },
+      },
+      limit: Number(limit) ? Number(limit) : null,
+    });
     followers = await Promise.all(
       followerProfiles.map(async (followerProfile) => {
         followerProfile.follower.avatar = addUrlToImg(
@@ -214,6 +266,39 @@ const getFollowers = asyncMiddleware(async (req, res, next) => {
   }
 
   if (me && me.profileInfo.id !== user.profileInfo.id) {
+    followerProfiles = await Follow_Profile.findAll({
+      where: {
+        followedId: user.profileInfo.id,
+        id: { [Op.gt]: skip },
+        "$followerBlocker.blockerId$": null,
+        "$followerBlocked.blockedId$": null,
+      },
+      attributes: ["id"],
+      include: [
+        {
+          model: Profile,
+          as: "follower",
+          attributes: ["id", "fullname", "avatar", "bio"],
+          include: { model: User, as: "userInfo", attributes: ["username"] },
+          where: { id: { [Op.ne]: me.profileInfo.id } },
+        },
+        {
+          model: Block,
+          as: "followerBlocker",
+          where: { blockedId: me.profileInfo.id },
+          attributes: [],
+          required: false,
+        },
+        {
+          model: Block,
+          as: "followerBlocked",
+          attributes: [],
+          where: { blockerId: me.profileInfo.id },
+          required: false,
+        },
+      ],
+      limit: Number(limit) ? Number(limit) : null,
+    });
     followers = await Promise.all(
       followerProfiles.map(async (followerProfile) => {
         followerProfile.follower.avatar = addUrlToImg(
