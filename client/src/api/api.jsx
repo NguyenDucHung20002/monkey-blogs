@@ -83,9 +83,9 @@ const apiDeleteArticle = async (token, slug) => {
   }
 };
 
-const apiDeleteTopic = async (token, slug) => {
+const apiDeleteTopic = async (token, id) => {
   try {
-    const response = await axios.delete(`${config.SERVER_HOST}/topic/${slug}`, {
+    const response = await axios.delete(`${config.SERVER_HOST}/topic/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
@@ -93,7 +93,7 @@ const apiDeleteTopic = async (token, slug) => {
     });
 
     if (response.data.success) {
-      toast.success("Add successfully!", {
+      toast.success("Deleted successfully!", {
         pauseOnHover: false,
         delay: 500,
       });
@@ -168,15 +168,18 @@ const apiFollowUser = async (userID, token) => {
   return false;
 };
 
-const apiGetAllUser = async (token) => {
+const apiGetAllUser = async (token, limit = "10", skip, search = "") => {
   if (!token) return;
   try {
-    const response = await axios.get(`${config.SERVER_HOST}/user?limit=10 `, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    });
+    const response = await axios.get(
+      `${config.SERVER_HOST}/user?limit=${limit}&skip=${skip}&search=${search}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
     if (response.data) return response.data;
     console.log("response.data:", response);
   } catch (error) {
@@ -366,13 +369,17 @@ const apiGetTopicFollowersAmount = async (slug) => {
   }
 };
 
-const apiGetTopics = async () => {
+const apiGetTopics = async (token, limit = "10", search = "", skip = "") => {
   try {
-    const response = await axios.get(`${config.SERVER_HOST}/topic`, {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    const response = await axios.get(
+      `${config.SERVER_HOST}/topic?limit=${limit}&search=${search}&skip=${skip}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
     if (response.data) return response.data;
   } catch (error) {
     toast.error("Some thing was wrong!", {
@@ -567,10 +574,10 @@ const apiUpdateArticle = async (token, slug, formData) => {
   }
 };
 
-const apiUpdateTopic = async (token, slug, name) => {
+const apiUpdateTopic = async (token, id, name) => {
   try {
-    const response = await axios.put(
-      `${config.SERVER_HOST}/topic/${slug}`,
+    const response = await axios.patch(
+      `${config.SERVER_HOST}/topic/${id}`,
       { name },
       {
         headers: {
@@ -581,17 +588,18 @@ const apiUpdateTopic = async (token, slug, name) => {
     );
 
     if (response.data.success) {
-      toast.success("Add successfully!", {
-        pauseOnHover: false,
-        delay: 500,
+      toast.success("Update successfully!", {
+        pauseOnHover: true,
+        delay: 200,
       });
       return true;
     }
   } catch (error) {
+    console.log("error:", error);
     if (error.response.status === 409)
       return toast.error(error.response.data.message, {
-        pauseOnHover: false,
-        delay: 500,
+        pauseOnHover: true,
+        delay: 200,
       });
 
     toast.error("Some thing was wrong!", {
@@ -630,7 +638,7 @@ const apiUpdateBan = async (token, userId, banType) => {
   if ((!token, !userId)) return null;
   try {
     const response = await axios.patch(
-      `${config.SERVER_HOST}/user/update/${userId}`,
+      `${config.SERVER_HOST}/user/update-ban/${userId}`,
       {
         banType,
       },
@@ -771,16 +779,39 @@ const apiBlockUser = async (type = "post", token, userId) => {
   }
 };
 
-const apiReportUser = async (token, userId,reason,description) => {
+const apiApproveTopic = async (token, id) => {
   try {
-    const res = await fetch(`${config.SERVER_HOST}/report-user/${userId}`,{
-      method:"post",
+    const data = await axios.patch(
+      `${config.SERVER_HOST}/topic/${id}/approve`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    console.log("data:", data);
+    if (!data.data.success) {
+      return false;
+    }
+    return true;
+  } catch (error) {
+    console.log("error:", error);
+  }
+};
+const apiReportUser = async (token, userId, reason, description) => {
+  try {
+    const res = await fetch(`${config.SERVER_HOST}/report-user/${userId}`, {
+      method: "post",
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
-      body:JSON.stringify({reason,description})
-    }).then((response) => response.json())
+      body: JSON.stringify({ reason, description }),
+    })
+      .then((response) => response.json())
       .catch((err) => {
         console.log(err);
       });
@@ -789,6 +820,7 @@ const apiReportUser = async (token, userId,reason,description) => {
     console.log("error:", error);
   }
 };
+
 export {
   apiAddTopic,
   apiAddComment,
@@ -821,8 +853,9 @@ export {
   apiUpdateTopic,
   apiUpdateBan,
   apiUserSearch,
-  apiTopicsSearch,
   apiUpdateProfile,
+  apiApproveTopic,
+  apiTopicsSearch,
   apiMuteUser,
   apiBlockUser,
   apiReportUser,

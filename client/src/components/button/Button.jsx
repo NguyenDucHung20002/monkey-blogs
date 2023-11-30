@@ -19,6 +19,11 @@ const ButtonStyles = styled.button`
   z-index: 0;
   position: relative;
   ${(props) =>
+    props.width &&
+    css`
+      width: props.width;
+    `};
+  ${(props) =>
     props.notification !== "" &&
     css`
       &:after {

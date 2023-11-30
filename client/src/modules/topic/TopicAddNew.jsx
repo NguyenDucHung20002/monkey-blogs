@@ -33,9 +33,9 @@ const TopicAddNew = () => {
   });
 
   useEffect(() => {
-    const arrErorrs = Object.values(errors);
-    if (arrErorrs.length > 0) {
-      toast.error(arrErorrs[0]?.message, {
+    const arrBug = Object.values(errors);
+    if (arrBug.length > 0) {
+      toast.error(arrBug[0]?.message, {
         pauseOnHover: false,
         delay: 500,
       });
@@ -46,7 +46,8 @@ const TopicAddNew = () => {
     if (!isValid) return;
     async function fetchAddTopic() {
       if (!token) return;
-      const response = await apiAddTopic(token, name);
+      const nameTopic = name.charAt(0).toUpperCase() + name.slice(1);
+      const response = await apiAddTopic(token, nameTopic);
       if (response) reset();
     }
     fetchAddTopic();
