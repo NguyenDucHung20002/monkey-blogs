@@ -66,7 +66,7 @@ const HomeMain = () => {
       <div>
         {blogs &&
           blogs.length > 0 &&
-          blogs.map((blog) => <Blog key={blog._id} blog={blog}></Blog>)}
+          blogs.map((blog) => <Blog key={blog.id} blog={blog}></Blog>)}
       </div>
     </HomeMainStyled>
   );

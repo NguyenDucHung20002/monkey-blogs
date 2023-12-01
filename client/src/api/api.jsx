@@ -258,7 +258,7 @@ const apiGetCommentReplies = async (slug, parentCommentId) => {
 const apiGetMyFollowingTopics = async (token) => {
   try {
     const response = await axios.get(
-      `${config.SERVER_HOST}/user/me/following/topics`,
+      `${config.SERVER_HOST}/follow-topic/me`,
       {
         headers: {
           authorization: "Bearer " + token,
