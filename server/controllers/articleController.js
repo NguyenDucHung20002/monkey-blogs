@@ -12,7 +12,7 @@ import Block from "../models/mysql/Block.js";
 import Like from "../models/mysql/Like.js";
 import addUrlToImg from "../utils/addUrlToImg.js";
 import Mute from "../models/mysql/Mute.js";
-import History_Reading from "../models/mysql/History_Reading.js";
+import Reading_History from "../models/mysql/Reading_History.js";
 
 // ==================== create article ==================== //
 const createArticle = asyncMiddleware(async (req, res, next) => {
@@ -288,7 +288,7 @@ const getAnArticle = asyncMiddleware(async (req, res, next) => {
       }),
     ]);
 
-    const isInHistoryReading = await History_Reading.findOne({
+    const isInReadingHistory = await Reading_History.findOne({
       where: {
         articleId: article.id,
         profileId: me.profileInfo.id,
@@ -296,14 +296,14 @@ const getAnArticle = asyncMiddleware(async (req, res, next) => {
       attributes: ["id", "updatedAt"],
     });
 
-    if (!isInHistoryReading) {
-      await History_Reading.create({
+    if (!isInReadingHistory) {
+      await Reading_History.create({
         articleId: article.id,
         profileId: me.profileInfo.id,
       });
     } else {
-      isInHistoryReading.changed("updatedAt", true);
-      await isInHistoryReading.update({ updatedAt: new Date() });
+      isInReadingHistory.changed("updatedAt", true);
+      await isInReadingHistory.update({ updatedAt: new Date() });
     }
 
     article = {

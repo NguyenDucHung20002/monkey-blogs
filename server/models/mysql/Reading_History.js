@@ -3,8 +3,8 @@ import sequelize from "../../databases/mysql/connect.js";
 import Article from "./Article.js";
 import Profile from "./Profile.js";
 
-const History_Reading = sequelize.define(
-  "History_Reading",
+const Reading_History = sequelize.define(
+  "Reading_History",
   {
     id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
 
@@ -21,9 +21,9 @@ const History_Reading = sequelize.define(
     },
   },
   {
-    tableName: "history_readings",
+    tableName: "reading_historys",
     timestamps: true,
   }
 );
 
-export default History_Reading;
+export default Reading_History;

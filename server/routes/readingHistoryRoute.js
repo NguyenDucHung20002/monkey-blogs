@@ -1,7 +1,7 @@
 import express from "express";
 import requiredAuth from "../middlewares/requiredAuth.js";
 import fetchMe from "../middlewares/fetchMe.js";
-import historyReadingController from "../controllers/historyReadingController.js";
+import readingHistoryController from "../controllers/readingHistoryController.js";
 
 const router = express.Router();
 
@@ -9,21 +9,21 @@ router.delete(
   "/:id",
   requiredAuth,
   fetchMe,
-  historyReadingController.deleteAnArticleInHistory
+  readingHistoryController.deleteAnArticleInHistory
 );
 
 router.delete(
   "/me/clear",
   requiredAuth,
   fetchMe,
-  historyReadingController.clearMyHistoryReading
+  readingHistoryController.clearMyReadingHistory
 );
 
 router.get(
   "/me",
   requiredAuth,
   fetchMe,
-  historyReadingController.getMyHistoryReading
+  readingHistoryController.getMyReadingHistory
 );
 
 export default router;

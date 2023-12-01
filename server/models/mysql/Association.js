@@ -13,7 +13,7 @@ import Draft from "./Draft.js";
 import Like from "./Like.js";
 import Report_Article from "./Report_Article.js";
 import Comment from "./Comment.js";
-import History_Reading from "./History_Reading.js";
+import Reading_History from "./Reading_History.js";
 
 // Role - User (1-n)
 Role.hasMany(User, {
@@ -319,7 +319,7 @@ Like.hasOne(Block, {
   as: "likerBlocker",
 });
 
-// Follow - Blokc (1-1)
+// Follow - Block (1-1)
 Follow_Profile.hasOne(Block, {
   sourceKey: "followedId",
   foreignKey: "blockedId",
@@ -341,22 +341,34 @@ Follow_Profile.hasOne(Block, {
   as: "followerBlocker",
 });
 
+// Profile - Block
+Profile.hasOne(Block, {
+  sourceKey: "id",
+  foreignKey: "blockedId",
+  as: "profileBlocked",
+});
+Profile.hasOne(Block, {
+  sourceKey: "id",
+  foreignKey: "blockerId",
+  as: "profileBlocker",
+});
+
 // History - Article (n-n)
 Article.belongsToMany(Profile, {
-  through: History_Reading,
+  through: Reading_History,
   foreignKey: "articleId",
   as: "readingProfiles",
 });
 Profile.belongsToMany(Article, {
-  through: History_Reading,
+  through: Reading_History,
   foreignKey: "profileId",
   as: "readArticles",
 });
-History_Reading.belongsTo(Article, {
+Reading_History.belongsTo(Article, {
   foreignKey: "articleId",
   as: "readArticle",
 });
-History_Reading.belongsTo(Profile, {
+Reading_History.belongsTo(Profile, {
   foreignKey: "profileId",
   as: "readingProfile",
 });

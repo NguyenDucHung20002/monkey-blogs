@@ -30,7 +30,8 @@ import likeRoute from "./routes/likeRoute.js";
 import roleRoute from "./routes/roleRoute.js";
 import reportArticleRoute from "./routes/reportArticleRoute.js";
 import commentRoute from "./routes/commentRoute.js";
-import historyReadingRoute from "./routes/readingHistoryRoute.js";
+import readingHistoryRoute from "./routes/readingHistoryRoute.js";
+import searchRoute from "./routes/searchRoute.js";
 
 app.use(express.json());
 app.use(morgan("dev"));
@@ -70,7 +71,8 @@ app.use("/api/v1/like", likeRoute);
 app.use("/api/v1/role", roleRoute);
 app.use("/api/v1/report-article", reportArticleRoute);
 app.use("/api/v1/comment", commentRoute);
-app.use("/api/v1/history-reading", historyReadingRoute);
+app.use("/api/v1/reading-history", readingHistoryRoute);
+app.use("/api/v1/search", searchRoute);
 
 app.use(errorMiddleware);
 
