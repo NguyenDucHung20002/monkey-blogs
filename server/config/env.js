@@ -32,6 +32,7 @@ export default {
     process.env.GOOGLE_CLIENT_SECRET || "your google client secret",
 
   CLARIFAI_API_KEY: process.env.CLARIFAI_API_KEY || "your clarifai api key",
+  CLARIFAI_MODEL_ID: process.env.CLARIFAI_MODEL_ID || "your clarifai model id",
 
   getMongodbUri() {
     return `mongodb://${this.MONGODB_HOST}:${this.MONGODB_PORT}/${this.MONGODB_DATABASE}`;

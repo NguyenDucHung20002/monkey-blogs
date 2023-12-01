@@ -269,7 +269,7 @@ const getNestedComments = asyncMiddleware(async (req, res, next) => {
   if (!parentComment) throw ErrorResponse(404, "Comment not found");
 
   const article = await Article.findByPk(parentComment.articleId, {
-    attributes: ["id"],
+    attributes: ["id", "authorId"],
   });
 
   if (!article) throw ErrorResponse(404, "Article not found");
