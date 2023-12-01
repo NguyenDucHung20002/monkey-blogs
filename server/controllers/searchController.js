@@ -8,6 +8,7 @@ import User from "../models/mysql/User.js";
 import { Op } from "sequelize";
 import addUrlToImg from "../utils/addUrlToImg.js";
 import Article_Topic from "../models/mysql/Article_Topic.js";
+import Follow_Profile from "../models/mysql/Follow_Profile.js";
 
 // ==================== search ==================== //
 const search = asyncMiddleware(async (req, res, next) => {
@@ -119,35 +120,76 @@ const search = asyncMiddleware(async (req, res, next) => {
   }
 
   if (users) {
-    let profiles = await Profile.findAll({
-      where: {
-        id: {
-          [Op.and]: [
-            { [Op.gt]: skip },
-            { [Op.ne]: me ? me.profileInfo.id : null },
-          ],
+    let profiles;
+
+    if (!me) {
+      profiles = await Profile.findAll({
+        where: { id: { [Op.gt]: skip }, fullname: { [Op.substring]: users } },
+        attributes: ["id", "fullname", "avatar", "bio"],
+        include: { model: User, as: "userInfo", attributes: ["username"] },
+        limit: Number(limit) ? Number(limit) : 15,
+      });
+
+      profiles = profiles.map((profile) => {
+        profile.avatar = addUrlToImg(profile.avatar);
+        return {
+          id: profile.id,
+          fullname: profile.fullname,
+          avatar: profile.avatar,
+          bio: profile.bio,
+          username: profile.userInfo.username,
+        };
+      });
+    } else {
+      profiles = await Profile.findAll({
+        where: {
+          id: {
+            [Op.and]: [{ [Op.gt]: skip }, { [Op.ne]: me.profileInfo.id }],
+          },
+          fullname: { [Op.substring]: users },
+          "$profileBlocker.blockerId$": null,
+          "$profileBlocked.blockedId$": null,
         },
-        "$profileBlocker.blockerId$": null,
-        "$profileBlocked.blockedId$": null,
-      },
-      attributes: ["id", "fullname", "avatar", "bio"],
-      include: [
-        {
-          model: Block,
-          as: "profileBlocker",
-          where: { blockedId: me ? me.profileInfo.id : null },
-          attributes: [],
-          required: false,
-        },
-        {
-          model: Block,
-          as: "profileBlocked",
-          attributes: [],
-          where: { blockerId: me ? me.profileInfo.id : null },
-          required: false,
-        },
-      ],
-    });
+        attributes: ["id", "fullname", "avatar", "bio"],
+        include: [
+          {
+            model: Block,
+            as: "profileBlocker",
+            where: { blockedId: me.profileInfo.id },
+            attributes: [],
+            required: false,
+          },
+          {
+            model: Block,
+            as: "profileBlocked",
+            attributes: [],
+            where: { blockerId: me.profileInfo.id },
+            required: false,
+          },
+          { model: User, as: "userInfo", attributes: ["username"] },
+        ],
+        limit: Number(limit) ? Number(limit) : 15,
+      });
+
+      profiles = await Promise.all(
+        profiles.map(async (profile) => {
+          profile.avatar = addUrlToImg(profile.avatar);
+          const isFollowed = !!(await Follow_Profile.findOne({
+            where: { followedId: profile.id, followerId: me.profileInfo.id },
+            attributes: ["id"],
+          }));
+
+          return {
+            id: profile.id,
+            fullname: profile.fullname,
+            avatar: profile.avatar,
+            bio: profile.bio,
+            username: profile.userInfo.username,
+            isFollowed,
+          };
+        })
+      );
+    }
 
     result.push(...profiles);
   }
