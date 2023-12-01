@@ -155,7 +155,7 @@ const getMainComments = asyncMiddleware(async (req, res, next) => {
     whereQuery["$authorBlocked.blockedId$"] = null;
     comments = await Comment.findAll({
       where: whereQuery,
-      attributes: { exclude: ["articleId", "authorId"] },
+      attributes: { exclude: ["articleId"] },
       include: [
         {
           model: Profile,
@@ -185,6 +185,7 @@ const getMainComments = asyncMiddleware(async (req, res, next) => {
       order: [["id", "DESC"]],
       limit: Number(limit) ? Number(limit) : null,
     });
+
     comments = comments.map((comment) => {
       comment.author.avatar = addUrlToImg(comment.author.avatar);
       const isAuthor = comment.authorId === article.authorId;
@@ -212,7 +213,7 @@ const getMainComments = asyncMiddleware(async (req, res, next) => {
   } else {
     comments = await Comment.findAll({
       where: whereQuery,
-      attributes: { exclude: ["articleId", "authorId"] },
+      attributes: { exclude: ["articleId"] },
       include: [
         {
           model: Profile,
@@ -284,7 +285,7 @@ const getNestedComments = asyncMiddleware(async (req, res, next) => {
     whereQuery["$authorBlocked.blockedId$"] = null;
     replyComments = await Comment.findAll({
       where: whereQuery,
-      attributes: { exclude: ["articleId", "authorId"] },
+      attributes: { exclude: ["articleId"] },
       include: [
         {
           model: Profile,
@@ -341,7 +342,7 @@ const getNestedComments = asyncMiddleware(async (req, res, next) => {
   } else {
     replyComments = await Comment.findAll({
       where: whereQuery,
-      attributes: { exclude: ["articleId", "authorId"] },
+      attributes: { exclude: ["articleId"] },
       include: [
         {
           model: Profile,

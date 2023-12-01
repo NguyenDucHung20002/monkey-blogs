@@ -16,4 +16,6 @@ router.post(
 
 router.get("/:filename", fileController.getFile);
 
+router.delete("/:filename", requiredAuth, fetchMe, fileController.deleteFile);
+
 export default router;
