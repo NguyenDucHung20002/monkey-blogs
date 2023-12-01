@@ -7,11 +7,15 @@ import env from "../config/env.js";
 const storage = new GridFsStorage({
   url: env.getMongodbUri(),
   file: (req, file) => {
+    console.log(file);
     return new Promise((resolve, reject) => {
       crypto.randomBytes(20, (err, buf) => {
         if (err) return reject(err);
         const filename = buf.toString("hex") + path.extname(file.originalname);
-        const fileInfo = { filename, bucketName: env.MONGODB_BUCKET };
+        const fileInfo = {
+          filename,
+          bucketName: env.MONGODB_BUCKET,
+        };
         resolve(fileInfo);
       });
     });

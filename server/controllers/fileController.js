@@ -17,9 +17,9 @@ const getAnImg = asyncMiddleware(async (req, res, next) => {
 
   const gfs = MongoDB.gfs;
 
-  const file = await gfs.find({ filename }).toArray();
+  const files = await gfs.find({ filename }).toArray();
 
-  if (!file || !file.length) {
+  if (!files || !files.length) {
     throw ErrorResponse(404, "File not found");
   }
 

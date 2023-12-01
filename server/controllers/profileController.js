@@ -2,6 +2,7 @@ import asyncMiddleware from "../middlewares/asyncMiddleware.js";
 import Block from "../models/mysql/Block.js";
 import Mute from "../models/mysql/Mute.js";
 import Follow_Profile from "../models/mysql/Follow_Profile.js";
+import ErrorResponse from "../responses/ErrorResponse.js";
 
 // ==================== get profile ==================== //
 const getProfile = asyncMiddleware(async (req, res, next) => {
@@ -45,9 +46,22 @@ const getProfile = asyncMiddleware(async (req, res, next) => {
 // ==================== update my profile ==================== //
 const updateMyProfile = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
+  const result = req.checkResult;
   const { fullname, bio, about } = req.body;
 
-  await me.profileInfo.update({ fullname, bio, about });
+  const filename = req.file?.filename;
+  const size = req.file?.size;
+
+  const FILE_LIMIT = 5 * 1024 * 1024;
+  if (size && size > FILE_LIMIT) {
+    throw new ErrorResponse(400, "File too large");
+  }
+
+  if (result[0].nsfw > 0.7) {
+    throw ErrorResponse(400, "Avatar image contains 18+");
+  }
+
+  await me.profileInfo.update({ fullname, bio, about, avatar: filename });
 
   res.json({ success: true, message: "Profile updated successfully" });
 });

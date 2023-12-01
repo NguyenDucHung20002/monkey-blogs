@@ -1,4 +1,4 @@
-import env from "../config/env";
+import env from "../config/env.js";
 import { ClarifaiStub, grpc } from "clarifai-nodejs-grpc";
 
 const stub = ClarifaiStub.grpc();
@@ -6,13 +6,11 @@ const stub = ClarifaiStub.grpc();
 const metadata = new grpc.Metadata();
 metadata.set("authorization", `Key ${env.CLARIFAI_API_KEY}`);
 
-const predictImage = (req, res, next) => {
-  const file = req.file;
-
+const clarifai = (inputs, callback) => {
   stub.PostModelOutputs(
     {
       model_id: env.CLARIFAI_MODEL_ID,
-      inputs: [{ data: { image: { base64: file } } }],
+      inputs: [{ data: { image: { base64: inputs } } }],
     },
     metadata,
     (err, response) => {
@@ -22,7 +20,6 @@ const predictImage = (req, res, next) => {
           message: "Error predicting image",
         });
       }
-
       if (response.status.code !== 10000) {
         return res.status(400).json({
           success: false,
@@ -33,18 +30,15 @@ const predictImage = (req, res, next) => {
             response.status.details,
         });
       }
-
       let results = [];
       for (const c of response.outputs[0].data.concepts) {
         results.push({
           [c.name]: c.value,
         });
       }
-
-      req.predictedResults = results;
-      next();
+      callback(null, results);
     }
   );
 };
 
-export default predictImage;
+export default clarifai;
