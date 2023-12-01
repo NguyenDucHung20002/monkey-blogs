@@ -5,6 +5,7 @@ import InputComment from "../input/InputComment";
 import { Link } from "react-router-dom";
 import { useCallback } from "react";
 import { apiGetCommentReplies } from "../../api/api";
+import useTimeAgo from "../../hooks/useTimeAgo";
 
 const CommentUser = ({ data = [], type = "parent", slug = "" }) => {
   const { _id: parentCommentId, content, author, createdAt, isAuthor } = data;
@@ -14,25 +15,8 @@ const CommentUser = ({ data = [], type = "parent", slug = "" }) => {
   const [showMore, setShowMore] = useState(false);
   const [hideReplies, setHideReplies] = useState(false);
   const [showReply, setShowReply] = useState(false);
-  const startDate = new Date(createdAt);
-  function getTimeAgo(startDate) {
-    const currentDate = new Date();
-    const timeDifference = currentDate - startDate;
-    const seconds = Math.floor(timeDifference / 1000);
-    const minutes = Math.floor(seconds / 60);
-    const hours = Math.floor(minutes / 60);
+  const getTimeAgo = useTimeAgo();
 
-    if (seconds < 60) {
-      return `${seconds} seconds ago`;
-    } else if (minutes < 60) {
-      return `${minutes} ${minutes === 1 ? "min" : "mins"} ago`;
-    } else if (hours < 24) {
-      return `${hours} ${hours === 1 ? "hour" : "hours"} ago`;
-    } else {
-      const days = Math.floor(hours / 24);
-      return `${days} ${days === 1 ? "day" : "days"} ago`;
-    }
-  }
   function getCountRespond(count) {
     if (count === 1 || count === 0) return `${count} reply`;
     return `${count} replies`;
@@ -63,7 +47,7 @@ const CommentUser = ({ data = [], type = "parent", slug = "" }) => {
               {author.fullname}
               {isAuthor && " . author"}
             </h3>
-            <div className="text-gray-400 time">{getTimeAgo(startDate)}</div>
+            <div className="text-gray-400 time">{getTimeAgo(createdAt)}</div>
           </div>
         </div>
       </Link>

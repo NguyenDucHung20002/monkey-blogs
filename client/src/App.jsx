@@ -1,9 +1,18 @@
 import React, { Suspense } from "react";
 import { Route, Routes } from "react-router";
 import { ToastContainer } from "react-toastify";
+<<<<<<< Updated upstream
 import ProfileFollower from "./modules/profile/ProfileFollower";
 import ProfileFollowing from "./modules/profile/ProfileFollowing";
 import ProfileHome from "./modules/profile/ProfileHome";
+=======
+const UserReportsResolved = React.lazy(() =>
+  import("./modules/user/UserReportsResolved")
+);
+const UserReportManage = React.lazy(() =>
+  import("./modules/user/UserReportManage")
+);
+>>>>>>> Stashed changes
 const MeFollowingPage = React.lazy(() => import("./pages/MeFollowingPage"));
 const MeSuggestionPage = React.lazy(() => import("./pages/MeSuggestionPage"));
 const SearchPage = React.lazy(() => import("./pages/SearchPage"));
@@ -110,6 +119,14 @@ function App() {
             <Route
               path="/manage/user"
               element={<UserManage></UserManage>}
+            ></Route>
+            <Route
+              path="/manage/report-user"
+              element={<UserReportManage></UserReportManage>}
+            ></Route>
+            <Route
+              path="/manage/report-user-resolved"
+              element={<UserReportsResolved></UserReportsResolved>}
             ></Route>
           </Route>
           <Route path="/sign-in" element={<SignInPage></SignInPage>}></Route>

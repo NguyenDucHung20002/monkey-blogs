@@ -11,7 +11,6 @@ const Comment = ({ slug = "" }) => {
   const token = localStorage.getItem("token");
   const { userInfo } = useAuth();
   const { data } = userInfo;
-  console.log("userInfo:", userInfo);
   const [commentBlog, setCommentBlog] = useState([]);
   const commentValue = { commentBlog, setCommentBlog };
   useEffect(() => {
