@@ -11,11 +11,11 @@ router.post(
   requiredAuth,
   fetchMe,
   mongoUpload.single("img"),
-  fileController.upLoadFile
+  fileController.upLoadAnImg
 );
 
-router.get("/:filename", fileController.getFile);
+router.get("/:filename", fileController.getAnImg);
 
-router.delete("/:filename", requiredAuth, fetchMe, fileController.deleteFile);
+router.delete("/:filename", requiredAuth, fetchMe, fileController.deleteAnImg);
 
 export default router;
