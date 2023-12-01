@@ -161,7 +161,13 @@ const search = asyncMiddleware(async (req, res, next) => {
 
     if (!me) {
       profiles = await Profile.findAll({
-        where: { id: { [Op.gt]: skip }, fullname: { [Op.substring]: users } },
+        where: {
+          id: { [Op.gt]: skip },
+          [Op.or]: [
+            { fullname: { [Op.substring]: users } },
+            { username: { [Op.substring]: users } },
+          ],
+        },
         attributes: ["id", "fullname", "avatar", "bio"],
         include: { model: User, as: "userInfo", attributes: ["username"] },
         limit: Number(limit) ? Number(limit) : 15,
@@ -183,7 +189,10 @@ const search = asyncMiddleware(async (req, res, next) => {
           id: {
             [Op.and]: [{ [Op.gt]: skip }, { [Op.ne]: me.profileInfo.id }],
           },
-          fullname: { [Op.substring]: users },
+          [Op.or]: [
+            { fullname: { [Op.substring]: users } },
+            { username: { [Op.substring]: users } },
+          ],
           "$profileBlocker.blockerId$": null,
           "$profileBlocked.blockedId$": null,
         },
