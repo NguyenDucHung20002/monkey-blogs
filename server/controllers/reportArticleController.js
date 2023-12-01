@@ -2,7 +2,7 @@ import asyncMiddleware from "../middlewares/asyncMiddleware.js";
 import User from "../models/mysql/User.js";
 import ErrorResponse from "../responses/ErrorResponse.js";
 import Report_Article from "../models/mysql/Report_Article.js";
-import { ARRAY, Op } from "sequelize";
+import { Op } from "sequelize";
 import Role from "../models/mysql/Role.js";
 import Article from "../models/mysql/Article.js";
 

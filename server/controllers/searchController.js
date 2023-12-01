@@ -165,7 +165,7 @@ const search = asyncMiddleware(async (req, res, next) => {
           id: { [Op.gt]: skip },
           [Op.or]: [
             { fullname: { [Op.substring]: users } },
-            { username: { [Op.substring]: users } },
+            { "$userInfo.username$": { [Op.substring]: users } },
           ],
         },
         attributes: ["id", "fullname", "avatar", "bio"],
@@ -191,7 +191,7 @@ const search = asyncMiddleware(async (req, res, next) => {
           },
           [Op.or]: [
             { fullname: { [Op.substring]: users } },
-            { username: { [Op.substring]: users } },
+            { "$userInfo.username$": { [Op.substring]: users } },
           ],
           "$profileBlocker.blockerId$": null,
           "$profileBlocked.blockedId$": null,
