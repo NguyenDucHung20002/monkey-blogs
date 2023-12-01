@@ -340,6 +340,7 @@ const getFollowedProfilesArticles = asyncMiddleware(async (req, res, next) => {
         "commentsCount",
         "approvedById",
         "status",
+        "reprotsCount",
       ],
     },
     include: [
@@ -432,6 +433,7 @@ const getFollowedTopicArticles = asyncMiddleware(async (req, res, next) => {
         "commentsCount",
         "approvedById",
         "status",
+        "reprotsCount",
       ],
     },
     include: [

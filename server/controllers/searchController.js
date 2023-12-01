@@ -35,61 +35,98 @@ const search = asyncMiddleware(async (req, res, next) => {
   }
 
   if (post) {
-    let articles = await Article.findAll({
-      where: {
-        id: { [Op.gt]: skip },
-        status: "approved",
-        [Op.or]: [
-          { slug: { [Op.substring]: post } },
-          { title: { [Op.substring]: post } },
+    let articles;
+
+    if (me) {
+      articles = await Article.findAll({
+        where: {
+          id: { [Op.gt]: skip },
+          status: "approved",
+          [Op.or]: [
+            { slug: { [Op.substring]: post } },
+            { title: { [Op.substring]: post } },
+          ],
+          "$authorBlocked.blockedId$": null,
+          "$authorBlocker.blockerId$": null,
+          "$authorMuted.mutedId$": null,
+        },
+        attributes: {
+          exclude: [
+            "authorId",
+            "content",
+            "likesCount",
+            "commentsCount",
+            "approvedById",
+            "status",
+          ],
+        },
+        include: [
+          {
+            model: Profile,
+            as: "author",
+            attributes: ["id", "fullname", "avatar"],
+            include: { model: User, as: "userInfo", attributes: ["username"] },
+          },
+          {
+            model: Mute,
+            as: "authorMuted",
+            where: { muterId: me.profileInfo.id },
+            attributes: [],
+            required: false,
+          },
+          {
+            model: Block,
+            as: "authorBlocker",
+            where: { blockedId: me.profileInfo.id },
+            attributes: [],
+            required: false,
+          },
+          {
+            model: Block,
+            as: "authorBlocked",
+            attributes: [],
+            where: { blockerId: me.profileInfo.id },
+            required: false,
+          },
         ],
-        "$authorBlocked.blockedId$": null,
-        "$authorBlocker.blockerId$": null,
-        "$authorMuted.mutedId$": null,
-      },
-      attributes: {
-        exclude: [
-          "authorId",
-          "content",
-          "likesCount",
-          "commentsCount",
-          "approvedById",
-          "status",
+        limit: Number(limit) ? Number(limit) : 15,
+      });
+    } else {
+      articles = await Article.findAll({
+        where: {
+          id: { [Op.gt]: skip },
+          status: "approved",
+          [Op.or]: [
+            { slug: { [Op.substring]: post } },
+            { title: { [Op.substring]: post } },
+          ],
+        },
+        attributes: {
+          exclude: [
+            "authorId",
+            "content",
+            "likesCount",
+            "commentsCount",
+            "approvedById",
+            "status",
+            "reportsCount",
+          ],
+        },
+        include: [
+          {
+            model: Profile,
+            as: "author",
+            attributes: ["id", "fullname", "avatar"],
+            include: { model: User, as: "userInfo", attributes: ["username"] },
+          },
         ],
-      },
-      include: [
-        {
-          model: Profile,
-          as: "author",
-          attributes: ["id", "fullname", "avatar"],
-          include: { model: User, as: "userInfo", attributes: ["username"] },
-        },
-        {
-          model: Mute,
-          as: "authorMuted",
-          where: { muterId: me ? me.profileInfo.id : null },
-          attributes: [],
-          required: false,
-        },
-        {
-          model: Block,
-          as: "authorBlocker",
-          where: { blockedId: me ? me.profileInfo.id : null },
-          attributes: [],
-          required: false,
-        },
-        {
-          model: Block,
-          as: "authorBlocked",
-          attributes: [],
-          where: { blockerId: me ? me.profileInfo.id : null },
-          required: false,
-        },
-      ],
-    });
+        limit: Number(limit) ? Number(limit) : 15,
+      });
+    }
 
     articles = await Promise.all(
       articles.map(async (article) => {
+        article.banner ? addUrlToImg(article.banner) : null;
         article.author.avatar = addUrlToImg(article.author.avatar);
         const topic = await Article_Topic.findOne({
           attributes: [],

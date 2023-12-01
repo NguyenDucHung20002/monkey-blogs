@@ -358,9 +358,7 @@ const getNestedComments = asyncMiddleware(async (req, res, next) => {
       limit: Number(limit) ? Number(limit) : null,
     });
     replyComments = replyComments.map((replyComment) => {
-      replyComment.author.avatar = addUrlToImg(
-        replyCommentcomment.author.avatar
-      );
+      replyComment.author.avatar = addUrlToImg(replyComment.author.avatar);
       const isAuthor = replyComment.authorId === article.authorId;
       return {
         id: replyComment.id,
