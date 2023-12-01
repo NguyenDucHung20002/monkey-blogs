@@ -1,7 +1,7 @@
 import Joi from "joi";
 
 const createCommentSchema = Joi.object({
-  parentCommentId: Joi.number().optional().allow(""),
+  parentCommentId: Joi.number().optional().allow(null).allow(""),
   content: Joi.string().min(3).max(150).required(),
 });
 
