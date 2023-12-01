@@ -188,7 +188,7 @@ const getMainComments = asyncMiddleware(async (req, res, next) => {
     comments = comments.map((comment) => {
       comment.author.avatar = addUrlToImg(comment.author.avatar);
       const isAuthor = comment.authorId === article.authorId;
-      const isMyComment = me === comment.authorId;
+      const isMyComment = me.profileInfo.id === comment.authorId;
       return {
         id: comment.id,
         parentCommentId: comment.parentCommentId
@@ -317,7 +317,7 @@ const getNestedComments = asyncMiddleware(async (req, res, next) => {
     replyComments = replyComments.map((replyComment) => {
       replyComment.author.avatar = addUrlToImg(replyComment.author.avatar);
       const isAuthor = replyComment.authorId === article.authorId;
-      const isMyComment = me === replyComment.authorId;
+      const isMyComment = me.profileInfo.id === replyComment.authorId;
       return {
         id: replyComment.id,
         parentCommentId: replyComment.parentCommentId

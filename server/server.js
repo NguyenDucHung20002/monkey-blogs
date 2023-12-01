@@ -32,6 +32,7 @@ import reportArticleRoute from "./routes/reportArticleRoute.js";
 import commentRoute from "./routes/commentRoute.js";
 import readingHistoryRoute from "./routes/readingHistoryRoute.js";
 import searchRoute from "./routes/searchRoute.js";
+import fileRoute from "./routes/fileRoute.js";
 
 app.use(express.json());
 app.use(morgan("dev"));
@@ -73,6 +74,7 @@ app.use("/api/v1/report-article", reportArticleRoute);
 app.use("/api/v1/comment", commentRoute);
 app.use("/api/v1/reading-history", readingHistoryRoute);
 app.use("/api/v1/search", searchRoute);
+app.use("/api/v1/file", fileRoute);
 
 app.use(errorMiddleware);
 
