@@ -40,7 +40,7 @@ const SearchPage = () => {
             <div className="flex items-center px-5 mt-8">
               <NavbarHome data={navSearch} className="flex-1"></NavbarHome>
             </div>
-            <Outlet search={q}></Outlet>
+            <Outlet></Outlet>
           </div>
         </Col>
         <Col xs={0} md={9}>

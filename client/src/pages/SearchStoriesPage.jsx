@@ -1,51 +1,72 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/prop-types */
 // eslint-disable-next-line no-unused-vars
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
-import axios from "axios";
-import { config } from "../utils/constants";
 import Blog from "../modules/blog/Blog";
 import { useSearchParams } from "react-router-dom";
+import { apiBlogSearch } from "../api/apisHung";
+import { debounce } from "lodash";
 
 const SearchStoriesPageStyle = styled.div`
   max-width: 700px;
   width: 100%;
   margin: 0 auto;
+  padding-bottom: 20px;
 `;
 
 const SearchStoriesPage = () => {
   const token = localStorage.getItem("token");
   const [blogs, setBlogs] = useState([]);
   const [searchParams] = useSearchParams();
+  const windowHeight = useRef(window.innerHeight);
+  const scrollY = useRef(window.scrollY);
+  const documentHeight = useRef(document.documentElement.scrollHeight);
+  const skip = useRef("");
   const search = searchParams.get("q");
   useEffect(() => {
     async function fetchBlog() {
-      try {
-        const response = await axios.post(
-          `${config.SERVER_HOST}:${config.SERVER_PORT}/api/article/search`,
-          {
-            search,
-          },
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        if (response.data) setBlogs(response.data.data);
-      } catch (error) {
-        console.log("error:", error.response);
+      const response = await apiBlogSearch(token, search, 5);
+      if (response?.success) {
+        setBlogs(response.data);
+        skip.current = response.newSkip;
       }
     }
     fetchBlog();
-  }, [search, token]);
+  }, []);
+
+  useEffect(() => {
+    const handleScroll = async () => {
+      windowHeight.current = window.innerHeight;
+      scrollY.current = window.scrollY;
+      documentHeight.current = document.documentElement.scrollHeight;
+      if (
+        windowHeight.current + scrollY.current >= documentHeight.current &&
+        skip.current
+      ) {
+        const response = await apiBlogSearch(token, search, 5, skip.current);
+        if (response?.success) {
+          const blogsClone = [...blogs, ...response.data];
+          setBlogs([...blogsClone]);
+          skip.current = response.newSkip;
+        }
+      }
+    };
+    const debouncedScroll = debounce(handleScroll, 200);
+
+    window.addEventListener("scroll", debouncedScroll);
+
+    return () => {
+      window.removeEventListener("scroll", debouncedScroll);
+    };
+  }, [blogs]);
 
   return (
     <SearchStoriesPageStyle>
       <div>
         {blogs &&
           blogs.length > 0 &&
-          blogs.map((blog) => <Blog key={blog._id} blog={blog}></Blog>)}
+          blogs.map((blog) => <Blog key={blog.id} blog={blog}></Blog>)}
       </div>
     </SearchStoriesPageStyle>
   );

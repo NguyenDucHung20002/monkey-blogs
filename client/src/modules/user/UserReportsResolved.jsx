@@ -14,7 +14,7 @@ const UserReportsResolved = () => {
     async function fetchUserResolved() {
       const response = await apiGetUsersResolved(token);
       console.log("response:", response);
-      if (response.success) {
+      if (response?.success) {
         const mapReports = response.data.map((report) => {
           return {
             ...report,

@@ -1,18 +1,15 @@
 import React, { Suspense } from "react";
 import { Route, Routes } from "react-router";
 import { ToastContainer } from "react-toastify";
-<<<<<<< Updated upstream
 import ProfileFollower from "./modules/profile/ProfileFollower";
 import ProfileFollowing from "./modules/profile/ProfileFollowing";
 import ProfileHome from "./modules/profile/ProfileHome";
-=======
 const UserReportsResolved = React.lazy(() =>
   import("./modules/user/UserReportsResolved")
 );
 const UserReportManage = React.lazy(() =>
   import("./modules/user/UserReportManage")
 );
->>>>>>> Stashed changes
 const MeFollowingPage = React.lazy(() => import("./pages/MeFollowingPage"));
 const MeSuggestionPage = React.lazy(() => import("./pages/MeSuggestionPage"));
 const SearchPage = React.lazy(() => import("./pages/SearchPage"));
@@ -75,9 +72,15 @@ function App() {
               element={<TopicPage></TopicPage>}
             ></Route>
             <Route element={<ProfilePage></ProfilePage>}>
-              <Route path="/profile/:username" element={<ProfileHome/>}/>
-              <Route path="/profile/follower/:username" element={<ProfileFollower/>}/>
-              <Route path="/profile/following/:username" element={<ProfileFollowing/>}/>
+              <Route path="/profile/:username" element={<ProfileHome />} />
+              <Route
+                path="/profile/follower/:username"
+                element={<ProfileFollower />}
+              />
+              <Route
+                path="/profile/following/:username"
+                element={<ProfileFollowing />}
+              />
             </Route>
 
             <Route element={<SearchPage></SearchPage>}>

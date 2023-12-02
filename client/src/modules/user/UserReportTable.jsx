@@ -61,7 +61,7 @@ const UserReportTable = () => {
 
   const handleLiftTheBan = async (userId) => {
     const response = await apiLiftTheBan(token, userId);
-    if (response.success) {
+    if (response?.success) {
       toast.success(response.message, {
         pauseOnHover: true,
         delay: 200,
@@ -72,7 +72,7 @@ const UserReportTable = () => {
 
   const handleUpdateBan = async (type, userId) => {
     const response = await apiUpdateBan(token, userId, type);
-    if (response.success) {
+    if (response?.success) {
       toast.success(response.message, {
         pauseOnHover: true,
         delay: 200,
@@ -83,7 +83,7 @@ const UserReportTable = () => {
 
   const handleBanUser = async (type, userId) => {
     const response = await apiBanUser(token, userId, type);
-    if (response.success) {
+    if (response?.success) {
       toast.success(response.message, {
         pauseOnHover: true,
         delay: 200,
@@ -95,7 +95,7 @@ const UserReportTable = () => {
   const handleResolveReports = async (id) => {
     const response = await apiResolveReportedAllUsers(token, id);
 
-    if (response.success) {
+    if (response?.success) {
       const filterUsers = users.filter((user) => user.id != id);
       setUsers(filterUsers);
     }

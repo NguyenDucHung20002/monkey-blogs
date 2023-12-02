@@ -19,7 +19,7 @@ const UserModelReportReason = ({ id, token }) => {
   useEffect(() => {
     async function fetchReports() {
       const response = await apiGetReportedUsers(token, id, 10);
-      if (response.success) {
+      if (response?.success) {
         setUsers(response.data);
         skip.current = response.newSkip;
       }
@@ -30,7 +30,7 @@ const UserModelReportReason = ({ id, token }) => {
   const handleResolve = async (id) => {
     const response = await apiResolveReportedUsers(token, id);
 
-    if (response.success) {
+    if (response?.success) {
       const filterUsers = users.filter((user) => user.id != id);
       setUsers(filterUsers);
     }

@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 // eslint-disable-next-line no-unused-vars
 import React, { useCallback, useEffect, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
@@ -14,7 +15,7 @@ import useClickOutSide from "../hooks/useClickOutSide";
 import { config, icons } from "../utils/constants";
 import Notify from "../modules/notification/Notify";
 import axios from "axios";
-import { apiTopicsSearch, apiUserSearch } from "../api/api";
+import { apiTopicsSearch, apiUserSearch } from "../api/apisHung";
 
 const HomeStyle = styled.header`
   .wrapper {
@@ -37,6 +38,8 @@ const Header = () => {
   const [users, setUsers] = useState([]);
   const [topics, setTopics] = useState([]);
   const { show, setShow, nodeRef } = useClickOutSide("searchMain");
+  const token = localStorage.getItem("token");
+
   const {
     show: showNotification,
     setShow: setShowNotification,
@@ -46,7 +49,6 @@ const Header = () => {
 
   const handleSignOut = async () => {
     setUserInfo({});
-    const token = localStorage.getItem("token");
     localStorage.removeItem("token");
     try {
       const response = await axios.post(
@@ -108,20 +110,21 @@ const Header = () => {
         </div>
       </div>
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     async function fetchUsers() {
-      const response = await apiUserSearch(inputSearch);
+      const response = await apiUserSearch(token, inputSearch, 3);
       if (response?.data) setUsers(response?.data);
     }
     async function fetchTopics() {
-      const response = await apiTopicsSearch(inputSearch);
+      const response = await apiTopicsSearch(token, inputSearch, 3);
       if (response?.data) setTopics(response?.data);
     }
     fetchTopics();
     fetchUsers();
-  }, [inputSearch]);
+  }, [inputSearch, token]);
 
   const handleSearch = debounce((e) => {
     setInputSearch(e.target.value);

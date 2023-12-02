@@ -3,31 +3,6 @@ import { config } from "../utils/constants";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 
-const apiAddComment = async (slug, parentCommentId, content, token) => {
-  if ((!slug, !parentCommentId, !content, !token)) return;
-  try {
-    const response = await axios.post(
-      `${config.SERVER_HOST}/comment/${slug}`,
-      {
-        parentCommentId,
-        content,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    if (response.data) {
-      return response.data;
-    }
-  } catch (error) {
-    console.log("error:", error);
-  }
-};
-
 const apiAddTopic = async (token, name) => {
   try {
     const response = await axios.post(
@@ -204,10 +179,11 @@ const apiGetArticle = async (slug) => {
   }
 };
 
-const apiGetArticleSkip = async (skipId, token) => {
+const apiGetArticleSkip = async (skipId, token, limit = 5) => {
+  console.log("skipId, token, limit = 5:", skipId, token, (limit = 5));
   try {
     const response = await axios.get(
-      `${config.SERVER_HOST}/article/?skip=${skipId}&limit=${5}`,
+      `${config.SERVER_HOST}/article?skip=${skipId}&limit=${limit}`,
       {
         headers: {
           Authorization: "Bearer " + token,
@@ -225,6 +201,31 @@ const apiGetArticleSkip = async (skipId, token) => {
   }
 };
 
+const apiAddComment = async (blogId, parentCommentId, content, token) => {
+  if ((!blogId, !content, !token)) return;
+  try {
+    const response = await axios.post(
+      `${config.SERVER_HOST}/comment/${blogId}`,
+      {
+        parentCommentId,
+        content,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (response.data) {
+      return response.data;
+    }
+  } catch (error) {
+    console.log("error:", error);
+  }
+};
+
 const apiGetComment = async (slug, token) => {
   try {
     const response = await axios.get(`${config.SERVER_HOST}/comment/${slug} `, {
@@ -239,12 +240,14 @@ const apiGetComment = async (slug, token) => {
   }
 };
 
-const apiGetCommentReplies = async (slug, parentCommentId) => {
+const apiGetCommentReplies = async (token, id) => {
+  if (!token) return null;
   try {
     const response = await axios.get(
-      `${config.SERVER_HOST}/comment/${slug}/${parentCommentId}/replies `,
+      `${config.SERVER_HOST}/comment/${id}/replies `,
       {
         headers: {
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
       }
@@ -257,15 +260,12 @@ const apiGetCommentReplies = async (slug, parentCommentId) => {
 
 const apiGetMyFollowingTopics = async (token) => {
   try {
-    const response = await axios.get(
-      `${config.SERVER_HOST}/follow-topic/me`,
-      {
-        headers: {
-          authorization: "Bearer " + token,
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    const response = await axios.get(`${config.SERVER_HOST}/follow-topic/me`, {
+      headers: {
+        authorization: "Bearer " + token,
+        "Content-Type": "application/json",
+      },
+    });
     if (response.data) return response.data.data;
   } catch (error) {
     toast.error("Some thing was wrong!", {
@@ -503,26 +503,6 @@ const apiSuggestionUsers = async (token) => {
   }
 };
 
-const apiTopicsSearch = async (inputSearch) => {
-  if (!inputSearch) return;
-  try {
-    const response = await axios.post(
-      `${config.SERVER_HOST}/article/topics`,
-      {
-        search: inputSearch,
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    if (response?.data) return response.data;
-  } catch (error) {
-    console.log("error:", error);
-  }
-};
-
 const apiUnFollowUser = async (userID, token) => {
   const res = await axios
     .delete(`${config.SERVER_HOST}/follow-profile/${userID}`, {
@@ -606,31 +586,6 @@ const apiUpdateTopic = async (token, id, name) => {
       pauseOnHover: false,
       delay: 500,
     });
-  }
-};
-
-const apiUserSearch = async (inputSearch) => {
-  if (!inputSearch) return;
-  try {
-    const response = await axios.post(
-      `${config.SERVER_HOST}/user/search`,
-      {
-        search: inputSearch,
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    if (response?.data) return response.data;
-  } catch (error) {
-    if (error.response.status == 404) {
-      toast.error("Users empty!", {
-        pauseOnHover: false,
-        delay: 500,
-      });
-    }
   }
 };
 
@@ -852,10 +807,8 @@ export {
   apiUpdateArticle,
   apiUpdateTopic,
   apiUpdateBan,
-  apiUserSearch,
   apiUpdateProfile,
   apiApproveTopic,
-  apiTopicsSearch,
   apiMuteUser,
   apiBlockUser,
   apiReportUser,

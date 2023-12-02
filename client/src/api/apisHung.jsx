@@ -117,10 +117,89 @@ const apiResolveReportedAllUsers = async (token, userId) => {
   }
 };
 
+const apiDeleteMyComment = async (token, commentId) => {
+  if (!commentId && !token) return null;
+  try {
+    const response = await axios.delete(
+      `${config.SERVER_HOST}/comment/${commentId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (response.data) {
+      return response.data;
+    }
+  } catch (error) {
+    console.log("error:", error);
+  }
+};
+
+const apiUserSearch = async (token, inputSearch, limit = 10, skip) => {
+  if (!inputSearch) return;
+  try {
+    const response = await axios.get(
+      `${config.SERVER_HOST}/search?users=${inputSearch}&limit=${limit}&skip=${skip}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response?.data) return response.data;
+  } catch (error) {
+    console.log("error:", error);
+  }
+};
+
+const apiBlogSearch = async (token, inputSearch, limit = 10, skip = "") => {
+  if (!inputSearch) return;
+  try {
+    const response = await axios.get(
+      `${config.SERVER_HOST}/search?post=${inputSearch}&limit=${limit}&skip=${skip}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response?.data) return response.data;
+  } catch (error) {
+    console.log("error:", error);
+  }
+};
+
+const apiTopicsSearch = async (token, inputSearch = "", limit = 10, skip) => {
+  if (!inputSearch) return;
+  try {
+    const response = await axios.get(
+      `${config.SERVER_HOST}/search?tag=${inputSearch}&limit=${limit}&skip=${skip}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response?.data) return response.data;
+  } catch (error) {
+    console.log("error:", error);
+  }
+};
+
 export {
   apiGetPendingReportUsers,
   apiGetReportedUsers,
   apiResolveReportedUsers,
   apiResolveReportedAllUsers,
   apiGetUsersResolved,
+  apiDeleteMyComment,
+  apiUserSearch,
+  apiTopicsSearch,
+  apiBlogSearch,
 };

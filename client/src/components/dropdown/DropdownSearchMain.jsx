@@ -22,10 +22,10 @@ const DropdownSearchMain = React.forwardRef((props, ref) => {
               {users.map((user) => (
                 <NavLink
                   to={`/profile/${user.username}`}
-                  key={user._id}
+                  key={user.id}
                   className="flex items-center gap-3 mb-2"
                 >
-                  <Avatar size="small" url={user.avatar}></Avatar>
+                  <Avatar size="xs" url={user.avatar}></Avatar>
                   <p className="text-sm ">{user.fullname}</p>
                 </NavLink>
               ))}
@@ -43,7 +43,7 @@ const DropdownSearchMain = React.forwardRef((props, ref) => {
               {topics.map((topic) => (
                 <NavLink
                   to={`/topic/${topic.slug}`}
-                  key={topic._id}
+                  key={topic.id}
                   className="flex items-center gap-3 mb-2"
                 >
                   <svg width="24" height="24" viewBox="0 0 24 24">
