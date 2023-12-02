@@ -5,13 +5,12 @@ import { useEffect } from "react";
 import { apiAddComment } from "../../api/api";
 
 const { TextArea } = Input;
-const InputComment = ({ slug = "", parentCommentId = "", commentValue }) => {
+const InputComment = ({ blogId = "", parentCommentId, commentValue }) => {
   const { commentBlog, setCommentBlog } = commentValue;
-  console.log("commentBlog:", commentBlog);
   const [content, setContent] = useState("");
   const [isSubmit, setIsSubmit] = useState(false);
   const token = localStorage.getItem("token");
-
+  if (!parentCommentId) parentCommentId = null;
   const handleCancel = () => {
     setContent("");
   };
@@ -19,8 +18,9 @@ const InputComment = ({ slug = "", parentCommentId = "", commentValue }) => {
   const HandleRespond = () => {
     setIsSubmit(true);
     async function postRespond() {
+      console.log("parentCommentId:", parentCommentId);
       const response = await apiAddComment(
-        slug,
+        blogId,
         parentCommentId,
         content,
         token
@@ -47,8 +47,7 @@ const InputComment = ({ slug = "", parentCommentId = "", commentValue }) => {
     }
   }, [content]);
 
-  if (!slug) return;
-  if (!commentValue) return;
+  if (!blogId && !commentValue) return;
   return (
     <>
       <TextArea

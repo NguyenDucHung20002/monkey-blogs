@@ -6,7 +6,8 @@ import { useAuth } from "../../contexts/auth-context";
 import DashboardHeader from "./DashboardHeader";
 import Button from "../../components/button/Button";
 import { icons } from "../../utils/constants";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { debounce } from "lodash";
 const DashboardStyles = styled.div`
   max-width: 1600px;
   margin: 0 auto;
@@ -43,14 +44,14 @@ const DashboardLayout = () => {
   const { userInfo } = useAuth();
   const [visible, setVisible] = useState(false);
 
-  const toggleVisible = () => {
+  const toggleVisible = debounce(() => {
     const scrolled = document.documentElement.scrollTop;
     if (scrolled > 300) {
       setVisible(true);
     } else if (scrolled <= 300) {
       setVisible(false);
     }
-  };
+  }, 200);
 
   const scrollToTop = () => {
     window.scrollTo({
@@ -59,7 +60,11 @@ const DashboardLayout = () => {
     });
   };
 
-  window.addEventListener("scroll", toggleVisible);
+  useEffect(() => {
+    window.addEventListener("scroll", toggleVisible);
+
+    return () => window.removeEventListener("scroll", toggleVisible);
+  }, [toggleVisible]);
 
   if (!userInfo) return <PageNotFound></PageNotFound>;
 

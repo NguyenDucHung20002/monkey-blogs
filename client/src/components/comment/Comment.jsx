@@ -1,39 +1,27 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/prop-types */
 import Avatar from "../../modules/user/Avatar";
-import { useState } from "react";
 import CommentUser from "./CommentUser";
 import InputComment from "../input/InputComment";
-import { useEffect } from "react";
 import { useAuth } from "../../contexts/auth-context";
-import { apiGetComment } from "../../api/api";
 
-const Comment = ({ slug = "" }) => {
-  const token = localStorage.getItem("token");
+const Comment = ({ blogId = "", commentValue }) => {
   const { userInfo } = useAuth();
   const { data } = userInfo;
-  console.log("userInfo:", userInfo);
-  const [commentBlog, setCommentBlog] = useState([]);
-  const commentValue = { commentBlog, setCommentBlog };
-  useEffect(() => {
-    async function fetchCommentBlog() {
-      const response = await apiGetComment(slug, token);
-      if (response) setCommentBlog(response.data);
-    }
-    fetchCommentBlog();
-  }, [slug, token]);
+  const { commentBlog, setCommentBlog } = commentValue;
 
-  if (!slug) return;
-  if (!token) return;
+  if (!blogId) return;
+
   return (
     <>
       <div className="p-3 mb-5 shadow-lg ">
         <div className="flex items-center gap-4 mb-4 info">
           <Avatar url={data.avatar} size="small"></Avatar>
-          <p>{data.fullname}</p>
+          <p>{data.username}</p>
         </div>
         <InputComment
           setCommentBlog={setCommentBlog}
-          slug={slug}
+          blogId={blogId}
           commentValue={commentValue}
         ></InputComment>
       </div>
@@ -41,11 +29,10 @@ const Comment = ({ slug = "" }) => {
         commentBlog.length > 0 &&
         commentBlog.map((comment) => (
           <CommentUser
+            key={comment.id}
             type="parent"
-            img={data.avatar}
             data={comment}
-            key={comment._id}
-            slug={slug}
+            blogId={blogId}
           ></CommentUser>
         ))}
     </>

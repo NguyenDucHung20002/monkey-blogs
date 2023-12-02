@@ -134,7 +134,7 @@ const PostDetailPage = () => {
                     )
                   }
                 ></ActionLike>
-                <ActionComment slug={blog.slug}></ActionComment>
+                <ActionComment blogId={blog.id}></ActionComment>
               </div>
             </div>
           </div>

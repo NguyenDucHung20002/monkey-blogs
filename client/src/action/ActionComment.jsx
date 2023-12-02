@@ -1,10 +1,24 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/prop-types */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Drawer } from "antd";
 import Comment from "../components/comment/Comment";
+import { apiGetComment } from "../api/api";
 
-const ActionComment = ({ slug = "" }) => {
+const ActionComment = ({ blogId = "" }) => {
+  const token = localStorage.getItem("token");
   const [open, setOpen] = useState(false);
+
+  const [commentBlog, setCommentBlog] = useState([]);
+  const commentValue = { commentBlog, setCommentBlog };
+  useEffect(() => {
+    async function fetchCommentBlog() {
+      const response = await apiGetComment(blogId, token);
+      console.log("response:", response);
+      if (response) setCommentBlog(response.data);
+    }
+    fetchCommentBlog();
+  }, []);
 
   const showDrawer = () => {
     setOpen(true);
@@ -16,7 +30,7 @@ const ActionComment = ({ slug = "" }) => {
   return (
     <div>
       <button
-        className="flex items-center gap-2 text-gray-400 transition-all hover:text-black"
+        className="flex items-center gap-1 text-gray-400 transition-all hover:text-black"
         onClick={showDrawer}
       >
         <svg
@@ -34,7 +48,9 @@ const ActionComment = ({ slug = "" }) => {
           />
         </svg>
 
-        <span className="inline-block pt-1 text-sm">20</span>
+        <span className="inline-block pt-1 text-sm font-medium ">
+          {commentBlog.length}
+        </span>
       </button>
       <Drawer
         title={`Responses (20)`}
@@ -43,7 +59,7 @@ const ActionComment = ({ slug = "" }) => {
         onClose={onClose}
         open={open}
       >
-        <Comment slug={slug}></Comment>
+        <Comment blogId={blogId} commentValue={commentValue}></Comment>
       </Drawer>
     </div>
   );

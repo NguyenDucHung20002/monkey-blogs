@@ -20,7 +20,7 @@ const HomeMain = () => {
   const token = localStorage.getItem("token");
   const [blogs, setBlogs] = useState([]);
   const blogRef = useRef();
-  const [skipId, setSkipId] = useState(null);
+  const skip = useRef("");
   const [windowHeight, setWindowHeight] = useState(window.innerHeight);
   const [scrollY, setScrollY] = useState(window.scrollY);
   const [documentHeight, setDocumentHeight] = useState(
@@ -30,9 +30,10 @@ const HomeMain = () => {
   useEffect(() => {
     async function fetchBlog() {
       const response = await apiGetArticleSkip("", token);
-      if (response.data) {
+      console.log("response:", response);
+      if (response?.success) {
         setBlogs([...response.data]);
-        setSkipId(response.skipID);
+        skip.current = response.newSkip;
       }
     }
     fetchBlog();
@@ -43,12 +44,13 @@ const HomeMain = () => {
       setWindowHeight(window.innerHeight);
       setScrollY(window.scrollY);
       setDocumentHeight(document.documentElement.scrollHeight);
-      if (windowHeight + scrollY >= documentHeight && skipId) {
+      if (windowHeight + scrollY >= documentHeight && skip.current) {
+        const skipId = skip.current;
         const response = await apiGetArticleSkip(skipId, token);
         if (response) {
           const blogsClone = [...blogs, ...response.data];
           setBlogs([...blogsClone]);
-          setSkipId(response.skipID);
+          skip.current = response.newSkip;
         }
       }
     };
@@ -59,7 +61,7 @@ const HomeMain = () => {
     return () => {
       window.removeEventListener("scroll", debouncedScroll);
     };
-  }, [skipId]);
+  }, []);
 
   return (
     <HomeMainStyled ref={blogRef}>

@@ -4,13 +4,19 @@ import { NavLink } from "react-router-dom";
 import styled, { css } from "styled-components";
 const BlogImageStyles = styled.div`
   max-width: 120px;
+  width: 100%;
   height: 120px;
-
   ${(props) =>
     props.kind === "gird" &&
     css`
       max-width: 360px;
       height: 180px;
+    `};
+  ${(props) =>
+    props.kind === "mobile" &&
+    css`
+      max-width: 80px;
+      height: 80px;
     `};
   img {
     width: 100%;

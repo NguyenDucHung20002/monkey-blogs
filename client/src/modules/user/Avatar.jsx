@@ -3,16 +3,22 @@ import styled, { css } from "styled-components";
 
 const AvatarStyle = styled.div`
   ${(props) =>
-    props.size === "small" &&
+    props.size === "xs" &&
     css`
       height: 25px;
       width: 25px;
     `};
   ${(props) =>
+    props.size === "small" &&
+    css`
+      height: 35px;
+      width: 35px;
+    `};
+  ${(props) =>
     props.size === "medium" &&
     css`
-      height: 50px;
-      width: 50px;
+      height: 45px;
+      width: 45px;
     `};
   ${(props) =>
     props.size === "large" &&
