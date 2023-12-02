@@ -2,7 +2,7 @@ import axios from "axios";
 import { config } from "../utils/constants";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
-
+const token = localStorage.getItem("token")
 const apiAddComment = async (slug, parentCommentId, content, token) => {
   if ((!slug, !parentCommentId, !content, !token)) return;
   try {
@@ -505,19 +505,17 @@ const apiSuggestionUsers = async (token) => {
 
 const apiTopicsSearch = async (inputSearch) => {
   if (!inputSearch) return;
+  if(!token) return ;
   try {
-    const response = await axios.post(
-      `${config.SERVER_HOST}/article/topics`,
-      {
-        search: inputSearch,
+    const res = await fetch(`${config.SERVER_HOST}/topic/create-article?search=${inputSearch}`, {
+      method: "get",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
       },
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    if (response?.data) return response.data;
+    })
+    .then((response) => response.json())
+    return res;
   } catch (error) {
     console.log("error:", error);
   }
