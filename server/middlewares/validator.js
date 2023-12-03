@@ -1,3 +1,5 @@
+import fileController from "../controllers/fileController.js";
+
 const validator = (schema, property = "body") => {
   return (req, res, next) => {
     const { error } = schema.validate(req[property]);
@@ -5,6 +7,8 @@ const validator = (schema, property = "body") => {
     if (!error) {
       next();
     } else {
+      if (req.file) fileController.autoRemoveImg(req.file.filename);
+
       const { details } = error;
 
       let errMessage = details[0].message.split(`"`).join("");

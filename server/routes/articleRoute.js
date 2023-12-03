@@ -6,10 +6,20 @@ import authorize from "../middlewares/authorize.js";
 import fetchUser from "../middlewares/fetchUser.js";
 import checkUserBanned from "../middlewares/checkUserBanned.js";
 import optionalAuth from "../middlewares/optionalAuth.js";
+import mongoUpload from "../middlewares/mongoUpload.js";
+import articleSchema from "../validations/articleSchema.js";
+import validator from "../middlewares/validator.js";
 
 const router = express.Router();
 
-router.post("/", requiredAuth, fetchMe, articleController.createArticle);
+router.post(
+  "/",
+  requiredAuth,
+  fetchMe,
+  mongoUpload.single("banner"),
+  validator(articleSchema.createArticleSchema, "body"),
+  articleController.createArticle
+);
 
 router.get(
   "/me/pending",
@@ -56,7 +66,14 @@ router.get(
   articleController.getFollowedTopicArticles
 );
 
-router.patch("/:id", requiredAuth, fetchMe, articleController.updateArticle);
+router.patch(
+  "/:id",
+  requiredAuth,
+  fetchMe,
+  mongoUpload.single("banner"),
+  validator(articleSchema.updateArticleSchema, "body"),
+  articleController.updateArticle
+);
 
 router.delete("/:id", requiredAuth, fetchMe, articleController.deleteArticle);
 

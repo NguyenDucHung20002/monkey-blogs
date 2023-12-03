@@ -22,9 +22,7 @@ const errorMiddleware = (err, req, res, next) => {
     message = err.message;
   }
 
-  if (req.file) {
-    fileController.autoRemoveImg(req.file.filename);
-  }
+  if (req.file) fileController.autoRemoveImg(req.file.filename);
 
   console.log("ERROR MIDDLEWARE =>", err);
 

@@ -3,6 +3,7 @@ import Block from "../models/mysql/Block.js";
 import Mute from "../models/mysql/Mute.js";
 import Follow_Profile from "../models/mysql/Follow_Profile.js";
 import ErrorResponse from "../responses/ErrorResponse.js";
+import fileController from "./fileController.js";
 
 // ==================== get profile ==================== //
 const getProfile = asyncMiddleware(async (req, res, next) => {
@@ -59,6 +60,11 @@ const updateMyProfile = asyncMiddleware(async (req, res, next) => {
 
   if (result[0].nsfw > 0.7) {
     throw ErrorResponse(400, "Avatar image contains 18+");
+  }
+
+  if (req.file) {
+    const oldAvatar = me.profileInfo.avatar;
+    fileController.autoRemoveImg(oldAvatar.split("/")[5]);
   }
 
   await me.profileInfo.update({ fullname, bio, about, avatar: filename });

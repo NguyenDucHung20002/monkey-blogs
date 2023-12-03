@@ -17,9 +17,9 @@ router.patch(
   "/me/update",
   requiredAuth,
   fetchMe,
-  validator(profileSchema.updateProfileSchema, "body"),
   mongoUpdoad.single("avatar"),
   checkUploadedAvatar,
+  validator(profileSchema.updateProfileSchema, "body"),
   profileController.updateMyProfile
 );
 

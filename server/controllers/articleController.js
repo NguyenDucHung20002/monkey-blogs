@@ -14,11 +14,20 @@ import addUrlToImg from "../utils/addUrlToImg.js";
 import Mute from "../models/mysql/Mute.js";
 import Reading_History from "../models/mysql/Reading_History.js";
 import Reading_List from "../models/mysql/Reading_List.js";
+import fileController from "../controllers/fileController.js";
 
 // ==================== create article ==================== //
 const createArticle = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { title, preview, content, topicNames } = req.body;
+
+  const filename = req.file?.filename;
+  const size = req.file?.size;
+
+  const FILE_LIMIT = 10 * 1024 * 1024;
+  if (size && size > FILE_LIMIT) {
+    throw new ErrorResponse(400, "File too large");
+  }
 
   const slug = toSlug(title) + "-" + Date.now();
 
@@ -28,6 +37,7 @@ const createArticle = asyncMiddleware(async (req, res, next) => {
     preview,
     slug,
     content,
+    banner: filename,
   });
 
   if (topicNames) {
@@ -56,12 +66,25 @@ const updateArticle = asyncMiddleware(async (req, res, next) => {
   const { id } = req.params;
   const { title, preview, content, topicNames } = req.body;
 
+  const filename = req.file?.filename;
+  const size = req.file?.size;
+
+  const FILE_LIMIT = 10 * 1024 * 1024;
+  if (size && size > FILE_LIMIT) {
+    throw new ErrorResponse(400, "File too large");
+  }
+
   const article = await Article.findOne({
     where: { id, authorId: me.profileInfo.id },
-    attributes: ["id"],
+    attributes: ["id", "banner"],
   });
 
   if (!article) throw ErrorResponse(404, "Article not found");
+
+  if (req.file) {
+    const oldArticleBanner = article.banner;
+    fileController.autoRemoveImg(oldArticleBanner);
+  }
 
   const updatedSlug = title ? toSlug(title) + "-" + Date.now() : article.slug;
 
@@ -70,6 +93,7 @@ const updateArticle = asyncMiddleware(async (req, res, next) => {
     preview,
     slug: updatedSlug,
     content,
+    banner: filename,
   });
 
   if (topicNames) {
