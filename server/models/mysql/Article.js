@@ -61,6 +61,7 @@ const Article = sequelize.define(
   {
     tableName: "articles",
     timestamps: true,
+    paranoid: true,
   }
 );
 

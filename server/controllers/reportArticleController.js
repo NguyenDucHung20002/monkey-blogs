@@ -152,7 +152,7 @@ const getPendingReportsOfArticle = asyncMiddleware(async (req, res, next) => {
   res.json({ success: true, data: reports, newSkip });
 });
 
-// ==================== Mark a report of the user as resolved ==================== //
+// ==================== Mark a report of the article as resolved ==================== //
 const markAReportAsResolved = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { id } = req.params;
@@ -171,7 +171,7 @@ const markAReportAsResolved = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// ==================== Mark all reports of the user as resolved ==================== //
+// ==================== Mark all reports of the article as resolved ==================== //
 const markAllResolved = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { id } = req.params;
