@@ -9,6 +9,7 @@ import { Op } from "sequelize";
 import addUrlToImg from "../utils/addUrlToImg.js";
 import Article_Topic from "../models/mysql/Article_Topic.js";
 import Follow_Profile from "../models/mysql/Follow_Profile.js";
+import Reading_List from "../models/mysql/Reading_List.js";
 
 // ==================== search ==================== //
 const search = asyncMiddleware(async (req, res, next) => {
@@ -91,6 +92,40 @@ const search = asyncMiddleware(async (req, res, next) => {
         ],
         limit: Number(limit) ? Number(limit) : 15,
       });
+
+      articles = await Promise.all(
+        articles.map(async (article) => {
+          article.banner ? addUrlToImg(article.banner) : null;
+          article.author.avatar = addUrlToImg(article.author.avatar);
+          const topic = await Article_Topic.findOne({
+            attributes: [],
+            where: { articleId: article.id },
+            include: {
+              model: Topic,
+              as: "topic",
+              attributes: ["id", "name", "slug"],
+              where: { status: "approved" },
+            },
+            order: [["id", "ASC"]],
+          });
+          const isSaved = !!(await Reading_List.findOne({
+            where: { profileId: me.profileInfo.id, articleId: article.id },
+            attributes: ["id"],
+          }));
+          if (topic) {
+            return {
+              ...article.toJSON(),
+              topic: {
+                id: topic.topic.id,
+                name: topic.topic.name,
+                slug: topic.topic.slug,
+              },
+              isSaved,
+            };
+          }
+          return { ...article.toJSON(), topic: null, isSaved };
+        })
+      );
     } else {
       articles = await Article.findAll({
         where: {
@@ -122,36 +157,36 @@ const search = asyncMiddleware(async (req, res, next) => {
         ],
         limit: Number(limit) ? Number(limit) : 15,
       });
-    }
 
-    articles = await Promise.all(
-      articles.map(async (article) => {
-        article.banner ? addUrlToImg(article.banner) : null;
-        article.author.avatar = addUrlToImg(article.author.avatar);
-        const topic = await Article_Topic.findOne({
-          attributes: [],
-          where: { articleId: article.id },
-          include: {
-            model: Topic,
-            as: "topic",
-            attributes: ["id", "name", "slug"],
-            where: { status: "approved" },
-          },
-          order: [["id", "ASC"]],
-        });
-        if (topic) {
-          return {
-            ...article.toJSON(),
-            topic: {
-              id: topic.topic.id,
-              name: topic.topic.name,
-              slug: topic.topic.slug,
+      articles = await Promise.all(
+        articles.map(async (article) => {
+          article.banner ? addUrlToImg(article.banner) : null;
+          article.author.avatar = addUrlToImg(article.author.avatar);
+          const topic = await Article_Topic.findOne({
+            attributes: [],
+            where: { articleId: article.id },
+            include: {
+              model: Topic,
+              as: "topic",
+              attributes: ["id", "name", "slug"],
+              where: { status: "approved" },
             },
-          };
-        }
-        return { ...article.toJSON(), topic: null };
-      })
-    );
+            order: [["id", "ASC"]],
+          });
+          if (topic) {
+            return {
+              ...article.toJSON(),
+              topic: {
+                id: topic.topic.id,
+                name: topic.topic.name,
+                slug: topic.topic.slug,
+              },
+            };
+          }
+          return { ...article.toJSON(), topic: null };
+        })
+      );
+    }
 
     result.push(...articles);
   }

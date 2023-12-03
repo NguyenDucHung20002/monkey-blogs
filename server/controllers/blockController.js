@@ -7,6 +7,7 @@ import ErrorResponse from "../responses/ErrorResponse.js";
 import addUrlToImg from "../utils/addUrlToImg.js";
 import Follow_Profile from "../models/mysql/Follow_Profile.js";
 import Mute from "../models/mysql/Mute.js";
+import Reading_List from "../models/mysql/Reading_List.js";
 
 // ==================== block a profile ==================== //
 const blockAProfile = asyncMiddleware(async (req, res, next) => {
@@ -51,6 +52,9 @@ const blockAProfile = asyncMiddleware(async (req, res, next) => {
           mutedId: me.profileInfo.id,
           muterId: user.profileInfo.id,
         },
+      }),
+      Reading_List.destroy({
+        where: { profileId: me.profileInfo.id },
       }),
     ]);
   }

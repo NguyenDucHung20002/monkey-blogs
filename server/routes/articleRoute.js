@@ -40,12 +40,10 @@ router.get(
   articleController.getAllArticles
 );
 
-router.patch("/:id", requiredAuth, fetchMe, articleController.updateArticle);
-
-router.delete("/:id", requiredAuth, fetchMe, articleController.deleteArticle);
-
 router.get(
   "/:username/all",
+  optionalAuth,
+  fetchMe,
   fetchUser,
   checkUserBanned,
   articleController.getProfileArticles
@@ -57,6 +55,10 @@ router.get(
   fetchMe,
   articleController.getFollowedTopicArticles
 );
+
+router.patch("/:id", requiredAuth, fetchMe, articleController.updateArticle);
+
+router.delete("/:id", requiredAuth, fetchMe, articleController.deleteArticle);
 
 router.get("/:slug", optionalAuth, fetchMe, articleController.getAnArticle);
 

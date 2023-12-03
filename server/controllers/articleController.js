@@ -13,6 +13,7 @@ import Like from "../models/mysql/Like.js";
 import addUrlToImg from "../utils/addUrlToImg.js";
 import Mute from "../models/mysql/Mute.js";
 import Reading_History from "../models/mysql/Reading_History.js";
+import Reading_List from "../models/mysql/Reading_List.js";
 
 // ==================== create article ==================== //
 const createArticle = asyncMiddleware(async (req, res, next) => {
@@ -151,6 +152,7 @@ const getMyApprovedArticles = asyncMiddleware(async (req, res, next) => {
 
 // ==================== get profile articles ==================== //
 const getProfileArticles = asyncMiddleware(async (req, res, next) => {
+  const me = req.me ? req.me : null;
   const user = req.user;
   const { skip, limit = 15 } = req.query;
 
@@ -168,38 +170,109 @@ const getProfileArticles = asyncMiddleware(async (req, res, next) => {
         "likesCount",
         "commentsCount",
         "approvedById",
+        "reportsCount",
       ],
     },
     order: [["id", "DESC"]],
     limit: Number(limit) ? Number(limit) : 15,
   });
 
-  articles = await Promise.all(
-    articles.map(async (article) => {
-      const topic = await Article_Topic.findOne({
-        attributes: [],
-        where: { articleId: article.id },
-        include: {
-          model: Topic,
-          as: "topic",
-          attributes: ["id", "name", "slug"],
-          where: { status: "approved" },
-        },
-        order: [["id", "ASC"]],
-      });
-      if (topic) {
-        return {
-          ...article.toJSON(),
-          topic: {
-            id: topic.topic.id,
-            name: topic.topic.name,
-            slug: topic.topic.slug,
+  if (!me) {
+    articles = await Promise.all(
+      articles.map(async (article) => {
+        article.banner ? addUrlToImg(article.baner) : null;
+        const topic = await Article_Topic.findOne({
+          attributes: [],
+          where: { articleId: article.id },
+          include: {
+            model: Topic,
+            as: "topic",
+            attributes: ["id", "name", "slug"],
+            where: { status: "approved" },
           },
-        };
-      }
-      return { ...article.toJSON(), topic: null };
-    })
-  );
+          order: [["id", "ASC"]],
+        });
+        if (topic) {
+          return {
+            ...article.toJSON(),
+            topic: {
+              id: topic.topic.id,
+              name: topic.topic.name,
+              slug: topic.topic.slug,
+            },
+            isSaved,
+          };
+        }
+        return { ...article.toJSON(), topic: null };
+      })
+    );
+  }
+
+  if (me && me.profileInfo.id === user.profileInfo.id) {
+    articles = await Promise.all(
+      articles.map(async (article) => {
+        article.banner ? addUrlToImg(article.baner) : null;
+        const topic = await Article_Topic.findOne({
+          attributes: [],
+          where: { articleId: article.id },
+          include: {
+            model: Topic,
+            as: "topic",
+            attributes: ["id", "name", "slug"],
+            where: { status: "approved" },
+          },
+          order: [["id", "ASC"]],
+        });
+        if (topic) {
+          return {
+            ...article.toJSON(),
+            topic: {
+              id: topic.topic.id,
+              name: topic.topic.name,
+              slug: topic.topic.slug,
+            },
+            isMyArticle: true,
+          };
+        }
+        return { ...article.toJSON(), topic: null, isMyArticle: true };
+      })
+    );
+  }
+
+  if (me && me.profileInfo.id !== user.profileInfo.id) {
+    articles = await Promise.all(
+      articles.map(async (article) => {
+        article.banner ? addUrlToImg(article.baner) : null;
+        const topic = await Article_Topic.findOne({
+          attributes: [],
+          where: { articleId: article.id },
+          include: {
+            model: Topic,
+            as: "topic",
+            attributes: ["id", "name", "slug"],
+            where: { status: "approved" },
+          },
+          order: [["id", "ASC"]],
+        });
+        const isSaved = !!(await Reading_List.findOne({
+          where: { profileId: me.profileInfo.id, articleId: article.id },
+          attributes: ["id"],
+        }));
+        if (topic) {
+          return {
+            ...article.toJSON(),
+            topic: {
+              id: topic.topic.id,
+              name: topic.topic.name,
+              slug: topic.topic.slug,
+            },
+            isSaved,
+          };
+        }
+        return { ...article.toJSON(), topic: null, isSaved };
+      })
+    );
+  }
 
   const newSkip = articles.length > 0 ? articles[articles.length - 1].id : null;
 
@@ -236,7 +309,14 @@ const getAnArticle = asyncMiddleware(async (req, res, next) => {
   let article = await Article.findOne({
     where: { slug, status: "approved" },
     attributes: {
-      exclude: ["approvedById", "preview", "slug", "authorId", "status"],
+      exclude: [
+        "approvedById",
+        "preview",
+        "slug",
+        "authorId",
+        "status",
+        "reportsCount",
+      ],
     },
     include: [
       {
@@ -259,6 +339,7 @@ const getAnArticle = asyncMiddleware(async (req, res, next) => {
   if (!article) throw ErrorResponse(404, "Article not found");
 
   article.author.avatar = addUrlToImg(article.author.avatar);
+  article.banner ? addUrlToImg(article.baner) : null;
 
   if (me && me.profileInfo.id === article.author.id) {
     article = { ...article.toJSON(), isMyArticle: true };
@@ -276,17 +357,24 @@ const getAnArticle = asyncMiddleware(async (req, res, next) => {
         message: `You can not view this article because the author already blocked you`,
       });
     }
-    const [authorBlocked, authorFollowed, articleLiked] = await Promise.all([
-      Block.findOne({
-        where: { blockedId: article.author.id, blockerId: me.profileInfo.id },
-      }),
-      Follow_Profile.findOne({
-        where: { followedId: article.author.id, followerId: me.profileInfo.id },
-      }),
-      Like.findOne({
-        where: { articleId: article.id, profileId: me.profileInfo.id },
-      }),
-    ]);
+    const [authorBlocked, authorFollowed, articleLiked, isSaved] =
+      await Promise.all([
+        Block.findOne({
+          where: { blockedId: article.author.id, blockerId: me.profileInfo.id },
+        }),
+        Follow_Profile.findOne({
+          where: {
+            followedId: article.author.id,
+            followerId: me.profileInfo.id,
+          },
+        }),
+        Like.findOne({
+          where: { articleId: article.id, profileId: me.profileInfo.id },
+        }),
+        Reading_List.findOne({
+          where: { profileId: me.profileInfo.id, articleId: article.id },
+        }),
+      ]);
 
     const isInReadingHistory = await Reading_History.findOne({
       where: {
@@ -311,6 +399,7 @@ const getAnArticle = asyncMiddleware(async (req, res, next) => {
       authorBlocked: !!authorBlocked,
       authorFollowed: !!authorFollowed,
       articleLiked: !!articleLiked,
+      isSaved: !!isSaved,
     };
   }
 
@@ -340,7 +429,7 @@ const getFollowedProfilesArticles = asyncMiddleware(async (req, res, next) => {
         "commentsCount",
         "approvedById",
         "status",
-        "reprotsCount",
+        "reportsCount",
       ],
     },
     include: [
@@ -370,6 +459,7 @@ const getFollowedProfilesArticles = asyncMiddleware(async (req, res, next) => {
 
   articles = await Promise.all(
     articles.map(async (article) => {
+      article.banner ? addUrlToImg(article.banner) : null;
       article.author.avatar = addUrlToImg(article.author.avatar);
       const topic = await Article_Topic.findOne({
         attributes: [],
@@ -382,6 +472,10 @@ const getFollowedProfilesArticles = asyncMiddleware(async (req, res, next) => {
         },
         order: [["id", "ASC"]],
       });
+      const isSaved = !!(await Reading_List.findOne({
+        where: { profileId: me.profileInfo.id, articleId: article.id },
+        attributes: ["id"],
+      }));
       if (topic) {
         return {
           ...article.toJSON(),
@@ -390,9 +484,10 @@ const getFollowedProfilesArticles = asyncMiddleware(async (req, res, next) => {
             name: topic.topic.name,
             slug: topic.topic.slug,
           },
+          isSaved,
         };
       }
-      return { ...article.toJSON(), topic: null };
+      return { ...article.toJSON(), topic: null, isSaved };
     })
   );
 
@@ -433,7 +528,7 @@ const getFollowedTopicArticles = asyncMiddleware(async (req, res, next) => {
         "commentsCount",
         "approvedById",
         "status",
-        "reprotsCount",
+        "reportsCount",
       ],
     },
     include: [
@@ -471,8 +566,13 @@ const getFollowedTopicArticles = asyncMiddleware(async (req, res, next) => {
 
   articles = await Promise.all(
     articles.map(async (article) => {
+      article.banner ? addUrlToImg(article.baner) : null;
       article.author.avatar = addUrlToImg(article.author.avatar);
-      return { ...article.toJSON(), topic };
+      const isSaved = !!(await Reading_List.findOne({
+        where: { profileId: me.profileInfo.id, articleId: article.id },
+        attributes: ["id"],
+      }));
+      return { ...article.toJSON(), topic, isSaved };
     })
   );
 

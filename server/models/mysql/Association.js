@@ -14,6 +14,7 @@ import Like from "./Like.js";
 import Report_Article from "./Report_Article.js";
 import Comment from "./Comment.js";
 import Reading_History from "./Reading_History.js";
+import Reading_List from "./Reading_List.js";
 
 // Role - User (1-n)
 Role.hasMany(User, {
@@ -393,14 +394,26 @@ Profile.belongsToMany(Article, {
   as: "readArticles",
 });
 
-// History - Article
+// Reading_History - Article
 Reading_History.belongsTo(Article, {
   foreignKey: "articleId",
   as: "readArticle",
 });
 
-// History - Profile
+// Reading_History - Profile
 Reading_History.belongsTo(Profile, {
+  foreignKey: "profileId",
+  as: "readingProfile",
+});
+
+// Reading_List - Article
+Reading_List.belongsTo(Article, {
+  foreignKey: "articleId",
+  as: "readArticle",
+});
+
+// Reading_List - Profile
+Reading_List.belongsTo(Profile, {
   foreignKey: "profileId",
   as: "readingProfile",
 });
