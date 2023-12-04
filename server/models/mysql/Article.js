@@ -2,6 +2,8 @@ import { DataTypes } from "sequelize";
 import sequelize from "../../databases/mysql/connect.js";
 import Profile from "../mysql/Profile.js";
 import User from "./User.js";
+import extractImg from "../../utils/extractImg.js";
+import MongoDB from "../../databases/mongodb/connect.js";
 
 const Article = sequelize.define(
   "Article",
@@ -62,6 +64,36 @@ const Article = sequelize.define(
     tableName: "articles",
     timestamps: true,
     paranoid: true,
+    hooks: {
+      afterCreate: (article, options) => {
+        const imgsName = extractImg(article.content);
+
+        const gfs = MongoDB.gfs;
+
+        const resultCheck = imgsName.map((imgName) => {
+          const files = gfs.find({ filename }).toArray();
+
+          if (!files || !files.length) console.log("image not found");
+
+          const readStream = gfs.openDownloadStreamByName(imgName);
+
+          let chunks = [];
+
+          readStream.on("data", (chunk) => {
+            chunks.push(chunk);
+          });
+
+          readStream.on("end", () => {
+            const imgData = Buffer.concat(chunks).toString("base64");
+            clarifai(imgData, (err, results) => {
+              if (err) console.log(err);
+              return results;
+            });
+          });
+        });
+        console.log(resultCheck);
+      },
+    },
   }
 );
 

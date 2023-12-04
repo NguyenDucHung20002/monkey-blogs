@@ -15,20 +15,17 @@ const clarifai = (inputs, callback) => {
     metadata,
     (err, response) => {
       if (err) {
-        return res.status(500).json({
-          success: false,
-          message: "Error predicting image",
-        });
+        console.log("Error: " + err);
+        return;
       }
       if (response.status.code !== 10000) {
-        return res.status(400).json({
-          success: false,
-          message:
-            "Received failed status: " +
+        console.log(
+          "Received failed status: " +
             response.status.description +
             "\n" +
-            response.status.details,
-        });
+            response.status.details
+        );
+        return;
       }
       let results = [];
       for (const c of response.outputs[0].data.concepts) {
