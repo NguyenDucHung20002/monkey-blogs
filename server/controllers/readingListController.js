@@ -147,4 +147,57 @@ const getMyReadingList = asyncMiddleware(async (req, res, next) => {
   res.json({ success: true, data: articles, newSkip });
 });
 
-export default { addToReadingList, removeFromReadingList, getMyReadingList };
+// ==================== get my recently saved ==================== //
+const getMyRecentlySaved = asyncMiddleware(async (req, res, next) => {
+  const me = req.me;
+
+  const readingList = await Reading_List.findAll({
+    where: { profileId: me.profileInfo.id },
+    attributes: ["id"],
+    include: {
+      model: Article,
+      as: "readArticle",
+      attributes: ["id", "title", "slug", "createdAt", "updatedAt"],
+      include: {
+        model: Profile,
+        as: "author",
+        attributes: ["id", "fullname", "avatar"],
+        include: {
+          model: User,
+          as: "userInfo",
+          attributes: ["username"],
+          include: { model: Role, as: "role", attributes: ["slug"] },
+        },
+      },
+    },
+    order: [["id", "DESC"]],
+    limit: 4,
+  });
+
+  const articles = await Promise.all(
+    readingList.map(async (readingList) => {
+      return {
+        id: readingList.readArticle.id,
+        title: readingList.readArticle.title,
+        slug: readingList.readArticle.slug,
+        author: {
+          id: readingList.readArticle.author.id,
+          fullname: readingList.readArticle.author.fullname,
+          avatar: addUrlToImg(readingList.readArticle.author.avatar),
+          userInfo: readingList.readArticle.author.userInfo,
+        },
+        createdAt: readingList.readArticle.createdAt,
+        updatedAt: readingList.readArticle.createdAt,
+      };
+    })
+  );
+
+  res.json({ success: true, data: articles });
+});
+
+export default {
+  addToReadingList,
+  removeFromReadingList,
+  getMyReadingList,
+  getMyRecentlySaved,
+};

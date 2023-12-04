@@ -51,8 +51,6 @@ const deleteADraft = asyncMiddleware(async (req, res, next) => {
 
   const imgList = extracImg(draft.content);
 
-  console.log(imgList);
-
   imgList.forEach((img) => {
     fileController.autoRemoveImg(img);
   });

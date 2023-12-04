@@ -5,6 +5,20 @@ import readingListController from "../controllers/readingListController.js";
 
 const router = express.Router();
 
+router.get(
+  "/me",
+  requiredAuth,
+  fetchMe,
+  readingListController.getMyReadingList
+);
+
+router.get(
+  "/me/recently-saved",
+  requiredAuth,
+  fetchMe,
+  readingListController.getMyRecentlySaved
+);
+
 router.post(
   "/:id",
   requiredAuth,
@@ -17,13 +31,6 @@ router.delete(
   requiredAuth,
   fetchMe,
   readingListController.removeFromReadingList
-);
-
-router.get(
-  "/me",
-  requiredAuth,
-  fetchMe,
-  readingListController.getMyReadingList
 );
 
 export default router;
