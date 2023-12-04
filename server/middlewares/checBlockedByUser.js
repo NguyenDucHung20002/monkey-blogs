@@ -8,7 +8,6 @@ const checkBlockByUser = async (req, res, next) => {
     if (me && me.id !== user.id) {
       const isBlockedByUser = !!(await Block.findOne({
         where: { blockedId: me.profileInfo.id, blockerId: user.profileInfo.id },
-        attributes: ["id"],
       }));
 
       if (isBlockedByUser) {

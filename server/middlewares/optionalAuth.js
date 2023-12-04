@@ -1,5 +1,4 @@
 import Token from "../models/mongodb/Token.js";
-import getError from "../utils/getError.js";
 import jwt from "jsonwebtoken";
 import env from "../config/env.js";
 

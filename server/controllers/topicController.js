@@ -6,6 +6,7 @@ import ErrorResponse from "../responses/ErrorResponse.js";
 import Follow_Topic from "../models/mysql/Follow_Topic.js";
 import User from "../models/mysql/User.js";
 import Role from "../models/mysql/Role.js";
+import toUpperCase from "../utils/toUpperCase.js";
 
 // ==================== create topic ==================== //
 const createTopic = asyncMiddleware(async (req, res, next) => {
@@ -15,12 +16,13 @@ const createTopic = asyncMiddleware(async (req, res, next) => {
 
   const existingTopic = await Topic.findOne({
     where: { [Op.or]: [{ name }, { slug }] },
-    attributes: ["id"],
   });
 
   if (existingTopic) throw ErrorResponse(409, "Topic already exists");
 
-  await Topic.create({ name, slug });
+  const upperCaseName = toUpperCase(name);
+
+  await Topic.create({ name: upperCaseName, slug });
 
   res.status(201).json({
     success: true,
@@ -41,14 +43,15 @@ const updateTopic = asyncMiddleware(async (req, res, next) => {
 
   const newNameTopic = await Topic.findOne({
     where: { [Op.or]: [{ name }, { slug: updatedSlug }] },
-    attributes: ["id"],
   });
 
   if (newNameTopic && newNameTopic.id !== existingTopic.id) {
     throw ErrorResponse(409, "Topic name already exist");
   }
 
-  await existingTopic.update({ name, slug: updatedSlug });
+  const upperCaseName = toUpperCase(name);
+
+  await existingTopic.update({ name: upperCaseName, slug: updatedSlug });
 
   res.json({ success: true, message: "Topic updated successfully" });
 });
@@ -79,7 +82,6 @@ const getATopic = asyncMiddleware(async (req, res, next) => {
       ...topic.toJSON(),
       isFollowed: !!(await Follow_Topic.findOne({
         where: { topicId: topic.id, profileId: me.profileInfo.id },
-        attributes: ["id"],
       })),
     };
   }
@@ -147,7 +149,10 @@ const searchTopicsCreateArticle = asyncMiddleware(async (req, res, next) => {
       where: {
         id: { [Op.gt]: skip },
         status: "approved",
-        name: { [Op.substring]: search },
+        [Op.or]: [
+          { name: { [Op.substring]: search } },
+          { slug: { [Op.substring]: search } },
+        ],
       },
       attributes: ["id", "name", "slug", "articlesCount"],
       limit: Number(limit) ? Number(limit) : 15,

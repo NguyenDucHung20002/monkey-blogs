@@ -1,7 +1,7 @@
-import User from "./models/mysql/User.js";
+import User from "../models/mysql/User.js";
 import { Op } from "sequelize";
 
-const checkToUnBanUsers = async () => {
+const checkToUnbanUsers = async () => {
   try {
     const currentDate = new Date();
 
@@ -19,8 +19,8 @@ const checkToUnBanUsers = async () => {
     }
     console.log("check to unban users successfully");
   } catch (error) {
-    console.log("Error when check to unban users =>", error);
+    console.log("error when check to unban users =>", error);
   }
 };
 
-export default checkToUnBanUsers;
+export default checkToUnbanUsers;

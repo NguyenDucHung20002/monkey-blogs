@@ -17,7 +17,7 @@ const checkUploadedAvatar = (req, res, next) => {
     const imgData = Buffer.concat(chunks).toString("base64");
     clarifai(imgData, (err, results) => {
       if (err) return res.status(500).json(err);
-      req.checkResult = results;
+      req.results = results;
       next();
     });
   });

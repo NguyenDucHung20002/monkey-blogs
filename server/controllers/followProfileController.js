@@ -6,6 +6,7 @@ import User from "../models/mysql/User.js";
 import ErrorResponse from "../responses/ErrorResponse.js";
 import addUrlToImg from "../utils/addUrlToImg.js";
 import Block from "../models/mysql/Block.js";
+import Role from "../models/mysql/Role.js";
 
 // ==================== follow a profile ==================== //
 const followAProfile = asyncMiddleware(async (req, res, next) => {
@@ -13,12 +14,11 @@ const followAProfile = asyncMiddleware(async (req, res, next) => {
   const user = req.user;
 
   if (user.profileInfo.id === me.profileInfo.id) {
-    throw ErrorResponse(400, "Can not follow yourself");
+    throw ErrorResponse(400, "Bad Request: Cannot follow yourself");
   }
 
   const followProfile = await Follow_Profile.findOne({
     where: { followedId: user.profileInfo.id, followerId: me.profileInfo.id },
-    attributes: ["id"],
   });
 
   if (!followProfile) {
@@ -44,12 +44,11 @@ const unFollowAProfile = asyncMiddleware(async (req, res, next) => {
   const user = req.user;
 
   if (user.profileInfo.id === me.profileInfo.id) {
-    throw ErrorResponse(400, "Can not unfollow yourself");
+    throw ErrorResponse(400, "Bad Request: Cannot unfollow yourself");
   }
 
   const followProfile = await Follow_Profile.findOne({
     where: { followedId: user.profileInfo.id, followerId: me.profileInfo.id },
-    attributes: ["id"],
   });
 
   if (followProfile) {
@@ -62,7 +61,7 @@ const unFollowAProfile = asyncMiddleware(async (req, res, next) => {
 
   res.json({
     success: true,
-    message: `Successfully unfollowed ${user.profileInfo.id.fullname}.`,
+    message: `Successfully unfollowed ${user.profileInfo.fullname}.`,
   });
 });
 
@@ -84,20 +83,23 @@ const getFolloweds = asyncMiddleware(async (req, res, next) => {
         model: Profile,
         as: "followed",
         attributes: ["id", "fullname", "avatar", "bio"],
-        include: { model: User, as: "userInfo", attributes: ["username"] },
+        include: {
+          model: User,
+          as: "userInfo",
+          attributes: ["username"],
+          include: { model: Role, as: "role", attributes: ["slug"] },
+        },
       },
       limit: Number(limit) ? Number(limit) : null,
     });
     followeds = followProfiles.map((followProfile) => {
-      followProfile.followed.avatar = addUrlToImg(
-        followProfile.followed.avatar
-      );
       return {
         id: followProfile.followed.id,
         fullname: followProfile.followed.fullname,
-        avatar: followProfile.followed.avatar,
+        avatar: addUrlToImg(followProfile.followed.avatar),
         bio: followProfile.followed.bio,
         username: followProfile.followed.userInfo.username,
+        role: followProfile.followed.userInfo.role.slug,
       };
     });
   }
@@ -106,26 +108,28 @@ const getFolloweds = asyncMiddleware(async (req, res, next) => {
     followProfiles = await Follow_Profile.findAll({
       where: { followerId: user.profileInfo.id, id: { [Op.gt]: skip } },
       attributes: ["id"],
-      include: [
-        {
-          model: Profile,
-          as: "followed",
-          attributes: ["id", "fullname", "avatar", "bio"],
-          include: { model: User, as: "userInfo", attributes: ["username"] },
+      include: {
+        model: Profile,
+        as: "followed",
+        attributes: ["id", "fullname", "avatar", "bio"],
+        include: {
+          model: User,
+          as: "userInfo",
+          attributes: ["username"],
+          include: { model: Role, as: "role", attributes: ["slug"] },
         },
-      ],
+      },
+
       limit: Number(limit) ? Number(limit) : null,
     });
     followeds = followProfiles.map((followProfile) => {
-      followProfile.followed.avatar = addUrlToImg(
-        followProfile.followed.avatar
-      );
       return {
         id: followProfile.followed.id,
         fullname: followProfile.followed.fullname,
-        avatar: followProfile.followed.avatar,
+        avatar: addUrlToImg(followProfile.followed.avatar),
         bio: followProfile.followed.bio,
         username: followProfile.followed.userInfo.username,
+        role: followProfile.followed.userInfo.role.slug,
         isFollowed: true,
       };
     });
@@ -145,7 +149,12 @@ const getFolloweds = asyncMiddleware(async (req, res, next) => {
           model: Profile,
           as: "followed",
           attributes: ["id", "fullname", "avatar", "bio"],
-          include: { model: User, as: "userInfo", attributes: ["username"] },
+          include: {
+            model: User,
+            as: "userInfo",
+            attributes: ["username"],
+            include: { model: Role, as: "role", attributes: ["slug"] },
+          },
           where: { id: { [Op.ne]: me.profileInfo.id } },
         },
         {
@@ -167,15 +176,13 @@ const getFolloweds = asyncMiddleware(async (req, res, next) => {
     });
     followeds = await Promise.all(
       followProfiles.map(async (followProfile) => {
-        followProfile.followed.avatar = addUrlToImg(
-          followProfile.followed.avatar
-        );
         return {
           id: followProfile.followed.id,
           fullname: followProfile.followed.fullname,
-          avatar: followProfile.followed.avatar,
+          avatar: addUrlToImg(followProfile.followed.avatar),
           bio: followProfile.followed.bio,
           username: followProfile.followed.userInfo.username,
+          role: followProfile.followed.userInfo.role.slug,
           isFollowed: !!(await Follow_Profile.findOne({
             where: {
               followedId: followProfile.followed.id,
@@ -213,20 +220,23 @@ const getFollowers = asyncMiddleware(async (req, res, next) => {
         model: Profile,
         as: "follower",
         attributes: ["id", "fullname", "avatar", "bio"],
-        include: { model: User, as: "userInfo", attributes: ["username"] },
+        include: {
+          model: User,
+          as: "userInfo",
+          attributes: ["username"],
+          include: { model: Role, as: "role", attributes: ["slug"] },
+        },
       },
       limit: Number(limit) ? Number(limit) : null,
     });
     followers = followerProfiles.map((followerProfile) => {
-      followerProfile.follower.avatar = addUrlToImg(
-        followerProfile.follower.avatar
-      );
       return {
         id: followerProfile.follower.id,
         fullname: followerProfile.follower.fullname,
-        avatar: followerProfile.follower.avatar,
+        avatar: addUrlToImg(followerProfile.follower.avatar),
         bio: followerProfile.follower.bio,
         username: followerProfile.follower.userInfo.username,
+        role: followerProfile.follower.userInfo.role.slug,
       };
     });
   }
@@ -239,21 +249,24 @@ const getFollowers = asyncMiddleware(async (req, res, next) => {
         model: Profile,
         as: "follower",
         attributes: ["id", "fullname", "avatar", "bio"],
-        include: { model: User, as: "userInfo", attributes: ["username"] },
+        include: {
+          model: User,
+          as: "userInfo",
+          attributes: ["username"],
+          include: { model: Role, as: "role", attributes: ["slug"] },
+        },
       },
       limit: Number(limit) ? Number(limit) : null,
     });
     followers = await Promise.all(
       followerProfiles.map(async (followerProfile) => {
-        followerProfile.follower.avatar = addUrlToImg(
-          followerProfile.follower.avatar
-        );
         return {
           id: followerProfile.follower.id,
           fullname: followerProfile.follower.fullname,
-          avatar: followerProfile.follower.avatar,
+          avatar: addUrlToImg(followerProfile.follower.avatar),
           bio: followerProfile.follower.bio,
           username: followerProfile.follower.userInfo.username,
+          role: followerProfile.follower.userInfo.role.slug,
           isFollowed: !!(await Follow_Profile.findOne({
             where: {
               followedId: followerProfile.follower.id,
@@ -279,7 +292,12 @@ const getFollowers = asyncMiddleware(async (req, res, next) => {
           model: Profile,
           as: "follower",
           attributes: ["id", "fullname", "avatar", "bio"],
-          include: { model: User, as: "userInfo", attributes: ["username"] },
+          include: {
+            model: User,
+            as: "userInfo",
+            attributes: ["username"],
+            include: { model: Role, as: "role", attributes: ["slug"] },
+          },
           where: { id: { [Op.ne]: me.profileInfo.id } },
         },
         {
@@ -301,28 +319,18 @@ const getFollowers = asyncMiddleware(async (req, res, next) => {
     });
     followers = await Promise.all(
       followerProfiles.map(async (followerProfile) => {
-        followerProfile.follower.avatar = addUrlToImg(
-          followerProfile.follower.avatar
-        );
         return {
           id: followerProfile.follower.id,
           fullname: followerProfile.follower.fullname,
-          avatar: followerProfile.follower.avatar,
+          avatar: addUrlToImg(followerProfile.follower.avatar),
           bio: followerProfile.follower.bio,
           username: followerProfile.follower.userInfo.username,
+          role: followerProfile.follower.userInfo.role.slug,
           isFollowed: !!(await Follow_Profile.findOne({
             where: {
               followedId: followerProfile.follower.id,
               followerId: me.profileInfo.id,
             },
-            attributes: ["id"],
-          })),
-          isBlocked: !!(await Block.findOne({
-            where: {
-              blockedId: followerProfile.follower.id,
-              blockerId: me.profileInfo.id,
-            },
-            attributes: ["id"],
           })),
         };
       })

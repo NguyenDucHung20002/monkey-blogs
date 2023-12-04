@@ -10,7 +10,7 @@ const app = express();
 
 import Role from "./models/mysql/Role.js";
 import roles from "./constants/roles.js";
-import checkToUnbanUsers from "./checkToUnbanUsers.js";
+import checkToUnbanUsers from "./scripts/checkToUnbanUsers.js";
 import "./models/mysql/Association.js";
 import "./services/passport.js";
 import "./cron.js";
@@ -42,7 +42,7 @@ app.use(cors());
 MongoDB.connect();
 
 sequelize
-  .sync({ force: false, logging: false })
+  .sync({ force: true, logging: false })
   .then(() => {
     console.log("connect to mysql database successfully");
   })

@@ -8,25 +8,23 @@ import Profile from "../models/mysql/Profile.js";
 import Topic from "../models/mysql/Topic.js";
 import User from "../models/mysql/User.js";
 import Article_Topic from "../models/mysql/Article_Topic.js";
+import Role from "../models/mysql/Role.js";
 
 // ==================== add an article to reading list ==================== //
 const addToReadingList = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { id } = req.params;
 
-  const article = await Article.findByPk(id, {
-    attributes: ["id", "authorId"],
-  });
+  const article = await Article.findByPk(id);
 
   if (!article) throw ErrorResponse(404, "Article not found");
 
   if (article.authorId === me.profileInfo.id) {
-    throw ErrorResponse(400, "Can not add you own article");
+    throw ErrorResponse(400, "Bad Request: Cannot add you own article");
   }
 
   const readingList = await Reading_List.findOne({
     where: { articleId: article.id, profileId: me.profileInfo.id },
-    attributes: ["id"],
   });
 
   if (!readingList) {
@@ -87,7 +85,12 @@ const getMyReadingList = asyncMiddleware(async (req, res, next) => {
         model: Profile,
         as: "author",
         attributes: ["id", "fullname", "avatar"],
-        include: { model: User, as: "userInfo", attributes: ["username"] },
+        include: {
+          model: User,
+          as: "userInfo",
+          attributes: ["username"],
+          include: { model: Role, as: "role", attributes: ["slug"] },
+        },
       },
     },
     order: [["id", "DESC"]],

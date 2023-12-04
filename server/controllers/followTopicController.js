@@ -9,10 +9,7 @@ const followATopic = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { id } = req.params;
 
-  const topic = await Topic.findOne({
-    where: { id, status: "approved" },
-    attributes: ["id", "name"],
-  });
+  const topic = await Topic.findOne({ where: { id, status: "approved" } });
 
   if (!topic) throw ErrorResponse(404, "Topic not found");
 
@@ -20,7 +17,6 @@ const followATopic = asyncMiddleware(async (req, res, next) => {
 
   const followTopic = await Follow_Topic.findOne({
     where: { topicId: topic.id, profileId: me.profileInfo.id },
-    attributes: ["id"],
   });
 
   if (!followTopic) {
@@ -41,10 +37,7 @@ const unFollowATopic = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { id } = req.params;
 
-  const topic = await Topic.findOne({
-    where: { id, status: "approved" },
-    attributes: ["id", "name"],
-  });
+  const topic = await Topic.findOne({ where: { id, status: "approved" } });
 
   if (!topic) throw ErrorResponse(404, "Topic not found");
 
@@ -52,7 +45,6 @@ const unFollowATopic = asyncMiddleware(async (req, res, next) => {
 
   const followTopic = await Follow_Topic.findOne({
     where: { topicId: topic.id, profileId: me.profileInfo.id },
-    attributes: ["id"],
   });
 
   if (followTopic) {

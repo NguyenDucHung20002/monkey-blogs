@@ -2,6 +2,8 @@ import asyncMiddleware from "../middlewares/asyncMiddleware.js";
 import ErrorResponse from "../responses/ErrorResponse.js";
 import Draft from "../models/mysql/Draft.js";
 import { Op } from "sequelize";
+import extracImg from "../utils/extractImg.js";
+import fileController from "../controllers/fileController.js";
 
 // ==================== create draft ==================== //
 const createADraft = asyncMiddleware(async (req, res, next) => {
@@ -29,7 +31,6 @@ const updateADraft = asyncMiddleware(async (req, res, next) => {
 
   const draft = await Draft.findOne({
     where: { id, authorId: me.profileInfo.id },
-    attributes: ["id"],
   });
 
   if (!draft) throw ErrorResponse(404, "Draft not found");
@@ -43,6 +44,18 @@ const updateADraft = asyncMiddleware(async (req, res, next) => {
 const deleteADraft = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { id } = req.params;
+
+  const draft = await Draft.findByPk(id);
+
+  if (!draft) throw ErrorResponse(404, "Draft not found");
+
+  const imgList = extracImg(draft.content);
+
+  console.log(imgList);
+
+  imgList.forEach((img) => {
+    fileController.autoRemoveImg(img);
+  });
 
   await Draft.destroy({ where: { id, authorId: me.profileInfo.id } });
 

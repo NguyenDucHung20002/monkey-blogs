@@ -18,26 +18,25 @@ const getProfile = asyncMiddleware(async (req, res, next) => {
     const [isBlocked, isMuted, isFollowed] = await Promise.all([
       Block.findOne({
         where: { blockedId: user.profileInfo.id, blockerId: me.profileInfo.id },
-        attributes: ["id"],
       }),
       Mute.findOne({
         where: { mutedId: user.profileInfo.id, muterId: me.profileInfo.id },
-        attributes: ["id"],
       }),
       Follow_Profile.findOne({
         where: {
           followedId: user.profileInfo.id,
           followerId: me.profileInfo.id,
         },
-        attributes: ["id"],
       }),
     ]);
 
     user.profileInfo = {
       ...user.profileInfo.toJSON(),
-      isMuted: !!isMuted,
-      isBlocked: !!isBlocked,
-      isFollowed: !!isFollowed,
+      role: user.role.slug,
+      isMyProfile: false,
+      isMuted: Boolean(isMuted),
+      isBlocked: Boolean(isBlocked),
+      isFollowed: Boolean(isFollowed),
     };
   }
 
@@ -47,7 +46,7 @@ const getProfile = asyncMiddleware(async (req, res, next) => {
 // ==================== update my profile ==================== //
 const updateMyProfile = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
-  const result = req.checkResult;
+  const results = req.results;
   const { fullname, bio, about } = req.body;
 
   const filename = req.file?.filename;
@@ -58,13 +57,13 @@ const updateMyProfile = asyncMiddleware(async (req, res, next) => {
     throw new ErrorResponse(400, "File too large");
   }
 
-  if (result[0].nsfw > 0.7) {
+  if (results[0].nsfw > 0.55) {
     throw ErrorResponse(400, "Avatar image contains 18+");
   }
 
   if (req.file) {
-    const oldAvatar = me.profileInfo.avatar;
-    fileController.autoRemoveImg(oldAvatar.split("/")[5]);
+    const oldAvatar = me.profileInfo.avatar.split("/");
+    fileController.autoRemoveImg(oldAvatar[oldAvatar.length - 1]);
   }
 
   await me.profileInfo.update({ fullname, bio, about, avatar: filename });

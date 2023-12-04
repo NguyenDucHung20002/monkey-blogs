@@ -8,6 +8,7 @@ import addUrlToImg from "../utils/addUrlToImg.js";
 import Follow_Profile from "../models/mysql/Follow_Profile.js";
 import Mute from "../models/mysql/Mute.js";
 import Reading_List from "../models/mysql/Reading_List.js";
+import Reading_History from "../models/mysql/Reading_History.js";
 
 // ==================== block a profile ==================== //
 const blockAProfile = asyncMiddleware(async (req, res, next) => {
@@ -15,12 +16,15 @@ const blockAProfile = asyncMiddleware(async (req, res, next) => {
   const user = req.user;
 
   if (user.profileInfo.id === me.profileInfo.id) {
-    throw ErrorResponse(400, "You can not block your own profile");
+    throw ErrorResponse(400, "Bad Request: Cannot block your own profile");
+  }
+
+  if (user.role.slug === "admin" || user.role.slug === "staff") {
+    throw ErrorResponse(400, `Cannot block ${user.role.slug}`);
   }
 
   const blocks = await Block.findOne({
     where: { blockedId: user.profileInfo.id, blockerId: me.profileInfo.id },
-    attributes: ["id"],
   });
 
   if (!blocks) {
@@ -29,31 +33,44 @@ const blockAProfile = asyncMiddleware(async (req, res, next) => {
         blockedId: user.profileInfo.id,
         blockerId: me.profileInfo.id,
       }),
+
       Follow_Profile.destroy({
         where: {
           followedId: me.profileInfo.id,
           followerId: user.profileInfo.id,
         },
       }),
+
       Follow_Profile.destroy({
         where: {
           followedId: user.profileInfo.id,
           followerId: me.profileInfo.id,
         },
       }),
+
+      me.profileInfo.increment({ followingCount: -1 }),
+
+      user.profileInfo.increment({ followersCount: -1 }),
+
       Mute.destroy({
         where: {
           mutedId: user.profileInfo.id,
           muterId: me.profileInfo.id,
         },
       }),
+
       Mute.destroy({
         where: {
           mutedId: me.profileInfo.id,
           muterId: user.profileInfo.id,
         },
       }),
+
       Reading_List.destroy({
+        where: { profileId: me.profileInfo.id },
+      }),
+
+      Reading_History.destroy({
         where: { profileId: me.profileInfo.id },
       }),
     ]);
@@ -71,12 +88,11 @@ const unBlockAProfile = asyncMiddleware(async (req, res, next) => {
   const user = req.user;
 
   if (user.profileInfo.id === me.profileInfo.id) {
-    throw ErrorResponse(400, "You can not unblock your own profile");
+    throw ErrorResponse(400, "Bad Request: cannot unblock your own profile");
   }
 
   const blocks = await Block.findOne({
     where: { blockedId: user.profileInfo.id, blockerId: me.profileInfo.id },
-    attributes: ["id"],
   });
 
   if (blocks) await blocks.destroy();

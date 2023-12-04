@@ -2,8 +2,9 @@ import { DataTypes } from "sequelize";
 import sequelize from "../../databases/mysql/connect.js";
 import Profile from "../mysql/Profile.js";
 import User from "./User.js";
-import extractImg from "../../utils/extractImg.js";
 import MongoDB from "../../databases/mongodb/connect.js";
+import extractImg from "../../utils/extractImg.js";
+import clarifai from "../../services/clarifai.js";
 
 const Article = sequelize.define(
   "Article",
@@ -56,7 +57,7 @@ const Article = sequelize.define(
     status: {
       type: DataTypes.ENUM("pending", "approved"),
       allowNull: false,
-      defaultValue: "approved",
+      defaultValue: "pending",
     },
   },
 
@@ -64,36 +65,54 @@ const Article = sequelize.define(
     tableName: "articles",
     timestamps: true,
     paranoid: true,
-    hooks: {
-      afterCreate: (article, options) => {
-        const imgsName = extractImg(article.content);
+    // hooks: {
+    //   afterCreate: async (article, options) => {
+    //     const imgsName = extractImg(article.content);
+    //     console.log(imgsName);
 
-        const gfs = MongoDB.gfs;
+    //     const gfs = MongoDB.gfs;
 
-        const resultCheck = imgsName.map((imgName) => {
-          const files = gfs.find({ filename }).toArray();
+    //     const resultCheck = await Promise.all(
+    //       imgsName.map(async (imgName) => {
+    //         try {
+    //           const files = await gfs.find({ filename: imgName }).toArray();
 
-          if (!files || !files.length) console.log("image not found");
+    //           if (!files || !files.length) {
+    //             console.log("image not found");
+    //             return null;
+    //           }
 
-          const readStream = gfs.openDownloadStreamByName(imgName);
+    //           const readStream = gfs.openDownloadStreamByName(imgName);
 
-          let chunks = [];
+    //           const chunks = [];
 
-          readStream.on("data", (chunk) => {
-            chunks.push(chunk);
-          });
+    //           readStream.on("data", (chunk) => {
+    //             chunks.push(chunk);
+    //           });
 
-          readStream.on("end", () => {
-            const imgData = Buffer.concat(chunks).toString("base64");
-            clarifai(imgData, (err, results) => {
-              if (err) console.log(err);
-              return results;
-            });
-          });
-        });
-        console.log(resultCheck);
-      },
-    },
+    //           return new Promise((resolve, reject) => {
+    //             readStream.on("end", () => {
+    //               const imgData = Buffer.concat(chunks).toString("base64");
+    //               clarifai(imgData, (err, results) => {
+    //                 if (err) {
+    //                   console.log(err);
+    //                   reject(err);
+    //                 } else {
+    //                   resolve(results);
+    //                 }
+    //               });
+    //             });
+    //           });
+    //         } catch (error) {
+    //           console.error(error);
+    //           return null;
+    //         }
+    //       })
+    //     );
+
+    //     console.log(resultCheck);
+    //   },
+    // },
   }
 );
 

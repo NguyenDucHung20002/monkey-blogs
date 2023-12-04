@@ -15,6 +15,8 @@ import Mute from "../models/mysql/Mute.js";
 import Reading_History from "../models/mysql/Reading_History.js";
 import Reading_List from "../models/mysql/Reading_List.js";
 import fileController from "../controllers/fileController.js";
+import Role from "../models/mysql/Role.js";
+import toUpperCase from "../utils/toUpperCase.js";
 
 // ==================== create article ==================== //
 const createArticle = asyncMiddleware(async (req, res, next) => {
@@ -46,7 +48,8 @@ const createArticle = asyncMiddleware(async (req, res, next) => {
         let isExisted = await Topic.findOne({ where: { name: topicName } });
         if (!isExisted) {
           const slug = toSlug(topicName);
-          isExisted = await Topic.create({ name: topicName, slug });
+          const name = toUpperCase(topicName);
+          isExisted = await Topic.create({ name, slug });
         }
         return { articleId: article.id, topicId: isExisted.id };
       })
@@ -102,7 +105,8 @@ const updateArticle = asyncMiddleware(async (req, res, next) => {
         let isExisted = await Topic.findOne({ where: { name: topicName } });
         if (!isExisted) {
           const slug = toSlug(topicName);
-          isExisted = await Topic.create({ name: topicName, slug });
+          const name = toUpperCase(topicName);
+          isExisted = await Topic.create({ name, slug });
         }
         return { articleId: article.id, topicId: isExisted.id };
       })
@@ -224,7 +228,6 @@ const getProfileArticles = asyncMiddleware(async (req, res, next) => {
               name: topic.topic.name,
               slug: topic.topic.slug,
             },
-            isSaved,
           };
         }
         return { ...article.toJSON(), topic: null };
@@ -280,7 +283,6 @@ const getProfileArticles = asyncMiddleware(async (req, res, next) => {
         });
         const isSaved = !!(await Reading_List.findOne({
           where: { profileId: me.profileInfo.id, articleId: article.id },
-          attributes: ["id"],
         }));
         if (topic) {
           return {
@@ -290,10 +292,16 @@ const getProfileArticles = asyncMiddleware(async (req, res, next) => {
               name: topic.topic.name,
               slug: topic.topic.slug,
             },
+            isMyArticle: false,
             isSaved,
           };
         }
-        return { ...article.toJSON(), topic: null, isSaved };
+        return {
+          ...article.toJSON(),
+          topic: null,
+          isMyArticle: false,
+          isSaved,
+        };
       })
     );
   }
@@ -347,7 +355,12 @@ const getAnArticle = asyncMiddleware(async (req, res, next) => {
         model: Profile,
         as: "author",
         attributes: ["id", "fullname", "avatar"],
-        include: { model: User, as: "userInfo", attributes: ["username"] },
+        include: {
+          model: User,
+          as: "userInfo",
+          attributes: ["username"],
+          include: { model: Role, as: "role", attributes: ["slug"] },
+        },
       },
       {
         model: Topic,
@@ -372,7 +385,6 @@ const getAnArticle = asyncMiddleware(async (req, res, next) => {
   if (me && me.profileInfo.id !== article.author.id) {
     const isBlockedByUser = !!(await Block.findOne({
       where: { blockedId: me.profileInfo.id, blockerId: article.author.id },
-      attributes: ["id"],
     }));
 
     if (isBlockedByUser) {
@@ -381,6 +393,7 @@ const getAnArticle = asyncMiddleware(async (req, res, next) => {
         message: `You can not view this article because the author already blocked you`,
       });
     }
+
     const [authorBlocked, authorFollowed, articleLiked, isSaved] =
       await Promise.all([
         Block.findOne({
@@ -405,7 +418,6 @@ const getAnArticle = asyncMiddleware(async (req, res, next) => {
         articleId: article.id,
         profileId: me.profileInfo.id,
       },
-      attributes: ["id", "updatedAt"],
     });
 
     if (!isInReadingHistory) {
@@ -420,6 +432,7 @@ const getAnArticle = asyncMiddleware(async (req, res, next) => {
 
     article = {
       ...article.toJSON(),
+      isMyArticle: false,
       authorBlocked: !!authorBlocked,
       authorFollowed: !!authorFollowed,
       articleLiked: !!articleLiked,
@@ -474,7 +487,12 @@ const getFollowedProfilesArticles = asyncMiddleware(async (req, res, next) => {
         model: Profile,
         as: "author",
         attributes: ["id", "fullname", "avatar"],
-        include: { model: User, as: "userInfo", attributes: ["username"] },
+        include: {
+          model: User,
+          as: "userInfo",
+          attributes: ["username"],
+          include: { model: Role, as: "role", attributes: ["slug"] },
+        },
       },
     ],
     order: [["id", "DESC"]],
@@ -560,7 +578,12 @@ const getFollowedTopicArticles = asyncMiddleware(async (req, res, next) => {
         model: Profile,
         as: "author",
         attributes: ["id", "fullname", "avatar"],
-        include: { model: User, as: "userInfo", attributes: ["username"] },
+        include: {
+          model: User,
+          as: "userInfo",
+          attributes: ["username"],
+          include: { model: Role, as: "role", attributes: ["slug"] },
+        },
       },
       {
         model: Topic,

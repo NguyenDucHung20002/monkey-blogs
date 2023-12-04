@@ -8,26 +8,23 @@ import User from "../models/mysql/User.js";
 import addUrlToImg from "../utils/addUrlToImg.js";
 import Block from "../models/mysql/Block.js";
 import Follow_Profile from "../models/mysql/Follow_Profile.js";
+import Role from "../models/mysql/Role.js";
 
 // ==================== like an article ==================== //
 const likeAnArticle = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { id } = req.params;
 
-  const article = await Article.findOne({
-    where: { id, status: "approved" },
-    attributes: ["id", "authorId"],
-  });
+  const article = await Article.findOne({ where: { id, status: "approved" } });
 
   if (!article) throw ErrorResponse(404, "Article not found");
 
   if (article.authorId === me.profileInfo.id) {
-    throw ErrorResponse(400, "You can not like you own article");
+    throw ErrorResponse(400, "Bad Request: cannot like you own article");
   }
 
   const like = await Like.findOne({
     where: { articleId: article.id, profileId: me.profileInfo.id },
-    attributes: ["id"],
   });
 
   if (!like) {
@@ -45,16 +42,12 @@ const unLikeAnArticle = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { id } = req.params;
 
-  const article = await Article.findOne({
-    where: { id, status: "approved" },
-    attributes: ["id"],
-  });
+  const article = await Article.findOne({ where: { id, status: "approved" } });
 
   if (!article) throw ErrorResponse(404, "Article not found");
 
   const like = await Like.findOne({
     where: { articleId: article.id, profileId: me.profileInfo.id },
-    attributes: ["id"],
   });
 
   if (like) {
@@ -70,10 +63,7 @@ const getArticleLiker = asyncMiddleware(async (req, res, next) => {
   const { skip = 0, limit = 15 } = req.query;
   const { id } = req.params;
 
-  const article = await Article.findOne({
-    where: { id, status: "approved" },
-    attributes: ["id", "authorId"],
-  });
+  const article = await Article.findOne({ where: { id, status: "approved" } });
 
   if (!article) throw ErrorResponse(404, "Article not found");
 
@@ -90,66 +80,70 @@ const getArticleLiker = asyncMiddleware(async (req, res, next) => {
           model: Profile,
           as: "articleLike",
           attributes: ["id", "fullname", "avatar", "bio"],
-          include: { model: User, as: "userInfo", attributes: ["username"] },
+          include: {
+            model: User,
+            as: "userInfo",
+            attributes: ["username"],
+            include: { model: Role, as: "role", attributes: ["slug"] },
+          },
         },
       ],
       limit: Number(limit) ? Number(limit) : null,
     });
+
     likers = likeProfiles.map((likeProfile) => {
-      likeProfile.articleLike.avatar = addUrlToImg(
-        likeProfile.articleLike.avatar
-      );
       return {
         id: likeProfile.articleLike.id,
         fullname: likeProfile.articleLike.fullname,
-        avatar: likeProfile.articleLike.avatar,
+        avatar: addUrlToImg(likeProfile.articleLike.avatar),
         bio: likeProfile.articleLike.bio,
         username: likeProfile.articleLike.userInfo.username,
+        role: likeProfile.articleLike.userInfo.role.slug,
       };
     });
   }
 
-  if (me && me.profileInfo.id === article.authorId) {
-    likeProfiles = await Like.findAll({
-      where: { articleId: article.id, id: { [Op.gt]: skip } },
-      attributes: ["id"],
-      include: [
-        {
-          model: Profile,
-          as: "articleLike",
-          attributes: ["id", "fullname", "avatar", "bio"],
-          include: { model: User, as: "userInfo", attributes: ["username"] },
-        },
-      ],
-      limit: Number(limit) ? Number(limit) : null,
-    });
-    likers = await Promise.all(
-      likeProfiles.map(async (likeProfile) => {
-        likeProfile.articleLike.avatar = addUrlToImg(
-          likeProfile.articleLike.avatar
-        );
-        return {
-          id: likeProfile.articleLike.id,
-          fullname: likeProfile.articleLike.fullname,
-          avatar: likeProfile.articleLike.avatar,
-          bio: likeProfile.articleLike.bio,
-          username: likeProfile.articleLike.userInfo.username,
-          isFollowed: !!(await Follow_Profile.findOne({
-            where: {
-              followedId: likeProfile.articleLike.id,
-              followerId: me.profileInfo.id,
-            },
-          })),
-        };
-      })
-    );
-  }
+  // if (me && me.profileInfo.id === article.authorId) {
+  //   likeProfiles = await Like.findAll({
+  //     where: { articleId: article.id, id: { [Op.gt]: skip } },
+  //     attributes: ["id"],
+  //     include: [
+  //       {
+  //         model: Profile,
+  //         as: "articleLike",
+  //         attributes: ["id", "fullname", "avatar", "bio"],
+  //         include: { model: User, as: "userInfo", attributes: ["username"] },
+  //         include: { model: Role, as: "role", attributes: ["slug"] },
+  //       },
+  //     ],
+  //     limit: Number(limit) ? Number(limit) : null,
+  //   });
+  //   likers = await Promise.all(
+  //     likeProfiles.map(async (likeProfile) => {
+  //       return {
+  //         id: likeProfile.articleLike.id,
+  //         fullname: likeProfile.articleLike.fullname,
+  //         avatar: addUrlToImg(likeProfile.articleLike.avatar),
+  //         bio: likeProfile.articleLike.bio,
+  //         username: likeProfile.articleLike.userInfo.username,
+  //         role: likeProfile.articleLike.userInfo.role.slug,
+  //         isFollowed: !!(await Follow_Profile.findOne({
+  //           where: {
+  //             followedId: likeProfile.articleLike.id,
+  //             followerId: me.profileInfo.id,
+  //           },
+  //         })),
+  //       };
+  //     })
+  //   );
+  // }
 
-  if (me && me.profileInfo.id !== article.authorId) {
+  if (me) {
     likeProfiles = await Like.findAll({
       where: {
         articleId: article.id,
         id: { [Op.gt]: skip },
+        profileId: { [Op.ne]: me.profileInfo.id },
         "$likerBlocker.blockerId$": null,
         "$likerBlocked.blockedId$": null,
       },
@@ -159,8 +153,12 @@ const getArticleLiker = asyncMiddleware(async (req, res, next) => {
           model: Profile,
           as: "articleLike",
           attributes: ["id", "fullname", "avatar", "bio"],
-          include: { model: User, as: "userInfo", attributes: ["username"] },
-          where: { id: { [Op.ne]: me.profileInfo.id } },
+          include: {
+            model: User,
+            as: "userInfo",
+            attributes: ["username"],
+            include: { model: Role, as: "role", attributes: ["slug"] },
+          },
         },
         {
           model: Block,
@@ -179,29 +177,21 @@ const getArticleLiker = asyncMiddleware(async (req, res, next) => {
       ],
       limit: Number(limit) ? Number(limit) : null,
     });
+
     likers = await Promise.all(
       likeProfiles.map(async (likeProfile) => {
-        likeProfile.articleLike.avatar = addUrlToImg(
-          likeProfile.articleLike.avatar
-        );
         return {
           id: likeProfile.articleLike.id,
           fullname: likeProfile.articleLike.fullname,
-          avatar: likeProfile.articleLike.avatar,
+          avatar: addUrlToImg(likeProfile.articleLike.avatar),
           bio: likeProfile.articleLike.bio,
           username: likeProfile.articleLike.userInfo.username,
+          role: likeProfile.articleLike.userInfo.role.slug,
           isFollowed: !!(await Follow_Profile.findOne({
             where: {
               followedId: likeProfile.articleLike.id,
               followerId: me.profileInfo.id,
             },
-          })),
-          isBlocked: !!(await Block.findOne({
-            where: {
-              blockedId: likeProfile.articleLike.id,
-              blockerId: me.profileInfo.id,
-            },
-            attributes: ["id"],
           })),
         };
       })
@@ -211,11 +201,7 @@ const getArticleLiker = asyncMiddleware(async (req, res, next) => {
   const newSkip =
     likeProfiles.length > 0 ? likeProfiles[likeProfiles.length - 1].id : null;
 
-  res.json({
-    success: true,
-    data: likers,
-    newSkip,
-  });
+  res.json({ success: true, data: likers, newSkip });
 });
 
 export default { likeAnArticle, unLikeAnArticle, getArticleLiker };

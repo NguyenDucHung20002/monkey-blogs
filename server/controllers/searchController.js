@@ -10,6 +10,7 @@ import addUrlToImg from "../utils/addUrlToImg.js";
 import Article_Topic from "../models/mysql/Article_Topic.js";
 import Follow_Profile from "../models/mysql/Follow_Profile.js";
 import Reading_List from "../models/mysql/Reading_List.js";
+import Role from "../models/mysql/Role.js";
 
 // ==================== search ==================== //
 const search = asyncMiddleware(async (req, res, next) => {
@@ -66,7 +67,12 @@ const search = asyncMiddleware(async (req, res, next) => {
             model: Profile,
             as: "author",
             attributes: ["id", "fullname", "avatar"],
-            include: { model: User, as: "userInfo", attributes: ["username"] },
+            include: {
+              model: User,
+              as: "userInfo",
+              attributes: ["username"],
+              include: { model: Role, as: "role", attributes: ["slug"] },
+            },
           },
           {
             model: Mute,
@@ -110,7 +116,6 @@ const search = asyncMiddleware(async (req, res, next) => {
           });
           const isSaved = !!(await Reading_List.findOne({
             where: { profileId: me.profileInfo.id, articleId: article.id },
-            attributes: ["id"],
           }));
           if (topic) {
             return {
@@ -152,7 +157,12 @@ const search = asyncMiddleware(async (req, res, next) => {
             model: Profile,
             as: "author",
             attributes: ["id", "fullname", "avatar"],
-            include: { model: User, as: "userInfo", attributes: ["username"] },
+            include: {
+              model: User,
+              as: "userInfo",
+              attributes: ["username"],
+              include: { model: Role, as: "role", attributes: ["slug"] },
+            },
           },
         ],
         limit: Number(limit) ? Number(limit) : 15,
@@ -204,18 +214,23 @@ const search = asyncMiddleware(async (req, res, next) => {
           ],
         },
         attributes: ["id", "fullname", "avatar", "bio"],
-        include: { model: User, as: "userInfo", attributes: ["username"] },
+        include: {
+          model: User,
+          as: "userInfo",
+          attributes: ["username"],
+          include: { model: Role, as: "role", attributes: ["slug"] },
+        },
         limit: Number(limit) ? Number(limit) : 15,
       });
 
       profiles = profiles.map((profile) => {
-        profile.avatar = addUrlToImg(profile.avatar);
         return {
           id: profile.id,
           fullname: profile.fullname,
-          avatar: profile.avatar,
+          avatar: addUrlToImg(profile.avatar),
           bio: profile.bio,
           username: profile.userInfo.username,
+          role: profile.userInfo.role.slug,
         };
       });
     } else {
@@ -247,25 +262,29 @@ const search = asyncMiddleware(async (req, res, next) => {
             where: { blockerId: me.profileInfo.id },
             required: false,
           },
-          { model: User, as: "userInfo", attributes: ["username"] },
+          {
+            model: User,
+            as: "userInfo",
+            attributes: ["username"],
+            include: { model: Role, as: "role", attributes: ["slug"] },
+          },
         ],
         limit: Number(limit) ? Number(limit) : 15,
       });
 
       profiles = await Promise.all(
         profiles.map(async (profile) => {
-          profile.avatar = addUrlToImg(profile.avatar);
           const isFollowed = !!(await Follow_Profile.findOne({
             where: { followedId: profile.id, followerId: me.profileInfo.id },
-            attributes: ["id"],
           }));
 
           return {
             id: profile.id,
             fullname: profile.fullname,
-            avatar: profile.avatar,
+            avatar: addUrlToImg(profile.avatar),
             bio: profile.bio,
             username: profile.userInfo.username,
+            role: profile.userInfo.role.slug,
             isFollowed,
           };
         })

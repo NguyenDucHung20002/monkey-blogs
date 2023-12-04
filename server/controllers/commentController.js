@@ -7,6 +7,7 @@ import Profile from "../models/mysql/Profile.js";
 import Block from "../models/mysql/Block.js";
 import User from "../models/mysql/User.js";
 import { Op } from "sequelize";
+import Role from "../models/mysql/Role.js";
 
 // ==================== add comment ==================== //
 const createComment = asyncMiddleware(async (req, res, next) => {
@@ -25,9 +26,7 @@ const createComment = asyncMiddleware(async (req, res, next) => {
   };
 
   if (parentCommentId) {
-    const parentComment = await Comment.findByPk(parentCommentId, {
-      attributes: ["id", "depth"],
-    });
+    const parentComment = await Comment.findByPk(parentCommentId);
 
     if (!parentComment) throw ErrorResponse(404, "Comment not found");
 
@@ -58,6 +57,7 @@ const createComment = asyncMiddleware(async (req, res, next) => {
         fullname: me.profileInfo.fullname,
         username: me.username,
         avatar: me.profileInfo.avatar,
+        role: me.role.slug,
         isAuthor,
       },
       createdAt: newComment.createdAt,
@@ -75,7 +75,6 @@ const updateComment = asyncMiddleware(async (req, res, next) => {
 
   const comment = await Comment.findOne({
     where: { id, authorId: me.profileInfo.id },
-    attributes: ["id"],
   });
 
   if (!comment) throw ErrorResponse(404, "Comment not found");
@@ -93,7 +92,6 @@ const deleteComment = asyncMiddleware(async (req, res, next) => {
   const deleteCommentAndReplies = async (comment) => {
     const replyComments = await Comment.findAll({
       where: { parentCommentId: comment.id },
-      attributes: ["id", "articleId", "parentCommentId"],
     });
 
     await Promise.all(
@@ -110,7 +108,6 @@ const deleteComment = asyncMiddleware(async (req, res, next) => {
 
   const comment = await Comment.findOne({
     where: { id, authorId: me.profileInfo.id },
-    attributes: ["id", "articleId", "parentCommentId"],
   });
 
   if (comment) {
@@ -128,10 +125,7 @@ const deleteComment = asyncMiddleware(async (req, res, next) => {
     ]);
   }
 
-  res.json({
-    success: true,
-    message: "Comment deleted successfully",
-  });
+  res.json({ success: true, message: "Comment deleted successfully" });
 });
 
 // ==================== get article main comments ==================== //
@@ -165,6 +159,7 @@ const getMainComments = asyncMiddleware(async (req, res, next) => {
             model: User,
             as: "userInfo",
             attributes: ["username"],
+            include: { model: Role, as: "role", attributes: ["slug"] },
           },
         },
         {
@@ -187,7 +182,6 @@ const getMainComments = asyncMiddleware(async (req, res, next) => {
     });
 
     comments = comments.map((comment) => {
-      comment.author.avatar = addUrlToImg(comment.author.avatar);
       const isAuthor = comment.authorId === article.authorId;
       const isMyComment = me.profileInfo.id === comment.authorId;
       return {
@@ -200,8 +194,9 @@ const getMainComments = asyncMiddleware(async (req, res, next) => {
         author: {
           id: comment.author.id,
           fullname: comment.author.fullname,
-          avatar: comment.author.avatar,
+          avatar: addUrlToImg(comment.author.avatar),
           username: comment.author.userInfo.username,
+          role: comment.author.userInfo.role.slug,
           isAuthor,
         },
         content: comment.content,
@@ -223,14 +218,15 @@ const getMainComments = asyncMiddleware(async (req, res, next) => {
             model: User,
             as: "userInfo",
             attributes: ["username"],
+            include: { model: Role, as: "role", attributes: ["slug"] },
           },
         },
       ],
       order: [["id", "DESC"]],
       limit: Number(limit) ? Number(limit) : null,
     });
+
     comments = comments.map((comment) => {
-      comment.author.avatar = addUrlToImg(comment.author.avatar);
       const isAuthor = comment.authorId === article.authorId;
       return {
         id: comment.id,
@@ -242,8 +238,9 @@ const getMainComments = asyncMiddleware(async (req, res, next) => {
         author: {
           id: comment.author.id,
           fullname: comment.author.fullname,
-          avatar: comment.author.avatar,
+          avatar: addUrlToImg(comment.author.avatar),
           username: comment.author.userInfo.username,
+          role: comment.author.userInfo.role.slug,
           isAuthor,
         },
         content: comment.content,
@@ -268,9 +265,7 @@ const getNestedComments = asyncMiddleware(async (req, res, next) => {
 
   if (!parentComment) throw ErrorResponse(404, "Comment not found");
 
-  const article = await Article.findByPk(parentComment.articleId, {
-    attributes: ["id", "authorId"],
-  });
+  const article = await Article.findByPk(parentComment.articleId);
 
   if (!article) throw ErrorResponse(404, "Article not found");
 
@@ -295,6 +290,7 @@ const getNestedComments = asyncMiddleware(async (req, res, next) => {
             model: User,
             as: "userInfo",
             attributes: ["username"],
+            include: { model: Role, as: "role", attributes: ["slug"] },
           },
         },
         {
@@ -315,8 +311,8 @@ const getNestedComments = asyncMiddleware(async (req, res, next) => {
       order: [["id", "DESC"]],
       limit: Number(limit) ? Number(limit) : null,
     });
+
     replyComments = replyComments.map((replyComment) => {
-      replyComment.author.avatar = addUrlToImg(replyComment.author.avatar);
       const isAuthor = replyComment.authorId === article.authorId;
       const isMyComment = me.profileInfo.id === replyComment.authorId;
       return {
@@ -329,8 +325,9 @@ const getNestedComments = asyncMiddleware(async (req, res, next) => {
         author: {
           id: replyComment.author.id,
           fullname: replyComment.author.fullname,
-          avatar: replyComment.author.avatar,
+          avatar: addUrlToImg(replyComment.author.avatar),
           username: replyComment.author.userInfo.username,
+          role: replyComment.author.userInfo.role.slug,
           isAuthor,
         },
         content: replyComment.content,
@@ -352,6 +349,7 @@ const getNestedComments = asyncMiddleware(async (req, res, next) => {
             model: User,
             as: "userInfo",
             attributes: ["username"],
+            include: { model: Role, as: "role", attributes: ["slug"] },
           },
         },
       ],
@@ -373,6 +371,7 @@ const getNestedComments = asyncMiddleware(async (req, res, next) => {
           fullname: replyComment.author.fullname,
           avatar: replyComment.author.avatar,
           username: replyComment.author.userInfo.username,
+          role: replyComment.author.userInfo.role.slug,
           isAuthor,
         },
         content: replyComment.content,

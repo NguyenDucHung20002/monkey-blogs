@@ -5,6 +5,7 @@ import Profile from "../models/mysql/Profile.js";
 import User from "../models/mysql/User.js";
 import ErrorResponse from "../responses/ErrorResponse.js";
 import addUrlToImg from "../utils/addUrlToImg.js";
+import Role from "../models/mysql/Role.js";
 
 // ==================== mute a profile ==================== //
 const muteAProfile = asyncMiddleware(async (req, res, next) => {
@@ -12,12 +13,15 @@ const muteAProfile = asyncMiddleware(async (req, res, next) => {
   const user = req.user;
 
   if (user.profileInfo.id === me.profileInfo.id) {
-    throw ErrorResponse(400, "You can not mute your own profile");
+    throw ErrorResponse(400, "Bad Request: Cannot mute your own profile");
+  }
+
+  if (user.role.slug === "admin" || user.role.slug === "staff") {
+    throw ErrorResponse(400, `Cannot mute ${user.role.name}`);
   }
 
   const mutes = await Mute.findOne({
     where: { mutedId: user.profileInfo.id, muterId: me.profileInfo.id },
-    attributes: ["id"],
   });
 
   if (!mutes) {
@@ -39,12 +43,11 @@ const unMuteAProfile = asyncMiddleware(async (req, res, next) => {
   const user = req.user;
 
   if (user.profileInfo.id === me.profileInfo.id) {
-    throw ErrorResponse(400, "You can not unmute your own profile");
+    throw ErrorResponse(400, "Bad Request: Cannot unmute your own profile");
   }
 
   const mutes = await Mute.findOne({
     where: { mutedId: user.profileInfo.id, muterId: me.profileInfo.id },
-    attributes: ["id"],
   });
 
   if (mutes) await mutes.destroy();
@@ -67,7 +70,12 @@ const getMutedProfiles = asyncMiddleware(async (req, res, next) => {
       model: Profile,
       as: "muted",
       attributes: ["id", "fullname", "avatar", "bio"],
-      include: { model: User, as: "userInfo", attributes: ["username"] },
+      include: {
+        model: User,
+        as: "userInfo",
+        attributes: ["username"],
+        include: { model: Role, as: "role", attributes: ["slug"] },
+      },
     },
     limit: Number(limit) ? Number(limit) : 15,
   });
