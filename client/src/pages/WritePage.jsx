@@ -158,7 +158,6 @@ const WritePage = () => {
     // console.log("content",content);
     const check = content !== "" && watchedTitle !== "";
     setIsSaved(false)
-    console.log(check);
     if(check && !hasRunOnce){
       createDraft()
     }

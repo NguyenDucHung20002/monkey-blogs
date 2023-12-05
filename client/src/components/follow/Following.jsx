@@ -3,6 +3,7 @@ import { Popover } from "antd";
 import { useState } from "react";
 import ButtonFollowingUser from "../button/ButtonFollowingUser.jsx";
 import { apiGetProfile } from "../../api/api.jsx";
+import { Link } from "react-router-dom";
 
 const Following = ({ data = [], token, user }) => {
   const [userFollow, setUserFollow] = useState({});
@@ -11,14 +12,17 @@ const Following = ({ data = [], token, user }) => {
       setUserFollow({ ...data });
   }
   const SmallInf = () => {
+    console.log(userFollow);
     return (
       <>
         <div className="w-72">
-          <div className="flex items-center">
+          <div className="">
+          <Link className="flex items-center" to={`/profile/${userFollow?.username}`}>
             <div className="w-8 h-8 overflow-hidden rounded-1/2 ">
               <img className="w-full h-full" src={userFollow?.avatar} alt="" />
             </div>
             <p className="ml-2 text-base font-bold">{userFollow?.fullname}</p>
+          </Link>
           </div>
           <p className="py-2">{userFollow?.bio ? userFollow.bio : ""} </p>
           <div className="h-[1px] my-3 bg-stone-400"></div>
@@ -51,16 +55,21 @@ const Following = ({ data = [], token, user }) => {
             >
               <div className="flex max-w-[90%]">
                 <div className="w-6 h-6 overflow-hidden rounded-1/2 ">
+                <Link to={`/profile/${val.username}`}>
                   <img
                     className="object-cover w-full h-full"
                     src={val.avatar}
                     alt=""
                   />
+                </Link>
+
                 </div>
                 <div className="max-w-[80%] ">
-                  <p className="py-1 text-[12px] ml-2 overflow-hidden overflow-ellipsis whitespace-nowrap">
-                    {val.fullname}
-                  </p>
+                  <Link to={`/profile/${val.username}`}>
+                    <p className="py-1 text-[12px] ml-2 overflow-hidden overflow-ellipsis whitespace-nowrap">
+                      {val.fullname}
+                    </p>
+                  </Link>
                 </div>
               </div>
               <Popover

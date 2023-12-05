@@ -122,7 +122,7 @@ const ProfileBlogs = ({ blogs, user, fetchDeleteArticle }) => {
                   <Popover
                     placement="bottom"
                     content={
-                      user.isMe ? (
+                      user?.isMyProfile ? (
                         <MoreUser slug={val.slug} />
                       ) : (
                         <MoreUserOther />

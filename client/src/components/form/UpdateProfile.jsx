@@ -222,7 +222,7 @@ const ProfileStyles = styled.div`
       }
     }
     .input-group{
-      margin: 40px 0;
+      margin: 20px 0;
       input{
         width: 100%;
         border-bottom: 1px solid #afadad;

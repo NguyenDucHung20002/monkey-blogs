@@ -2,7 +2,7 @@
 import ButtonFollowingUser from "../../components/button/ButtonFollowingUser";
 
 // eslint-disable-next-line react/prop-types
-const ProfileInfor =({ setShow, user }) => {
+const ProfileInfor =({isBlocked, setShow, user }) => {
   return (
     <>
       <div className="mb-8">
@@ -20,7 +20,7 @@ const ProfileInfor =({ setShow, user }) => {
           >
             Edit Profile
           </button>
-        ) : (
+        ) : !isBlocked ?(
           <div className="flex items-center">
               <ButtonFollowingUser
                 userId={user.id}
@@ -43,7 +43,7 @@ const ProfileInfor =({ setShow, user }) => {
               </svg>
             </button>
           </div>
-        )}
+        ):""}
       </div>
     </>
   );

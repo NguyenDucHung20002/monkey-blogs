@@ -26,7 +26,7 @@ const MoreMe =({handleCopyToClipboard})=>{
         </>
     )
 }
-const ProfileContext = ({user,token}) =>
+const ProfileContext = ({setIsBlocked,user,token}) =>
 {
     const [isMuted,setMuted] = useState(false)
     const [isBlock,setBlock] = useState(false)
@@ -62,6 +62,7 @@ const ProfileContext = ({user,token}) =>
         const res = await apiBlockUser(type,token,user.id)
         if(res){
             setBlock(!isBlock)
+            setIsBlocked(!isBlock)
             toast.success(toastContent, { pauseOnHover: false, delay: 500, });
         }
     }

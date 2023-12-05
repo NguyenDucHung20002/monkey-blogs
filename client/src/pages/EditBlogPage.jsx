@@ -86,7 +86,7 @@ const EditBlogPage = () => {
   }, [errors]);
 
   useEffect(() => {
-    const topicsId = topics.map((topic) => topic._id);
+    const topicsId = topics?.map((topic) => topic._id);
     setValue("topics", topicsId);
   }, [setValue, topics]);
 
