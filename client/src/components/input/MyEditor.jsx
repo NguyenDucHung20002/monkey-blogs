@@ -4,14 +4,17 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import ReactQuill, { Quill } from "react-quill";
 import { imgbbAPI } from "../../config/apiConfig";
 import ImageUploader from "quill-image-uploader";
+import { config } from "../../utils/constants";
+import { apiDeleteImage, apiUploadImage } from "../../api/apiNew";
+
 Quill.register("modules/imageUploader", ImageUploader);
 
 const MyEditor = ({ content, setContent }) => {
   const [imageFiles, setImageFiles] = useState([]);
   const quillRef = useRef();
-
-  const deleteImage = (id) => {
-    console.log("id:", id);
+  const deleteImage =(filename) => {
+    // console.log("id:", filename);
+     apiDeleteImage(filename)
   };
 
   useEffect(() => {
@@ -26,14 +29,14 @@ const MyEditor = ({ content, setContent }) => {
           const filteredImageFiles = tempImageFiles.filter(
             (image) => image.id !== imageFiles[index].id
           );
-          deleteImage(imageFiles[index].id);
+          deleteImage(imageFiles[index]?.filename);
           // console.log("filteredImageFiles:", filteredImageFiles);
 
           setImageFiles(filteredImageFiles);
         }
       }
     }
-  }, [quillRef.current?.lastDeltaChangeSet?.ops[1]?.delete]);
+  }, [quillRef.current?.lastDeltaChangeSet?.ops[1]]);
 
   const modules = useMemo(
     () => ({
@@ -49,23 +52,17 @@ const MyEditor = ({ content, setContent }) => {
       },
       imageUploader: {
         upload: async (file) => {
-          const bodyFormData = new FormData();
-          bodyFormData.append("image", file);
-          const response = await axios({
-            method: "post",
-            url: imgbbAPI,
-            data: bodyFormData,
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          });
-          if (response.data.data.url) {
-            const src = response.data.data.url;
-            console.log("src:", src);
+          const response = await apiUploadImage(file)
+          // console.log(response);
+          if (response.data.filename) {
+            const filename = response.data.filename
+            const src = `${config.SERVER_HOST}/file/${filename}`;
+            // console.log("src:", src);
             const date = Date.now();
-            setImageFiles((prev) => [...prev, { path: src, id: date }]);
+            setImageFiles((prev) => [...prev, { path: src, id: date, filename }]);
+            return src
           }
-          return response.data.data.url;
+          return;
         },
       },
     }),

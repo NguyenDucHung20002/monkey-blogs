@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import "react-quill/dist/quill.snow.css";
 import styled from "styled-components";
 import WriteHeader from "../layout/WriteHeader";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import InputHook from "../components/input/InputHook";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -16,6 +16,8 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "../components/button";
 import ImageUpload from "../components/image/ImageUpload";
 import MyEditor from "../components/input/MyEditor";
+import { apiAddBlog, apiCreateDarft, apiDeleteDarft, apiUpdateDarft } from "../api/apiNew";
+import { debounce } from "lodash";
 
 const WritePageStyle = styled.div`
   max-width: 1000px;
@@ -27,7 +29,7 @@ const WritePageStyle = styled.div`
 `;
 
 const schema = yup.object({
-  title: yup.string().min(4).required("Please fill out your title"),
+  title: yup.string().required("Please fill out your title").min(4),
 });
 
 const WritePage = () => {
@@ -47,6 +49,9 @@ const WritePage = () => {
   const [imageFilename, setImageFilename] = useState(null);
   const [content, setContent] = useState("");
   const [preview, setPreview] = useState("");
+  const [isSaved, setIsSaved] = useState(false);
+  const [newDraft, setNewDraft] = useState({});
+  const [hasRunOnce, setHasRunOnce] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -105,102 +110,87 @@ const WritePage = () => {
         pauseOnHover: false,
         delay: 500,
       });
-    const { title, content, topics, preview } = values;
+    const { title, content, preview } = values;
     const cutPreview = preview.slice(0, 200);
     const formData = new FormData();
-    formData.set("img", imageFilename);
+    formData.set("banner", imageFilename);
     formData.set("title", title);
     formData.set("content", content);
     formData.set("preview", cutPreview);
     topics.forEach((value, index) => {
-      formData.set(`topics[${index}]`, value);
+      formData.set(`topicNames[${index}]`, value?.name);
     });
     async function fetchAddBlog() {
       if (!token) return;
-      try {
-        const response = await axios.post(
-          `${config.SERVER_HOST}/article`,
-          formData,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
-        if (response) {
-          navigate("/");
-        }
-      } catch (error) {
-        toast.error(error?.response?.data?.error?.message, {
-          pauseOnHover: false,
-          delay: 500,
-        });
+      const response = await apiAddBlog(formData)
+      if (response) {
+        const idDraft = newDraft?.draftId
+        apiDeleteDarft(idDraft)
+        navigate("/");
       }
     }
     fetchAddBlog();
   };
+  const handleClickPublish = () => {
+    handleSubmit(handleAddBlog)();
+    console.log("submit");
+  };
+
+  const watchedTitle = useWatch({control,name:"title",defaultValue:""})
+  const createDraft =async()=>{
+    const res = await apiCreateDarft(watchedTitle,content)
+    if(res?.success){
+      setNewDraft(res)
+      setIsSaved(true)
+      setHasRunOnce(true)
+    }
+  }
+  const UpdateDraft = debounce(async()=>{
+    const idDraft = newDraft?.draftId
+    const res = await apiUpdateDarft(idDraft,watchedTitle,content)
+    if(res?.success){
+      setIsSaved(true)
+    }
+  },1000)
+  
+  useEffect(()=>{
+    // console.log("title",watchedTitle);
+    // console.log("content",content);
+    const check = content !== "" && watchedTitle !== "";
+    setIsSaved(false)
+    console.log(check);
+    if(check && !hasRunOnce){
+      createDraft()
+    }
+    if(newDraft?.draftId){
+      UpdateDraft()
+    }
+    // console.log("newDraft",newDraft);
+    // console.log("changeDraft",changeDraft);
+  },[watchedTitle,content])
 
   if (!token) return null;
-
   return (
     <WritePageStyle>
       <form onSubmit={handleSubmit(handleAddBlog)} autoComplete="off">
-        <WriteHeader></WriteHeader>
-        <div className="mt-5 form-layout">
-          <div>
-            <ImageUpload
-              className="h-[250px]"
-              image={image}
-              onChange={handleSelectImage}
-              handleDeleteImage={handleDeleteImage}
-            ></ImageUpload>
+        <WriteHeader 
+          isSaved={isSaved}
+          image={image} 
+          handleSelectImage={handleSelectImage} 
+          topics={topics}
+          setTopics={setTopics}
+          token={token}
+          isSubmitting={isSubmitting}
+          handleDeleteImage={handleDeleteImage}
+          handleClickPublish={handleClickPublish}
+        ></WriteHeader>
             <InputHook
-              className="mt-10"
+              className=""
               control={control}
               name="title"
               placeholder="Add title"
             ></InputHook>
-          </div>
-
-          <div className="mt-5 topic">
-            <h2 className="font-normal text-gray-600 ">
-              Publishing to:{" "}
-              <span className="font-semibold text-gray-700">
-                {userInfo?.data?.username}
-              </span>
-            </h2>
-            <p className="mt-5 text-sm text-gray-600">
-              Add or change topics (up to 5) so readers know what your story is
-              about
-            </p>
-            <SearchAddTopics
-              topics={topics}
-              setTopics={setTopics}
-              token={token}
-              placeholder="Add a topic"
-            ></SearchAddTopics>
-            <p className="mt-5 text-sm text-gray-400 ">
-              <span className="font-semibold text-gray-600">Note:</span> Changes
-              here will affect how your story appears in public places like
-              Medium’s homepage and in subscribers’ inboxes — not the contents
-              of the story itself.
-            </p>
-          </div>
-        </div>
         <MyEditor content={content} setContent={setContent}></MyEditor>
-        <div className="sticky bottom-0 flex justify-center p-4">
-          <Button
-            type="submit"
-            kind="primary"
-            height="40px"
-            isSubmitting={isSubmitting}
-            disabled={isSubmitting}
-            className="!font-semibold !text-base !px-5"
-          >
-            Publish
-          </Button>
-        </div>
       </form>
     </WritePageStyle>
   );

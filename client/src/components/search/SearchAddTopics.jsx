@@ -1,22 +1,21 @@
 import { useEffect, useRef, useState } from "react";
 import { debounce } from "lodash";
-import { apiTopicsSearch } from "../../api/api";
+import { apiTopicsSearch } from "../../api/apisHung";
 
 /* eslint-disable react/prop-types */
 const SearchAddTopics = ({ topics = [], setTopics, placeholder = "" }) => {
   const [topicInput, setTopicInput] = useState("");
   const [addTopics, setAddTopics] = useState([]);
   const input = useRef(null);
-
+  const token =  localStorage.getItem("token")
   const handleDeleteTopic = (slug) => {
     const topicsClone = [...topics];
     const topicFilters = topicsClone.filter((topic) => topic.slug !== slug);
     setTopics(topicFilters);
   };
-
   useEffect(() => {
     async function fetchTopics() {
-      const response = await apiTopicsSearch(topicInput);
+      const response = await apiTopicsSearch(token,topicInput);
       if (response?.data) setAddTopics(response?.data);
     }
     fetchTopics();
@@ -30,20 +29,23 @@ const SearchAddTopics = ({ topics = [], setTopics, placeholder = "" }) => {
       setTopics(addTopicClone);
     }
     input.current.value = "";
+    setAddTopics([])
     setTopicInput("");
   };
 
   const handleOnchange = debounce((e) => {
     setTopicInput(e.target.value);
+    if(e.target.value === ""){
+    setAddTopics([])
+    }
   }, 500);
-
   return (
     <div className="relative flex flex-wrap items-center w-full p-1 mt-5 bg-gray-200 border border-gray-700">
       {topics &&
         topics?.length > 0 &&
         topics.map((topic) => (
           <div
-            key={topic._id}
+            key={topic.id}
             className="flex items-center justify-center m-1 text-sm bg-white rounded-sm h-7"
           >
             <span className="p-1">{topic?.name}</span>{" "}
@@ -81,15 +83,15 @@ const SearchAddTopics = ({ topics = [], setTopics, placeholder = "" }) => {
         </div>
       )}
       {addTopics && addTopics?.length > 0 && (
-        <div className="absolute left-0 dropdown top-[calc(100%+10px)] border border-black bg-gray-200 max-w-[200px] w-full p-1">
+        <div className="absolute left-0 dropdown top-[calc(100%+10px)] border border-black bg-gray-200  w-auto p-1 max-h-44 overflow-auto">
           <ul>
             {addTopics.map((topic) => (
               <li
-                key={topic._id}
+                key={topic.id}
                 className="p-1 text-sm text-black transition-all cursor-pointer hover:bg-black hover:text-white "
                 onClick={() => handleAddTopic(topic)}
               >
-                {topic?.name}
+                {topic?.name} ({topic.articlesCount})
               </li>
             ))}
           </ul>

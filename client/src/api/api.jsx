@@ -186,7 +186,7 @@ const apiGetArticleSkip = async (skipId, token, limit = 5) => {
       `${config.SERVER_HOST}/article?skip=${skipId}&limit=${limit}`,
       {
         headers: {
-          Authorization: "Bearer " + token,
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
       }

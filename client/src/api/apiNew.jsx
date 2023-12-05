@@ -21,6 +21,110 @@ const apiGetUserFollow = async (username,typeFollow="followers") => {
   }
 };
 
+const apiUploadImage = async(file)=>{
+  try {
+    const bodyFormData = new FormData();
+    bodyFormData.append("img", file);
+    const response = await axios({
+      method: "post",
+      url: `${config.SERVER_HOST}/file/`,
+      data: bodyFormData,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return response
+  } catch (error) {
+    console.log("error:", error);
+  }
+}
+
+const apiDeleteImage = async(filename)=>{
+  try {
+    const response = await axios({
+      method: "delete",
+      url: `${config.SERVER_HOST}/file/${filename}`,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response?.data
+  } catch (error) {
+    console.log("error:", error);
+  }
+}
+
+const apiCreateDarft = async(title,content)=>{
+  try {
+    const response = await axios.post(`${config.SERVER_HOST}/draft`,
+    {title,content},
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+    );
+    return response?.data
+  } catch (error) {
+    console.log("error:", error);
+  }
+}
+
+const apiUpdateDarft = async(id,title,content)=>{
+  try {
+    const response = await axios.patch(`${config.SERVER_HOST}/draft/${id}`,
+    {title,content},
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+    );
+    return response?.data
+  } catch (error) {
+    console.log("error:", error);
+  }
+}
+
+const apiDeleteDarft = async(id)=>{
+  try {
+    const response = await axios({
+      method: "delete",
+      url: `${config.SERVER_HOST}/draft/${id}`,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response?.data
+  } catch (error) {
+    console.log("error:", error);
+  }
+}
+
+const apiAddBlog = async(formData)=>{
+  try {
+    const response = await axios.post(
+      `${config.SERVER_HOST}/article`,
+      formData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+    return response?.data
+  } catch (error) {
+    console.log(error);
+  }
+}
 export{
   apiGetUserFollow,
+  apiUploadImage,
+  apiDeleteImage,
+  apiCreateDarft,
+  apiUpdateDarft,
+  apiDeleteDarft,
+  apiAddBlog,
 }
