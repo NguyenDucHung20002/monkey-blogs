@@ -436,10 +436,3 @@ Profile.hasOne(Follow_Profile, {
   foreignKey: "followedId",
   as: "followeds",
 });
-
-// Topic - Follow_Topic
-Topic.hasOne(Follow_Topic, {
-  sourceKey: "id",
-  foreignKey: "topicId",
-  as: "followTopic",
-});

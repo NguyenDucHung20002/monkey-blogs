@@ -17,6 +17,7 @@ import Reading_List from "../models/mysql/Reading_List.js";
 import fileController from "../controllers/fileController.js";
 import Role from "../models/mysql/Role.js";
 import toUpperCase from "../utils/toUpperCase.js";
+import Follow_Topic from "../models/mysql/Follow_Topic.js";
 
 // ==================== create article ==================== //
 const createArticle = asyncMiddleware(async (req, res, next) => {
@@ -199,6 +200,7 @@ const getProfileArticles = asyncMiddleware(async (req, res, next) => {
         "commentsCount",
         "approvedById",
         "reportsCount",
+        "deletedAt",
       ],
     },
     order: [["id", "DESC"]],
@@ -348,6 +350,7 @@ const getAnArticle = asyncMiddleware(async (req, res, next) => {
         "authorId",
         "status",
         "reportsCount",
+        "deletedAt",
       ],
     },
     include: [
@@ -467,6 +470,7 @@ const getFollowedProfilesArticles = asyncMiddleware(async (req, res, next) => {
         "approvedById",
         "status",
         "reportsCount",
+        "deletedAt",
       ],
     },
     include: [
@@ -516,7 +520,6 @@ const getFollowedProfilesArticles = asyncMiddleware(async (req, res, next) => {
       });
       const isSaved = !!(await Reading_List.findOne({
         where: { profileId: me.profileInfo.id, articleId: article.id },
-        attributes: ["id"],
       }));
       if (topic) {
         return {
@@ -545,7 +548,7 @@ const getFollowedTopicArticles = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
 
   const topic = await Topic.findOne({
-    where: { slug },
+    where: { slug, status: "approved" },
     attributes: ["id", "name", "slug"],
   });
 
@@ -571,6 +574,7 @@ const getFollowedTopicArticles = asyncMiddleware(async (req, res, next) => {
         "approvedById",
         "status",
         "reportsCount",
+        "deletedAt",
       ],
     },
     include: [
@@ -617,9 +621,121 @@ const getFollowedTopicArticles = asyncMiddleware(async (req, res, next) => {
       article.author.avatar = addUrlToImg(article.author.avatar);
       const isSaved = !!(await Reading_List.findOne({
         where: { profileId: me.profileInfo.id, articleId: article.id },
-        attributes: ["id"],
       }));
       return { ...article.toJSON(), topic, isSaved };
+    })
+  );
+
+  const newSkip = articles.length > 0 ? articles[articles.length - 1].id : null;
+
+  res.json({ success: true, data: articles, newSkip });
+});
+
+// ==================== explore new articles ==================== //
+const exploreNewArticles = asyncMiddleware(async (req, res, next) => {
+  const { skip, limit = 15 } = req.query;
+  const me = req.me;
+
+  let whereQuery = {
+    authorId: { [Op.ne]: me.profileInfo.id },
+    status: "approved",
+    "$authorBlocked.blockedId$": null,
+    "$authorBlocker.blockerId$": null,
+    "$authorFollowed.followedId$": null,
+    "$authorMuted.mutedId$": null,
+  };
+
+  if (skip) whereQuery = { id: { [Op.lt]: skip } };
+
+  let articles = await Article.findAll({
+    where: whereQuery,
+    attributes: {
+      exclude: [
+        "authorId",
+        "content",
+        "likesCount",
+        "commentsCount",
+        "approvedById",
+        "status",
+        "reportsCount",
+        "deletedAt",
+      ],
+    },
+    include: [
+      {
+        model: Profile,
+        as: "author",
+        attributes: ["id", "fullname", "avatar"],
+        include: {
+          model: User,
+          as: "userInfo",
+          attributes: ["username"],
+          include: { model: Role, as: "role", attributes: ["slug"] },
+        },
+      },
+      {
+        model: Follow_Profile,
+        as: "authorFollowed",
+        where: { followerId: me.profileInfo.id },
+        attributes: [],
+        required: false,
+      },
+      {
+        model: Mute,
+        as: "authorMuted",
+        where: { muterId: me.profileInfo.id },
+        attributes: [],
+        required: false,
+      },
+      {
+        model: Block,
+        as: "authorBlocker",
+        where: { blockedId: me.profileInfo.id },
+        attributes: [],
+        required: false,
+      },
+      {
+        model: Block,
+        as: "authorBlocked",
+        attributes: [],
+        where: { blockerId: me.profileInfo.id },
+        required: false,
+      },
+    ],
+    order: [["id", "DESC"]],
+    limit: Number(limit) ? Number(limit) : 15,
+  });
+
+  articles = await Promise.all(
+    articles.map(async (article) => {
+      article.banner ? addUrlToImg(article.banner) : null;
+      article.author.avatar = addUrlToImg(article.author.avatar);
+      const topic = await Article_Topic.findOne({
+        attributes: [],
+        where: { articleId: article.id },
+        include: {
+          model: Topic,
+          as: "topic",
+          attributes: ["id", "name", "slug"],
+          where: { status: "approved" },
+        },
+        order: [["id", "ASC"]],
+      });
+      const isSaved = !!(await Reading_List.findOne({
+        where: { profileId: me.profileInfo.id, articleId: article.id },
+      }));
+      if (topic) {
+        return {
+          ...article.toJSON(),
+          topic: {
+            id: topic.topic.id,
+            name: topic.topic.name,
+            slug: topic.topic.slug,
+          },
+          isSaved,
+        };
+      }
+      return { ...article.toJSON(), topic: null, isSaved };
     })
   );
 
@@ -639,4 +755,5 @@ export default {
   getAnArticle,
   getFollowedProfilesArticles,
   getFollowedTopicArticles,
+  exploreNewArticles,
 };

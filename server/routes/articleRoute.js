@@ -43,6 +43,13 @@ router.get(
 );
 
 router.get(
+  "/explore-new-articles",
+  requiredAuth,
+  fetchMe,
+  articleController.exploreNewArticles
+);
+
+router.get(
   "/",
   requiredAuth,
   fetchMe,

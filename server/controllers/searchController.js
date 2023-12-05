@@ -60,6 +60,8 @@ const search = asyncMiddleware(async (req, res, next) => {
             "commentsCount",
             "approvedById",
             "status",
+            "reportsCount",
+            "deletedAt",
           ],
         },
         include: [
@@ -150,6 +152,7 @@ const search = asyncMiddleware(async (req, res, next) => {
             "approvedById",
             "status",
             "reportsCount",
+            "deletedAt",
           ],
         },
         include: [
