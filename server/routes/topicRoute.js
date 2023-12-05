@@ -35,6 +35,13 @@ router.get(
 
 router.get("/explore-topics", topicController.exploreAllTopics);
 
+router.get(
+  "/recommended-topics",
+  requiredAuth,
+  fetchMe,
+  topicController.recommendedTopics
+);
+
 router.patch(
   "/:id",
   requiredAuth,

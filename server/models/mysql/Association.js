@@ -417,3 +417,24 @@ Reading_List.belongsTo(Profile, {
   foreignKey: "profileId",
   as: "readingProfile",
 });
+
+// Article_Topic - Reading_History
+Article_Topic.hasOne(Reading_History, {
+  sourceKey: "articleId",
+  foreignKey: "articleId",
+  as: "relatedReadingHistory",
+});
+
+// Reading_List - Reading_List
+Article_Topic.hasOne(Reading_List, {
+  sourceKey: "articleId",
+  foreignKey: "articleId",
+  as: "relatedReadingList",
+});
+
+// Reading_List - Like
+Article_Topic.hasOne(Like, {
+  sourceKey: "articleId",
+  foreignKey: "articleId",
+  as: "relatedLike",
+});

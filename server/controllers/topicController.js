@@ -7,6 +7,11 @@ import Follow_Topic from "../models/mysql/Follow_Topic.js";
 import User from "../models/mysql/User.js";
 import Role from "../models/mysql/Role.js";
 import toUpperCase from "../utils/toUpperCase.js";
+import Article_Topic from "../models/mysql/Article_Topic.js";
+import Reading_History from "../models/mysql/Reading_History.js";
+import sequelize from "../databases/mysql/connect.js";
+import Reading_List from "../models/mysql/Reading_List.js";
+import Like from "../models/mysql/Like.js";
 
 // ==================== create topic ==================== //
 const createTopic = asyncMiddleware(async (req, res, next) => {
@@ -179,6 +184,102 @@ const exploreAllTopics = asyncMiddleware(async (req, res, next) => {
   res.json({ success: true, data: topics, newSkip });
 });
 
+// ==================== recommended topics ==================== //
+const recommendedTopics = asyncMiddleware(async (req, res, next) => {
+  const { max = 6 } = req.query;
+  const me = req.me;
+
+  const fromHistory = await Article_Topic.findAll({
+    attributes: [
+      ["topicId", "id"],
+      [sequelize.fn("COUNT", sequelize.col("topicId")), "topicCount"],
+    ],
+    include: [
+      {
+        model: Reading_History,
+        as: "relatedReadingHistory",
+        where: { profileId: me.profileInfo.id },
+        attributes: [],
+      },
+      { model: Topic, as: "topic", attributes: ["id", "name", "slug"] },
+    ],
+    group: ["topicId"],
+    order: [[sequelize.literal("topicCount"), "DESC"]],
+    limit: Math.ceil(max / 3),
+  });
+
+  const historyTopicIds = fromHistory.map((topic) => topic.id);
+
+  const fromReadingList = await Article_Topic.findAll({
+    where: { topicId: { [Op.notIn]: historyTopicIds } },
+    attributes: [
+      ["topicId", "id"],
+      [sequelize.fn("COUNT", sequelize.col("topicId")), "topicCount"],
+    ],
+    include: [
+      {
+        model: Reading_List,
+        as: "relatedReadingList",
+        where: { profileId: me.profileInfo.id },
+        attributes: [],
+      },
+      { model: Topic, as: "topic", attributes: ["id", "name", "slug"] },
+    ],
+    group: ["topicId"],
+    order: [[sequelize.literal("topicCount"), "DESC"]],
+    limit: Math.ceil(max / 3),
+  });
+
+  const readingListTopicIds = fromReadingList.map((topic) => topic.id);
+
+  const fromLike = await Article_Topic.findAll({
+    where: {
+      topicId: { [Op.notIn]: [...historyTopicIds, ...readingListTopicIds] },
+    },
+    attributes: [
+      ["topicId", "id"],
+      [sequelize.fn("COUNT", sequelize.col("topicId")), "topicCount"],
+    ],
+    include: [
+      {
+        model: Like,
+        as: "relatedLike",
+        where: { profileId: me.profileInfo.id },
+        attributes: [],
+      },
+      { model: Topic, as: "topic", attributes: ["id", "name", "slug"] },
+    ],
+    group: ["topicId"],
+    order: [[sequelize.literal("topicCount"), "DESC"]],
+    limit: Math.ceil(max / 3),
+  });
+
+  let recommendedTopics = [...fromHistory, ...fromReadingList, ...fromLike];
+
+  recommendedTopics = recommendedTopics.map((recommendedTopic) => {
+    return {
+      id: recommendedTopic.topic.id,
+      name: recommendedTopic.topic.name,
+      slug: recommendedTopic.topic.slug,
+    };
+  });
+
+  if (recommendedTopics.length < max) {
+    const recommendedTopicsId = recommendedTopics.map((recommendedTopic) => {
+      return { id: recommendedTopic.id };
+    });
+    const random = await Topic.findAll({
+      where: { id: { [Op.notIn]: recommendedTopicsId } },
+      attributes: ["id", "name", "slug"],
+      limit: max - recommendedTopics.length,
+    });
+
+    recommendedTopics.push(...random);
+  }
+
+  res.json({ success: true, data: recommendedTopics });
+});
+
 export default {
   createTopic,
   updateTopic,
@@ -188,4 +289,5 @@ export default {
   martTopicAsApproved,
   searchTopicsCreateArticle,
   exploreAllTopics,
+  recommendedTopics,
 };
