@@ -418,23 +418,28 @@ Reading_List.belongsTo(Profile, {
   as: "readingProfile",
 });
 
-// Article_Topic - Reading_History
-Article_Topic.hasOne(Reading_History, {
-  sourceKey: "articleId",
-  foreignKey: "articleId",
-  as: "relatedReadingHistory",
+// Profile - Block
+Profile.hasOne(Block, {
+  sourceKey: "id",
+  foreignKey: "blockedId",
+  as: "blocksBlocked",
+});
+Profile.hasOne(Block, {
+  sourceKey: "id",
+  foreignKey: "blockerId",
+  as: "blocksBlockedBy",
 });
 
-// Reading_List - Reading_List
-Article_Topic.hasOne(Reading_List, {
-  sourceKey: "articleId",
-  foreignKey: "articleId",
-  as: "relatedReadingList",
+// profile - Follow_Profile
+Profile.hasOne(Follow_Profile, {
+  sourceKey: "id",
+  foreignKey: "followedId",
+  as: "followeds",
 });
 
-// Reading_List - Like
-Article_Topic.hasOne(Like, {
-  sourceKey: "articleId",
-  foreignKey: "articleId",
-  as: "relatedLike",
+// Topic - Follow_Topic
+Topic.hasOne(Follow_Topic, {
+  sourceKey: "id",
+  foreignKey: "topicId",
+  as: "followTopic",
 });

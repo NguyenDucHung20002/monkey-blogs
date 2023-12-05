@@ -9,6 +9,13 @@ import checkBlockedByUser from "../middlewares/checBlockedByUser.js";
 
 const router = express.Router();
 
+router.get(
+  "/who-to-follow",
+  requiredAuth,
+  fetchMe,
+  followProfileController.whoToFollow
+);
+
 router.post(
   "/:id",
   requiredAuth,

@@ -7,6 +7,7 @@ import ErrorResponse from "../responses/ErrorResponse.js";
 import addUrlToImg from "../utils/addUrlToImg.js";
 import Block from "../models/mysql/Block.js";
 import Role from "../models/mysql/Role.js";
+import sequelize from "../databases/mysql/connect.js";
 
 // ==================== follow a profile ==================== //
 const followAProfile = asyncMiddleware(async (req, res, next) => {
@@ -345,4 +346,111 @@ const getFollowers = asyncMiddleware(async (req, res, next) => {
   res.json({ success: true, data: followers, newSkip });
 });
 
-export default { followAProfile, unFollowAProfile, getFolloweds, getFollowers };
+// ==================== who to follow ==================== //
+const whoToFollow = asyncMiddleware(async (req, res, next) => {
+  const { max = 5 } = req.query;
+  const me = req.me;
+
+  let whoToFollow = await sequelize.query(
+    `
+  SELECT p.id, p.avatar, p.fullname, p.avatar, u.username, r.slug as role
+  FROM (
+    SELECT a.authorId, COUNT(*) AS authorCount
+    FROM (
+      SELECT DISTINCT COALESCE(rh.articleId, rl.articleId, l.articleId) as articleId, a.authorId
+      FROM articles a
+      LEFT JOIN reading_historys rh ON rh.articleId = a.id AND rh.profileId = ${me.profileInfo.id}
+      LEFT JOIN reading_lists rl ON rl.articleId = a.id AND rl.profileId = ${me.profileInfo.id}
+      LEFT JOIN likes l ON l.articleId = a.id AND l.profileId = ${me.profileInfo.id}
+      WHERE COALESCE(rh.profileId, rl.profileId, l.profileId) IS NOT NULL
+        AND NOT EXISTS (
+          SELECT 1
+          FROM follow_profiles fp
+          WHERE fp.followedId = a.authorId AND fp.followerId = ${me.profileInfo.id}
+        )
+    ) AS a
+    GROUP BY a.authorId
+    ORDER BY authorCount DESC
+    LIMIT ${max}
+  ) AS recommendedAuthors
+  JOIN profiles p ON recommendedAuthors.authorId = p.id
+  JOIN users u ON p.userId = u.id
+  JOIN roles r ON u.roleId = r.id
+  GROUP BY p.id, p.avatar, p.fullname, u.username, r.slug;
+`,
+    { type: sequelize.QueryTypes.SELECT }
+  );
+
+  if (whoToFollow.length < max) {
+    const whoToFollowIds = whoToFollow.map((whoToFollow) => whoToFollow.id);
+    let random = await Profile.findAll({
+      where: {
+        id: {
+          [Op.and]: [
+            { [Op.notIn]: whoToFollowIds },
+            { [Op.ne]: me.profileInfo.id },
+          ],
+        },
+        "$blocksBlockedBy.blockerId$": null,
+        "$blocksBlocked.blockedId$": null,
+        "$followeds.followedId$": null,
+      },
+      attributes: ["id", "fullname", "avatar"],
+      include: [
+        {
+          model: Block,
+          as: "blocksBlockedBy",
+          where: { blockedId: me.profileInfo.id },
+          attributes: [],
+          required: false,
+        },
+        {
+          model: Block,
+          as: "blocksBlocked",
+          attributes: [],
+          where: { blockerId: me.profileInfo.id },
+          required: false,
+        },
+        {
+          model: Follow_Profile,
+          as: "followeds",
+          where: { followerId: me.profileInfo.id },
+          attributes: [],
+          required: false,
+        },
+        {
+          model: User,
+          as: "userInfo",
+          attributes: ["username"],
+          include: { model: Role, as: "role", attributes: ["slug"] },
+        },
+      ],
+      order: sequelize.literal("RAND()"),
+      limit: max - whoToFollow.length,
+    });
+
+    random = random.map((random) => {
+      return {
+        id: random.id,
+        fullname: random.fullname,
+        avatar: random.avatar,
+        username: random.userInfo.username,
+        role: random.userInfo.role.slug,
+      };
+    });
+
+    whoToFollow.push(...random);
+  }
+
+  whoToFollow.forEach((whoToFollow) => addUrlToImg(whoToFollow.avatar));
+
+  res.json({ success: true, data: whoToFollow });
+});
+
+export default {
+  followAProfile,
+  unFollowAProfile,
+  getFolloweds,
+  getFollowers,
+  whoToFollow,
+};

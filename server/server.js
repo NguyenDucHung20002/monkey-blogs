@@ -42,7 +42,7 @@ app.use(cors());
 MongoDB.connect();
 
 sequelize
-  .sync({ force: true, logging: true })
+  .sync({ force: false, logging: true })
   .then(() => {
     console.log("connect to mysql database successfully");
   })

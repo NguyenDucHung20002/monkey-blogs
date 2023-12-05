@@ -186,91 +186,65 @@ const exploreAllTopics = asyncMiddleware(async (req, res, next) => {
 
 // ==================== recommended topics ==================== //
 const recommendedTopics = asyncMiddleware(async (req, res, next) => {
-  const { max = 6 } = req.query;
+  const { max = 8 } = req.query;
   const me = req.me;
 
-  const fromHistory = await Article_Topic.findAll({
-    attributes: [
-      ["topicId", "id"],
-      [sequelize.fn("COUNT", sequelize.col("topicId")), "topicCount"],
-    ],
-    include: [
-      {
-        model: Reading_History,
-        as: "relatedReadingHistory",
-        where: { profileId: me.profileInfo.id },
-        attributes: [],
-      },
-      { model: Topic, as: "topic", attributes: ["id", "name", "slug"] },
-    ],
-    group: ["topicId"],
-    order: [[sequelize.literal("topicCount"), "DESC"]],
-    limit: Math.ceil(max / 3),
-  });
-
-  const historyTopicIds = fromHistory.map((topic) => topic.id);
-
-  const fromReadingList = await Article_Topic.findAll({
-    where: { topicId: { [Op.notIn]: historyTopicIds } },
-    attributes: [
-      ["topicId", "id"],
-      [sequelize.fn("COUNT", sequelize.col("topicId")), "topicCount"],
-    ],
-    include: [
-      {
-        model: Reading_List,
-        as: "relatedReadingList",
-        where: { profileId: me.profileInfo.id },
-        attributes: [],
-      },
-      { model: Topic, as: "topic", attributes: ["id", "name", "slug"] },
-    ],
-    group: ["topicId"],
-    order: [[sequelize.literal("topicCount"), "DESC"]],
-    limit: Math.ceil(max / 3),
-  });
-
-  const readingListTopicIds = fromReadingList.map((topic) => topic.id);
-
-  const fromLike = await Article_Topic.findAll({
-    where: {
-      topicId: { [Op.notIn]: [...historyTopicIds, ...readingListTopicIds] },
-    },
-    attributes: [
-      ["topicId", "id"],
-      [sequelize.fn("COUNT", sequelize.col("topicId")), "topicCount"],
-    ],
-    include: [
-      {
-        model: Like,
-        as: "relatedLike",
-        where: { profileId: me.profileInfo.id },
-        attributes: [],
-      },
-      { model: Topic, as: "topic", attributes: ["id", "name", "slug"] },
-    ],
-    group: ["topicId"],
-    order: [[sequelize.literal("topicCount"), "DESC"]],
-    limit: Math.ceil(max / 3),
-  });
-
-  let recommendedTopics = [...fromHistory, ...fromReadingList, ...fromLike];
-
-  recommendedTopics = recommendedTopics.map((recommendedTopic) => {
-    return {
-      id: recommendedTopic.topic.id,
-      name: recommendedTopic.topic.name,
-      slug: recommendedTopic.topic.slug,
-    };
-  });
+  let recommendedTopics = await sequelize.query(
+    `
+    SELECT t.id, t.name, t.slug, t.followersCount, t.articlesCount
+    FROM topics AS t
+    LEFT JOIN (
+      (
+        SELECT at.topicId, COUNT(at.topicId) AS topicCount
+        FROM articles_topics AS at
+        INNER JOIN reading_historys AS rh ON at.articleId = rh.articleId
+        WHERE rh.profileId = ${me.profileInfo.id}
+        GROUP BY at.topicId
+      )
+    UNION ALL
+    (
+      SELECT at.topicId, COUNT(at.topicId) AS topicCount
+      FROM articles_topics AS at
+      INNER JOIN reading_lists AS rl ON at.articleId = rl.articleId
+      WHERE rl.profileId = ${me.profileInfo.id}
+      GROUP BY at.topicId
+    )
+    UNION ALL
+    (
+      SELECT at.topicId, COUNT(at.topicId) AS topicCount
+      FROM articles_topics AS at
+      INNER JOIN likes AS l ON at.articleId = l.articleId
+      WHERE l.profileId = ${me.profileInfo.id}
+      GROUP BY at.topicId
+    )
+  ) AS CombinedResults ON t.id = CombinedResults.topicId
+  LEFT JOIN follow_topics AS ft ON t.id = ft.topicId AND ft.profileId = ${me.profileInfo.id}
+  WHERE ft.id IS NULL AND CombinedResults.topicId IS NOT NULL
+  GROUP BY t.id, t.name, t.slug, t.followersCount
+  ORDER BY COALESCE(SUM(topicCount), 0) DESC
+  LIMIT ${max};
+`,
+    { type: sequelize.QueryTypes.SELECT }
+  );
 
   if (recommendedTopics.length < max) {
-    const recommendedTopicsId = recommendedTopics.map((recommendedTopic) => {
-      return { id: recommendedTopic.id };
-    });
+    const recommendedTopicsId = recommendedTopics.map((topic) => topic.id);
     const random = await Topic.findAll({
-      where: { id: { [Op.notIn]: recommendedTopicsId } },
-      attributes: ["id", "name", "slug"],
+      where: {
+        id: { [Op.notIn]: recommendedTopicsId },
+        "$followTopic.topicId$": null,
+      },
+      attributes: {
+        exclude: ["approvedById", "status", "createdAt", "updatedAt"],
+      },
+      include: {
+        model: Follow_Topic,
+        as: "followTopic",
+        where: { profileId: me.profileInfo.id },
+        attributes: [],
+        required: false,
+      },
+      order: sequelize.literal("RAND()"),
       limit: max - recommendedTopics.length,
     });
 
