@@ -8,15 +8,6 @@ import validator from "../middlewares/validator.js";
 
 const router = express.Router();
 
-router.post(
-  "/:id",
-  requiredAuth,
-  fetchMe,
-  authorize("user"),
-  validator(reportArticleSchema.reportAnArticleSchema),
-  reportArticleController.reportAnArticle
-);
-
 router.get(
   "/pending",
   requiredAuth,
@@ -26,11 +17,28 @@ router.get(
 );
 
 router.get(
+  "/resolved",
+  requiredAuth,
+  fetchMe,
+  authorize("staff", "admin"),
+  reportArticleController.getResolvedReports
+);
+
+router.get(
   "/:id/pending",
   requiredAuth,
   fetchMe,
   authorize("staff", "admin"),
   reportArticleController.getPendingReportsOfArticle
+);
+
+router.post(
+  "/:id",
+  requiredAuth,
+  fetchMe,
+  authorize("user"),
+  validator(reportArticleSchema.reportAnArticleSchema),
+  reportArticleController.reportAnArticle
 );
 
 router.patch(
@@ -47,14 +55,6 @@ router.patch(
   fetchMe,
   authorize("staff", "admin"),
   reportArticleController.markAReportAsResolved
-);
-
-router.get(
-  "/resolved",
-  requiredAuth,
-  fetchMe,
-  authorize("staff", "admin"),
-  reportArticleController.getResolvedReports
 );
 
 export default router;

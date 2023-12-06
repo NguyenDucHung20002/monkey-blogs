@@ -7,11 +7,7 @@ import Follow_Topic from "../models/mysql/Follow_Topic.js";
 import User from "../models/mysql/User.js";
 import Role from "../models/mysql/Role.js";
 import toUpperCase from "../utils/toUpperCase.js";
-import Article_Topic from "../models/mysql/Article_Topic.js";
-import Reading_History from "../models/mysql/Reading_History.js";
 import sequelize from "../databases/mysql/connect.js";
-import Reading_List from "../models/mysql/Reading_List.js";
-import Like from "../models/mysql/Like.js";
 
 // ==================== create topic ==================== //
 const createTopic = asyncMiddleware(async (req, res, next) => {
@@ -201,29 +197,29 @@ const recommendedTopics = asyncMiddleware(async (req, res, next) => {
         WHERE rh.profileId = ${me.profileInfo.id}
         GROUP BY at.topicId
       )
-    UNION ALL
-    (
-      SELECT at.topicId, COUNT(at.topicId) AS topicCount
-      FROM articles_topics AS at
-      INNER JOIN reading_lists AS rl ON at.articleId = rl.articleId
-      WHERE rl.profileId = ${me.profileInfo.id}
-      GROUP BY at.topicId
-    )
-    UNION ALL
-    (
-      SELECT at.topicId, COUNT(at.topicId) AS topicCount
-      FROM articles_topics AS at
-      INNER JOIN likes AS l ON at.articleId = l.articleId
-      WHERE l.profileId = ${me.profileInfo.id}
-      GROUP BY at.topicId
-    )
-  ) AS CombinedResults ON t.id = CombinedResults.topicId
-  LEFT JOIN follow_topics AS ft ON t.id = ft.topicId AND ft.profileId = ${me.profileInfo.id}
-  WHERE ft.id IS NULL AND CombinedResults.topicId IS NOT NULL
-  GROUP BY t.id, t.name, t.slug, t.followersCount
-  ORDER BY COALESCE(SUM(topicCount), 0) DESC
-  LIMIT ${max};
-`,
+      UNION ALL
+      (
+        SELECT at.topicId, COUNT(at.topicId) AS topicCount
+        FROM articles_topics AS at
+        INNER JOIN reading_lists AS rl ON at.articleId = rl.articleId
+        WHERE rl.profileId = ${me.profileInfo.id}
+        GROUP BY at.topicId
+      )
+      UNION ALL
+      (
+        SELECT at.topicId, COUNT(at.topicId) AS topicCount
+        FROM articles_topics AS at
+        INNER JOIN likes AS l ON at.articleId = l.articleId
+        WHERE l.profileId = ${me.profileInfo.id}
+        GROUP BY at.topicId
+      )
+    ) AS CombinedResults ON t.id = CombinedResults.topicId
+    LEFT JOIN follow_topics AS ft ON t.id = ft.topicId AND ft.profileId = ${me.profileInfo.id}
+    WHERE ft.id IS NULL AND CombinedResults.topicId IS NOT NULL
+    GROUP BY t.id, t.name, t.slug, t.followersCount
+    ORDER BY COALESCE(SUM(topicCount), 0) DESC
+    LIMIT ${max};
+    `,
     { type: sequelize.QueryTypes.SELECT }
   );
 

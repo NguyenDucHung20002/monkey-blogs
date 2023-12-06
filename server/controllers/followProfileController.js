@@ -353,31 +353,31 @@ const whoToFollow = asyncMiddleware(async (req, res, next) => {
 
   let whoToFollow = await sequelize.query(
     `
-  SELECT p.id, p.avatar, p.fullname, p.avatar, u.username, r.slug as role
-  FROM (
-    SELECT a.authorId, COUNT(*) AS authorCount
+    SELECT p.id, p.avatar, p.fullname, p.avatar, u.username, r.slug as role
     FROM (
-      SELECT DISTINCT COALESCE(rh.articleId, rl.articleId, l.articleId) as articleId, a.authorId
-      FROM articles a
-      LEFT JOIN reading_historys rh ON rh.articleId = a.id AND rh.profileId = ${me.profileInfo.id}
-      LEFT JOIN reading_lists rl ON rl.articleId = a.id AND rl.profileId = ${me.profileInfo.id}
-      LEFT JOIN likes l ON l.articleId = a.id AND l.profileId = ${me.profileInfo.id}
-      WHERE COALESCE(rh.profileId, rl.profileId, l.profileId) IS NOT NULL
-        AND NOT EXISTS (
-          SELECT 1
-          FROM follow_profiles fp
-          WHERE fp.followedId = a.authorId AND fp.followerId = ${me.profileInfo.id}
-        )
-    ) AS a
-    GROUP BY a.authorId
-    ORDER BY authorCount DESC
-    LIMIT ${max}
-  ) AS recommendedAuthors
-  JOIN profiles p ON recommendedAuthors.authorId = p.id
-  JOIN users u ON p.userId = u.id
-  JOIN roles r ON u.roleId = r.id
-  GROUP BY p.id, p.avatar, p.fullname, u.username, r.slug;
-`,
+      SELECT a.authorId, COUNT(*) AS authorCount
+      FROM (
+        SELECT DISTINCT COALESCE(rh.articleId, rl.articleId, l.articleId) as articleId, a.authorId
+        FROM articles a
+        LEFT JOIN reading_historys rh ON rh.articleId = a.id AND rh.profileId = ${me.profileInfo.id}
+        LEFT JOIN reading_lists rl ON rl.articleId = a.id AND rl.profileId = ${me.profileInfo.id}
+        LEFT JOIN likes l ON l.articleId = a.id AND l.profileId = ${me.profileInfo.id}
+        WHERE COALESCE(rh.profileId, rl.profileId, l.profileId) IS NOT NULL
+          AND NOT EXISTS (
+            SELECT 1
+            FROM follow_profiles fp
+            WHERE fp.followedId = a.authorId AND fp.followerId = ${me.profileInfo.id}
+          )
+      ) AS a
+      GROUP BY a.authorId
+      ORDER BY authorCount DESC
+      LIMIT ${max}
+    ) AS recommendedAuthors
+    JOIN profiles p ON recommendedAuthors.authorId = p.id
+    JOIN users u ON p.userId = u.id
+    JOIN roles r ON u.roleId = r.id
+    GROUP BY p.id, p.avatar, p.fullname, u.username, r.slug;
+    `,
     { type: sequelize.QueryTypes.SELECT }
   );
 

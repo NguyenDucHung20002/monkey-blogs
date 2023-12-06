@@ -23,57 +23,61 @@ const blockAProfile = asyncMiddleware(async (req, res, next) => {
     throw ErrorResponse(400, `Cannot block ${user.role.slug}`);
   }
 
-  const blocks = await Block.findOne({
-    where: { blockedId: user.profileInfo.id, blockerId: me.profileInfo.id },
-  });
+  const [blocks, followed, follower] = await Promise.all([
+    Block.findOne({
+      where: { blockedId: user.profileInfo.id, blockerId: me.profileInfo.id },
+    }),
+    Follow_Profile.findOne({
+      where: { followedId: user.profileInfo.id, followerId: me.profileInfo.id },
+    }),
+    Follow_Profile.findOne({
+      where: { followerId: user.profileInfo.id, followedId: me.profileInfo.id },
+    }),
+  ]);
 
   if (!blocks) {
-    await Promise.all([
+    const operations = [
       Block.create({
         blockedId: user.profileInfo.id,
         blockerId: me.profileInfo.id,
       }),
-
-      Follow_Profile.destroy({
-        where: {
-          followedId: me.profileInfo.id,
-          followerId: user.profileInfo.id,
-        },
-      }),
-
-      Follow_Profile.destroy({
-        where: {
-          followedId: user.profileInfo.id,
-          followerId: me.profileInfo.id,
-        },
-      }),
-
-      me.profileInfo.increment({ followingCount: -1 }),
-
-      user.profileInfo.increment({ followersCount: -1 }),
-
       Mute.destroy({
-        where: {
-          mutedId: user.profileInfo.id,
-          muterId: me.profileInfo.id,
-        },
+        where: { mutedId: user.profileInfo.id, muterId: me.profileInfo.id },
       }),
-
       Mute.destroy({
-        where: {
-          mutedId: me.profileInfo.id,
-          muterId: user.profileInfo.id,
-        },
+        where: { mutedId: me.profileInfo.id, muterId: user.profileInfo.id },
       }),
+      Reading_List.destroy({ where: { profileId: me.profileInfo.id } }),
+      Reading_History.destroy({ where: { profileId: me.profileInfo.id } }),
+    ];
 
-      Reading_List.destroy({
-        where: { profileId: me.profileInfo.id },
-      }),
+    if (followed) {
+      operations.push(
+        Follow_Profile.destroy({
+          where: {
+            followedId: user.profileInfo.id,
+            followerId: me.profileInfo.id,
+          },
+        }),
+        me.profileInfo.increment({ followingCount: -1 }),
+        user.profileInfo.increment({ followersCount: -1 })
+      );
+    }
 
-      Reading_History.destroy({
-        where: { profileId: me.profileInfo.id },
-      }),
-    ]);
+    if (follower) {
+      operations.push(
+        Follow_Profile.destroy({
+          where: {
+            followedId: me.profileInfo.id,
+            followerId: user.profileInfo.id,
+          },
+        }),
+        me.profileInfo.increment({ followersCount: -1 }),
+        user.profileInfo.increment({ followingCount: -1 })
+      );
+    }
+
+    await Promise.all(operations);
   }
 
   res.status(201).json({
