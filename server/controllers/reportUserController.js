@@ -21,7 +21,6 @@ const reportAUser = asyncMiddleware(async (req, res, next) => {
       reporterId: me.id,
       status: "pending",
     },
-    attributes: ["id", "status"],
   });
 
   if (reportUser) {
@@ -63,9 +62,7 @@ const getPendingReportedUsers = asyncMiddleware(async (req, res, next) => {
   if (skipId && skipCount) {
     whereQuery[Op.or] = [
       { reportsCount: { [Op.lt]: skipCount } },
-      {
-        [Op.and]: [{ reportsCount: skipCount }, { id: { [Op.gt]: skipId } }],
-      },
+      { [Op.and]: [{ reportsCount: skipCount }, { id: { [Op.gt]: skipId } }] },
     ];
   }
 
@@ -83,6 +80,7 @@ const getPendingReportedUsers = asyncMiddleware(async (req, res, next) => {
           model: User,
           as: "bannedBy",
           attributes: ["id", "username", "email"],
+          include: { model: Role, as: "role", attributes: ["name", "slug"] },
         },
         where: whereQuery,
       },
@@ -140,11 +138,7 @@ const getPendingReportsOfUser = asyncMiddleware(async (req, res, next) => {
         model: User,
         as: "resolvedBy",
         attributes: ["id", "username", "email"],
-        include: {
-          model: Role,
-          as: "role",
-          attributes: ["name", "slug"],
-        },
+        include: { model: Role, as: "role", attributes: ["name", "slug"] },
       },
     ],
     order: [["id", "DESC"]],
@@ -174,11 +168,7 @@ const getResolvedReports = asyncMiddleware(async (req, res, next) => {
         model: User,
         as: "resolvedBy",
         attributes: ["id", "username", "email"],
-        include: {
-          model: Role,
-          as: "role",
-          attributes: ["name", "slug"],
-        },
+        include: { model: Role, as: "role", attributes: ["name", "slug"] },
       },
     ],
     order: [["id", "DESC"]],
@@ -214,9 +204,7 @@ const markAReportAsResolved = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { id } = req.params;
 
-  const report = await Report_User.findByPk(id, {
-    attributes: ["id"],
-  });
+  const report = await Report_User.findByPk(id);
 
   if (!report) throw ErrorResponse(404, "Report not found");
 

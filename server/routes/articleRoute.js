@@ -20,20 +20,6 @@ router.post(
 );
 
 router.get(
-  "/me/pending",
-  requiredAuth,
-  fetchMe,
-  articleController.getMyPendingArticles
-);
-
-router.get(
-  "/me/approved",
-  requiredAuth,
-  fetchMe,
-  articleController.getMyApprovedArticles
-);
-
-router.get(
   "/following",
   requiredAuth,
   fetchMe,
@@ -48,6 +34,13 @@ router.get(
 );
 
 router.get("/admin-pick", requiredAuth, fetchMe, articleController.adminPick);
+
+router.get(
+  "/admin-pick-full-list",
+  requiredAuth,
+  fetchMe,
+  articleController.adminPickFullList
+);
 
 router.get(
   "/",

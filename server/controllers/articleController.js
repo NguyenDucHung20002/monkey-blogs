@@ -4,7 +4,7 @@ import toSlug from "../utils/toSlug.js";
 import Article from "../models/mysql/Article.js";
 import Topic from "../models/mysql/Topic.js";
 import Article_Topic from "../models/mysql/Article_Topic.js";
-import { ARRAY, Op } from "sequelize";
+import { Op } from "sequelize";
 import Profile from "../models/mysql/Profile.js";
 import User from "../models/mysql/User.js";
 import Follow_Profile from "../models/mysql/Follow_Profile.js";
@@ -115,54 +115,6 @@ const deleteArticle = asyncMiddleware(async (req, res, next) => {
   res.json({ success: true, message: "Article deleted successfully" });
 });
 
-// ==================== get my pending articles ==================== //
-const getMyPendingArticles = asyncMiddleware(async (req, res, next) => {
-  const me = req.me;
-  const { skip, limit = 15 } = req.query;
-
-  const whereQuery = { authorId: me.profileInfo.id, status: "pending" };
-
-  if (skip) whereQuery.id = { [Op.lt]: skip };
-
-  const pendingArticles = await Article.findAll({
-    where: whereQuery,
-    attributes: ["id", "title", "slug", "createdAt", "updatedAt"],
-    order: [["id", "DESC"]],
-    limit: Number(limit) ? limit : 15,
-  });
-
-  const newSkip =
-    pendingArticles.length > 0
-      ? pendingArticles[pendingArticles.length - 1].id
-      : null;
-
-  res.json({ success: true, data: pendingArticles, newSkip });
-});
-
-// ==================== get my approved articles ==================== //
-const getMyApprovedArticles = asyncMiddleware(async (req, res, next) => {
-  const me = req.me;
-  const { skip, limit = 15 } = req.query;
-
-  const whereQuery = { authorId: me.profileInfo.id, status: "pending" };
-
-  if (skip) whereQuery.id = { [Op.lt]: skip };
-
-  const approvedArticles = await Article.findAll({
-    where: whereQuery,
-    attributes: ["id", "title", "slug", "createdAt", "updatedAt"],
-    order: [["id", "DESC"]],
-    limit: Number(limit) ? limit : 15,
-  });
-
-  const newSkip =
-    approvedArticles.length > 0
-      ? approvedArticles[approvedArticles.length - 1].id
-      : null;
-
-  res.json({ success: true, data: approvedArticles, newSkip });
-});
-
 // ==================== get profile articles ==================== //
 const getProfileArticles = asyncMiddleware(async (req, res, next) => {
   const me = req.me ? req.me : null;
@@ -184,7 +136,6 @@ const getProfileArticles = asyncMiddleware(async (req, res, next) => {
         "commentsCount",
         "approvedById",
         "reportsCount",
-        "deletedAt",
       ],
     },
     order: [["id", "DESC"]],
@@ -297,28 +248,6 @@ const getProfileArticles = asyncMiddleware(async (req, res, next) => {
   res.json({ success: true, articles, newSkip });
 });
 
-// ==================== get all articles ==================== //
-const getAllArticles = asyncMiddleware(async (req, res, next) => {
-  const { skip, limit = 15 } = req.query;
-
-  let whereQuery = {};
-
-  if (skip) whereQuery.where = { id: { [Op.lt]: skip } };
-
-  const articles = await Article.findAll({
-    where: whereQuery,
-    attributes: {
-      exclude: ["content", "likesCount", "commentsCount", "banner", "authorId"],
-    },
-    order: [["id", "DESC"]],
-    limit: Number(limit) ? Number(limit) : 15,
-  });
-
-  const newSkip = articles.length > 0 ? articles[articles.length - 1].id : null;
-
-  res.json({ success: true, data: articles, newSkip });
-});
-
 // ==================== get an article ==================== //
 const getAnArticle = asyncMiddleware(async (req, res, next) => {
   const { slug } = req.params;
@@ -334,7 +263,6 @@ const getAnArticle = asyncMiddleware(async (req, res, next) => {
         "authorId",
         "status",
         "reportsCount",
-        "deletedAt",
       ],
     },
     include: [
@@ -454,7 +382,6 @@ const getFollowedProfilesArticles = asyncMiddleware(async (req, res, next) => {
         "approvedById",
         "status",
         "reportsCount",
-        "deletedAt",
       ],
     },
     include: [
@@ -505,18 +432,17 @@ const getFollowedProfilesArticles = asyncMiddleware(async (req, res, next) => {
       const isSaved = !!(await Reading_List.findOne({
         where: { profileId: me.profileInfo.id, articleId: article.id },
       }));
-      if (topic) {
-        return {
-          ...article.toJSON(),
-          topic: {
-            id: topic.topic.id,
-            name: topic.topic.name,
-            slug: topic.topic.slug,
-          },
-          isSaved,
-        };
-      }
-      return { ...article.toJSON(), topic: null, isSaved };
+      return topic
+        ? {
+            ...article.toJSON(),
+            topic: {
+              id: topic.topic.id,
+              name: topic.topic.name,
+              slug: topic.topic.slug,
+            },
+            isSaved,
+          }
+        : { ...article.toJSON(), topic: null, isSaved };
     })
   );
 
@@ -558,7 +484,6 @@ const getFollowedTopicArticles = asyncMiddleware(async (req, res, next) => {
         "approvedById",
         "status",
         "reportsCount",
-        "deletedAt",
       ],
     },
     include: [
@@ -652,7 +577,6 @@ const exploreNewArticles = asyncMiddleware(async (req, res, next) => {
         "approvedById",
         "status",
         "reportsCount",
-        "deletedAt",
       ],
     },
     include: [
@@ -718,18 +642,17 @@ const exploreNewArticles = asyncMiddleware(async (req, res, next) => {
       const isSaved = !!(await Reading_List.findOne({
         where: { profileId: me.profileInfo.id, articleId: article.id },
       }));
-      if (topic) {
-        return {
-          ...article.toJSON(),
-          topic: {
-            id: topic.topic.id,
-            name: topic.topic.name,
-            slug: topic.topic.slug,
-          },
-          isSaved,
-        };
-      }
-      return { ...article.toJSON(), topic: null, isSaved };
+      return topic
+        ? {
+            ...article.toJSON(),
+            topic: {
+              id: topic.topic.id,
+              name: topic.topic.name,
+              slug: topic.topic.slug,
+            },
+            isSaved,
+          }
+        : { ...article.toJSON(), topic: null, isSaved };
     })
   );
 
@@ -744,7 +667,17 @@ const adminPick = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
 
   let articles = await Reading_List.findAll({
-    attributes: ["id"],
+    attributes: {
+      exclude: [
+        "authorId",
+        "content",
+        "likesCount",
+        "commentsCount",
+        "approvedById",
+        "status",
+        "reportsCount",
+      ],
+    },
     include: [
       {
         model: Article,
@@ -818,12 +751,177 @@ const adminPick = asyncMiddleware(async (req, res, next) => {
   res.json({ success: true, data: articles });
 });
 
+// ==================== admin pick full list ==================== //
+const adminPickFullList = asyncMiddleware(async (req, res, next) => {
+  const { skip, limit = 15 } = req.query;
+  const me = req.me;
+
+  const adminPickList = await Reading_List.findAll({
+    // where: { id: { [Op.lt]: skip } },
+    attributes: ["id"],
+    include: [
+      {
+        model: Article,
+        attributes: {
+          exclude: [
+            "authorId",
+            "content",
+            "likesCount",
+            "commentsCount",
+            "approvedById",
+            "status",
+            "reportsCount",
+          ],
+        },
+        as: "readArticle",
+        include: [
+          {
+            model: Profile,
+            as: "author",
+            attributes: ["id", "fullname", "avatar"],
+            include: {
+              model: User,
+              as: "userInfo",
+              attributes: ["username"],
+              include: { model: Role, as: "role", attributes: ["slug"] },
+            },
+          },
+          {
+            model: Mute,
+            as: "authorMuted",
+            where: { muterId: me.profileInfo.id },
+            attributes: [],
+            required: false,
+          },
+          {
+            model: Block,
+            as: "authorBlocker",
+            where: { blockedId: me.profileInfo.id },
+            attributes: [],
+            required: false,
+          },
+          {
+            model: Block,
+            as: "authorBlocked",
+            attributes: [],
+            where: { blockerId: me.profileInfo.id },
+            required: false,
+          },
+        ],
+      },
+      {
+        model: Profile,
+        as: "readingProfile",
+        attributes: [],
+        include: {
+          model: User,
+          as: "userInfo",
+          include: { model: Role, as: "role", where: { slug: "admin" } },
+        },
+      },
+    ],
+    order: [["id", "DESC"]],
+    limit: Number(limit) ? Number(limit) : 15,
+  });
+
+  const articles = await Promise.all(
+    adminPickList.map(async (adminPick) => {
+      const topic = await Article_Topic.findOne({
+        attributes: [],
+        where: { articleId: adminPick.id },
+        include: {
+          model: Topic,
+          as: "topic",
+          attributes: ["id", "name", "slug"],
+          where: { status: "approved" },
+        },
+        order: [["id", "ASC"]],
+      });
+      const article = {
+        id: adminPick.readArticle.id,
+        banner: adminPick.readArticle.banner
+          ? addUrlToImg(adminPick.readArticle.banner)
+          : null,
+        title: adminPick.readArticle.title,
+        preview: adminPick.readArticle.preview,
+        slug: adminPick.readArticle.slug,
+        createdAt: adminPick.readArticle.createdAt,
+        updatedAt: adminPick.readArticle.updatedAt,
+        author: {
+          id: adminPick.readArticle.author.id,
+          fullname: adminPick.readArticle.author.fullname,
+          avatar: addUrlToImg(adminPick.readArticle.author.avatar),
+          username: adminPick.readArticle.author.userInfo.username,
+          role: adminPick.readArticle.author.userInfo.role.slug,
+        },
+      };
+      const isSaved = !!(await Reading_List.findOne({
+        where: { profileId: me.profileInfo.id, articleId: adminPick.id },
+      }));
+
+      return topic
+        ? {
+            ...article,
+            topic: {
+              id: topic.topic.id,
+              name: topic.topic.name,
+              slug: topic.topic.slug,
+            },
+            isSaved,
+          }
+        : { ...article, topic: null, isSaved };
+    })
+  );
+
+  const newSkip =
+    adminPickList.length > 0
+      ? adminPickList[adminPickList.length - 1].id
+      : null;
+
+  res.json({ success: true, data: articles, newSkip });
+});
+
+// ==================== get all articles ==================== //
+const getAllArticles = asyncMiddleware(async (req, res, next) => {
+  const { skip, limit = 15 } = req.query;
+
+  let whereQuery = {};
+
+  if (skip) whereQuery.where = { id: { [Op.lt]: skip } };
+
+  const articles = await Article.findAll({
+    where: whereQuery,
+    attributes: {
+      exclude: ["content", "likesCount", "commentsCount", "banner", "authorId"],
+    },
+    include: {
+      model: Profile,
+      as: "author",
+      attributes: ["id", "fullname", "avatar"],
+      include: {
+        model: User,
+        as: "userInfo",
+        attributes: ["username"],
+        include: { model: Role, as: "role", attributes: ["slug"] },
+      },
+    },
+    order: [["id", "DESC"]],
+    limit: Number(limit) ? Number(limit) : 15,
+  });
+
+  articles.forEach((article) => {
+    article.author.avatar = addUrlToImg(article.author.avatar);
+  });
+
+  const newSkip = articles.length > 0 ? articles[articles.length - 1].id : null;
+
+  res.json({ success: true, data: articles, newSkip });
+});
+
 export default {
   createArticle,
   updateArticle,
   deleteArticle,
-  getMyPendingArticles,
-  getMyApprovedArticles,
   getProfileArticles,
   getAllArticles,
   getAnArticle,
@@ -831,4 +929,5 @@ export default {
   getFollowedTopicArticles,
   exploreNewArticles,
   adminPick,
+  adminPickFullList,
 };

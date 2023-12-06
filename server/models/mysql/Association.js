@@ -297,13 +297,13 @@ Report_Article.belongsTo(User, {
   as: "resolvedBy",
 });
 
-// User - Article (Approve) (1-n)
+// User - Article (Reject) (1-n)
 User.hasMany(Article, {
-  foreignKey: "approvedById",
+  foreignKey: "rejectedById",
 });
 Article.belongsTo(User, {
-  foreignKey: "approvedById",
-  as: "approvedBy",
+  foreignKey: "rejectedById",
+  as: "rejectedBy",
 });
 
 // Comment - Comment (Reply) (1-n)

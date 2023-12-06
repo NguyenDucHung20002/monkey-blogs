@@ -56,16 +56,14 @@ const reportAnArticle = asyncMiddleware(async (req, res, next) => {
 
 // ==================== get list of peding reported articles ==================== //
 const getPendingReportedArticles = asyncMiddleware(async (req, res, next) => {
-  const { skipId, skipCount, limit = 15, search } = req.query;
+  const { skipId, skipCount, limit = 15 } = req.query;
 
   let whereQuery = {};
 
   if (skipId && skipCount) {
     whereQuery[Op.or] = [
       { reportsCount: { [Op.lt]: skipCount } },
-      {
-        [Op.and]: [{ reportsCount: skipCount }, { id: { [Op.gt]: skipId } }],
-      },
+      { [Op.and]: [{ reportsCount: skipCount }, { id: { [Op.gt]: skipId } }] },
     ];
   }
 
@@ -79,8 +77,9 @@ const getPendingReportedArticles = asyncMiddleware(async (req, res, next) => {
         attributes: ["id", "title", "banner", "slug", "reportsCount", "status"],
         include: {
           model: User,
-          as: "approvedBy",
+          as: "rejectedBy",
           attributes: ["id", "username", "email"],
+          include: { model: Role, as: "role", attributes: ["name", "slug"] },
         },
         where: whereQuery,
       },
@@ -98,7 +97,7 @@ const getPendingReportedArticles = asyncMiddleware(async (req, res, next) => {
       reportsCount: report.article.reportsCount,
       slug: report.article.slug,
       status: report.article.status,
-      approvedBy: report.article ? report.article.approvedBy : null,
+      rejectedBy: report.article ? report.article.rejectedBy : null,
     };
   });
 
@@ -136,11 +135,7 @@ const getPendingReportsOfArticle = asyncMiddleware(async (req, res, next) => {
         model: User,
         as: "resolvedBy",
         attributes: ["id", "username", "email"],
-        include: {
-          model: Role,
-          as: "role",
-          attributes: ["name", "slug"],
-        },
+        include: { model: Role, as: "role", attributes: ["name", "slug"] },
       },
     ],
     order: [["id", "DESC"]],
@@ -157,9 +152,7 @@ const markAReportAsResolved = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { id } = req.params;
 
-  const report = await Report_Article.findByPk(id, {
-    attributes: ["id"],
-  });
+  const report = await Report_Article.findByPk(id);
 
   if (!report) throw ErrorResponse(404, "Report not found");
 
@@ -176,9 +169,9 @@ const markAllResolved = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { id } = req.params;
 
-  const article = await Article.findByPk(id, {
-    attributes: ["id"],
-  });
+  const article = await Article.findByPk(id);
+
+  if (!article) throw ErrorResponse(404, "Article not found");
 
   await Promise.all([
     Report_Article.update(
@@ -216,11 +209,7 @@ const getResolvedReports = asyncMiddleware(async (req, res, next) => {
         model: User,
         as: "resolvedBy",
         attributes: ["id", "username", "email"],
-        include: {
-          model: Role,
-          as: "role",
-          attributes: ["name", "slug"],
-        },
+        include: { model: Role, as: "role", attributes: ["name", "slug"] },
       },
     ],
     order: [["id", "DESC"]],

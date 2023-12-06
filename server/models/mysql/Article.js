@@ -2,9 +2,6 @@ import { DataTypes } from "sequelize";
 import sequelize from "../../databases/mysql/connect.js";
 import Profile from "../mysql/Profile.js";
 import User from "./User.js";
-import MongoDB from "../../databases/mongodb/connect.js";
-import extractImg from "../../utils/extractImg.js";
-import clarifai from "../../services/clarifai.js";
 
 const Article = sequelize.define(
   "Article",
@@ -45,7 +42,7 @@ const Article = sequelize.define(
       defaultValue: 0,
     },
 
-    approvedById: {
+    rejectedById: {
       type: DataTypes.INTEGER,
       allowNull: true,
       references: {
@@ -55,7 +52,7 @@ const Article = sequelize.define(
     },
 
     status: {
-      type: DataTypes.ENUM("pending", "approved"),
+      type: DataTypes.ENUM("approved", "rejected"),
       allowNull: false,
       defaultValue: "approved",
     },
@@ -64,55 +61,6 @@ const Article = sequelize.define(
   {
     tableName: "articles",
     timestamps: true,
-    paranoid: true,
-    // hooks: {
-    //   afterCreate: async (article, options) => {
-    //     const imgsName = extractImg(article.content);
-    //     console.log(imgsName);
-
-    //     const gfs = MongoDB.gfs;
-
-    //     const resultCheck = await Promise.all(
-    //       imgsName.map(async (imgName) => {
-    //         try {
-    //           const files = await gfs.find({ filename: imgName }).toArray();
-
-    //           if (!files || !files.length) {
-    //             console.log("image not found");
-    //             return null;
-    //           }
-
-    //           const readStream = gfs.openDownloadStreamByName(imgName);
-
-    //           const chunks = [];
-
-    //           readStream.on("data", (chunk) => {
-    //             chunks.push(chunk);
-    //           });
-
-    //           return new Promise((resolve, reject) => {
-    //             readStream.on("end", () => {
-    //               const imgData = Buffer.concat(chunks).toString("base64");
-    //               clarifai(imgData, (err, results) => {
-    //                 if (err) {
-    //                   console.log(err);
-    //                   reject(err);
-    //                 } else {
-    //                   resolve(results);
-    //                 }
-    //               });
-    //             });
-    //           });
-    //         } catch (error) {
-    //           console.error(error);
-    //           return null;
-    //         }
-    //       })
-    //     );
-
-    //     console.log(resultCheck);
-    //   },
-    // },
   }
 );
 
