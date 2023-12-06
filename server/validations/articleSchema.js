@@ -1,6 +1,7 @@
 import Joi from "joi";
 
 const createArticleSchema = Joi.object({
+  banner: Joi.string(),
   title: Joi.string().max(250).required(),
   preview: Joi.string().max(200).required(),
   content: Joi.string()
@@ -20,6 +21,7 @@ const createArticleSchema = Joi.object({
 });
 
 const updateArticleSchema = Joi.object({
+  banner: Joi.string(),
   title: Joi.string().max(250),
   preview: Joi.string().max(200),
   content: Joi.string(),

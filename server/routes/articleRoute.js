@@ -6,7 +6,6 @@ import authorize from "../middlewares/authorize.js";
 import fetchUser from "../middlewares/fetchUser.js";
 import checkUserBanned from "../middlewares/checkUserBanned.js";
 import optionalAuth from "../middlewares/optionalAuth.js";
-import mongoUpload from "../middlewares/mongoUpload.js";
 import articleSchema from "../validations/articleSchema.js";
 import validator from "../middlewares/validator.js";
 
@@ -16,7 +15,6 @@ router.post(
   "/",
   requiredAuth,
   fetchMe,
-  mongoUpload.single("banner"),
   validator(articleSchema.createArticleSchema, "body"),
   articleController.createArticle
 );
@@ -79,7 +77,6 @@ router.patch(
   "/:id",
   requiredAuth,
   fetchMe,
-  mongoUpload.single("banner"),
   validator(articleSchema.updateArticleSchema, "body"),
   articleController.updateArticle
 );

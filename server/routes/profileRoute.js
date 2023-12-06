@@ -8,8 +8,6 @@ import fetchMe from "../middlewares/fetchMe.js";
 import checkUserBanned from "../middlewares/checkUserBanned.js";
 import fetchUser from "../middlewares/fetchUser.js";
 import checkBlockedByUser from "../middlewares/checBlockedByUser.js";
-import mongoUpdoad from "../middlewares/mongoUpload.js";
-import checkUploadedImg from "../middlewares/checkUploadedImg.js";
 
 const router = express.Router();
 
@@ -17,8 +15,6 @@ router.patch(
   "/me/update",
   requiredAuth,
   fetchMe,
-  mongoUpdoad.single("avatar"),
-  checkUploadedImg,
   validator(profileSchema.updateProfileSchema, "body"),
   profileController.updateMyProfile
 );

@@ -17,21 +17,12 @@ import Reading_List from "../models/mysql/Reading_List.js";
 import fileController from "../controllers/fileController.js";
 import Role from "../models/mysql/Role.js";
 import toUpperCase from "../utils/toUpperCase.js";
-import Follow_Topic from "../models/mysql/Follow_Topic.js";
 import sequelize from "../databases/mysql/connect.js";
 
 // ==================== create article ==================== //
 const createArticle = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
-  const { title, preview, content, topicNames } = req.body;
-
-  const filename = req.file?.filename;
-  const size = req.file?.size;
-
-  const FILE_LIMIT = 10 * 1024 * 1024;
-  if (size && size > FILE_LIMIT) {
-    throw new ErrorResponse(400, "File too large");
-  }
+  const { title, preview, content, banner, topicNames } = req.body;
 
   const slug = toSlug(title) + "-" + Date.now();
 
@@ -41,7 +32,7 @@ const createArticle = asyncMiddleware(async (req, res, next) => {
     preview,
     slug,
     content,
-    banner: filename,
+    banner,
   });
 
   if (topicNames) {
@@ -69,15 +60,7 @@ const createArticle = asyncMiddleware(async (req, res, next) => {
 const updateArticle = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { id } = req.params;
-  const { title, preview, content, topicNames } = req.body;
-
-  const filename = req.file?.filename;
-  const size = req.file?.size;
-
-  const FILE_LIMIT = 10 * 1024 * 1024;
-  if (size && size > FILE_LIMIT) {
-    throw new ErrorResponse(400, "File too large");
-  }
+  const { title, preview, content, banner, topicNames } = req.body;
 
   const article = await Article.findOne({
     where: { id, authorId: me.profileInfo.id },
@@ -86,7 +69,7 @@ const updateArticle = asyncMiddleware(async (req, res, next) => {
 
   if (!article) throw ErrorResponse(404, "Article not found");
 
-  if (req.file) {
+  if (banner !== article.banner) {
     const oldArticleBanner = article.banner;
     fileController.autoRemoveImg(oldArticleBanner);
   }
@@ -98,7 +81,7 @@ const updateArticle = asyncMiddleware(async (req, res, next) => {
     preview,
     slug: updatedSlug,
     content,
-    banner: filename,
+    banner,
   });
 
   if (topicNames) {

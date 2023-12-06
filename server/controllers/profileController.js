@@ -46,22 +46,14 @@ const getProfile = asyncMiddleware(async (req, res, next) => {
 // ==================== update my profile ==================== //
 const updateMyProfile = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
-  const { fullname, bio, about } = req.body;
+  const { fullname, bio, about, avatar } = req.body;
 
-  const filename = req.file?.filename;
-  const size = req.file?.size;
-
-  const FILE_LIMIT = 5 * 1024 * 1024;
-  if (size && size > FILE_LIMIT) {
-    throw new ErrorResponse(400, "File too large");
-  }
-
-  if (req.file) {
+  if (avatar !== me.profileInfo.avatar) {
     const oldAvatar = me.profileInfo.avatar.split("/");
     fileController.autoRemoveImg(oldAvatar[oldAvatar.length - 1]);
   }
 
-  await me.profileInfo.update({ fullname, bio, about, avatar: filename });
+  await me.profileInfo.update({ fullname, bio, about, avatar });
 
   res.json({ success: true, message: "Profile updated successfully" });
 });
