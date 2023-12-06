@@ -16,11 +16,7 @@ const ProfilePage = () => {
   const { username } = useParams();
   const token = localStorage.getItem("token");
   //fetch information user
-  async function fetchUserInf() {
-    const profileUser = await apiGetProfile(token, username);
-    setUser({ ...profileUser });
-    setIsBlocked(profileUser?.isBlocked);
-  }
+
   console.log("user", user);
 
   //fetch list user following
@@ -78,19 +74,28 @@ const ProfilePage = () => {
         <UpdateProfile user={user} show={show} setShow={setShow} />
       )}
       <div className="container max-w-[1336px] mx-auto flex">
-        <div className="w-full md:px-14 md:max-w-[70%]  border-r border-gray-300">
-          <ProfileContext token={token} user={user} />
+        <div className="w-full md:px-14 md:max-w-[70%] ">
+          <ProfileContext
+            setIsBlocked={setIsBlocked}
+            token={token}
+            user={user}
+          />
           <NavbarHome
             data={user?.isMyProfile ? navMyProfile : navProfile}
             className="flex-1"
           />
           <Outlet context={{ user }}></Outlet>
         </div>
-        <div className="  max-w-[30%] md:block ">
+        <div className=" flex-1 max-w-[30%] md:block  ">
           <StickyBox>
-            <div className="w-full p-8 text-gray-500 ">
+            <div className="w-full h-screen p-8 text-gray-500 border-l border-l-gray-300 ">
               {user.id && (
-                <ProfileInfor show={show} setShow={setShow} user={user} />
+                <ProfileInfor
+                  show={show}
+                  setShow={setShow}
+                  user={user}
+                  isBlocked={isBlocked}
+                />
               )}
 
               <Following data={following} token={token} user={user} />
