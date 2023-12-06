@@ -4,7 +4,7 @@ import toSlug from "../utils/toSlug.js";
 import Article from "../models/mysql/Article.js";
 import Topic from "../models/mysql/Topic.js";
 import Article_Topic from "../models/mysql/Article_Topic.js";
-import { Op } from "sequelize";
+import { ARRAY, Op } from "sequelize";
 import Profile from "../models/mysql/Profile.js";
 import User from "../models/mysql/User.js";
 import Follow_Profile from "../models/mysql/Follow_Profile.js";
@@ -658,7 +658,7 @@ const exploreNewArticles = asyncMiddleware(async (req, res, next) => {
 
   if (skip) whereQuery[Op.and].push({ id: { [Op.lt]: skip } });
 
-  const articles = await Article.findAll({
+  let articles = await Article.findAll({
     where: whereQuery,
     attributes: {
       exclude: [
@@ -717,9 +717,122 @@ const exploreNewArticles = asyncMiddleware(async (req, res, next) => {
     limit: Number(limit) ? Number(limit) : 15,
   });
 
+  articles = await Promise.all(
+    articles.map(async (article) => {
+      article.banner ? addUrlToImg(article.banner) : null;
+      article.author.avatar = addUrlToImg(article.author.avatar);
+      const topic = await Article_Topic.findOne({
+        attributes: [],
+        where: { articleId: article.id },
+        include: {
+          model: Topic,
+          as: "topic",
+          attributes: ["id", "name", "slug"],
+          where: { status: "approved" },
+        },
+        order: [["id", "ASC"]],
+      });
+      const isSaved = !!(await Reading_List.findOne({
+        where: { profileId: me.profileInfo.id, articleId: article.id },
+      }));
+      if (topic) {
+        return {
+          ...article.toJSON(),
+          topic: {
+            id: topic.topic.id,
+            name: topic.topic.name,
+            slug: topic.topic.slug,
+          },
+          isSaved,
+        };
+      }
+      return { ...article.toJSON(), topic: null, isSaved };
+    })
+  );
+
   const newSkip = articles.length > 0 ? articles[articles.length - 1].id : null;
 
   res.json({ success: true, data: articles, newSkip });
+});
+
+// ==================== admin pick ==================== //
+const adminPick = asyncMiddleware(async (req, res, next) => {
+  const { limit = 3 } = req.query;
+  const me = req.me;
+
+  let articles = await Reading_List.findAll({
+    attributes: ["id"],
+    include: [
+      {
+        model: Article,
+        attributes: ["id", "title", "slug"],
+        as: "readArticle",
+        include: [
+          {
+            model: Profile,
+            as: "author",
+            attributes: ["id", "fullname", "avatar"],
+            include: {
+              model: User,
+              as: "userInfo",
+              attributes: ["username"],
+              include: { model: Role, as: "role", attributes: ["slug"] },
+            },
+          },
+          {
+            model: Mute,
+            as: "authorMuted",
+            where: { muterId: me.profileInfo.id },
+            attributes: [],
+            required: false,
+          },
+          {
+            model: Block,
+            as: "authorBlocker",
+            where: { blockedId: me.profileInfo.id },
+            attributes: [],
+            required: false,
+          },
+          {
+            model: Block,
+            as: "authorBlocked",
+            attributes: [],
+            where: { blockerId: me.profileInfo.id },
+            required: false,
+          },
+        ],
+      },
+      {
+        model: Profile,
+        as: "readingProfile",
+        attributes: [],
+        include: {
+          model: User,
+          as: "userInfo",
+          include: { model: Role, as: "role", where: { slug: "admin" } },
+        },
+      },
+    ],
+    order: [["id", "DESC"]],
+    limit: Number(limit) ? Number(limit) : 3,
+  });
+
+  articles = articles.map((article) => {
+    return {
+      id: article.readArticle.id,
+      title: article.readArticle.title,
+      slug: article.readArticle.slug,
+      author: {
+        id: article.readArticle.author.id,
+        fullname: article.readArticle.author.fullname,
+        avatar: addUrlToImg(article.readArticle.author.avatar),
+        username: article.readArticle.author.userInfo.username,
+        role: article.readArticle.author.userInfo.role.slug,
+      },
+    };
+  });
+
+  res.json({ success: true, data: articles });
 });
 
 export default {
@@ -734,4 +847,5 @@ export default {
   getFollowedProfilesArticles,
   getFollowedTopicArticles,
   exploreNewArticles,
+  adminPick,
 };

@@ -4,6 +4,13 @@ import asyncMiddleware from "../middlewares/asyncMiddleware.js";
 
 // ==================== upload an image ==================== //
 const upLoadAnImg = asyncMiddleware(async (req, res, next) => {
+  const size = req.file?.size;
+
+  const FILE_LIMIT = 15 * 1024 * 1024;
+  if (size && size > FILE_LIMIT) {
+    throw new ErrorResponse(400, "File too large");
+  }
+
   res.status(201).json({
     success: true,
     message: "File uploaded successfully",

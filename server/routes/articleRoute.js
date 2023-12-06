@@ -49,6 +49,8 @@ router.get(
   articleController.exploreNewArticles
 );
 
+router.get("/admin-pick", requiredAuth, fetchMe, articleController.adminPick);
+
 router.get(
   "/",
   requiredAuth,

@@ -1,7 +1,8 @@
 import MongoDB from "../databases/mongodb/connect.js";
 import clarifai from "../services/clarifai.js";
+import fileController from "../controllers/fileController.js";
 
-const checkUploadedAvatar = (req, res, next) => {
+const checkUploadedImg = (req, res, next) => {
   const filename = req.file?.filename;
 
   const gfs = MongoDB.gfs;
@@ -17,10 +18,21 @@ const checkUploadedAvatar = (req, res, next) => {
     const imgData = Buffer.concat(chunks).toString("base64");
     clarifai(imgData, (err, results) => {
       if (err) return res.status(500).json(err);
+
+      if (results[0].nsfw > 0.55) {
+        fileController.autoRemoveImg(filename);
+
+        return res.status(400).json({
+          success: false,
+          message:
+            "Sorry, but your image contains explicit content and is not allowed",
+        });
+      }
+
       req.results = results;
       next();
     });
   });
 };
 
-export default checkUploadedAvatar;
+export default checkUploadedImg;
