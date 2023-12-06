@@ -139,7 +139,7 @@ const apiDeleteMyComment = async (token, commentId) => {
 };
 
 const apiUserSearch = async (token, inputSearch, limit = 10, skip) => {
-  if (!inputSearch) return;
+  if (!inputSearch) return null;
   try {
     const response = await axios.get(
       `${config.SERVER_HOST}/search?users=${inputSearch}&limit=${limit}&skip=${skip}`,
@@ -157,7 +157,7 @@ const apiUserSearch = async (token, inputSearch, limit = 10, skip) => {
 };
 
 const apiBlogSearch = async (token, inputSearch, limit = 10, skip = "") => {
-  if (!inputSearch) return;
+  if (!inputSearch) return null;
   try {
     const response = await axios.get(
       `${config.SERVER_HOST}/search?post=${inputSearch}&limit=${limit}&skip=${skip}`,
@@ -175,7 +175,7 @@ const apiBlogSearch = async (token, inputSearch, limit = 10, skip = "") => {
 };
 
 const apiTopicsSearch = async (token, inputSearch = "", limit = 10, skip) => {
-  if (!inputSearch) return;
+  if (!inputSearch) return null;
   try {
     const response = await axios.get(
       `${config.SERVER_HOST}/search?tag=${inputSearch}&limit=${limit}&skip=${skip}`,
@@ -192,6 +192,84 @@ const apiTopicsSearch = async (token, inputSearch = "", limit = 10, skip) => {
   }
 };
 
+const apiGetReadingList = async (token) => {
+  if (!token) return null;
+  try {
+    const response = await axios.get(`${config.SERVER_HOST}/reading-list/me`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+    if (response?.data) return response.data;
+  } catch (error) {
+    console.log("error:", error);
+  }
+};
+
+const apiAddReadingList = async (token, postId) => {
+  if (!token) return null;
+  try {
+    const response = await axios.post(
+      `${config.SERVER_HOST}/reading-list/${postId}`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response?.data) return response.data;
+  } catch (error) {
+    console.log("error:", error);
+  }
+};
+
+const apiDeleteReadingList = async (token, postId) => {
+  if (!token) return null;
+  try {
+    const response = await axios.delete(
+      `${config.SERVER_HOST}/reading-list/${postId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response?.data) return response.data;
+  } catch (error) {
+    console.log("error:", error);
+  }
+};
+
+const apiReportBlog = async (token, postId, reason) => {
+  console.log("postId, reason:", postId, reason);
+  if (!token) return null;
+  try {
+    const response = await axios.post(
+      `${config.SERVER_HOST}/report-article/${postId}`,
+      {
+        reason,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    console.log("response:", response);
+    if (response?.data) return response.data;
+  } catch (error) {
+    toast.warning(error.response.data.message, {
+      pauseOnHover: false,
+      delay: 200,
+    });
+  }
+};
+
 export {
   apiGetPendingReportUsers,
   apiGetReportedUsers,
@@ -202,4 +280,8 @@ export {
   apiUserSearch,
   apiTopicsSearch,
   apiBlogSearch,
+  apiGetReadingList,
+  apiAddReadingList,
+  apiDeleteReadingList,
+  apiReportBlog,
 };

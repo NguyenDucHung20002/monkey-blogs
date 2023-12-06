@@ -17,6 +17,7 @@ const SearchUsersPage = () => {
     async function fetchTopics() {
       try {
         const response = await apiUserSearch(token, search, 15);
+        console.log("response:", response);
         if (response?.success) {
           skip.current = response.newSkip;
           setUsers(response.data);
@@ -26,8 +27,7 @@ const SearchUsersPage = () => {
       }
     }
     fetchTopics();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [search, token]);
 
   useEffect(() => {
     const handleScroll = async () => {

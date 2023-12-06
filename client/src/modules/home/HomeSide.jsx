@@ -49,7 +49,7 @@ const HomeSide = () => {
   }, [token]);
 
   return (
-    <HomeSideStyle className="border-l border-gray-300">
+    <HomeSideStyle>
       <div className="home-side">
         <div className="mb-5">
           {topics && topics.length > 0 && (

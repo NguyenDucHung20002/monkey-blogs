@@ -1,9 +1,16 @@
 import React, { Suspense } from "react";
 import { Route, Routes } from "react-router";
 import { ToastContainer } from "react-toastify";
-import ProfileFollower from "./modules/profile/ProfileFollower";
-import ProfileFollowing from "./modules/profile/ProfileFollowing";
-import ProfileHome from "./modules/profile/ProfileHome";
+const ProfileFollowing = React.lazy(() =>
+  import("./modules/profile/ProfileFollowing")
+);
+const ProfileFollower = React.lazy(() =>
+  import("./modules/profile/ProfileFollower")
+);
+const ProfileHome = React.lazy(() => import("./modules/profile/ProfileHome"));
+const ProfileReadingList = React.lazy(() =>
+  import("./modules/profile/ProfileReadingList")
+);
 const UserReportsResolved = React.lazy(() =>
   import("./modules/user/UserReportsResolved")
 );
@@ -80,6 +87,10 @@ function App() {
               <Route
                 path="/profile/following/:username"
                 element={<ProfileFollowing />}
+              />
+              <Route
+                path="/profile/reading-list/:username"
+                element={<ProfileReadingList></ProfileReadingList>}
               />
             </Route>
 

@@ -180,7 +180,6 @@ const apiGetArticle = async (slug) => {
 };
 
 const apiGetArticleSkip = async (skipId, token, limit = 5) => {
-  console.log("skipId, token, limit = 5:", skipId, token, (limit = 5));
   try {
     const response = await axios.get(
       `${config.SERVER_HOST}/article?skip=${skipId}&limit=${limit}`,
@@ -421,10 +420,10 @@ const apiGetUserFollowings = async (username) => {
   }
 };
 
-const apiMyArticleFollowing = async (token) => {
+const apiMyArticleFollowing = async (token, limit = 5, skip = "") => {
   try {
     const response = await axios.get(
-      `${config.SERVER_HOST}/article/?feed=following`,
+      `${config.SERVER_HOST}/article/following?limit=${limit}&skip=${skip}`,
       {
         headers: {
           Authorization: "Bearer " + token,
@@ -432,12 +431,9 @@ const apiMyArticleFollowing = async (token) => {
         },
       }
     );
-    if (response.data) return response.data;
+    if (response?.data) return response.data;
   } catch (error) {
-    toast.error("Some thing was wrong!", {
-      pauseOnHover: false,
-      delay: 500,
-    });
+    console.log("error:", error);
   }
 };
 
@@ -701,7 +697,6 @@ const apiMuteUser = async (type = "post", token, userId) => {
       });
 
     if (!data?.success) {
-      console.log("apiMuteUser:", data.message);
       return false;
     }
     return true;

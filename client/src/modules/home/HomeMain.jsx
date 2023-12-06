@@ -14,6 +14,7 @@ const HomeMainStyled = styled.div`
   overflow-y: auto;
   flex: 1;
   height: 100%;
+  padding: 0 20px;
 `;
 
 const HomeMain = () => {
@@ -30,7 +31,7 @@ const HomeMain = () => {
   useEffect(() => {
     async function fetchBlog() {
       const response = await apiGetArticleSkip("", token);
-      console.log("response:", response);
+      // console.log("response:", response);
       if (response?.success) {
         setBlogs([...response.data]);
         skip.current = response.newSkip;

@@ -21,6 +21,7 @@ function AuthProvider(props) {
       setSearchParams("");
     }
     const token = localStorage.getItem("token");
+    console.log("token:", token);
     // console.log("token:", token);
     if (!token) navigate("/sign-in");
     async function fetcher() {
@@ -37,10 +38,7 @@ function AuthProvider(props) {
         );
         if (response.data) setUserInfo(response.data);
       } catch (error) {
-        if (error.response.status === 401) {
-          localStorage.removeItem("token");
-          navigate("/sign-in");
-        }
+        navigate("/sign-in");
       }
     }
     fetcher();

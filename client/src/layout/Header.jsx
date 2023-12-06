@@ -133,7 +133,7 @@ const Header = () => {
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
-    navigation(`/search/?q=${inputSearch}`);
+    if (inputSearch) navigation(`/search/?q=${inputSearch}`);
   };
 
   return (

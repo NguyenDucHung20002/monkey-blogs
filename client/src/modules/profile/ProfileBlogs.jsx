@@ -5,7 +5,6 @@ import TopicList from "../topic/TopicList";
 import Swal from "sweetalert2";
 import BlogImage from "../blog/BlogImage";
 
-
 const ProfileBlogs = ({ blogs, user, fetchDeleteArticle }) => {
   const handleDelete = (slug) => {
     Swal.fire({
@@ -63,11 +62,7 @@ const ProfileBlogs = ({ blogs, user, fetchDeleteArticle }) => {
         <div className="w-2/4 p-6">
           <div className="flex">
             <div className="w-6 h-6 overflow-hidden rounded-1/2">
-              <img
-                className="w-full h-full "
-                src={user?.avatar}
-                alt=""
-              />
+              <img className="w-full h-full " src={user?.avatar} alt="" />
             </div>
             <div className="flex items-center justify-between px-2">
               {user?.fullname}

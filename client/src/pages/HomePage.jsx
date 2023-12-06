@@ -25,8 +25,12 @@ const HomePage = () => {
     <HomePageStyle>
       <div className="w-full border-t border-gray-300"></div>
       <Row className="px-5 ">
-        <Col xs={24} md={15} className="flex flex-col">
-          <div className="max-w-[700px] w-full mx-auto my-0 mt-8 flex items-center px-5">
+        <Col
+          xs={24}
+          md={15}
+          className="flex flex-col w-full border-r border-gray-300"
+        >
+          <div className="max-w-[700px] w-full mx-auto my-0 mt-8 flex items-center px-5 ">
             <NavLink to={"/me/following"}>
               <button className="mr-5 text-gray-400 transition-all hover:text-blue-400">
                 <svg
@@ -49,11 +53,11 @@ const HomePage = () => {
           </div>
           <Outlet></Outlet>
         </Col>
-        <Col xs={0} md={9}>
+        {/* <Col xs={0} md={9}>
           <StickyBox>
             <HomeSide></HomeSide>
           </StickyBox>
-        </Col>
+        </Col> */}
       </Row>
     </HomePageStyle>
   );

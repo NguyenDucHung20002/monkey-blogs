@@ -10,11 +10,19 @@ import { Popover } from "antd";
 import { debounce } from "lodash";
 import { apiDeleteMyComment } from "../../api/apisHung";
 
-const CommentUser = ({ data, type = "parent", blogId }) => {
+const CommentUser = ({
+  data,
+  type = "parent",
+  blogId,
+  commentValue: commentValueParent,
+}) => {
   const { id, content, author, createdAt, depth, isMyComment } = data;
   const token = localStorage.getItem("token");
   const [commentBlog, setCommentBlog] = useState([]);
-  console.log("commentBlog:", commentBlog);
+  const {
+    commentBlog: commentBlogParent,
+    setCommentBlog: setCommentBlogParent,
+  } = commentValueParent;
   const repliesCount = useRef(data.repliesCount);
   const commentValue = { commentBlog, setCommentBlog };
   const [showMore, setShowMore] = useState(false);
@@ -47,14 +55,10 @@ const CommentUser = ({ data, type = "parent", blogId }) => {
   }, []);
 
   const handleDeleteMyComment = async () => {
-    console.log("id:", id);
     const response = await apiDeleteMyComment(token, id);
-    console.log("response:", response);
     if (response?.success) {
-      console.log("commentBlog:", commentBlog);
-      const deleteItem = commentBlog.filter((item) => item.id != id);
-      console.log("deleteItem:", deleteItem);
-      setCommentBlog([...deleteItem]);
+      const deleteItem = commentBlogParent.filter((item) => item.id != id);
+      setCommentBlogParent([...deleteItem]);
     }
   };
 
@@ -161,6 +165,7 @@ const CommentUser = ({ data, type = "parent", blogId }) => {
                 data={comment}
                 blogId={blogId}
                 key={comment.id}
+                commentValue={commentValue}
               ></CommentUser>
             ))}
         </div>

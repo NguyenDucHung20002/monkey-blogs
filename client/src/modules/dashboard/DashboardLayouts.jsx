@@ -1,4 +1,4 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import Sidebar from "./Sidebar";
 import PageNotFound from "../../pages/PageNotFound";
@@ -41,7 +41,11 @@ const DashboardStyles = styled.div`
   }
 `;
 const DashboardLayout = () => {
+  const navigate = useNavigate();
   const { userInfo } = useAuth();
+  const userData = userInfo?.data;
+  console.log("userData:", userData);
+  if (userData.role === "user") navigate("/");
   const [visible, setVisible] = useState(false);
 
   const toggleVisible = debounce(() => {

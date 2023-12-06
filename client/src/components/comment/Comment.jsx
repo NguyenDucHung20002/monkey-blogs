@@ -33,6 +33,7 @@ const Comment = ({ blogId = "", commentValue }) => {
             type="parent"
             data={comment}
             blogId={blogId}
+            commentValue={commentValue}
           ></CommentUser>
         ))}
     </>

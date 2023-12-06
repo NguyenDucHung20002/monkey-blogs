@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/prop-types */
 // eslint-disable-next-line no-unused-vars
 import React, { useEffect, useRef, useState } from "react";
@@ -7,6 +6,7 @@ import Blog from "../modules/blog/Blog";
 import { useSearchParams } from "react-router-dom";
 import { apiBlogSearch } from "../api/apisHung";
 import { debounce } from "lodash";
+import { apiMuteUser } from "../api/api";
 
 const SearchStoriesPageStyle = styled.div`
   max-width: 700px;
@@ -24,16 +24,32 @@ const SearchStoriesPage = () => {
   const documentHeight = useRef(document.documentElement.scrollHeight);
   const skip = useRef("");
   const search = searchParams.get("q");
+  const [muteId, setMuteId] = useState("");
+  const mute = { muteId, setMuteId };
+
+  useEffect(() => {
+    if (!muteId) return;
+    async function muteAuthor() {
+      const response = await apiMuteUser("post", token, muteId);
+      if (response) {
+        const filterBlogs = blogs.filter((blog) => blog.author.id !== muteId);
+        setBlogs(filterBlogs);
+      }
+    }
+    muteAuthor();
+  }, [muteId, token]);
+
   useEffect(() => {
     async function fetchBlog() {
       const response = await apiBlogSearch(token, search, 5);
+      console.log("response:", response);
       if (response?.success) {
         setBlogs(response.data);
         skip.current = response.newSkip;
       }
     }
     fetchBlog();
-  }, []);
+  }, [search, token]);
 
   useEffect(() => {
     const handleScroll = async () => {
@@ -41,10 +57,11 @@ const SearchStoriesPage = () => {
       scrollY.current = window.scrollY;
       documentHeight.current = document.documentElement.scrollHeight;
       if (
-        windowHeight.current + scrollY.current >= documentHeight.current &&
+        windowHeight.current + scrollY.current + 10 >= documentHeight.current &&
         skip.current
       ) {
         const response = await apiBlogSearch(token, search, 5, skip.current);
+        console.log("response:", response);
         if (response?.success) {
           const blogsClone = [...blogs, ...response.data];
           setBlogs([...blogsClone]);
@@ -66,7 +83,9 @@ const SearchStoriesPage = () => {
       <div>
         {blogs &&
           blogs.length > 0 &&
-          blogs.map((blog) => <Blog key={blog.id} blog={blog}></Blog>)}
+          blogs.map((blog) => (
+            <Blog key={blog.id} mute={mute} blog={blog}></Blog>
+          ))}
       </div>
     </SearchStoriesPageStyle>
   );
