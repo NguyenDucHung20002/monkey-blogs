@@ -289,13 +289,13 @@ Report_Article.belongsTo(User, {
   as: "resolvedBy",
 });
 
-// User - Article (Reject) (1-n)
+// User - Article (delete) (1-n)
 User.hasMany(Article, {
-  foreignKey: "rejectedById",
+  foreignKey: "deletedById",
 });
 Article.belongsTo(User, {
-  foreignKey: "rejectedById",
-  as: "rejectedBy",
+  foreignKey: "deletedById",
+  as: "deletedBy",
 });
 
 // Comment - Comment (Reply) (1-n)

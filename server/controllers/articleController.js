@@ -87,19 +87,41 @@ const deleteADraft = asyncMiddleware(async (req, res, next) => {
   res.json({ success: true, message: "Draft deleted successfully" });
 });
 
-// ==================== get a draft ==================== //
-const getADraft = asyncMiddleware(async (req, res, next) => {
+// ==================== get an article or a draft to edit ==================== //
+const getAnArticleOrADraftToEdit = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { id } = req.params;
 
-  const draft = await Article.findOne({
-    where: { id, authorId: me.profileInfo.id, status: "draft" },
-    attributes: ["id", "title", "content", "createdAt", "updatedAt"],
+  let data = await Article.findOne({
+    where: { id, authorId: me.profileInfo.id, status: { [Op.ne]: "rejected" } },
+    include: {
+      model: Topic,
+      as: "articleTopics",
+      through: { attributes: [] },
+      attributes: ["id", "name", "slug"],
+    },
   });
 
-  if (!draft) throw ErrorResponse(404, "Draft not found");
+  if (!data) throw ErrorResponse(404, "Not found");
 
-  res.json({ success: true, data: draft });
+  if (data.status === "draft") {
+    data = {
+      id: data.id,
+      title: data.title,
+      content: data.content,
+    };
+  }
+
+  if (data.status === "approved") {
+    data = {
+      id: data.id,
+      title: data.title,
+      preview: data.preview,
+      content: data.content,
+    };
+  }
+
+  res.json({ success: true, data });
 });
 
 // ==================== get my draft ==================== //
@@ -135,7 +157,7 @@ const createArticle = asyncMiddleware(async (req, res, next) => {
 
   if (!draft) throw ErrorResponse(404, "Draft not found");
 
-  await draft.update({ banner, preview, status: "approved" });
+  await draft.update({ banner, preview, status: "approved" }, { hooks: false });
 
   if (topicNames) {
     const data = await Promise.all(
@@ -1034,7 +1056,7 @@ export default {
   createADraft,
   updateADraft,
   deleteADraft,
-  getADraft,
+  getAnArticleOrADraftToEdit,
   getMyDrafts,
   createArticle,
   updateArticle,

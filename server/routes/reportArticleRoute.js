@@ -20,7 +20,7 @@ router.get(
   "/resolved",
   requiredAuth,
   fetchMe,
-  authorize("staff", "admin"),
+  authorize("admin"),
   reportArticleController.getResolvedReports
 );
 

@@ -21,7 +21,12 @@ router.post(
 
 router.get("/draft/me", requiredAuth, fetchMe, articleController.getMyDrafts);
 
-router.get("/draft/:id", requiredAuth, fetchMe, articleController.getADraft);
+router.get(
+  "/get/:id",
+  requiredAuth,
+  fetchMe,
+  articleController.getAnArticleOrADraftToEdit
+);
 
 router.patch(
   "/:id",

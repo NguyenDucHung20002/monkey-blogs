@@ -45,7 +45,7 @@ const Article = sequelize.define(
       defaultValue: 0,
     },
 
-    rejectedById: {
+    deleteById: {
       type: DataTypes.INTEGER,
       allowNull: true,
       references: {
@@ -64,88 +64,52 @@ const Article = sequelize.define(
   {
     tableName: "articles",
     timestamps: true,
+    paranoid: true,
     hooks: {
       afterUpdate: async (article, options) => {
         const imgsName = extractImg(article.content);
 
         const gfs = MongoDB.gfs;
 
-        let imgsData = [];
+        let nsfw = false;
+        let status = "approved";
 
-        const promises = imgsName.map(async (imgName) => {
+        for (const imgName of imgsName) {
+          if (nsfw) break;
+
           const files = await gfs.find({ filename: imgName }).toArray();
 
-          if (!files || !files.length) {
-            console.log("image not found");
-            return null;
-          }
+          if (!files || !files.length) console.log("image not found");
 
-          return new Promise((resolve, reject) => {
-            const readStream = gfs.openDownloadStreamByName(imgName);
-            const chunks = [];
+          const readStream = gfs.openDownloadStreamByName(imgName);
 
-            readStream.on("data", (chunk) => {
-              chunks.push(chunk);
-            });
+          const chunks = [];
 
-            readStream.on("end", () => {
-              const imageData = Buffer.concat(chunks).toString("base64");
-              imgsData.push({ data: { image: { base64: imageData } } });
-              resolve();
-            });
-
-            readStream.on("error", (err) => {
-              reject(err);
-            });
+          readStream.on("data", (chunk) => {
+            chunks.push(chunk);
           });
-        });
 
-        Promise.all(promises)
-          .then(() => {
-            clarifai(imgsData, (err, results) => {
+          readStream.on("end", () => {
+            const imageData = Buffer.concat(chunks).toString("base64");
+            clarifai(imageData, (err, results) => {
               if (err) {
                 console.log(err);
-                // reject(err);
-              } else {
-                console.log(imgsData);
-                // resolve(results);
-                console.log(results);
+                return;
+              }
+
+              if (results[0].nsfw > 0.55) {
+                console.log(
+                  "Sorry, but your image contains explicit content and is not allowed"
+                );
+                nsfwFlag = true;
+                status = "rejected";
+                return;
               }
             });
-          })
-          .catch((error) => {
-            console.error("Error:", error);
           });
+        }
 
-        // imgsName.forEach(async (imgName) => {
-        //   const files = await gfs.find({ filename: imgName }).toArray();
-
-        //   if (!files || !files.length) {
-        //     console.log("image not found");
-        //     return null;
-        //   }
-
-        //   const readStream = gfs.openDownloadStreamByName(imgName);
-
-        //   const chunks = [];
-
-        //   readStream.on("data", (chunk) => {
-        //     chunks.push(chunk);
-        //   });
-
-        //   readStream.on("end", () => {
-        //     imgsData.push(Buffer.concat(chunks).toString("base64"));
-        //   });
-        // });
-
-        // clarifai(imgData, (err, results) => {
-        //   if (err) {
-        //     console.log(err);
-        //     reject(err);
-        //   } else {
-        //     resolve(results);
-        //   }
-        // });
+        await article.update({ status }, { hooks: false });
       },
     },
   }
