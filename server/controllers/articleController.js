@@ -1052,6 +1052,19 @@ const getAllArticles = asyncMiddleware(async (req, res, next) => {
   res.json({ success: true, data: articles, newSkip });
 });
 
+// ==================== article to draft ==================== //
+const articleToDraft = asyncMiddleware(async (req, res, next) => {
+  const { id } = req.params;
+
+  const article = await Article.findOne({ id, status: { [Op.ne]: "draft" } });
+
+  if (!article) throw ErrorResponse(404, "Article not found");
+
+  await article.update({ status: "draft" }, { hooks: false });
+
+  res.json({ success: true, message: "Set article back to draft" });
+});
+
 export default {
   createADraft,
   updateADraft,
@@ -1069,4 +1082,5 @@ export default {
   exploreNewArticles,
   adminPick,
   adminPickFullList,
+  articleToDraft,
 };

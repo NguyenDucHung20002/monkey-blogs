@@ -106,6 +106,14 @@ router.patch(
   articleController.updateArticle
 );
 
+router.patch(
+  "/set-to-draft/:id",
+  requiredAuth,
+  fetchMe,
+  authorize("staff", "admin"),
+  articleController.articleToDraft
+);
+
 router.delete("/:id", requiredAuth, fetchMe, articleController.deleteArticle);
 
 router.get("/:slug", optionalAuth, fetchMe, articleController.getAnArticle);
