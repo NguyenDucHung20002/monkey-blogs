@@ -27,7 +27,12 @@ const fetchMe = async (req, res, next) => {
       ],
     });
 
-    if (!me) throw ErrorResponse(404, "User not found");
+    if (!me) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
 
     if (me.status === "banned") {
       if (me.bannedUntil === null) {

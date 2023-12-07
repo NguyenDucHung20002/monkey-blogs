@@ -9,12 +9,12 @@ import Topic from "../mysql/Topic.js";
 import Follow_Topic from "./Follow_Topic.js";
 import Article from "./Article.js";
 import Article_Topic from "./Article_Topic.js";
-import Draft from "./Draft.js";
 import Like from "./Like.js";
 import Report_Article from "./Report_Article.js";
 import Comment from "./Comment.js";
 import Reading_History from "./Reading_History.js";
 import Reading_List from "./Reading_List.js";
+import Notification from "./notification.js";
 
 // Role - User (1-n)
 Role.hasMany(User, {
@@ -174,14 +174,6 @@ Follow_Topic.belongsTo(Profile, {
 Follow_Topic.belongsTo(Topic, {
   foreignKey: "topicId",
   as: "topicFollower",
-});
-
-// Profile - Draft (1-n)
-Profile.hasMany(Draft, {
-  foreignKey: "authorId",
-});
-Draft.belongsTo(Profile, {
-  foreignKey: "authorId",
 });
 
 // Article - Topic (n-n)
@@ -435,4 +427,14 @@ Profile.hasOne(Follow_Profile, {
   sourceKey: "id",
   foreignKey: "followedId",
   as: "followeds",
+});
+
+// Notification - Profile
+Notification.belongsTo(Profile, {
+  foreignKey: "reciverId",
+  as: "reciver",
+});
+Notification.belongsTo(Profile, {
+  foreignKey: "senderId",
+  as: "sender",
 });

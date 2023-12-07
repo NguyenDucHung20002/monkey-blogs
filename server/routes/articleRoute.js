@@ -12,7 +12,19 @@ import validator from "../middlewares/validator.js";
 const router = express.Router();
 
 router.post(
-  "/",
+  "/draft/create-draft",
+  requiredAuth,
+  fetchMe,
+  validator(articleSchema.createDraftSchema, "body"),
+  articleController.createADraft
+);
+
+router.get("/draft/me", requiredAuth, fetchMe, articleController.getMyDrafts);
+
+router.get("/draft/:id", requiredAuth, fetchMe, articleController.getADraft);
+
+router.patch(
+  "/:id",
   requiredAuth,
   fetchMe,
   validator(articleSchema.createArticleSchema, "body"),
@@ -50,6 +62,21 @@ router.get(
   articleController.getAllArticles
 );
 
+router.patch(
+  "/draft/update-draft/:id",
+  requiredAuth,
+  fetchMe,
+  validator(articleSchema.updateDraftSchema, "body"),
+  articleController.updateADraft
+);
+
+router.delete(
+  "/draft/delete-draft/:id",
+  requiredAuth,
+  fetchMe,
+  articleController.deleteADraft
+);
+
 router.get(
   "/:username/all",
   optionalAuth,
@@ -67,7 +94,7 @@ router.get(
 );
 
 router.patch(
-  "/:id",
+  "/update/:id",
   requiredAuth,
   fetchMe,
   validator(articleSchema.updateArticleSchema, "body"),

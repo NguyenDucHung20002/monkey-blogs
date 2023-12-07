@@ -18,22 +18,124 @@ import fileController from "../controllers/fileController.js";
 import Role from "../models/mysql/Role.js";
 import toUpperCase from "../utils/toUpperCase.js";
 import sequelize from "../databases/mysql/connect.js";
+import extracImg from "../utils/extractImg.js";
+import replaceImgUrlsWithNames from "../utils/replaceImgUrlsWithNames.js";
 
-// ==================== create article ==================== //
-const createArticle = asyncMiddleware(async (req, res, next) => {
+// ==================== create draft ==================== //
+const createADraft = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
-  const { title, preview, content, banner, topicNames } = req.body;
+  const { title, content } = req.body;
 
   const slug = toSlug(title) + "-" + Date.now();
 
-  const article = await Article.create({
+  replaceImgUrlsWithNames(content);
+
+  const draft = await Article.create({
     authorId: me.profileInfo.id,
     title,
-    preview,
-    slug,
     content,
-    banner,
+    slug,
   });
+
+  res.status(201).json({
+    success: true,
+    message: "Draft created successfully",
+    draftId: draft.id,
+  });
+});
+
+// ==================== update draft ==================== //
+const updateADraft = asyncMiddleware(async (req, res, next) => {
+  const me = req.me;
+  const { id } = req.params;
+  const { title, content } = req.body;
+
+  const draft = await Article.findOne({
+    where: { id, authorId: me.profileInfo.id, status: "draft" },
+  });
+
+  if (!draft) throw ErrorResponse(404, "Draft not found");
+
+  const updatedSlug = title ? toSlug(title) + "-" + Date.now() : draft.slug;
+
+  replaceImgUrlsWithNames(content);
+
+  await draft.update({ title, content, slug: updatedSlug });
+
+  res.json({ success: true, message: "Draft updated successfully" });
+});
+
+// ==================== delete draft ==================== //
+const deleteADraft = asyncMiddleware(async (req, res, next) => {
+  const me = req.me;
+  const { id } = req.params;
+
+  const draft = await Article.findOne({
+    where: { id, authorId: me.profileInfo.id, status: "draft" },
+  });
+
+  if (!draft) throw ErrorResponse(404, "Draft not found");
+
+  const imgList = extracImg(draft.content);
+
+  imgList.forEach((img) => {
+    fileController.autoRemoveImg(img);
+  });
+
+  await Article.destroy({ where: { id, authorId: me.profileInfo.id } });
+
+  res.json({ success: true, message: "Draft deleted successfully" });
+});
+
+// ==================== get a draft ==================== //
+const getADraft = asyncMiddleware(async (req, res, next) => {
+  const me = req.me;
+  const { id } = req.params;
+
+  const draft = await Article.findOne({
+    where: { id, authorId: me.profileInfo.id, status: "draft" },
+    attributes: ["id", "title", "content", "createdAt", "updatedAt"],
+  });
+
+  if (!draft) throw ErrorResponse(404, "Draft not found");
+
+  res.json({ success: true, data: draft });
+});
+
+// ==================== get my draft ==================== //
+const getMyDrafts = asyncMiddleware(async (req, res, next) => {
+  const me = req.me;
+  const { skip, limit = 15 } = req.query;
+
+  const whereQuery = { authorId: me.profileInfo.id, status: "draft" };
+
+  if (skip) whereQuery.id = { [Op.lt]: skip };
+
+  const drafts = await Article.findAll({
+    where: whereQuery,
+    attributes: ["id", "title", "createdAt", "updatedAt"],
+    order: [["id", "DESC"]],
+    limit: Number(limit) ? Number(limit) : 15,
+  });
+
+  const newSkip = drafts.length > 0 ? drafts[drafts.length - 1].id : null;
+
+  res.json({ success: true, data: drafts, newSkip });
+});
+
+// ==================== create article ==================== //
+const createArticle = asyncMiddleware(async (req, res, next) => {
+  const { id } = req.params;
+  const me = req.me;
+  const { preview, banner, topicNames } = req.body;
+
+  const draft = await Article.findOne({
+    where: { id, authorId: me.profileInfo.id, status: "draft" },
+  });
+
+  if (!draft) throw ErrorResponse(404, "Draft not found");
+
+  await draft.update({ banner, preview, status: "approved" });
 
   if (topicNames) {
     const data = await Promise.all(
@@ -44,7 +146,7 @@ const createArticle = asyncMiddleware(async (req, res, next) => {
           const name = toUpperCase(topicName);
           isExisted = await Topic.create({ name, slug });
         }
-        return { articleId: article.id, topicId: isExisted.id };
+        return { articleId: draft.id, topicId: isExisted.id };
       })
     );
     await Article_Topic.bulkCreate(data);
@@ -63,7 +165,7 @@ const updateArticle = asyncMiddleware(async (req, res, next) => {
   const { title, preview, content, banner, topicNames } = req.body;
 
   const article = await Article.findOne({
-    where: { id, authorId: me.profileInfo.id },
+    where: { id, authorId: me.profileInfo.id, status: "approved" },
     attributes: ["id", "banner"],
   });
 
@@ -110,7 +212,17 @@ const deleteArticle = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { id } = req.params;
 
-  await Article.destroy({ where: { id, authorId: me.profileInfo.id } });
+  const article = await Article.findOne({
+    where: { id, authorId: me.profileInfo.id, status: "approved" },
+  });
+
+  const imgList = extracImg(article.content);
+
+  imgList.forEach((img) => {
+    fileController.autoRemoveImg(img);
+  });
+
+  await article.destroy();
 
   res.json({ success: true, message: "Article deleted successfully" });
 });
@@ -919,6 +1031,11 @@ const getAllArticles = asyncMiddleware(async (req, res, next) => {
 });
 
 export default {
+  createADraft,
+  updateADraft,
+  deleteADraft,
+  getADraft,
+  getMyDrafts,
   createArticle,
   updateArticle,
   deleteArticle,

@@ -22,7 +22,6 @@ import userRoute from "./routes/userRoute.js";
 import reportUserRoute from "./routes/reportUserRoute.js";
 import profileRoute from "./routes/profileRoute.js";
 import followProfileRoute from "./routes/followProfileRoute.js";
-import draftRoute from "./routes/draftRoute.js";
 import topicRoute from "./routes/topicRoute.js";
 import followTopicRoute from "./routes/followTopicRoute.js";
 import artcileRoute from "./routes/articleRoute.js";
@@ -34,6 +33,7 @@ import readingHistoryRoute from "./routes/readingHistoryRoute.js";
 import searchRoute from "./routes/searchRoute.js";
 import fileRoute from "./routes/fileRoute.js";
 import readingListRoute from "./routes/readingListRoute.js";
+import notificationRoute from "./routes/notificationRouter.js";
 
 app.use(express.json());
 app.use(morgan("dev"));
@@ -65,7 +65,6 @@ app.use("/api/v1/user", userRoute);
 app.use("/api/v1/report-user", reportUserRoute);
 app.use("/api/v1/profile", profileRoute);
 app.use("/api/v1/follow-profile", followProfileRoute);
-app.use("/api/v1/draft", draftRoute);
 app.use("/api/v1/topic", topicRoute);
 app.use("/api/v1/follow-topic", followTopicRoute);
 app.use("/api/v1/article", artcileRoute);
@@ -77,6 +76,7 @@ app.use("/api/v1/reading-history", readingHistoryRoute);
 app.use("/api/v1/search", searchRoute);
 app.use("/api/v1/file", fileRoute);
 app.use("/api/v1/reading-list", readingListRoute);
+app.use("/api/v1/notification", notificationRoute);
 
 app.use(errorMiddleware);
 
