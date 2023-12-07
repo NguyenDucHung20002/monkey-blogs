@@ -45,13 +45,10 @@ const Article = sequelize.define(
       defaultValue: 0,
     },
 
-    deleteById: {
+    rejectedCount: {
       type: DataTypes.INTEGER,
-      allowNull: true,
-      references: {
-        model: User,
-        key: "id",
-      },
+      allowNull: false,
+      defaultValue: 0,
     },
 
     status: {
@@ -67,12 +64,20 @@ const Article = sequelize.define(
     paranoid: true,
     hooks: {
       afterUpdate: async (article, options) => {
+        if (article.rejectedCount === 3) {
+          await article.destroy();
+          return;
+        }
+
         const imgsName = extractImg(article.content);
 
         const gfs = MongoDB.gfs;
 
         let nsfw = false;
+
         let status = "approved";
+
+        let rejectedCount = article.rejectedCount;
 
         for (const imgName of imgsName) {
           if (nsfw) break;
@@ -103,13 +108,14 @@ const Article = sequelize.define(
                 );
                 nsfwFlag = true;
                 status = "rejected";
+                rejectedCount++;
                 return;
               }
             });
           });
         }
 
-        await article.update({ status }, { hooks: false });
+        await article.update({ status, rejectedCount }, { hooks: false });
       },
     },
   }
