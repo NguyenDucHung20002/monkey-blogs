@@ -4,11 +4,10 @@ import TopicList from "../topic/TopicList";
 import styled from "styled-components";
 import FollowingUserHandle from "../../components/following/FollowingUserHandle";
 import { NavLink } from "react-router-dom";
-import {
-  apiGetMyFollowingTopics,
-  apiSuggestionTopics,
-  apiSuggestionUsers,
-} from "../../api/api";
+import { useStickyBox } from "react-sticky-box";
+import BlogStaffPick from "../blog/BlogStaffPick";
+import { apiSuggestionTopics, apiSuggestionUsers } from "../../api/api";
+import { apiGetReadingList, apiGetStaffPick } from "../../api/apisHung";
 const HomeSideStyle = styled.div`
   padding: 30px 0 0 30px;
   min-height: calc(100vh - 70px);
@@ -22,64 +21,112 @@ const HomeSideStyle = styled.div`
 const HomeSide = () => {
   const [topics, setTopics] = useState([]);
   const [users, setUsers] = useState([]);
-  const [topicFollowings, setTopicFollowings] = useState([]);
+  const [staffPick, setStaffPick] = useState([]);
+  const [readingList, setReadingList] = useState([]);
   const token = localStorage.getItem("token");
+  const stickyRef = useStickyBox({ offsetTop: 60, offsetBottom: 30 });
 
-  useEffect(() => {
-    async function fetchTopic() {
-      const response = await apiGetMyFollowingTopics(token);
-      if (response) setTopicFollowings(response.data);
-    }
-    fetchTopic();
-  }, [token]);
-
-  useEffect(() => {
-    async function fetchTopic() {
+  const methods = {
+    async fetchReadingList() {
+      const dataBlogs = await apiGetReadingList(token, 4);
+      if (dataBlogs?.success) setReadingList(dataBlogs.data);
+    },
+    async fetchStaffPick() {
+      const response = await apiGetStaffPick(token);
+      if (response) setStaffPick(response.data);
+    },
+    async fetchSuggestionTopics() {
       const response = await apiSuggestionTopics(token);
       if (response) setTopics(response.data);
-    }
-    fetchTopic();
-  }, [token]);
-  useEffect(() => {
-    async function fetchTopic() {
+    },
+
+    async fetchSuggestionUsers() {
       const response = await apiSuggestionUsers(token);
       if (response) setUsers(response.data);
-    }
-    fetchTopic();
+    },
+  };
+
+  useEffect(() => {
+    Promise.all([
+      methods.fetchReadingList(),
+      methods.fetchStaffPick(),
+      methods.fetchSuggestionTopics(),
+      methods.fetchSuggestionUsers(),
+    ]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
   return (
-    <HomeSideStyle>
+    <HomeSideStyle ref={stickyRef}>
       <div className="home-side">
-        <div className="mb-5">
-          {topics && topics.length > 0 && (
+        <div className="pb-4 mb-5 border-b border-gray-200">
+          <h3 className="mb-2 text-lg font-semibold">Staff picks</h3>
+          {staffPick && staffPick.length > 0 ? (
             <>
-              <h3 className="mb-5 text-lg font-semibold">Topics followed</h3>
-              <TopicList data={topicFollowings}></TopicList>
+              {staffPick.map((blog) => (
+                <BlogStaffPick blog={blog} key={blog.id}></BlogStaffPick>
+              ))}
+              <div className="mt-3">
+                <NavLink to={"/me/suggestions"}>
+                  <button className="font-medium text-blue-500 hover:text-blue-400">
+                    See the full list
+                  </button>
+                </NavLink>
+              </div>
             </>
+          ) : (
+            <p className="font-medium text-gray-400">Nothing here right now</p>
           )}
         </div>
-        <div className="mb-5">
+
+        <div className="pb-4 mb-5 border-b border-gray-200">
           {topics && topics.length > 0 && (
             <>
-              <h3 className="mb-5 text-lg font-semibold">Random topics</h3>
+              <h3 className="mb-5 text-base font-semibold">
+                Recommended topics
+              </h3>
               <TopicList data={topics}></TopicList>
             </>
           )}
         </div>
-        <div className="mb-5">
+        <div className="pb-4 mb-5 border-b border-gray-200">
           {users && users.length > 0 && (
             <>
-              <h3 className="mb-5 text-lg font-semibold">Who to follow</h3>
+              {users.length >= 5 && (
+                <h3 className="mb-3 text-base font-semibold">Who to follow</h3>
+              )}
               {users.map((user) => (
                 <FollowingUserHandle
-                  key={user._id}
+                  key={user.id}
                   data={user}
                 ></FollowingUserHandle>
               ))}
-              <NavLink to={"/me/suggestions"}>
-                <button className="ml-1">see more suggestions</button>
-              </NavLink>
+              <div className="mt-3">
+                <NavLink to={"/me/suggestions"}>
+                  <button className="font-medium text-blue-500 hover:text-blue-400 ">
+                    See more suggestions
+                  </button>
+                </NavLink>
+              </div>
+            </>
+          )}
+        </div>
+        <div className="mb-5">
+          {readingList && readingList.length > 0 && (
+            <>
+              <h3 className="mb-3 text-base font-semibold">Recently saved</h3>
+              {readingList.map((blog) => (
+                <BlogStaffPick blog={blog} key={blog.id}></BlogStaffPick>
+              ))}
+              {readingList.length >= 4 && (
+                <div className="mt-3">
+                  <NavLink to={"/me/suggestions"}>
+                    <button className="font-medium text-blue-500 hover:text-blue-400 ">
+                      See all
+                    </button>
+                  </NavLink>
+                </div>
+              )}
             </>
           )}
         </div>

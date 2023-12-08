@@ -26,7 +26,7 @@ const FollowingPage = () => {
     if (!muteId) return;
     const filterBlogs = blogs.filter((blog) => blog.author.id !== muteId);
     setBlogs(filterBlogs);
-  }, [muteId]);
+  }, [blogs, muteId]);
 
   useEffect(() => {
     const handleScroll = async () => {
@@ -38,7 +38,7 @@ const FollowingPage = () => {
         windowHeight.current + scrollY.current + 10 >= documentHeight.current &&
         skip.current
       ) {
-        const response = await apiMyArticleFollowing(token, 5, skip.current);
+        const response = await apiMyArticleFollowing(token, 10, skip.current);
         if (response?.success) {
           const blogsClone = [...blogs, ...response.data];
           setBlogs(blogsClone);
@@ -53,11 +53,12 @@ const FollowingPage = () => {
     return () => {
       window.removeEventListener("scroll", debouncedScroll);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [blogs]);
 
   useEffect(() => {
     async function fetchBlog() {
-      const response = await apiMyArticleFollowing(token, 5);
+      const response = await apiMyArticleFollowing(token, 10);
       if (response) {
         setBlogs(response.data);
         skip.current = response.newSkip;

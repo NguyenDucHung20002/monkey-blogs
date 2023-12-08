@@ -5,7 +5,10 @@ import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import Blog from "../blog/Blog";
 import { debounce } from "lodash";
-import { apiGetArticleSkip } from "../../api/api";
+import { apiGetExploreBlogs, apiGetFollowedArticles } from "../../api/apisHung";
+import TopicSlider from "../topic/TopicSlider";
+import { apiGetMyFollowingTopics } from "../../api/api";
+import { useSearchParams } from "react-router-dom";
 
 const HomeMainStyled = styled.div`
   max-width: 700px;
@@ -22,33 +25,69 @@ const HomeMain = () => {
   const [blogs, setBlogs] = useState([]);
   const blogRef = useRef();
   const skip = useRef("");
-  const [windowHeight, setWindowHeight] = useState(window.innerHeight);
-  const [scrollY, setScrollY] = useState(window.scrollY);
-  const [documentHeight, setDocumentHeight] = useState(
-    document.documentElement.scrollHeight
-  );
+  console.log("skip:", skip);
+  const windowHeight = useRef(window.innerHeight);
+  const scrollY = useRef(window.scrollY);
+  const documentHeight = useRef(document.documentElement.scrollHeight);
+  const [muteId, setMuteId] = useState("");
+  const mute = { muteId, setMuteId };
+  const [topicFollowings, setTopicFollowings] = useState([]);
+  const [searchParams] = useSearchParams();
+  const topicParam = searchParams.get("topic");
+  console.log("topicParam:", topicParam);
+  useEffect(() => {
+    if (!muteId) return;
+    const filterBlogs = blogs.filter((blog) => blog.author.id !== muteId);
+    setBlogs(filterBlogs);
+  }, [muteId, token]);
 
   useEffect(() => {
     async function fetchBlog() {
-      const response = await apiGetArticleSkip("", token);
-      // console.log("response:", response);
+      let response;
+      if (topicParam) {
+        response = await apiGetFollowedArticles(token, topicParam, 5);
+      } else {
+        response = await apiGetExploreBlogs(token, 5);
+      }
       if (response?.success) {
         setBlogs([...response.data]);
         skip.current = response.newSkip;
       }
     }
     fetchBlog();
+  }, [searchParams]);
+
+  useEffect(() => {
+    async function fetTopicFollowings() {
+      const response = await apiGetMyFollowingTopics(token);
+      console.log("response:", response);
+      if (response) setTopicFollowings(response.data);
+    }
+    fetTopicFollowings();
   }, []);
 
   useEffect(() => {
     const handleScroll = async () => {
-      setWindowHeight(window.innerHeight);
-      setScrollY(window.scrollY);
-      setDocumentHeight(document.documentElement.scrollHeight);
-      if (windowHeight + scrollY >= documentHeight && skip.current) {
-        const skipId = skip.current;
-        const response = await apiGetArticleSkip(skipId, token);
-        if (response) {
+      windowHeight.current = window.innerHeight;
+      scrollY.current = window.scrollY;
+      documentHeight.current = document.documentElement.scrollHeight;
+      if (
+        windowHeight.current + scrollY.current + 10 >= documentHeight.current &&
+        skip.current
+      ) {
+        let response;
+        if (topicParam) {
+          response = await apiGetFollowedArticles(
+            token,
+            topicParam,
+            10,
+            skip.current
+          );
+        } else {
+          response = await apiGetExploreBlogs(token, 10, skip.current);
+          console.log("response:", response);
+        }
+        if (response?.success) {
           const blogsClone = [...blogs, ...response.data];
           setBlogs([...blogsClone]);
           skip.current = response.newSkip;
@@ -62,14 +101,17 @@ const HomeMain = () => {
     return () => {
       window.removeEventListener("scroll", debouncedScroll);
     };
-  }, []);
+  }, [blogs]);
 
   return (
     <HomeMainStyled ref={blogRef}>
+      <TopicSlider topics={topicFollowings}></TopicSlider>
       <div>
         {blogs &&
           blogs.length > 0 &&
-          blogs.map((blog) => <Blog key={blog.id} blog={blog}></Blog>)}
+          blogs.map((blog) => (
+            <Blog key={blog.id} mute={mute} blog={blog}></Blog>
+          ))}
       </div>
     </HomeMainStyled>
   );

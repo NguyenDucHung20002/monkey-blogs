@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import "react-quill/dist/quill.snow.css";
 import styled from "styled-components";
 import WriteHeader from "../layout/WriteHeader";
@@ -8,15 +8,14 @@ import { useForm, useWatch } from "react-hook-form";
 import InputHook from "../components/input/InputHook";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useAuth } from "../contexts/auth-context";
-import SearchAddTopics from "../components/search/SearchAddTopics";
-import { config } from "../utils/constants";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { Button } from "../components/button";
-import ImageUpload from "../components/image/ImageUpload";
 import MyEditor from "../components/input/MyEditor";
-import { apiAddBlog, apiCreateDarft, apiDeleteDarft, apiUpdateDarft } from "../api/apiNew";
+import {
+  apiAddBlog,
+  apiCreateDarft,
+  apiDeleteDarft,
+  apiUpdateDarft,
+} from "../api/apiNew";
 import { debounce } from "lodash";
 
 const WritePageStyle = styled.div`
@@ -33,7 +32,6 @@ const schema = yup.object({
 });
 
 const WritePage = () => {
-  const { userInfo } = useAuth();
   const token = localStorage.getItem("token");
   const {
     control,
@@ -65,7 +63,7 @@ const WritePage = () => {
   }, [errors]);
 
   useEffect(() => {
-    const topicsId = topics.map((topic) => topic._id);
+    const topicsId = topics.map((topic) => topic.id);
     setValue("topics", topicsId);
   }, [setValue, topics]);
 
@@ -122,10 +120,10 @@ const WritePage = () => {
     });
     async function fetchAddBlog() {
       if (!token) return;
-      const response = await apiAddBlog(formData)
+      const response = await apiAddBlog(formData);
       if (response) {
-        const idDraft = newDraft?.draftId
-        apiDeleteDarft(idDraft)
+        const idDraft = newDraft?.draftId;
+        apiDeleteDarft(idDraft);
         navigate("/");
       }
     }
@@ -136,46 +134,46 @@ const WritePage = () => {
     console.log("submit");
   };
 
-  const watchedTitle = useWatch({control,name:"title",defaultValue:""})
-  const createDraft =async()=>{
-    const res = await apiCreateDarft(watchedTitle,content)
-    if(res?.success){
-      setNewDraft(res)
-      setIsSaved(true)
-      setHasRunOnce(true)
+  const watchedTitle = useWatch({ control, name: "title", defaultValue: "" });
+  const createDraft = async () => {
+    const res = await apiCreateDarft(watchedTitle, content);
+    if (res?.success) {
+      setNewDraft(res);
+      setIsSaved(true);
+      setHasRunOnce(true);
     }
-  }
-  const UpdateDraft = debounce(async()=>{
-    const idDraft = newDraft?.draftId
-    const res = await apiUpdateDarft(idDraft,watchedTitle,content)
-    if(res?.success){
-      setIsSaved(true)
+  };
+  const UpdateDraft = debounce(async () => {
+    const idDraft = newDraft?.draftId;
+    const res = await apiUpdateDarft(idDraft, watchedTitle, content);
+    if (res?.success) {
+      setIsSaved(true);
     }
-  },1000)
-  
-  useEffect(()=>{
+  }, 1000);
+
+  useEffect(() => {
     // console.log("title",watchedTitle);
     // console.log("content",content);
     const check = content !== "" && watchedTitle !== "";
-    setIsSaved(false)
-    if(check && !hasRunOnce){
-      createDraft()
+    setIsSaved(false);
+    if (check && !hasRunOnce) {
+      createDraft();
     }
-    if(newDraft?.draftId){
-      UpdateDraft()
+    if (newDraft?.draftId) {
+      UpdateDraft();
     }
     // console.log("newDraft",newDraft);
     // console.log("changeDraft",changeDraft);
-  },[watchedTitle,content])
+  }, [watchedTitle, content]);
 
   if (!token) return null;
   return (
     <WritePageStyle>
       <form onSubmit={handleSubmit(handleAddBlog)} autoComplete="off">
-        <WriteHeader 
+        <WriteHeader
           isSaved={isSaved}
-          image={image} 
-          handleSelectImage={handleSelectImage} 
+          image={image}
+          handleSelectImage={handleSelectImage}
           topics={topics}
           setTopics={setTopics}
           token={token}
@@ -183,12 +181,12 @@ const WritePage = () => {
           handleDeleteImage={handleDeleteImage}
           handleClickPublish={handleClickPublish}
         ></WriteHeader>
-            <InputHook
-              className=""
-              control={control}
-              name="title"
-              placeholder="Add title"
-            ></InputHook>
+        <InputHook
+          className=""
+          control={control}
+          name="title"
+          placeholder="Add title"
+        ></InputHook>
         <MyEditor content={content} setContent={setContent}></MyEditor>
       </form>
     </WritePageStyle>

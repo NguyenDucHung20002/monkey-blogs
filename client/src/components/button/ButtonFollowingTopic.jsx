@@ -1,31 +1,41 @@
 /* eslint-disable react/prop-types */
 import { useState } from "react";
-import { apiFollowTopic } from "../../api/api";
+import { apiFollowTopic, apiUnFollowTopic } from "../../api/api";
 
-const ButtonFollowingTopic = ({ initialFollowing = false, slug = "" }) => {
+const ButtonFollowingTopic = ({ initialFollowing = false, topicId = "" }) => {
+  console.log("topicId:", topicId);
   const [followed, setFollowed] = useState(initialFollowing);
   const token = localStorage.getItem("token");
 
-  const handleFollow = async (slug) => {
-    const res = await apiFollowTopic(slug, token);
+  const handleFollow = async () => {
+    const res = await apiFollowTopic(token, topicId);
+    console.log("resaa:", res);
     if (res) {
       setFollowed(!followed);
     }
   };
-  if (!slug) return;
+
+  const handleUnFollow = async () => {
+    const res = await apiUnFollowTopic(token, topicId);
+    console.log("resaa:", res);
+    if (res) {
+      setFollowed(!followed);
+    }
+  };
+  if (!topicId) return;
   return (
     <>
       {!followed ? (
         <button
           className="px-4 py-1 text-blue-600 border border-blue-600 cursor-pointer rounded-2xl"
-          onClick={() => handleFollow(slug)}
+          onClick={handleFollow}
         >
           Follow
         </button>
       ) : (
         <button
           className="px-4 py-1 text-white bg-blue-400 cursor-pointer rounded-2xl"
-          onClick={() => handleFollow(slug)}
+          onClick={handleUnFollow}
         >
           Following
         </button>

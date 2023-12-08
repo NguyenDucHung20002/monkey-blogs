@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import Avatar from "../../modules/user/Avatar";
 import InputComment from "../input/InputComment";
 import { Link } from "react-router-dom";
@@ -16,19 +16,39 @@ const CommentUser = ({
   blogId,
   commentValue: commentValueParent,
 }) => {
-  const { id, content, author, createdAt, depth, isMyComment } = data;
+  const { id, content, author, createdAt, depth, isMyComment, repliesCount } =
+    data;
   const token = localStorage.getItem("token");
   const [commentBlog, setCommentBlog] = useState([]);
+  console.log("commentBlog:", commentBlog);
   const {
     commentBlog: commentBlogParent,
     setCommentBlog: setCommentBlogParent,
   } = commentValueParent;
-  const repliesCount = useRef(data.repliesCount);
+  const [replyCount, setReplyCount] = useState(repliesCount || 0);
+  console.log("replyCount:", replyCount, repliesCount);
+
   const commentValue = { commentBlog, setCommentBlog };
   const [showMore, setShowMore] = useState(false);
   const [hideReplies, setHideReplies] = useState(false);
   const [showReply, setShowReply] = useState(false);
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (
+      commentBlog &&
+      commentBlog.length > 0 &&
+      commentBlog.length > repliesCount
+    ) {
+      setReplyCount(commentBlog.length);
+    } else if (
+      commentBlog &&
+      commentBlog.length > 0 &&
+      commentBlog.length < repliesCount
+    ) {
+      setReplyCount(replyCount + 1);
+    }
+  }, [commentBlog.length]);
 
   const handleOpenChange = (newOpen) => {
     setOpen(newOpen);
@@ -36,15 +56,9 @@ const CommentUser = ({
   const getTimeAgo = useTimeAgo;
 
   function getCountRespond(count) {
-    if (count === 1 || count === 0) return `${count} reply`;
+    if (count === 1 || count === 0) return `${count}`;
     return `${count} replies`;
   }
-
-  useEffect(() => {
-    if (commentBlog.length) {
-      repliesCount.current = commentBlog.length;
-    }
-  }, [commentBlog.length]);
 
   const handleShowComment = debounce(async () => {
     setHideReplies(!hideReplies);
@@ -133,15 +147,13 @@ const CommentUser = ({
                 d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 01-.923 1.785A5.969 5.969 0 006 21c1.282 0 2.47-.402 3.445-1.087.81.22 1.668.337 2.555.337z"
               />
             </svg>
-            {!hideReplies
-              ? getCountRespond(repliesCount.current)
-              : "hide replies"}
+            {!hideReplies ? getCountRespond(replyCount) : "hide replies"}
           </button>
           <button
             className="flex items-center gap-2 p-1 transition-all hover:text-black"
             onClick={() => setShowReply(!showReply)}
           >
-            reply
+            {showReply ? "Hide reply" : "Show reply"}
           </button>
         </div>
       )}
@@ -166,6 +178,7 @@ const CommentUser = ({
                 blogId={blogId}
                 key={comment.id}
                 commentValue={commentValue}
+                repliesCount={comment.repliesCount}
               ></CommentUser>
             ))}
         </div>

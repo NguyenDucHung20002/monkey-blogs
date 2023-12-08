@@ -7,43 +7,57 @@ const MeSuggestionPage = () => {
   const [topics, setTopics] = useState([]);
   const [users, setUsers] = useState([]);
   const token = localStorage.getItem("token");
+  const [isLoadNewUsers, setIsLoadNewUsers] = useState(false);
+  const [isLoadNewTopics, setIsLoadNewTopics] = useState(false);
 
   useEffect(() => {
     async function fetchTopic() {
-      const response = await apiSuggestionTopics(token);
+      const response = await apiSuggestionTopics(token, 10);
       if (response) setTopics(response.data);
     }
     fetchTopic();
-  }, [token]);
+  }, [token, isLoadNewTopics]);
   useEffect(() => {
     async function fetchTopic() {
-      const response = await apiSuggestionUsers(token);
+      const response = await apiSuggestionUsers(token, 10);
       if (response) setUsers(response.data);
     }
     fetchTopic();
-  }, [token]);
+  }, [token, isLoadNewUsers]);
 
   return (
     <div>
       <div className="user-following max-w-[700px] w-full mx-auto">
-        <div className="mt-6 border-b border-gray-300">
-          <h3 className="text-base font-bold">Who to follow</h3>
+        <div className="mt-6">
+          <h3 className="text-base font-bold mb-3">Who to follow</h3>
           {users &&
             users.length > 0 &&
             users.map((user) => (
               <FollowingUserHandle
-                key={user._id}
+                key={user.id}
                 data={user}
               ></FollowingUserHandle>
             ))}
+          <button
+            className="text-blue-400 mt-3 hover:text-blue-500 "
+            onClick={() => setIsLoadNewUsers(!isLoadNewUsers)}
+          >
+            Refresh new who to follow
+          </button>
         </div>
-        <div className="mt-6 border-b border-gray-300">
-          <h3 className="text-base font-bold">Topics to follow</h3>
+        <div className="mt-6 ">
+          <h3 className="text-base font-bold mb-3">Topics to follow</h3>
           {topics &&
             topics.length > 0 &&
             topics.map((topic) => (
-              <TopicUserHandle key={topic._id} data={topic}></TopicUserHandle>
+              <TopicUserHandle key={topic.id} data={topic}></TopicUserHandle>
             ))}
+          <button
+            className="text-blue-400 mt-3 hover:text-blue-500 "
+            onClick={() => setIsLoadNewTopics(!isLoadNewTopics)}
+          >
+            Refresh Recommend topics
+          </button>
         </div>
       </div>
     </div>
