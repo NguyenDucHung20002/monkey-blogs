@@ -1,6 +1,7 @@
 import React, { Suspense } from "react";
 import { Route, Routes } from "react-router";
 import { ToastContainer } from "react-toastify";
+import StaffPickPage from "./pages/StaffPickPage";
 const ProfileFollowing = React.lazy(() =>
   import("./modules/profile/ProfileFollowing")
 );
@@ -83,6 +84,10 @@ function App() {
               <Route
                 path="/profile/follower/:username"
                 element={<ProfileFollower />}
+              />
+              <Route
+                path="/profile/staff-pick/:username"
+                element={<StaffPickPage />}
               />
               <Route
                 path="/profile/following/:username"

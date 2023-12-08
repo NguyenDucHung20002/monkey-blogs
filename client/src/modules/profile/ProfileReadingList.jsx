@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { useOutletContext } from "react-router-dom";
+import { useOutletContext, useParams } from "react-router-dom";
 import { apiGetReadingList } from "../../api/apisHung";
 import styled from "styled-components";
 import Blog from "../blog/Blog";
+import { NavbarHome } from "../../components/navbar";
 
 const ReadingListStyle = styled.div`
   max-width: 700px;
@@ -18,6 +19,39 @@ const ProfileReadingList = () => {
   const data = useOutletContext();
   const token = localStorage.getItem("token");
   const user = data?.user;
+  const { username } = useParams();
+  const navProfile = [
+    {
+      title: "Home",
+      url: `/profile/${username}`,
+    },
+    {
+      title: "Follower",
+      url: `/profile/follower/${username}`,
+    },
+    {
+      title: "Following",
+      url: `/profile/following/${username}`,
+    },
+  ];
+  const navMyProfile = [
+    {
+      title: "Home",
+      url: `/profile/${username}`,
+    },
+    {
+      title: "Follower",
+      url: `/profile/follower/${username}`,
+    },
+    {
+      title: "Following",
+      url: `/profile/following/${username}`,
+    },
+    {
+      title: "Reading List",
+      url: `/profile/reading-list/${username}`,
+    },
+  ];
 
   useEffect(() => {
     async function fetchUserBlog() {
@@ -31,6 +65,10 @@ const ProfileReadingList = () => {
 
   return (
     <>
+      <NavbarHome
+        data={user?.isMyProfile ? navMyProfile : navProfile}
+        className="flex-1"
+      />
       <ReadingListStyle>
         <div>
           {blogs &&

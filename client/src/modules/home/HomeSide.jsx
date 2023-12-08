@@ -8,6 +8,7 @@ import { useStickyBox } from "react-sticky-box";
 import BlogStaffPick from "../blog/BlogStaffPick";
 import { apiSuggestionTopics, apiSuggestionUsers } from "../../api/api";
 import { apiGetReadingList, apiGetStaffPick } from "../../api/apisHung";
+import { useAuth } from "../../contexts/auth-context";
 const HomeSideStyle = styled.div`
   padding: 30px 0 0 30px;
   min-height: calc(100vh - 70px);
@@ -24,11 +25,13 @@ const HomeSide = () => {
   const [staffPick, setStaffPick] = useState([]);
   const [readingList, setReadingList] = useState([]);
   const token = localStorage.getItem("token");
+  const { userInfo } = useAuth();
+  const { data } = userInfo;
   const stickyRef = useStickyBox({ offsetTop: 60, offsetBottom: 30 });
 
   const methods = {
     async fetchReadingList() {
-      const dataBlogs = await apiGetReadingList(token, 4);
+      const dataBlogs = await apiGetReadingList(token, 3);
       if (dataBlogs?.success) setReadingList(dataBlogs.data);
     },
     async fetchStaffPick() {
@@ -67,7 +70,7 @@ const HomeSide = () => {
                 <BlogStaffPick blog={blog} key={blog.id}></BlogStaffPick>
               ))}
               <div className="mt-3">
-                <NavLink to={"/me/suggestions"}>
+                <NavLink to={"/profile/staff-pick/@hungduc2102"}>
                   <button className="font-medium text-blue-500 hover:text-blue-400">
                     See the full list
                   </button>
@@ -118,9 +121,9 @@ const HomeSide = () => {
               {readingList.map((blog) => (
                 <BlogStaffPick blog={blog} key={blog.id}></BlogStaffPick>
               ))}
-              {readingList.length >= 4 && (
+              {readingList.length >= 3 && (
                 <div className="mt-3">
-                  <NavLink to={"/me/suggestions"}>
+                  <NavLink to={`/profile/reading-list/${data?.username}`}>
                     <button className="font-medium text-blue-500 hover:text-blue-400 ">
                       See all
                     </button>

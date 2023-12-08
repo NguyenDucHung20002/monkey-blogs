@@ -686,7 +686,10 @@ const apiBlockUser = async (type = "post", token, userId) => {
       });
 
     if (!data?.success) {
-      console.log("apiBlockUser:", data.message);
+      toast.warning(data.message, {
+        pauseOnHover: true,
+        delay: 300,
+      });
       return false;
     }
     return true;

@@ -25,7 +25,6 @@ const HomeMain = () => {
   const [blogs, setBlogs] = useState([]);
   const blogRef = useRef();
   const skip = useRef("");
-  console.log("skip:", skip);
   const windowHeight = useRef(window.innerHeight);
   const scrollY = useRef(window.scrollY);
   const documentHeight = useRef(document.documentElement.scrollHeight);
@@ -34,7 +33,6 @@ const HomeMain = () => {
   const [topicFollowings, setTopicFollowings] = useState([]);
   const [searchParams] = useSearchParams();
   const topicParam = searchParams.get("topic");
-  console.log("topicParam:", topicParam);
   useEffect(() => {
     if (!muteId) return;
     const filterBlogs = blogs.filter((blog) => blog.author.id !== muteId);

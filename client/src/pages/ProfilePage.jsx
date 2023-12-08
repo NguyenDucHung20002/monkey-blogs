@@ -5,54 +5,20 @@ import ProfileContext from "../modules/profile/ProfileContext";
 import { Outlet, useParams } from "react-router-dom";
 import Following from "../components/follow/Following";
 import { apiGetProfile, apiGetUserFollowings } from "../api/api";
-import { NavbarHome } from "../components/navbar";
 import StickyBox from "react-sticky-box";
 
 const ProfilePage = () => {
   const [show, setShow] = useState(false);
   const [user, setUser] = useState({});
+  console.log("user:", user);
   const [following, setFollowing] = useState([]);
   const [isBlocked, setIsBlocked] = useState(false);
   const { username } = useParams();
   const token = localStorage.getItem("token");
   //fetch information user
 
-  console.log("user", user);
-
   //fetch list user following
 
-  const navProfile = [
-    {
-      title: "Home",
-      url: `/profile/${username}`,
-    },
-    {
-      title: "Follower",
-      url: `/profile/follower/${username}`,
-    },
-    {
-      title: "Following",
-      url: `/profile/following/${username}`,
-    },
-  ];
-  const navMyProfile = [
-    {
-      title: "Home",
-      url: `/profile/${username}`,
-    },
-    {
-      title: "Follower",
-      url: `/profile/follower/${username}`,
-    },
-    {
-      title: "Following",
-      url: `/profile/following/${username}`,
-    },
-    {
-      title: "Reading List",
-      url: `/profile/reading-list/${username}`,
-    },
-  ];
   useEffect(() => {
     async function fetchUserInf() {
       const profileUser = await apiGetProfile(token, username);
@@ -79,10 +45,6 @@ const ProfilePage = () => {
             setIsBlocked={setIsBlocked}
             token={token}
             user={user}
-          />
-          <NavbarHome
-            data={user?.isMyProfile ? navMyProfile : navProfile}
-            className="flex-1"
           />
           <Outlet context={{ user }}></Outlet>
         </div>
