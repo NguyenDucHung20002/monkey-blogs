@@ -11,9 +11,11 @@ const app = express();
 import Role from "./models/mysql/Role.js";
 import roles from "./constants/roles.js";
 import checkToUnbanUsers from "./scripts/checkToUnbanUsers.js";
+import deleteSocketUsers from "./scripts/deleteSocketUser.js";
 import "./models/mysql/Association.js";
 import "./services/passport.js";
 import "./cron.js";
+import http from "http";
 
 import authRoute from "./routes/authRoute.js";
 import muteRoute from "./routes/muteRoute.js";
@@ -34,6 +36,7 @@ import searchRoute from "./routes/searchRoute.js";
 import fileRoute from "./routes/fileRoute.js";
 import readingListRoute from "./routes/readingListRoute.js";
 import notificationRoute from "./routes/notificationRouter.js";
+import socket from "./socket.js";
 
 app.use(express.json());
 app.use(morgan("dev"));
@@ -42,7 +45,7 @@ app.use(cors());
 MongoDB.connect();
 
 sequelize
-  .sync({ force: true, logging: true })
+  .sync({ force: false, logging: false })
   .then(() => {
     console.log("connect to mysql database successfully");
   })
@@ -51,6 +54,7 @@ sequelize
     console.log("roles inserted successfully");
   })
   .then(() => {
+    deleteSocketUsers();
     checkToUnbanUsers();
   })
   .catch((error) => {
@@ -58,28 +62,32 @@ sequelize
     console.log("ERROR =>", error);
   });
 
-app.use("/api/v1/auth", authRoute);
-app.use("/api/v1/mute", muteRoute);
-app.use("/api/v1/block", blockRoute);
-app.use("/api/v1/user", userRoute);
-app.use("/api/v1/report-user", reportUserRoute);
-app.use("/api/v1/profile", profileRoute);
-app.use("/api/v1/follow-profile", followProfileRoute);
-app.use("/api/v1/topic", topicRoute);
-app.use("/api/v1/follow-topic", followTopicRoute);
-app.use("/api/v1/article", artcileRoute);
-app.use("/api/v1/like", likeRoute);
-app.use("/api/v1/role", roleRoute);
-app.use("/api/v1/report-article", reportArticleRoute);
-app.use("/api/v1/comment", commentRoute);
-app.use("/api/v1/reading-history", readingHistoryRoute);
-app.use("/api/v1/search", searchRoute);
-app.use("/api/v1/file", fileRoute);
-app.use("/api/v1/reading-list", readingListRoute);
-app.use("/api/v1/notification", notificationRoute);
+app.use(`/${env.API_VERSION}/auth`, authRoute);
+app.use(`/${env.API_VERSION}/mute`, muteRoute);
+app.use(`/${env.API_VERSION}/block`, blockRoute);
+app.use(`/${env.API_VERSION}/user`, userRoute);
+app.use(`/${env.API_VERSION}/report-user`, reportUserRoute);
+app.use(`/${env.API_VERSION}/profile`, profileRoute);
+app.use(`/${env.API_VERSION}/follow-profile`, followProfileRoute);
+app.use(`/${env.API_VERSION}/topic`, topicRoute);
+app.use(`/${env.API_VERSION}/follow-topic`, followTopicRoute);
+app.use(`/${env.API_VERSION}/article`, artcileRoute);
+app.use(`/${env.API_VERSION}/like`, likeRoute);
+app.use(`/${env.API_VERSION}/role`, roleRoute);
+app.use(`/${env.API_VERSION}/report-article`, reportArticleRoute);
+app.use(`/${env.API_VERSION}/comment`, commentRoute);
+app.use(`/${env.API_VERSION}/reading-history`, readingHistoryRoute);
+app.use(`/${env.API_VERSION}/search`, searchRoute);
+app.use(`/${env.API_VERSION}/file`, fileRoute);
+app.use(`/${env.API_VERSION}/reading-list`, readingListRoute);
+app.use(`/${env.API_VERSION}/notification`, notificationRoute);
 
 app.use(errorMiddleware);
 
-app.listen(env.SERVER_PORT, () => {
+const httpServer = http.createServer(app);
+
+socket.initializeSocket(httpServer);
+
+httpServer.listen(env.SERVER_PORT, () => {
   console.log(`server is running on port: ${env.SERVER_PORT}`);
 });

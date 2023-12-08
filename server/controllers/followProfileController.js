@@ -8,6 +8,9 @@ import addUrlToImg from "../utils/addUrlToImg.js";
 import Block from "../models/mysql/Block.js";
 import Role from "../models/mysql/Role.js";
 import sequelize from "../databases/mysql/connect.js";
+import Notification from "../models/mysql/Notification.js";
+import socket from "../socket.js";
+import SocketUser from "../models/mongodb/SocketUser.js";
 
 // ==================== follow a profile ==================== //
 const followAProfile = asyncMiddleware(async (req, res, next) => {
@@ -31,6 +34,38 @@ const followAProfile = asyncMiddleware(async (req, res, next) => {
       me.profileInfo.increment({ followingCount: 1 }),
       user.profileInfo.increment({ followersCount: 1 }),
     ]);
+
+    let notification = await Notification.create({
+      senderId: me.profileInfo.id,
+      reciverId: user.profileInfo.id,
+      content: `${me.profileInfo.fullname} followed you.`,
+    });
+
+    const io = socket.getIO();
+
+    notification = {
+      sender: {
+        id: me.profileInfo.id,
+        fullname: me.profileInfo.fullname,
+        avatar: addUrlToImg(me.profileInfo.avatar),
+        username: me.username,
+      },
+      reciver: {
+        id: user.profileInfo.id,
+        fullname: user.profileInfo.fullname,
+        avatar: addUrlToImg(user.profileInfo.avatar),
+        username: user.username,
+      },
+      content: notification.content,
+      createdAt: notification.createdAt,
+      updatedAt: notification.updatedAt,
+    };
+
+    const recivers = await SocketUser.find({ userId: user.profileInfo.id });
+
+    recivers.forEach((reciver) => {
+      io.to(reciver.socketId).emit("follow-profile", notification);
+    });
   }
 
   res.status(201).json({
