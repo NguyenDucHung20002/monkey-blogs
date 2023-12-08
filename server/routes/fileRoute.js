@@ -3,6 +3,7 @@ import fileController from "../controllers/fileController.js";
 import requiredAuth from "../middlewares/requiredAuth.js";
 import fetchMe from "../middlewares/fetchMe.js";
 import mongoUpload from "../middlewares/mongoUpload.js";
+import checkUploadedImg from "../middlewares/checkUploadedImg.js";
 
 const router = express.Router();
 
@@ -19,6 +20,7 @@ router.post(
   requiredAuth,
   fetchMe,
   mongoUpload.single("avatar"),
+  checkUploadedImg,
   fileController.upLoadAnAvatar
 );
 
