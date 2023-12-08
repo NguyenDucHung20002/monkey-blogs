@@ -10,7 +10,7 @@ const Notification = sequelize.define(
 
     senderId: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,
       references: { model: Profile, key: "id" },
     },
 
@@ -28,7 +28,11 @@ const Notification = sequelize.define(
 
     content: { type: DataTypes.STRING, allowNull: false },
 
-    isRead: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
+    isReaded: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
   },
 
   {

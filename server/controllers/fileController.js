@@ -1,6 +1,7 @@
 import MongoDB from "../databases/mongodb/connect.js";
 import ErrorResponse from "../responses/ErrorResponse.js";
 import asyncMiddleware from "../middlewares/asyncMiddleware.js";
+import clarifai from "../services/clarifai.js";
 
 // ==================== upload an image ==================== //
 const upLoadAnImg = asyncMiddleware(async (req, res, next) => {

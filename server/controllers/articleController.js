@@ -60,7 +60,7 @@ const updateADraft = asyncMiddleware(async (req, res, next) => {
 
   replaceImgUrlsWithNames(content);
 
-  await draft.update({ title, content, slug: updatedSlug });
+  await draft.update({ title, content, slug: updatedSlug }, { hooks: false });
 
   res.json({ success: true, message: "Draft updated successfully" });
 });
@@ -82,7 +82,10 @@ const deleteADraft = asyncMiddleware(async (req, res, next) => {
     fileController.autoRemoveImg(img);
   });
 
-  await Article.destroy({ where: { id, authorId: me.profileInfo.id } });
+  await Article.destroy({
+    where: { id, authorId: me.profileInfo.id },
+    force: true,
+  });
 
   res.json({ success: true, message: "Draft deleted successfully" });
 });
@@ -105,6 +108,7 @@ const getAnArticleOrADraftToEdit = asyncMiddleware(async (req, res, next) => {
   if (!data) throw ErrorResponse(404, "Not found");
 
   if (data.status === "draft") {
+    console.log("hello world");
     data = {
       id: data.id,
       title: data.title,
@@ -244,7 +248,7 @@ const deleteArticle = asyncMiddleware(async (req, res, next) => {
     fileController.autoRemoveImg(img);
   });
 
-  await article.destroy();
+  await article.destroy({ force: true });
 
   res.json({ success: true, message: "Article deleted successfully" });
 });

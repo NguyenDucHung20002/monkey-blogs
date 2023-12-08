@@ -12,4 +12,11 @@ router.get(
   notificationController.getNotifications
 );
 
+router.get(
+  "/me/unRead-count",
+  requiredAuth,
+  fetchMe,
+  notificationController.unReadCount
+);
+
 export default router;

@@ -4,10 +4,11 @@ import Notification from "../models/mysql/notification.js";
 import User from "../models/mysql/User.js";
 import Role from "../models/mysql/Role.js";
 import { Op } from "sequelize";
+import ErrorResponse from "../responses/ErrorResponse.js";
 
 const getNotifications = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
-  const { skip, limit = 10 } = req.query;
+  const { skip, limit = 15 } = req.query;
 
   let whereQuery = { reciverId: me.profileInfo.id };
 
@@ -41,10 +42,10 @@ const getNotifications = asyncMiddleware(async (req, res, next) => {
       },
     ],
     order: [["id", "DESC"]],
-    limit: Number(limit) ? Number(limit) : 16,
+    limit: Number(limit) ? Number(limit) : 15,
   });
 
-  notifications = notifications.map((notification) => {
+  notifications.map(async (notification) => {
     return {
       id: notification.id,
       sender: {
@@ -74,4 +75,15 @@ const getNotifications = asyncMiddleware(async (req, res, next) => {
   res.json({ success: true, data: notifications, newSkip });
 });
 
-export default { getNotifications };
+const unReadCount = asyncMiddleware(async (req, res, next) => {
+  const me = req.me;
+  const unReadNotificationsCount = await Profile.findByPk(me.profileInfo.id, {
+    attributes: ["unReadNotificationsCount"],
+  });
+
+  if (!unReadNotificationsCount) throw ErrorResponse(404, "Not Found");
+
+  res.json({ success: true, data: unReadNotificationsCount });
+});
+
+export default { getNotifications, unReadCount };
