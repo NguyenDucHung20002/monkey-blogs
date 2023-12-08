@@ -13,7 +13,6 @@ import MyEditor from "../components/input/MyEditor";
 import {
   apiAddBlog,
   apiCreateDarft,
-  apiDeleteDarft,
   apiUpdateDarft,
 } from "../api/apiNew";
 import { debounce } from "lodash";
@@ -42,10 +41,8 @@ const WritePage = () => {
   } = useForm({
     resolver: yupResolver(schema),
   });
-  // const [content, setContent] = useState("");
-  // const [image, setImage] = useState("");
+
   const [topics, setTopics] = useState([]);
-  const [imageFilename, setImageFilename] = useState(null);
   const [content, setContent] = useState("");
   const [preview, setPreview] = useState("");
   const [isSaved, setIsSaved] = useState(false);
@@ -153,6 +150,12 @@ const WritePage = () => {
     // console.log("content",content);
     const check = content !== "" && watchedTitle !== "";
     setIsSaved(false);
+    const encoder = new TextEncoder();
+    const byteSize = encoder.encode(content).length;
+    console.log(byteSize);
+    if(byteSize >= 102400){
+      return
+    }
     if (check && !hasRunOnce) {
       createDraft();
     }
