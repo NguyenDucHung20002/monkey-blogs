@@ -25,7 +25,7 @@ const ProfileBlogs = ({ blogs, user, fetchDeleteArticle }) => {
   const MoreUser = ({ slug }) => {
     return (
       <div>
-        <NavLink to={`/edit-blog/${slug}`}>
+        <NavLink to={`/edit-blog/${slug}/article`}>
           <div className="my-2 ">Edit story</div>
         </NavLink>
         <div

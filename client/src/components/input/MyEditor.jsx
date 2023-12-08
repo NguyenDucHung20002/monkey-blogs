@@ -13,7 +13,6 @@ const MyEditor = ({ content, setContent }) => {
   const [imageFiles, setImageFiles] = useState([]);
   const quillRef = useRef();
   const deleteImage =(filename) => {
-    // console.log("id:", filename);
      apiDeleteImage(filename)
   };
 

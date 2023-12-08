@@ -124,6 +124,11 @@ const EditBlogPage = () => {
     setImage("");
   };
 
+  const handleClickPublish = () => {
+    handleSubmit(handleEditBlog)();
+    console.log("submit");
+  };
+
   const handleEditBlog = (values) => {
     if (!isValid) return;
     if (!image)
@@ -162,8 +167,19 @@ const EditBlogPage = () => {
   return (
     <EditBlogPageStyle>
       <form onSubmit={handleSubmit(handleEditBlog)} autoComplete="off">
-        <WriteHeader></WriteHeader>
-        <div className="mt-5 form-layout">
+        <WriteHeader
+          image={image}
+          handleSelectImage={handleSelectImage}
+          handleDeleteImage={handleDeleteImage}
+          topics={topics}
+          setTopics={setTopics}
+          token={token}
+          isSubmitting={isSubmitting}
+          disabled={isSubmitting}
+          handleClickPublish={handleClickPublish}
+
+        />
+        {/* <div className="mt-5 form-layout">
           <div>
             <ImageUpload
               className="h-[250px]"
@@ -203,9 +219,9 @@ const EditBlogPage = () => {
               of the story itself.
             </p>
           </div>
-        </div>
+        </div> */}
         <MyEditor content={content} setContent={setContent}></MyEditor>
-        <div className="sticky bottom-0 flex justify-center p-4">
+        {/* <div className="sticky bottom-0 flex justify-center p-4">
           <Button
             type="submit"
             kind="primary"
@@ -216,7 +232,7 @@ const EditBlogPage = () => {
           >
             Publish
           </Button>
-        </div>
+        </div> */}
       </form>
     </EditBlogPageStyle>
   );
