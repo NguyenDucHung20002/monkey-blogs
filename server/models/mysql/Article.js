@@ -4,6 +4,8 @@ import Profile from "../mysql/Profile.js";
 import extractImg from "../../utils/extractImg.js";
 import MongoDB from "../../databases/mongodb/connect.js";
 import clarifai from "../../services/clarifai.js";
+import socket from "../../socket.js";
+import SocketUser from "../mongodb/SocketUser.js";
 
 const Article = sequelize.define(
   "Article",
@@ -61,64 +63,86 @@ const Article = sequelize.define(
     tableName: "articles",
     timestamps: true,
     paranoid: true,
-    hooks: {
-      afterUpdate: async (article, options) => {
-        if (article.rejectedCount === 3) {
-          await article.destroy();
-          return;
-        }
+    //   hooks: {
+    //     afterUpdate: async (article, options) => {
+    //       const io = socket.getIO();
 
-        const imgsName = extractImg(article.content);
+    //       const recivers = await SocketUser.find({ userId: article.authorId });
 
-        imgsName.push(article.banner);
+    //       if (article.rejectedCount === 3) {
+    //         await article.destroy();
 
-        const gfs = MongoDB.gfs;
+    //         if (recivers || recivers.length === 0) return;
 
-        let nsfw = false;
+    //         const messages =
+    //           "Your article has been deleted because it has been rejected multiple times";
 
-        let rejectedCount = article.rejectedCount;
+    //         recivers.forEach((reciver) => {
+    //           io.to(reciver.socketId).emit("article-deleted", messages);
+    //         });
 
-        for (const imgName of imgsName) {
-          if (nsfw) break;
+    //         return;
+    //       }
 
-          const files = await gfs.find({ filename: imgName }).toArray();
+    //       const imgsName = extractImg(article.content);
 
-          if (!files || !files.length) {
-            console.log("image not found");
-            continue;
-          }
+    //       imgsName.push(article.banner);
 
-          const readStream = gfs.openDownloadStreamByName(imgName);
+    //       const gfs = MongoDB.gfs;
 
-          const chunks = [];
+    //       let nsfw = false;
 
-          readStream.on("data", (chunk) => {
-            chunks.push(chunk);
-          });
+    //       let rejectedCount = article.rejectedCount;
 
-          readStream.on("end", () => {
-            const imageData = Buffer.concat(chunks).toString("base64");
-            clarifai(imageData, async (err, results) => {
-              if (err) {
-                console.log(err);
-                return;
-              }
+    //       for (const imgName of imgsName) {
+    //         if (nsfw) break;
 
-              if (results[0].nsfw > 0.55) {
-                nsfw = true;
-                rejectedCount++;
-                await article.update(
-                  { status: "rejected", rejectedCount },
-                  { hooks: false }
-                );
-                return;
-              }
-            });
-          });
-        }
-        await article.update({ status: "approved" }, { hooks: false });
-      },
-    },
+    //         const files = await gfs.find({ filename: imgName }).toArray();
+
+    //         if (!files || !files.length) {
+    //           console.log("image not found");
+    //           continue;
+    //         }
+
+    //         const readStream = gfs.openDownloadStreamByName(imgName);
+
+    //         const chunks = [];
+
+    //         readStream.on("data", (chunk) => {
+    //           chunks.push(chunk);
+    //         });
+
+    //         readStream.on("end", () => {
+    //           const imageData = Buffer.concat(chunks).toString("base64");
+    //           clarifai(imageData, async (err, results) => {
+    //             if (err) {
+    //               console.log(err);
+    //               return;
+    //             }
+
+    //             if (results[0].nsfw > 0.55) {
+    //               nsfw = true;
+    //               rejectedCount++;
+    //               await article.update(
+    //                 { status: "rejected", rejectedCount },
+    //                 { hooks: false }
+    //               );
+
+    //               const messages =
+    //                 "Our system has detected that your article includes sensitive images. This could be a mistake, and our staff or administrators will investigate it";
+
+    //               recivers.forEach((reciver) => {
+    //                 io.to(reciver.socketId).emit("article-rejected", messages);
+    //               });
+
+    //               return;
+    //             }
+    //           });
+    //         });
+    //       }
+    //       await article.update({ status: "approved" }, { hooks: false });
+    //     },
+    //   },
   }
 );
 

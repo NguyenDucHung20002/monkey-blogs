@@ -14,7 +14,7 @@ import Report_Article from "./Report_Article.js";
 import Comment from "./Comment.js";
 import Reading_History from "./Reading_History.js";
 import Reading_List from "./Reading_List.js";
-import Notification from "./notification.js";
+import Notification from "./Notification.js";
 
 // Role - User (1-n)
 Role.hasMany(User, {
@@ -437,4 +437,10 @@ Notification.belongsTo(Profile, {
 Notification.belongsTo(Profile, {
   foreignKey: "senderId",
   as: "sender",
+});
+
+// Topic - Follow_Topic
+Topic.hasOne(Follow_Topic, {
+  foreignKey: "topicId",
+  as: "followTopic",
 });
