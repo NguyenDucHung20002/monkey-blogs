@@ -192,15 +192,18 @@ const apiTopicsSearch = async (token, inputSearch = "", limit = 10, skip) => {
   }
 };
 
-const apiGetReadingList = async (token) => {
+const apiGetReadingList = async (token, limit) => {
   if (!token) return null;
   try {
-    const response = await axios.get(`${config.SERVER_HOST}/reading-list/me`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    });
+    const response = await axios.get(
+      `${config.SERVER_HOST}/reading-list/me?limit=${limit}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
     if (response?.data) return response.data;
   } catch (error) {
     console.log("error:", error);
