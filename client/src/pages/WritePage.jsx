@@ -16,8 +16,14 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "../components/button";
 import ImageUpload from "../components/image/ImageUpload";
 import MyEditor from "../components/input/MyEditor";
-import { apiAddBlog, apiCreateDarft, apiDeleteDarft, apiUpdateDarft } from "../api/apiNew";
+import {
+  apiAddBlog,
+  apiCreateDarft,
+  apiDeleteDarft,
+  apiUpdateDarft,
+} from "../api/apiNew";
 import { debounce } from "lodash";
+import useUploadImage from "../hooks/useUploadImage";
 
 const WritePageStyle = styled.div`
   max-width: 1000px;
@@ -44,7 +50,7 @@ const WritePage = () => {
     resolver: yupResolver(schema),
   });
   // const [content, setContent] = useState("");
-  const [image, setImage] = useState("");
+  // const [image, setImage] = useState("");
   const [topics, setTopics] = useState([]);
   const [imageFilename, setImageFilename] = useState(null);
   const [content, setContent] = useState("");
@@ -53,7 +59,7 @@ const WritePage = () => {
   const [newDraft, setNewDraft] = useState({});
   const [hasRunOnce, setHasRunOnce] = useState(false);
   const navigate = useNavigate();
-
+  const { image, onSelectImage, onDeleteImage } = useUploadImage();
   useEffect(() => {
     const arrErrs = Object.values(errors);
     if (arrErrs.length > 0) {
@@ -78,54 +84,51 @@ const WritePage = () => {
     const parser = new DOMParser();
     const doc = parser.parseFromString(contentClone, "text/html");
     const textContent = doc.body.textContent;
-
     setPreview(textContent);
     setValue("preview", preview);
   }, [content, preview, setValue]);
 
   const handleSelectImage = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    if (file) {
-      const allowedExtensions = /(\.jpg|\.jpeg|\.png|\.gif)$/i;
-      if (!allowedExtensions.exec(file.name)) {
-        alert("Choose inly .jpeg .jpg .png .gif");
-        e.target.value = "";
-        return;
-      }
-      setImageFilename(file);
-      setImage(URL.createObjectURL(file));
-    }
+    if (image) return;
+    onSelectImage(e);
   };
 
   const handleDeleteImage = (e) => {
-    e.target.value = "";
-    setImage("");
+    onDeleteImage(image?.filename);
   };
 
   const handleAddBlog = (values) => {
     if (!isValid) return;
-    if (!imageFilename)
+    if (!image) {
       toast.error("Please fill out your image title!", {
         pauseOnHover: false,
         delay: 500,
       });
+      return;
+    }
     const { title, content, preview } = values;
-    const cutPreview = preview.slice(0, 200);
-    const formData = new FormData();
-    formData.set("banner", imageFilename);
-    formData.set("title", title);
-    formData.set("content", content);
-    formData.set("preview", cutPreview);
-    topics.forEach((value, index) => {
-      formData.set(`topicNames[${index}]`, value?.name);
-    });
+    const topicNames = topics.map((val, i) => val.name);
+    console.log(topicNames);
+    const idDraft = newDraft?.draftId;
+    const data = {
+      topicNames,
+      preview,
+      banner: image.filename,
+    };
+    console.log(data);
+    // const cutPreview = preview.slice(0, 200);
+    // const formData = new FormData();
+    // formData.set("banner", imageFilename);
+    // formData.set("title", title);
+    // formData.set("content", content);
+    // formData.set("preview", cutPreview);
+    // topics.forEach((value, index) => {
+    //   formData.set(`topicNames[${index}]`, value?.name);
+    // });
     async function fetchAddBlog() {
       if (!token) return;
-      const response = await apiAddBlog(formData)
-      if (response) {
-        const idDraft = newDraft?.draftId
-        apiDeleteDarft(idDraft)
+      const response = await apiAddBlog(idDraft, data);
+      if (response.success) {
         navigate("/");
       }
     }
@@ -133,49 +136,48 @@ const WritePage = () => {
   };
   const handleClickPublish = () => {
     handleSubmit(handleAddBlog)();
-    console.log("submit");
   };
 
-  const watchedTitle = useWatch({control,name:"title",defaultValue:""})
-  const createDraft =async()=>{
-    const res = await apiCreateDarft(watchedTitle,content)
-    if(res?.success){
-      setNewDraft(res)
-      setIsSaved(true)
-      setHasRunOnce(true)
+  const watchedTitle = useWatch({ control, name: "title", defaultValue: "" });
+  const createDraft = async () => {
+    const res = await apiCreateDarft(watchedTitle, content);
+    if (res?.success) {
+      setNewDraft(res);
+      setIsSaved(true);
+      setHasRunOnce(true);
     }
-  }
-  const UpdateDraft = debounce(async()=>{
-    const idDraft = newDraft?.draftId
-    const res = await apiUpdateDarft(idDraft,watchedTitle,content)
-    if(res?.success){
-      setIsSaved(true)
+  };
+  const UpdateDraft = debounce(async () => {
+    const idDraft = newDraft?.draftId;
+    const res = await apiUpdateDarft(idDraft, watchedTitle, content);
+    if (res?.success) {
+      setIsSaved(true);
     }
-  },1000)
-  
-  useEffect(()=>{
+  }, 1000);
+
+  useEffect(() => {
     // console.log("title",watchedTitle);
     // console.log("content",content);
     const check = content !== "" && watchedTitle !== "";
-    setIsSaved(false)
-    if(check && !hasRunOnce){
-      createDraft()
+    setIsSaved(false);
+    if (check && !hasRunOnce) {
+      createDraft();
     }
-    if(newDraft?.draftId){
-      UpdateDraft()
+    if (newDraft?.draftId) {
+      UpdateDraft();
     }
     // console.log("newDraft",newDraft);
     // console.log("changeDraft",changeDraft);
-  },[watchedTitle,content])
+  }, [watchedTitle, content]);
 
   if (!token) return null;
   return (
     <WritePageStyle>
       <form onSubmit={handleSubmit(handleAddBlog)} autoComplete="off">
-        <WriteHeader 
+        <WriteHeader
           isSaved={isSaved}
-          image={image} 
-          handleSelectImage={handleSelectImage} 
+          image={image?.url}
+          handleSelectImage={handleSelectImage}
           topics={topics}
           setTopics={setTopics}
           token={token}
@@ -183,12 +185,12 @@ const WritePage = () => {
           handleDeleteImage={handleDeleteImage}
           handleClickPublish={handleClickPublish}
         ></WriteHeader>
-            <InputHook
-              className=""
-              control={control}
-              name="title"
-              placeholder="Add title"
-            ></InputHook>
+        <InputHook
+          className=""
+          control={control}
+          name="title"
+          placeholder="Add title"
+        ></InputHook>
         <MyEditor content={content} setContent={setContent}></MyEditor>
       </form>
     </WritePageStyle>
