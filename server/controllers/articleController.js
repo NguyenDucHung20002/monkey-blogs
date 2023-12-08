@@ -805,6 +805,11 @@ const adminPick = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
 
   let articles = await Reading_List.findAll({
+    where: {
+      "$readArticle.authorMuted.mutedId$": null,
+      "$readArticle.authorBlocked.blockedId$": null,
+      "$readArticle.authorBlocker.blockerId$": null,
+    },
     attributes: {
       exclude: [
         "authorId",
@@ -860,9 +865,11 @@ const adminPick = asyncMiddleware(async (req, res, next) => {
         model: Profile,
         as: "readingProfile",
         attributes: [],
+        required: true,
         include: {
           model: User,
           as: "userInfo",
+          required: true,
           include: { model: Role, as: "role", where: { slug: "admin" } },
         },
       },
@@ -894,8 +901,16 @@ const adminPickFullList = asyncMiddleware(async (req, res, next) => {
   const { skip, limit = 15 } = req.query;
   const me = req.me;
 
+  let whereQuery = {
+    "$readArticle.authorMuted.mutedId$": null,
+    "$readArticle.authorBlocked.blockedId$": null,
+    "$readArticle.authorBlocker.blockerId$": null,
+  };
+
+  if (skip) whereQuery.id = { [Op.lt]: skip };
+
   const adminPickList = await Reading_List.findAll({
-    // where: { id: { [Op.lt]: skip } },
+    where: whereQuery,
     attributes: ["id"],
     include: [
       {
@@ -951,9 +966,11 @@ const adminPickFullList = asyncMiddleware(async (req, res, next) => {
         model: Profile,
         as: "readingProfile",
         attributes: [],
+        required: true,
         include: {
           model: User,
           as: "userInfo",
+          required: true,
           include: { model: Role, as: "role", where: { slug: "admin" } },
         },
       },

@@ -10,6 +10,7 @@ export default {
 
   SERVER_HOST: process.env.SERVER_HOST || "http://localhost",
   SERVER_PORT: process.env.SERVER_PORT || 8080,
+  API_VERSION: process.env.API_VERSION || "api/v1",
 
   JWT_SECRET: process.env.JWT_SECRET || "123456789",
   JWT_EXPIRE_TIME: process.env.JWT_EXPIRE_TIME || "3d",

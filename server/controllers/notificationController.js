@@ -61,7 +61,7 @@ const getNotifications = asyncMiddleware(async (req, res, next) => {
         role: notification.reciver.userInfo.role.slug,
       },
       content: notification.content,
-      isRead: notification.isRead,
+      isReaded: notification.isReaded,
       createdAt: notification.createdAt,
       updatedAt: notification.updatedAt,
     };
@@ -72,7 +72,46 @@ const getNotifications = asyncMiddleware(async (req, res, next) => {
       ? notifications[notifications.length - 1].id
       : null;
 
-  res.json({ success: true, data: notifications, newSkip });
+  res.json({ success: true, data: notifications, unReadedCount: newSkip });
+});
+
+const markAsReaded = asyncMiddleware(async (req, res, next) => {
+  const me = req.me;
+  const { id } = req.params;
+
+  const notification = await Notification.findOne({
+    where: { id, isReaded: false },
+  });
+
+  if (!notification) throw ErrorResponse(404, "Notification not found");
+
+  await Promise.all([
+    notification.update({ isReaded: true }),
+    me.profileInfo.increment({ unReadNotificationsCount: -1 }),
+  ]);
+
+  res.json({
+    success: true,
+    message: "Marked notification as readed successfully",
+  });
+});
+
+const martAllAsReaded = asyncMiddleware(async (req, res, next) => {
+  const me = req.me;
+
+  const markAsReadedNotifications = await Notification.update({
+    where: { reciverId: me.profileInfo.id, isReaded: false },
+    isReaded: true,
+  });
+
+  await me.profileInfo.increment({
+    unReadNotificationsCount: -markAsReadedNotifications.length,
+  });
+
+  res.json({
+    success: true,
+    message: "Marked all notifications as readed successfully",
+  });
 });
 
 const unReadCount = asyncMiddleware(async (req, res, next) => {
@@ -86,4 +125,4 @@ const unReadCount = asyncMiddleware(async (req, res, next) => {
   res.json({ success: true, data: unReadNotificationsCount });
 });
 
-export default { getNotifications, unReadCount };
+export default { getNotifications, unReadCount, markAsReaded, martAllAsReaded };

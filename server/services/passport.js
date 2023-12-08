@@ -10,7 +10,7 @@ passport.use(
     {
       clientID: env.GOOGLE_CLIENT_ID,
       clientSecret: env.GOOGLE_CLIENT_SECRET,
-      callbackURL: `${env.SERVER_HOST}:${env.SERVER_PORT}/api/v1/auth/google/callback`,
+      callbackURL: `${env.SERVER_HOST}:${env.SERVER_PORT}/${env.API_VERSION}/auth/google/callback`,
     },
     (accessToken, refreshToken, profile, done) => {
       try {
