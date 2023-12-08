@@ -3,24 +3,26 @@ import Topic from "../../modules/topic/Topic";
 import ButtonFollowingTopic from "../button/ButtonFollowingTopic";
 
 const TopicUserHandle = ({ data, initialFollowing = false }) => {
-  const { slug, name } = data;
+  console.log("data:", data);
+  const { id, slug, name, articlesCount, followersCount } = data;
 
   if (!data) return;
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center ">
-        <div className="py-2 pr-5 ">
-          <Topic to={slug} className="mb-3 mr-3">
+        <div className="flex items-center py-2 pr-5">
+          <Topic to={`topic/${slug}`} className="mr-3 ">
             {name}
           </Topic>
           <div className="flex items-center gap-2 font-semibold text-gray-500">
-            <p>138 Stories</p> <div className="text-2xl -translate-y-1">.</div>{" "}
-            <p>113Writers</p>
+            <p>{articlesCount} Stories</p>
+            <div className="text-2xl -translate-y-1">.</div>{" "}
+            <p>{followersCount} Writers</p>
           </div>
         </div>
       </div>
       <ButtonFollowingTopic
-        slug={slug}
+        topicId={id}
         initialFollowing={initialFollowing}
       ></ButtonFollowingTopic>
     </div>

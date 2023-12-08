@@ -270,6 +270,83 @@ const apiReportBlog = async (token, postId, reason) => {
   }
 };
 
+const apiGetExploreBlogs = async (token, limit, skip = "") => {
+  if (!token) return null;
+  try {
+    const response = await axios.get(
+      `${config.SERVER_HOST}/article/explore-new-articles/?limit=${limit}&skip=${skip}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response?.data) return response.data;
+  } catch (error) {
+    console.log("error:", error);
+  }
+};
+
+const apiGetStaffPick = async (token, limit = 3, skip = "") => {
+  if (!token) return null;
+  try {
+    const response = await axios.get(
+      `${config.SERVER_HOST}/article/admin-pick-full-list?limit=${limit}&skip=${skip}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response?.data) return response.data;
+  } catch (error) {
+    console.log("error:", error);
+  }
+};
+
+const apiGetFollowedArticles = async (token, slug, limit = 10, skip = "") => {
+  if (!token) return null;
+  try {
+    const response = await axios.get(
+      `${config.SERVER_HOST}/article/topic/${slug}?limit=${limit}&skip=${skip}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response?.data) return response.data;
+  } catch (error) {
+    console.log("error:", error);
+  }
+};
+
+const apiGetMyUserFollowings = async (
+  token,
+  username,
+  limit = 10,
+  skip = ""
+) => {
+  if (!token) return null;
+  try {
+    const response = await axios.get(
+      `${config.SERVER_HOST}/follow-profile/${username}/following?limit=${limit}&skip=${skip}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response?.data) return response.data;
+  } catch (error) {
+    console.log("error:", error);
+  }
+};
+
 export {
   apiGetPendingReportUsers,
   apiGetReportedUsers,
@@ -284,4 +361,8 @@ export {
   apiAddReadingList,
   apiDeleteReadingList,
   apiReportBlog,
+  apiGetExploreBlogs,
+  apiGetStaffPick,
+  apiGetFollowedArticles,
+  apiGetMyUserFollowings,
 };

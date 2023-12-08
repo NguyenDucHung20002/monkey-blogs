@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import "react-quill/dist/quill.snow.css";
 import styled from "styled-components";
 import WriteHeader from "../layout/WriteHeader";
@@ -8,13 +8,7 @@ import { useForm, useWatch } from "react-hook-form";
 import InputHook from "../components/input/InputHook";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useAuth } from "../contexts/auth-context";
-import SearchAddTopics from "../components/search/SearchAddTopics";
-import { config } from "../utils/constants";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { Button } from "../components/button";
-import ImageUpload from "../components/image/ImageUpload";
 import MyEditor from "../components/input/MyEditor";
 import {
   apiAddBlog,
@@ -39,7 +33,6 @@ const schema = yup.object({
 });
 
 const WritePage = () => {
-  const { userInfo } = useAuth();
   const token = localStorage.getItem("token");
   const {
     control,
@@ -71,7 +64,7 @@ const WritePage = () => {
   }, [errors]);
 
   useEffect(() => {
-    const topicsId = topics.map((topic) => topic._id);
+    const topicsId = topics.map((topic) => topic.id);
     setValue("topics", topicsId);
   }, [setValue, topics]);
 

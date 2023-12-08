@@ -1,6 +1,5 @@
 // eslint-disable-next-line no-unused-vars
 import React, { Fragment, useState } from "react";
-import StickyBox from "react-sticky-box";
 import styled from "styled-components";
 import { Col, Row } from "antd";
 import HomeSide from "../modules/home/HomeSide";
@@ -53,11 +52,9 @@ const HomePage = () => {
           </div>
           <Outlet></Outlet>
         </Col>
-        {/* <Col xs={0} md={9}>
-          <StickyBox>
-            <HomeSide></HomeSide>
-          </StickyBox>
-        </Col> */}
+        <Col xs={0} md={9}>
+          <HomeSide></HomeSide>
+        </Col>
       </Row>
     </HomePageStyle>
   );

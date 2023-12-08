@@ -6,13 +6,12 @@ import Blog from "../modules/blog/Blog";
 import { useSearchParams } from "react-router-dom";
 import { apiBlogSearch } from "../api/apisHung";
 import { debounce } from "lodash";
-import { apiMuteUser } from "../api/api";
 
 const SearchStoriesPageStyle = styled.div`
   max-width: 700px;
   width: 100%;
   margin: 0 auto;
-  padding-bottom: 20px;
+  padding: 0 20px 20px;
 `;
 
 const SearchStoriesPage = () => {
@@ -29,14 +28,8 @@ const SearchStoriesPage = () => {
 
   useEffect(() => {
     if (!muteId) return;
-    async function muteAuthor() {
-      const response = await apiMuteUser("post", token, muteId);
-      if (response) {
-        const filterBlogs = blogs.filter((blog) => blog.author.id !== muteId);
-        setBlogs(filterBlogs);
-      }
-    }
-    muteAuthor();
+    const filterBlogs = blogs.filter((blog) => blog.author.id !== muteId);
+    setBlogs(filterBlogs);
   }, [muteId, token]);
 
   useEffect(() => {

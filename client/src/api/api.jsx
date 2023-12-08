@@ -85,10 +85,10 @@ const apiDeleteTopic = async (token, id) => {
   }
 };
 
-const apiFollowTopic = async (slug, token) => {
+const apiFollowTopic = async (token, topicId) => {
   const res = await axios
     .post(
-      `${config.SERVER_HOST}/follow-topic/${slug}/follow-unfollow`,
+      `${config.SERVER_HOST}/follow-topic/${topicId}`,
       {},
       {
         headers: {
@@ -105,6 +105,32 @@ const apiFollowTopic = async (slug, token) => {
         });
       }
     });
+
+  if (res?.data?.success) {
+    return true;
+  }
+
+  return false;
+};
+
+const apiUnFollowTopic = async (token, topicId) => {
+  const res = await axios
+    .delete(`${config.SERVER_HOST}/follow-topic/${topicId}`, {
+      headers: {
+        authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    })
+    .catch((err) => {
+      if (err.response.status == 404) {
+        toast.error("Can not find topic!", {
+          pauseOnHover: false,
+          delay: 500,
+        });
+      }
+    });
+  console.log("res:", res);
+
   if (res.data.success) {
     return true;
   }
@@ -137,7 +163,7 @@ const apiFollowUser = async (userID, token) => {
         });
       }
     });
-  if (res?.data.success) {
+  if (res?.data?.success) {
     return true;
   }
   return false;
@@ -258,6 +284,7 @@ const apiGetCommentReplies = async (token, id) => {
 };
 
 const apiGetMyFollowingTopics = async (token) => {
+  if (!token) return undefined;
   try {
     const response = await axios.get(`${config.SERVER_HOST}/follow-topic/me`, {
       headers: {
@@ -265,12 +292,9 @@ const apiGetMyFollowingTopics = async (token) => {
         "Content-Type": "application/json",
       },
     });
-    if (response.data) return response.data.data;
+    if (response?.data) return response.data;
   } catch (error) {
-    toast.error("Some thing was wrong!", {
-      pauseOnHover: false,
-      delay: 500,
-    });
+    console.log("error:", error);
   }
 };
 
@@ -333,38 +357,6 @@ const apiGetTopic = async (token, slug) => {
         delay: 500,
       });
     }
-  }
-};
-
-const apiGetTopicArticlesAmount = async (slug) => {
-  try {
-    const response = await axios.get(
-      `${config.SERVER_HOST}/topic/${slug}/articles/amount`,
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    if (response.data) return response.data;
-  } catch (error) {
-    console.log("error:", error);
-  }
-};
-
-const apiGetTopicFollowersAmount = async (slug) => {
-  try {
-    const response = await axios.get(
-      `${config.SERVER_HOST}/topic/${slug}/followers/amount`,
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    if (response.data) return response.data;
-  } catch (error) {
-    console.log("error:", error);
   }
 };
 
@@ -437,30 +429,12 @@ const apiMyArticleFollowing = async (token, limit = 5, skip = "") => {
   }
 };
 
-const apiMyTopicsFollowing = async (token) => {
+const apiSuggestionTopics = async (token, max) => {
+  if (!token) return undefined;
+  if (!max) max = 8;
   try {
     const response = await axios.get(
-      `${config.SERVER_HOST}/user/me/following/topics`,
-      {
-        headers: {
-          authorization: "Bearer " + token,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    if (response.data) return response.data;
-  } catch (error) {
-    toast.error("Some thing was wrong!", {
-      pauseOnHover: false,
-      delay: 500,
-    });
-  }
-};
-
-const apiSuggestionTopics = async (token) => {
-  try {
-    const response = await axios.get(
-      `${config.SERVER_HOST}/topic/me/suggestions`,
+      `${config.SERVER_HOST}/topic/recommended-topics?max=${max}`,
       {
         headers: {
           authorization: "Bearer " + token,
@@ -471,17 +445,13 @@ const apiSuggestionTopics = async (token) => {
     if (response.data) return response.data;
   } catch (error) {
     console.log("error:", error);
-    toast.error("Some thing was wrong!", {
-      pauseOnHover: false,
-      delay: 500,
-    });
   }
 };
 
-const apiSuggestionUsers = async (token) => {
+const apiSuggestionUsers = async (token, max = 5) => {
   try {
     const response = await axios.get(
-      `${config.SERVER_HOST}/user/me/suggestions`,
+      `${config.SERVER_HOST}/follow-profile/who-to-follow?max=${max}`,
       {
         headers: {
           authorization: "Bearer " + token,
@@ -489,13 +459,9 @@ const apiSuggestionUsers = async (token) => {
         },
       }
     );
-    if (response.data) return response.data;
+    if (response?.data) return response.data;
   } catch (error) {
     console.log("error:", error);
-    toast.error("Some thing was wrong!", {
-      pauseOnHover: false,
-      delay: 500,
-    });
   }
 };
 
@@ -789,19 +755,17 @@ export {
   apiGetNotification,
   apiGetProfile,
   apiGetTopic,
-  apiGetTopicArticlesAmount,
-  apiGetTopicFollowersAmount,
   apiGetTopics,
   apiGetUserBlogs,
   apiGetUserFollowings,
   apiMyArticleFollowing,
-  apiMyTopicsFollowing,
   apiSuggestionTopics,
   apiSuggestionUsers,
   apiUnFollowUser,
   apiUpdateArticle,
   apiUpdateTopic,
   apiUpdateBan,
+  apiUnFollowTopic,
   apiUpdateProfile,
   apiApproveTopic,
   apiMuteUser,

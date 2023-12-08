@@ -34,6 +34,7 @@ const Comment = ({ blogId = "", commentValue }) => {
             data={comment}
             blogId={blogId}
             commentValue={commentValue}
+            repliesCount={comment.repliesCount}
           ></CommentUser>
         ))}
     </>

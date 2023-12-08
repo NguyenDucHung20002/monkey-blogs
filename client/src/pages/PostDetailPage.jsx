@@ -109,7 +109,9 @@ const PostDetailPage = () => {
     <PostDetailPagePageStyle>
       {blog && (
         <div className="post-header">
-          <PostImage url={blog.img} className="post-feature"></PostImage>
+          {blog.img && (
+            <PostImage url={blog.img} className="post-feature"></PostImage>
+          )}
           <div className="post-info">
             <h1 className="py-10 post-heading">{blog?.title}</h1>
             <div className="flex items-center gap-5 mb-5">

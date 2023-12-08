@@ -29,8 +29,17 @@ const BlogStyle = styled.div`
 
 const Blog = ({ blog, isMyProfile, mute = {} }) => {
   const { setMuteId } = mute;
-  const { id, title, preview, img, slug, topic, author, createdAt, isSaved } =
-    blog;
+  const {
+    id,
+    title,
+    preview,
+    banner,
+    slug,
+    topic,
+    author,
+    createdAt,
+    isSaved,
+  } = blog;
 
   const checkMyProfile = isMyProfile ? isMyProfile : isSaved;
   const [isSaveList, setIsSaveList] = useState(checkMyProfile);
@@ -198,10 +207,10 @@ const Blog = ({ blog, isMyProfile, mute = {} }) => {
           </div>
         </div>
       </div>
-      {img && (
+      {banner && (
         <BlogImage
           className="flex-shrink-0"
-          url={img}
+          url={banner}
           alt=""
           to={`/blog/${slug}`}
         ></BlogImage>
