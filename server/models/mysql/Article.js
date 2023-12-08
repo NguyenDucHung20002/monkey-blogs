@@ -75,8 +75,6 @@ const Article = sequelize.define(
 
         let nsfw = false;
 
-        let status = "approved";
-
         let rejectedCount = article.rejectedCount;
 
         for (const imgName of imgsName) {
@@ -96,7 +94,7 @@ const Article = sequelize.define(
 
           readStream.on("end", () => {
             const imageData = Buffer.concat(chunks).toString("base64");
-            clarifai(imageData, (err, results) => {
+            clarifai(imageData, async (err, results) => {
               if (err) {
                 console.log(err);
                 return;
@@ -107,15 +105,16 @@ const Article = sequelize.define(
                   "Sorry, but your image contains explicit content and is not allowed"
                 );
                 nsfwFlag = true;
-                status = "rejected";
                 rejectedCount++;
+                await article.update(
+                  { status: "rejected", rejectedCount },
+                  { hooks: false }
+                );
                 return;
               }
             });
           });
         }
-
-        await article.update({ status, rejectedCount }, { hooks: false });
       },
     },
   }
