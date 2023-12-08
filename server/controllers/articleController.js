@@ -161,7 +161,7 @@ const createArticle = asyncMiddleware(async (req, res, next) => {
 
   if (!draft) throw ErrorResponse(404, "Draft not found");
 
-  await draft.update({ banner, preview, status: "approved" });
+  await draft.update({ banner, preview, status: "pending" });
 
   if (topicNames) {
     const data = await Promise.all(

@@ -1,7 +1,6 @@
 import { DataTypes } from "sequelize";
 import sequelize from "../../databases/mysql/connect.js";
 import Profile from "../mysql/Profile.js";
-import User from "./User.js";
 import extractImg from "../../utils/extractImg.js";
 import MongoDB from "../../databases/mongodb/connect.js";
 import clarifai from "../../services/clarifai.js";
@@ -52,7 +51,7 @@ const Article = sequelize.define(
     },
 
     status: {
-      type: DataTypes.ENUM("draft", "approved", "rejected"),
+      type: DataTypes.ENUM("draft", "pending", "approved", "rejected"),
       allowNull: false,
       defaultValue: "draft",
     },
@@ -71,6 +70,8 @@ const Article = sequelize.define(
 
         const imgsName = extractImg(article.content);
 
+        imgsName.push(article.banner);
+
         const gfs = MongoDB.gfs;
 
         let nsfw = false;
@@ -82,7 +83,10 @@ const Article = sequelize.define(
 
           const files = await gfs.find({ filename: imgName }).toArray();
 
-          if (!files || !files.length) console.log("image not found");
+          if (!files || !files.length) {
+            console.log("image not found");
+            continue;
+          }
 
           const readStream = gfs.openDownloadStreamByName(imgName);
 
@@ -101,10 +105,7 @@ const Article = sequelize.define(
               }
 
               if (results[0].nsfw > 0.55) {
-                console.log(
-                  "Sorry, but your image contains explicit content and is not allowed"
-                );
-                nsfwFlag = true;
+                nsfw = true;
                 rejectedCount++;
                 await article.update(
                   { status: "rejected", rejectedCount },
@@ -115,6 +116,7 @@ const Article = sequelize.define(
             });
           });
         }
+        await article.update({ status: "approved" }, { hooks: false });
       },
     },
   }

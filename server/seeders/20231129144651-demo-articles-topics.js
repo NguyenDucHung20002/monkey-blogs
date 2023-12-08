@@ -26,6 +26,7 @@ module.exports = {
 
         createdAt: new Date(),
         updatedAt: new Date(),
+        status: "approved",
       },
       {
         authorId: faker.number.int({ min: 1, max: 15 }),
@@ -37,6 +38,7 @@ module.exports = {
           "Quantum computing is a cutting-edge field that has the potential to revolutionize how we process information and solve complex problems. Unlike classical computers that use bits, quantum computers use qubits, allowing them to perform calculations at speeds that were once thought impossible.",
         createdAt: new Date(),
         updatedAt: new Date(),
+        status: "approved",
       },
       {
         authorId: faker.number.int({ min: 1, max: 15 }),
@@ -48,6 +50,7 @@ module.exports = {
           "Climate change is posing a significant threat to biodiversity, leading to shifts in ecosystems and the endangerment of numerous species. Rising temperatures, sea-level changes, and extreme weather events are some of the factors contributing to the loss of habitat and disruption of ecosystems around the world.",
         createdAt: new Date(),
         updatedAt: new Date(),
+        status: "approved",
       },
       {
         authorId: faker.number.int({ min: 1, max: 15 }),
@@ -59,6 +62,7 @@ module.exports = {
           "Neural networks play a crucial role in the field of image recognition, allowing machines to identify and classify objects with remarkable accuracy. This technology has applications in various domains, from autonomous vehicles to medical imaging, enhancing efficiency and automation in diverse industries.",
         createdAt: new Date(),
         updatedAt: new Date(),
+        status: "approved",
       },
       {
         authorId: faker.number.int({ min: 1, max: 15 }),
@@ -70,6 +74,7 @@ module.exports = {
           "Dark matter constitutes a significant portion of the universe, yet its nature remains one of the greatest mysteries in astrophysics. Researchers are employing innovative techniques and advanced telescopes to detect and understand the elusive properties of dark matter, reshaping our understanding of the cosmos.",
         createdAt: new Date(),
         updatedAt: new Date(),
+        status: "approved",
       },
       {
         authorId: faker.number.int({ min: 1, max: 15 }),
@@ -81,6 +86,7 @@ module.exports = {
           "The fourth industrial revolution, Industry 4.0, is characterized by the integration of robotics, automation, and data exchange in manufacturing processes. Robotics plays a central role in enhancing efficiency, precision, and flexibility in production, paving the way for smart factories and advanced manufacturing techniques.",
         createdAt: new Date(),
         updatedAt: new Date(),
+        status: "approved",
       },
       {
         authorId: faker.number.int({ min: 1, max: 15 }),
@@ -92,6 +98,7 @@ module.exports = {
           "World history is a complex tapestry woven with the threads of diverse cultures, civilizations, and events spanning millennia. Exploring the rise and fall of empires, pivotal battles, cultural exchanges, and revolutions provides a profound understanding of the interconnectedness of human societies throughout the ages.",
         createdAt: new Date(),
         updatedAt: new Date(),
+        status: "approved",
       },
       {
         authorId: faker.number.int({ min: 1, max: 15 }),
@@ -103,6 +110,7 @@ module.exports = {
           "Quantum entanglement, a phenomenon where particles become interconnected and share properties, challenges our classical understanding of physics. This intriguing aspect of quantum mechanics has been the subject of intense study, with implications for quantum computing, teleportation, and the fundamental nature of reality.",
         createdAt: new Date(),
         updatedAt: new Date(),
+        status: "approved",
       },
       {
         authorId: faker.number.int({ min: 1, max: 15 }),
@@ -114,6 +122,7 @@ module.exports = {
           "The Renaissance was a period of profound cultural transformation in Europe, marked by a revival of interest in art, literature, and humanism. This cultural rebirth, spanning the 14th to the 17th centuries, laid the foundation for the modern world and ignited a renewed appreciation for creativity, knowledge, and individualism.",
         createdAt: new Date(),
         updatedAt: new Date(),
+        status: "approved",
       },
       {
         authorId: faker.number.int({ min: 1, max: 15 }),
@@ -125,6 +134,7 @@ module.exports = {
           "Artificial Neural Networks (ANNs) mimic the structure and function of the human brain, enabling machines to learn from data and make intelligent decisions. From image and speech recognition to natural language processing, ANNs are at the forefront of artificial intelligence, driving innovation across various domains.",
         createdAt: new Date(),
         updatedAt: new Date(),
+        status: "approved",
       },
       {
         authorId: faker.number.int({ min: 1, max: 15 }),
@@ -138,6 +148,7 @@ module.exports = {
           "Exploring the Earth's core has been a scientific endeavor to unravel the mysteries beneath our feet and understand the dynamics of our planet. Through seismic studies, drilling projects, and geophysical investigations, scientists aim to gain insights into the composition, temperature, and behavior of the Earth's innermost layers.",
         createdAt: new Date(),
         updatedAt: new Date(),
+        status: "approved",
       },
       {
         authorId: faker.number.int({ min: 1, max: 15 }),
@@ -149,6 +160,7 @@ module.exports = {
           "Understanding the psychology of creativity provides insights into how individuals and organizations can foster innovation and unleash their creative potential. Exploring the cognitive processes, personality traits, and environmental factors that influence creativity sheds light on the mechanisms behind breakthrough ideas and artistic expression.",
         createdAt: new Date(),
         updatedAt: new Date(),
+        status: "approved",
       },
       {
         authorId: faker.number.int({ min: 1, max: 15 }),
@@ -160,6 +172,7 @@ module.exports = {
           "Black holes, with their intense gravitational pull, have intrigued scientists and stargazers alike, serving as portals to the mysteries of the cosmos. Studying black holes unveils the extreme conditions of spacetime, offering insights into the nature of gravity, time dilation, and the boundaries of our understanding of the universe.",
         createdAt: new Date(),
         updatedAt: new Date(),
+        status: "approved",
       },
       {
         authorId: faker.number.int({ min: 1, max: 15 }),
@@ -171,6 +184,7 @@ module.exports = {
           "The advent of social media has transformed the way individuals connect, communicate, and share information, influencing societal dynamics on a global scale. Examining the positive and negative impacts of social media sheds light on issues related to privacy, online communities, and the dissemination of information in the digital age.",
         createdAt: new Date(),
         updatedAt: new Date(),
+        status: "approved",
       },
       {
         authorId: faker.number.int({ min: 1, max: 15 }),
@@ -182,6 +196,7 @@ module.exports = {
           "Genetic engineering has revolutionized agriculture, enabling scientists to modify crops for improved yields, resistance to pests, and nutritional content. This powerful tool has the potential to address food security challenges, enhance crop resilience, and contribute to sustainable farming practices.",
         createdAt: new Date(),
         updatedAt: new Date(),
+        status: "approved",
       },
       {
         authorId: faker.number.int({ min: 1, max: 15 }),
@@ -195,6 +210,7 @@ module.exports = {
           "The legacy of ancient civilizations, from Mesopotamia to Rome, continues to shape our world, offering valuable lessons in governance, culture, and innovation. Exploring the achievements and challenges of these civilizations provides a deeper understanding of the foundations of human society and the factors that contribute to its flourishing or decline.",
         createdAt: new Date(),
         updatedAt: new Date(),
+        status: "approved",
       },
       {
         authorId: faker.number.int({ min: 1, max: 15 }),
@@ -206,6 +222,7 @@ module.exports = {
           "The quantum revolution is underway, with scientists and engineers harnessing the principles of quantum mechanics to create powerful technologies with unprecedented capabilities. Quantum computers, communication networks, and sensors are at the forefront of this revolution, promising to transform the landscape of information processing and communication.",
         createdAt: new Date(),
         updatedAt: new Date(),
+        status: "approved",
       },
       {
         authorId: faker.number.int({ min: 1, max: 15 }),
@@ -217,6 +234,7 @@ module.exports = {
           "Cultural diversity is a wellspring of artistic expression, influencing literature, visual arts, music, and other forms of creative output around the globe. Exploring the ways in which different cultures inspire and enrich artistic endeavors highlights the interconnectedness of humanity through the language of creativity.",
         createdAt: new Date(),
         updatedAt: new Date(),
+        status: "approved",
       },
       {
         authorId: faker.number.int({ min: 1, max: 15 }),
@@ -230,6 +248,7 @@ module.exports = {
           "Marine biology delves into the wonders of ocean ecosystems, from the intricate biodiversity of coral reefs to the mysterious depths of the abyssal zone. Understanding the interconnected web of marine life, the impact of climate change on oceans, and the potential for new discoveries in unexplored regions contributes to the conservation and appreciation of Earth's vital water environments.",
         createdAt: new Date(),
         updatedAt: new Date(),
+        status: "approved",
       },
       {
         authorId: faker.number.int({ min: 1, max: 15 }),
@@ -243,6 +262,7 @@ module.exports = {
           "The intersection of psychology and artificial intelligence explores how insights into human cognition and behavior can inform the development of intelligent machines. From emotion recognition to user experience design, the collaboration between these fields holds the potential to create AI systems that understand, adapt, and interact with users in more human-like ways.",
         createdAt: new Date(),
         updatedAt: new Date(),
+        status: "approved",
       },
     ];
 
