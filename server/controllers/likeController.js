@@ -9,6 +9,9 @@ import addUrlToImg from "../utils/addUrlToImg.js";
 import Block from "../models/mysql/Block.js";
 import Follow_Profile from "../models/mysql/Follow_Profile.js";
 import Role from "../models/mysql/Role.js";
+import socket from "../socket.js";
+import SocketUser from "../models/mongodb/SocketUser.js";
+import Notification from "../models/mysql/Notification.js";
 
 // ==================== like an article ==================== //
 const likeAnArticle = asyncMiddleware(async (req, res, next) => {
@@ -28,10 +31,47 @@ const likeAnArticle = asyncMiddleware(async (req, res, next) => {
   });
 
   if (!like) {
-    await Promise.all([
+    const [recivers, notification] = await Promise.all([
+      SocketUser.find({ userId: article.authorId }),
+      Notification.create({
+        senderId: me.profileInfo.id,
+        reciverId: article.authorId,
+        articleId: article.id,
+        content: `${me.profileInfo.fullname} liked your article ${article.title}`,
+      }),
+      Profile.increment(
+        { unReadNotificationsCount: 1 },
+        { where: { id: article.authorId } }
+      ),
       Like.create({ articleId: article.id, profileId: me.profileInfo.id }),
       article.increment({ likesCount: 1 }),
     ]);
+
+    if (recivers && recivers.length > 0) {
+      const message = {
+        id: notification.id,
+        sender: {
+          id: me.profileInfo.id,
+          fullname: me.profileInfo.fullname,
+          avatar: addUrlToImg(me.profileInfo.avatar),
+          username: me.username,
+        },
+        article: {
+          id: article.id,
+          title: article.title,
+          slug: article.slug,
+        },
+        content: notification.content,
+        createdAt: notification.createdAt,
+        updatedAt: notification.updatedAt,
+      };
+
+      const io = socket.getIO();
+
+      recivers.forEach((reciver) => {
+        io.to(reciver.socketId).emit("like-article", message);
+      });
+    }
   }
 
   res.json({ success: true, message: "Successfully liked the article" });

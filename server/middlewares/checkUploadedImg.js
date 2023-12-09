@@ -19,7 +19,7 @@ const checkUploadedImg = (req, res, next) => {
     clarifai(imgData, (err, results) => {
       if (err) return res.status(500).json(err);
 
-      if (results[0].nsfw > 0.55) {
+      if (results[0][0].nsfw > 0.55) {
         fileController.autoRemoveImg(filename);
 
         return res.status(400).json({
@@ -29,7 +29,6 @@ const checkUploadedImg = (req, res, next) => {
         });
       }
 
-      req.results = results;
       next();
     });
   });

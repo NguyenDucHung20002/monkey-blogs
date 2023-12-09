@@ -7,11 +7,16 @@ const metadata = new grpc.Metadata();
 metadata.set("authorization", `Key ${env.CLARIFAI_API_KEY}`);
 
 const clarifai = (inputs, callback) => {
+  let data;
+
+  if (Array.isArray(inputs)) {
+    data = inputs.map((base64) => ({ data: { image: { base64 } } }));
+  } else {
+    data = [{ data: { image: { base64: inputs } } }];
+  }
+
   stub.PostModelOutputs(
-    {
-      model_id: env.CLARIFAI_MODEL_ID,
-      inputs: [{ data: { image: { base64: inputs } } }],
-    },
+    { model_id: env.CLARIFAI_MODEL_ID, inputs: data },
     metadata,
     (err, response) => {
       if (err) {
@@ -28,10 +33,12 @@ const clarifai = (inputs, callback) => {
         return;
       }
       let results = [];
-      for (const c of response.outputs[0].data.concepts) {
-        results.push({
-          [c.name]: c.value,
-        });
+      for (const output of response.outputs) {
+        let resultForImage = [];
+        for (const c of output.data.concepts) {
+          resultForImage.push({ [c.name]: c.value });
+        }
+        results.push(resultForImage);
       }
       callback(null, results);
     }

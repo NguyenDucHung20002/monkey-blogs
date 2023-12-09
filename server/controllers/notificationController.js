@@ -1,6 +1,6 @@
 import asyncMiddleware from "../middlewares/asyncMiddleware.js";
 import Profile from "../models/mysql/Profile.js";
-import Notification from "../models/mysql/notification.js";
+import Notification from "../models/mysql/Notification.js";
 import User from "../models/mysql/User.js";
 import Role from "../models/mysql/Role.js";
 import { Op } from "sequelize";
@@ -29,17 +29,6 @@ const getNotifications = asyncMiddleware(async (req, res, next) => {
           include: { model: Role, as: "role", attributes: ["slug"] },
         },
       },
-      {
-        model: Profile,
-        as: "reciver",
-        attributes: ["id", "fullname", "avatar"],
-        include: {
-          model: User,
-          as: "userInfo",
-          attributes: ["username"],
-          include: { model: Role, as: "role", attributes: ["slug"] },
-        },
-      },
     ],
     order: [["id", "DESC"]],
     limit: Number(limit) ? Number(limit) : 15,
@@ -54,12 +43,6 @@ const getNotifications = asyncMiddleware(async (req, res, next) => {
         username: notification.sender.userInfo.username,
         role: notification.sender.userInfo.role.slug,
       },
-      reciver: {
-        id: notification.reciver.id,
-        fullname: notification.reciver.fullname,
-        username: notification.reciver.userInfo.username,
-        role: notification.reciver.userInfo.role.slug,
-      },
       content: notification.content,
       isReaded: notification.isReaded,
       createdAt: notification.createdAt,
@@ -72,7 +55,12 @@ const getNotifications = asyncMiddleware(async (req, res, next) => {
       ? notifications[notifications.length - 1].id
       : null;
 
-  res.json({ success: true, data: notifications, unReadedCount: newSkip });
+  res.json({
+    success: true,
+    data: notifications,
+    unReadedCount: me.profileInfo.unReadNotificationsCount,
+    newSkip,
+  });
 });
 
 const markAsReaded = asyncMiddleware(async (req, res, next) => {
@@ -99,13 +87,13 @@ const markAsReaded = asyncMiddleware(async (req, res, next) => {
 const martAllAsReaded = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
 
-  const markAsReadedNotifications = await Notification.update({
-    where: { reciverId: me.profileInfo.id, isReaded: false },
-    isReaded: true,
-  });
+  const markAsReadedNotifications = await Notification.update(
+    { isReaded: true },
+    { where: { reciverId: me.profileInfo.id, isReaded: false } }
+  );
 
   await me.profileInfo.increment({
-    unReadNotificationsCount: -markAsReadedNotifications.length,
+    unReadNotificationsCount: -markAsReadedNotifications,
   });
 
   res.json({
@@ -114,15 +102,4 @@ const martAllAsReaded = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-const unReadCount = asyncMiddleware(async (req, res, next) => {
-  const me = req.me;
-  const unReadNotificationsCount = await Profile.findByPk(me.profileInfo.id, {
-    attributes: ["unReadNotificationsCount"],
-  });
-
-  if (!unReadNotificationsCount) throw ErrorResponse(404, "Not Found");
-
-  res.json({ success: true, data: unReadNotificationsCount });
-});
-
-export default { getNotifications, unReadCount, markAsReaded, martAllAsReaded };
+export default { getNotifications, markAsReaded, martAllAsReaded };

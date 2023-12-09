@@ -26,46 +26,44 @@ const followAProfile = asyncMiddleware(async (req, res, next) => {
   });
 
   if (!followProfile) {
-    await Promise.all([
+    const [notification, recivers] = await Promise.all([
+      Notification.create({
+        senderId: me.profileInfo.id,
+        reciverId: user.profileInfo.id,
+        content: `${me.profileInfo.fullname} followed you.`,
+      }),
+      SocketUser.find({ userId: user.profileInfo.id }),
       Follow_Profile.create({
         followedId: user.profileInfo.id,
         followerId: me.profileInfo.id,
       }),
       me.profileInfo.increment({ followingCount: 1 }),
-      user.profileInfo.increment({ followersCount: 1 }),
+      user.profileInfo.increment({
+        followersCount: 1,
+        unReadNotificationsCount: 1,
+      }),
     ]);
 
-    let notification = await Notification.create({
-      senderId: me.profileInfo.id,
-      reciverId: user.profileInfo.id,
-      content: `${me.profileInfo.fullname} followed you.`,
-    });
+    if (recivers && recivers.length > 0) {
+      const message = {
+        id: notification.id,
+        sender: {
+          id: me.profileInfo.id,
+          fullname: me.profileInfo.fullname,
+          avatar: addUrlToImg(me.profileInfo.avatar),
+          username: me.username,
+        },
+        content: notification.content,
+        createdAt: notification.createdAt,
+        updatedAt: notification.updatedAt,
+      };
 
-    const io = socket.getIO();
+      const io = socket.getIO();
 
-    notification = {
-      sender: {
-        id: me.profileInfo.id,
-        fullname: me.profileInfo.fullname,
-        avatar: addUrlToImg(me.profileInfo.avatar),
-        username: me.username,
-      },
-      reciver: {
-        id: user.profileInfo.id,
-        fullname: user.profileInfo.fullname,
-        avatar: addUrlToImg(user.profileInfo.avatar),
-        username: user.username,
-      },
-      content: notification.content,
-      createdAt: notification.createdAt,
-      updatedAt: notification.updatedAt,
-    };
-
-    const recivers = await SocketUser.find({ userId: user.profileInfo.id });
-
-    recivers.forEach((reciver) => {
-      io.to(reciver.socketId).emit("follow-profile", notification);
-    });
+      recivers.forEach((reciver) => {
+        io.to(reciver.socketId).emit("follow-profile", message);
+      });
+    }
   }
 
   res.status(201).json({
@@ -411,6 +409,7 @@ const whoToFollow = asyncMiddleware(async (req, res, next) => {
     JOIN profiles p ON recommendedAuthors.authorId = p.id
     JOIN users u ON p.userId = u.id
     JOIN roles r ON u.roleId = r.id
+    WHERE u.status = 'normal'
     GROUP BY p.id, p.avatar, p.fullname, u.username, r.slug;
     `,
     { type: sequelize.QueryTypes.SELECT }
@@ -457,6 +456,7 @@ const whoToFollow = asyncMiddleware(async (req, res, next) => {
           model: User,
           as: "userInfo",
           attributes: ["username"],
+          where: { status: "normal" },
           include: { model: Role, as: "role", attributes: ["slug"] },
         },
       ],

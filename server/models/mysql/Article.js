@@ -63,86 +63,105 @@ const Article = sequelize.define(
     tableName: "articles",
     timestamps: true,
     paranoid: true,
-    //   hooks: {
-    //     afterUpdate: async (article, options) => {
-    //       const io = socket.getIO();
+    hooks: {
+      afterUpdate: async (article, options) => {
+        const imgsName = extractImg(article.content);
 
-    //       const recivers = await SocketUser.find({ userId: article.authorId });
+        imgsName.push(article.banner);
 
-    //       if (article.rejectedCount === 3) {
-    //         await article.destroy();
+        const gfs = MongoDB.gfs;
 
-    //         if (recivers || recivers.length === 0) return;
+        let array = [];
 
-    //         const messages =
-    //           "Your article has been deleted because it has been rejected multiple times";
+        await Promise.all(
+          imgsName.map(async (imgName) => {
+            const files = await gfs.find({ filename: imgName }).toArray();
 
-    //         recivers.forEach((reciver) => {
-    //           io.to(reciver.socketId).emit("article-deleted", messages);
-    //         });
+            if (!files || !files.length) {
+              console.log(`Image not found: ${imgName}`);
+            }
 
-    //         return;
-    //       }
+            const readStream = gfs.openDownloadStreamByName(imgName);
+            const chunks = [];
 
-    //       const imgsName = extractImg(article.content);
+            await new Promise((resolve, reject) => {
+              readStream.on("data", (chunk) => chunks.push(chunk));
 
-    //       imgsName.push(article.banner);
+              readStream.on("end", () => {
+                const imageData = Buffer.concat(chunks).toString("base64");
+                array.push(imageData);
+                resolve();
+              });
 
-    //       const gfs = MongoDB.gfs;
+              readStream.on("error", (error) => {
+                reject(error);
+              });
+            });
+          })
+        );
 
-    //       let nsfw = false;
+        clarifai(array, async (err, results) => {
+          if (err) {
+            console.log(err);
+            return;
+          }
 
-    //       let rejectedCount = article.rejectedCount;
+          const nsfwFound = results.some((data) =>
+            data.some((val) => "nsfw" in val && val.nsfw > 0.55)
+          );
 
-    //       for (const imgName of imgsName) {
-    //         if (nsfw) break;
+          const io = socket.getIO();
 
-    //         const files = await gfs.find({ filename: imgName }).toArray();
+          if (nsfwFound) {
+            const [recivers] = await Promise.all([
+              SocketUser.find({ userId: article.authorId }),
+              article.update(
+                {
+                  status: "rejected",
+                  rejectedCount: article.rejectedCount + 1,
+                },
+                { hooks: false }
+              ),
+              Profile.increment(
+                { unReadNotificationsCount: 1 },
+                { where: { id: article.authorId } }
+              ),
+            ]);
 
-    //         if (!files || !files.length) {
-    //           console.log("image not found");
-    //           continue;
-    //         }
+            if (recivers.length > 0) {
+              const message =
+                "We've detected explicit content in your article, which is not allowed. Our team will investigate. Please be patient";
+              recivers.forEach((reciver) => {
+                io.to(reciver.socketId).emit("article-rejected", message);
+              });
+            }
+          } else {
+            const [recivers] = await Promise.all([
+              SocketUser.find({ userId: article.authorId }),
+              article.update(
+                {
+                  status: "approved",
+                  rejectedCount: article.rejectedCount + 1,
+                },
+                { hooks: false }
+              ),
+              Profile.increment(
+                { unReadNotificationsCount: 1 },
+                { where: { id: article.authorId } }
+              ),
+            ]);
+            if (recivers.length > 0) {
+              const message =
+                "Your article has been approved. You can now view it";
 
-    //         const readStream = gfs.openDownloadStreamByName(imgName);
-
-    //         const chunks = [];
-
-    //         readStream.on("data", (chunk) => {
-    //           chunks.push(chunk);
-    //         });
-
-    //         readStream.on("end", () => {
-    //           const imageData = Buffer.concat(chunks).toString("base64");
-    //           clarifai(imageData, async (err, results) => {
-    //             if (err) {
-    //               console.log(err);
-    //               return;
-    //             }
-
-    //             if (results[0].nsfw > 0.55) {
-    //               nsfw = true;
-    //               rejectedCount++;
-    //               await article.update(
-    //                 { status: "rejected", rejectedCount },
-    //                 { hooks: false }
-    //               );
-
-    //               const messages =
-    //                 "Our system has detected that your article includes sensitive images. This could be a mistake, and our staff or administrators will investigate it";
-
-    //               recivers.forEach((reciver) => {
-    //                 io.to(reciver.socketId).emit("article-rejected", messages);
-    //               });
-
-    //               return;
-    //             }
-    //           });
-    //         });
-    //       }
-    //       await article.update({ status: "approved" }, { hooks: false });
-    //     },
-    //   },
+              recivers.forEach((reciver) => {
+                io.to(reciver.socketId).emit("article-rejected", message);
+              });
+            }
+          }
+        });
+      },
+    },
   }
 );
 

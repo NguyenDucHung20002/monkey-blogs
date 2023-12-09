@@ -12,11 +12,18 @@ router.get(
   notificationController.getNotifications
 );
 
-router.get(
-  "/me/unRead-count",
+router.patch(
+  "/mark-all-as-readed",
   requiredAuth,
   fetchMe,
-  notificationController.unReadCount
+  notificationController.martAllAsReaded
+);
+
+router.patch(
+  "/mark-as-readed/:id",
+  requiredAuth,
+  fetchMe,
+  notificationController.markAsReaded
 );
 
 export default router;

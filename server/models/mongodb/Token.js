@@ -1,6 +1,4 @@
 import mongoose from "mongoose";
-import jwt from "jsonwebtoken";
-import env from "../../config/env.js";
 
 const tokenSchema = new mongoose.Schema(
   {

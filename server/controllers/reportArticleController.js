@@ -5,6 +5,7 @@ import Report_Article from "../models/mysql/Report_Article.js";
 import { Op } from "sequelize";
 import Role from "../models/mysql/Role.js";
 import Article from "../models/mysql/Article.js";
+import Profile from "../models/mysql/Profile.js";
 
 // ==================== report an article ==================== //
 const reportAnArticle = asyncMiddleware(async (req, res, next) => {
@@ -76,10 +77,15 @@ const getPendingReportedArticles = asyncMiddleware(async (req, res, next) => {
         as: "article",
         attributes: ["id", "title", "banner", "slug", "reportsCount", "status"],
         include: {
-          model: User,
-          as: "rejectedBy",
-          attributes: ["id", "username", "email"],
-          include: { model: Role, as: "role", attributes: ["name", "slug"] },
+          model: Profile,
+          as: "author",
+          attributes: ["id", "fullname"],
+          include: {
+            model: User,
+            as: "userInfo",
+            attributes: ["username"],
+            include: { model: Role, as: "role", attributes: ["name", "slug"] },
+          },
         },
         where: whereQuery,
       },
@@ -97,7 +103,7 @@ const getPendingReportedArticles = asyncMiddleware(async (req, res, next) => {
       reportsCount: report.article.reportsCount,
       slug: report.article.slug,
       status: report.article.status,
-      rejectedBy: report.article ? report.article.rejectedBy : null,
+      author: report.article ? report.article.author : null,
     };
   });
 

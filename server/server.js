@@ -36,7 +36,6 @@ import searchRoute from "./routes/searchRoute.js";
 import fileRoute from "./routes/fileRoute.js";
 import readingListRoute from "./routes/readingListRoute.js";
 import notificationRoute from "./routes/notificationRouter.js";
-import socket from "./socket.js";
 
 app.use(express.json());
 app.use(morgan("dev"));
@@ -45,7 +44,7 @@ app.use(cors());
 MongoDB.connect();
 
 sequelize
-  .sync({ force: true, logging: false })
+  .sync({ force: false, logging: false })
   .then(() => {
     console.log("connect to mysql database successfully");
   })
@@ -83,6 +82,8 @@ app.use(`/${env.API_VERSION}/reading-list`, readingListRoute);
 app.use(`/${env.API_VERSION}/notification`, notificationRoute);
 
 app.use(errorMiddleware);
+
+import socket from "./socket.js";
 
 const httpServer = http.createServer(app);
 

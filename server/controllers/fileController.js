@@ -1,16 +1,14 @@
 import MongoDB from "../databases/mongodb/connect.js";
 import ErrorResponse from "../responses/ErrorResponse.js";
 import asyncMiddleware from "../middlewares/asyncMiddleware.js";
-import clarifai from "../services/clarifai.js";
 
 // ==================== upload an image ==================== //
 const upLoadAnImg = asyncMiddleware(async (req, res, next) => {
   const size = req.file?.size;
 
   const FILE_LIMIT = 15 * 1024 * 1024;
-  if (size && size > FILE_LIMIT) {
-    throw new ErrorResponse(400, "File too large");
-  }
+
+  if (size && size > FILE_LIMIT) throw new ErrorResponse(400, "File too large");
 
   res.status(201).json({
     success: true,
@@ -23,10 +21,9 @@ const upLoadAnImg = asyncMiddleware(async (req, res, next) => {
 const upLoadAnAvatar = asyncMiddleware(async (req, res, next) => {
   const size = req.file?.size;
 
-  const FILE_LIMIT = 15 * 1024 * 1024;
-  if (size && size > FILE_LIMIT) {
-    throw new ErrorResponse(400, "File too large");
-  }
+  const FILE_LIMIT = 5 * 1024 * 1024;
+
+  if (size && size > FILE_LIMIT) throw new ErrorResponse(400, "File too large");
 
   res.status(201).json({
     success: true,

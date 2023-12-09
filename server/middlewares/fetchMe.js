@@ -2,7 +2,6 @@ import getError from "../utils/getError.js";
 import User from "../models/mysql/User.js";
 import Profile from "../models/mysql/Profile.js";
 import Role from "../models/mysql/Role.js";
-import ErrorResponse from "../responses/ErrorResponse.js";
 import addUrlToImg from "../utils/addUrlToImg.js";
 
 const fetchMe = async (req, res, next) => {
@@ -21,7 +20,7 @@ const fetchMe = async (req, res, next) => {
         {
           model: Profile,
           as: "profileInfo",
-          attributes: ["id", "fullname", "avatar"],
+          attributes: ["id", "fullname", "avatar", "unReadNotificationsCount"],
         },
         { model: Role, as: "role", attributes: ["slug"] },
       ],

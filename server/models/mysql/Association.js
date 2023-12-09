@@ -439,6 +439,12 @@ Notification.belongsTo(Profile, {
   as: "sender",
 });
 
+// Notification - Article
+Notification.belongsTo(Article, {
+  foreignKey: "articleId",
+  as: "article",
+});
+
 // Topic - Follow_Topic
 Topic.hasOne(Follow_Topic, {
   foreignKey: "topicId",
