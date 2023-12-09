@@ -37,8 +37,7 @@ const WritePage = () => {
   } = useForm({
     resolver: yupResolver(schema),
   });
-  // const [content, setContent] = useState("");
-  // const [image, setImage] = useState("");
+
   const [topics, setTopics] = useState([]);
   const [content, setContent] = useState("");
   const [preview, setPreview] = useState("");
@@ -139,6 +138,12 @@ const WritePage = () => {
     // console.log("content",content);
     const check = content !== "" && watchedTitle !== "";
     setIsSaved(false);
+    const encoder = new TextEncoder();
+    const byteSize = encoder.encode(content).length;
+    console.log(byteSize);
+    if (byteSize >= 102400) {
+      return;
+    }
     if (check && !hasRunOnce) {
       createDraft();
     }
