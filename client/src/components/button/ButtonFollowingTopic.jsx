@@ -9,7 +9,6 @@ const ButtonFollowingTopic = ({ initialFollowing = false, topicId = "" }) => {
 
   const handleFollow = async () => {
     const res = await apiFollowTopic(token, topicId);
-    console.log("resaa:", res);
     if (res) {
       setFollowed(!followed);
     }
@@ -17,7 +16,6 @@ const ButtonFollowingTopic = ({ initialFollowing = false, topicId = "" }) => {
 
   const handleUnFollow = async () => {
     const res = await apiUnFollowTopic(token, topicId);
-    console.log("resaa:", res);
     if (res) {
       setFollowed(!followed);
     }

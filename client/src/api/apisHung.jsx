@@ -350,7 +350,98 @@ const apiGetMyUserFollowings = async (
   }
 };
 
+const apiGetPendingReportsArticles = async (token) => {
+  if (!token) return null;
+  try {
+    const response = await axios.get(
+      `${config.SERVER_HOST}/report-article/pending`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response?.data) return response.data;
+  } catch (error) {
+    console.log("error:", error);
+  }
+};
+
+const apiGetAllArticlesAdmin = async (token) => {
+  if (!token) return null;
+  try {
+    const response = await axios.get(`${config.SERVER_HOST}/article`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+    if (response?.data) return response.data;
+  } catch (error) {
+    console.log("error:", error);
+  }
+};
+const apiGetMyMuted = async (token) => {
+  if (!token) return null;
+  try {
+    const response = await axios.get(`${config.SERVER_HOST}/mute/me`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+    if (response?.data) return response.data;
+  } catch (error) {
+    console.log("error:", error);
+  }
+};
+
+const apiLikeArticle = async (token, blogId) => {
+  if (!token && !blogId) return null;
+  try {
+    const response = await axios.post(
+      `${config.SERVER_HOST}/like/${blogId}`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response?.data.success) return true;
+    return false;
+  } catch (error) {
+    console.log("error:", error);
+  }
+};
+
+const apiUnLikeArticle = async (token, blogId) => {
+  if (!token && !blogId) return null;
+  try {
+    const response = await axios.delete(
+      `${config.SERVER_HOST}/like/${blogId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response?.data?.success) return true;
+    return false;
+  } catch (error) {
+    console.log("error:", error);
+  }
+};
+
 export {
+  apiUnLikeArticle,
+  apiLikeArticle,
+  apiGetMyMuted,
+  apiGetAllArticlesAdmin,
+  apiGetPendingReportsArticles,
   apiGetPendingReportUsers,
   apiGetReportedUsers,
   apiResolveReportedUsers,

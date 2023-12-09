@@ -2,6 +2,7 @@ import React, { Suspense } from "react";
 import { Route, Routes } from "react-router";
 import { ToastContainer } from "react-toastify";
 import StaffPickPage from "./pages/StaffPickPage";
+import MeMuted from "./pages/MeMuted";
 const ProfileFollowing = React.lazy(() =>
   import("./modules/profile/ProfileFollowing")
 );
@@ -66,6 +67,7 @@ function App() {
                 path="/me/following"
                 element={<MeFollowingPage></MeFollowingPage>}
               ></Route>
+              <Route path="/me/muted" element={<MeMuted></MeMuted>}></Route>
               <Route
                 path="/me/suggestions"
                 element={<MeSuggestionPage></MeSuggestionPage>}

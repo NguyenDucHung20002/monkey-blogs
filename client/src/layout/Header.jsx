@@ -51,7 +51,7 @@ const Header = () => {
     setUserInfo({});
     localStorage.removeItem("token");
     try {
-      const response = await axios.post(
+      const response = await axios.delete(
         `${config.SERVER_HOST}/auth/login`,
         {},
         {

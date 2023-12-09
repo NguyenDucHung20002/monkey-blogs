@@ -10,7 +10,6 @@ import StickyBox from "react-sticky-box";
 const ProfilePage = () => {
   const [show, setShow] = useState(false);
   const [user, setUser] = useState({});
-  console.log("user:", user);
   const [following, setFollowing] = useState([]);
   const [isBlocked, setIsBlocked] = useState(false);
   const { username } = useParams();

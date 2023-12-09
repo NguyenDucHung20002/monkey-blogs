@@ -9,6 +9,7 @@ import BlogStaffPick from "../blog/BlogStaffPick";
 import { apiSuggestionTopics, apiSuggestionUsers } from "../../api/api";
 import { apiGetReadingList, apiGetStaffPick } from "../../api/apisHung";
 import { useAuth } from "../../contexts/auth-context";
+import { icons } from "../../utils/constants";
 const HomeSideStyle = styled.div`
   padding: 30px 0 0 30px;
   min-height: calc(100vh - 70px);
@@ -130,6 +131,19 @@ const HomeSide = () => {
                   </NavLink>
                 </div>
               )}
+            </>
+          )}
+          {readingList && readingList.length === 0 && (
+            <>
+              <h3 className="text-lg font-semibold mb-3">Reading list</h3>
+              <p className="leading-7 text-sm text-gray-500">
+                Click the{" "}
+                <span className="inline-block translate-y-1/4">
+                  {icons.saveIcon}
+                </span>{" "}
+                on any story to easily add it to your reading list or a custom
+                list that you can share.
+              </p>
             </>
           )}
         </div>

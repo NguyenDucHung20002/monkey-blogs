@@ -10,12 +10,7 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 import MyEditor from "../components/input/MyEditor";
-import {
-  apiAddBlog,
-  apiCreateDarft,
-  apiDeleteDarft,
-  apiUpdateDarft,
-} from "../api/apiNew";
+import { apiAddBlog, apiCreateDarft, apiUpdateDarft } from "../api/apiNew";
 import { debounce } from "lodash";
 import useUploadImage from "../hooks/useUploadImage";
 
@@ -45,7 +40,6 @@ const WritePage = () => {
   // const [content, setContent] = useState("");
   // const [image, setImage] = useState("");
   const [topics, setTopics] = useState([]);
-  const [imageFilename, setImageFilename] = useState(null);
   const [content, setContent] = useState("");
   const [preview, setPreview] = useState("");
   const [isSaved, setIsSaved] = useState(false);
@@ -86,7 +80,7 @@ const WritePage = () => {
     onSelectImage(e);
   };
 
-  const handleDeleteImage = (e) => {
+  const handleDeleteImage = () => {
     onDeleteImage(image?.filename);
   };
 
@@ -99,8 +93,8 @@ const WritePage = () => {
       });
       return;
     }
-    const { title, content, preview } = values;
-    const topicNames = topics.map((val, i) => val.name);
+    const { preview } = values;
+    const topicNames = topics.map((val) => val.name);
     console.log(topicNames);
     const idDraft = newDraft?.draftId;
     const data = {
@@ -109,15 +103,7 @@ const WritePage = () => {
       banner: image.filename,
     };
     console.log(data);
-    // const cutPreview = preview.slice(0, 200);
-    // const formData = new FormData();
-    // formData.set("banner", imageFilename);
-    // formData.set("title", title);
-    // formData.set("content", content);
-    // formData.set("preview", cutPreview);
-    // topics.forEach((value, index) => {
-    //   formData.set(`topicNames[${index}]`, value?.name);
-    // });
+
     async function fetchAddBlog() {
       if (!token) return;
       const response = await apiAddBlog(idDraft, data);

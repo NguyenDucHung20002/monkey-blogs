@@ -190,10 +190,11 @@ const apiGetAllUser = async (token, limit = "10", skip, search = "") => {
   }
 };
 
-const apiGetArticle = async (slug) => {
+const apiGetArticle = async (token, slug) => {
   try {
     const response = await axios.get(`${config.SERVER_HOST}/article/${slug} `, {
       headers: {
+        Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
     });
@@ -656,18 +657,22 @@ const apiMuteUser = async (type = "post", token, userId) => {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
-    })
-      .then((response) => response.json())
-      .catch((err) => {
-        console.log(err);
-      });
+    }).then((response) => response.json());
 
-    if (!data?.success) {
-      return false;
+    console.log("data:", data);
+    if (data?.success) {
+      toast.success(data.message, {
+        pauseOnHover: false,
+        delay: 200,
+      });
+      return true;
     }
-    return true;
+    return false;
   } catch (error) {
-    console.log("error:", error);
+    toast.warning(error.message, {
+      pauseOnHover: false,
+      delay: 200,
+    });
   }
 };
 

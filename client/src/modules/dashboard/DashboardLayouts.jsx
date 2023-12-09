@@ -44,8 +44,7 @@ const DashboardLayout = () => {
   const navigate = useNavigate();
   const { userInfo } = useAuth();
   const userData = userInfo?.data;
-  console.log("userData:", userData);
-  if (userData.role === "user") navigate("/");
+  if (userData?.role === "user") navigate("/");
   const [visible, setVisible] = useState(false);
 
   const toggleVisible = debounce(() => {

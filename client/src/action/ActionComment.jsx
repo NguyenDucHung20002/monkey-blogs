@@ -14,7 +14,6 @@ const ActionComment = ({ blogId = "" }) => {
   useEffect(() => {
     async function fetchCommentBlog() {
       const response = await apiGetComment(blogId, token);
-      console.log("response:", response);
       if (response) setCommentBlog(response.data);
     }
     fetchCommentBlog();
