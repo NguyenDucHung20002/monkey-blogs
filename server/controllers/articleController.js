@@ -113,6 +113,7 @@ const getAnArticleOrADraftToEdit = asyncMiddleware(async (req, res, next) => {
       id: data.id,
       title: data.title,
       content: data.content,
+      status: data.status,
     };
   }
 
@@ -122,6 +123,7 @@ const getAnArticleOrADraftToEdit = asyncMiddleware(async (req, res, next) => {
       title: data.title,
       preview: data.preview,
       content: data.content,
+      status: data.status,
     };
   }
 
