@@ -20,10 +20,10 @@ const followATopic = asyncMiddleware(async (req, res, next) => {
   });
 
   if (!followTopic) {
-    await Promise.all([
-      Follow_Topic.create({ topicId: topic.id, profileId: me.profileInfo.id }),
-      topic.increment({ followersCount: 1 }),
-    ]);
+    await Follow_Topic.create(
+      { topicId: topic.id, profileId: me.profileInfo.id },
+      { me: me, topic: topic }
+    );
   }
 
   res.status(201).json({
@@ -48,10 +48,7 @@ const unFollowATopic = asyncMiddleware(async (req, res, next) => {
   });
 
   if (followTopic) {
-    await Promise.all([
-      followTopic.destroy(),
-      topic.increment({ followersCount: -1 }),
-    ]);
+    await followTopic.destroy();
   }
 
   res.json({

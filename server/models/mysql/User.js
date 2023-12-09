@@ -5,11 +5,23 @@ import Role from "../mysql/Role.js";
 const User = sequelize.define(
   "User",
   {
-    id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
 
-    username: { type: DataTypes.STRING, allowNull: false, unique: true },
+    username: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+    },
 
-    email: { type: DataTypes.STRING, allowNull: false, unique: true },
+    email: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+    },
 
     reportsCount: {
       type: DataTypes.INTEGER,

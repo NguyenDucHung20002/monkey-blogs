@@ -2,6 +2,11 @@ import { DataTypes } from "sequelize";
 import sequelize from "../../databases/mysql/connect.js";
 import Article from "./Article.js";
 import Profile from "./Profile.js";
+import addUrlToImg from "../../utils/addUrlToImg.js";
+import Notification from "./Notification.js";
+import SocketUser from "../mongodb/SocketUser.js";
+import socket from "../../socket.js";
+import env from "../../config/env.js";
 
 const Comment = sequelize.define(
   "Comment",
@@ -39,6 +44,69 @@ const Comment = sequelize.define(
   {
     tableName: "comments",
     timestamps: true,
+    hooks: {
+      afterCreate: async (Comment, options) => {
+        const me = options.me;
+        const article = options.article;
+        const isAuthor = options.isAuthor;
+        const parentComment = options.parentComment;
+
+        let notificationData = {};
+
+        if (isAuthor && !parentComment) {
+          return;
+        }
+
+        if (isAuthor && parentComment) {
+          notificationData = {
+            senderId: me.profileInfo.id,
+            reciverId: parentComment.authorId,
+            articleId: article.id,
+            content: `${me.profileInfo.fullname} reply to you on ${article.title}`,
+          };
+        }
+
+        if (!isAuthor && !parentComment) {
+          notificationData = {
+            senderId: me.profileInfo.id,
+            reciverId: article.authorId,
+            articleId: article.id,
+            content: `${me.profileInfo.fullname} comment on your article ${article.title}`,
+          };
+        }
+
+        const [notification, recivers] = await Promise.all([
+          Notification.create(notificationData),
+          SocketUser.find({ userId: notificationData.reciverId }),
+          Profile.increment(
+            { unReadNotificationsCount: 1 },
+            { where: { id: notificationData.reciverId } }
+          ),
+          article.increment({ commentsCount: 1 }),
+        ]);
+
+        if (recivers && recivers.length > 0) {
+          const io = socket.getIO();
+
+          const message = {
+            id: notification.id,
+            sender: {
+              id: me.profileInfo.id,
+              fullname: me.profileInfo.fullname,
+              avatar: addUrlToImg(me.profileInfo.avatar),
+              username: me.username,
+            },
+            content: notification.content,
+            createdAt: notification.createdAt,
+            updatedAt: notification.updatedAt,
+          };
+
+          recivers.forEach((reciver) => {
+            io.to(reciver.socketId).emit(env.SOCKET_LISTENING_EVENT, message);
+          });
+        }
+      },
+    },
   }
 );
 

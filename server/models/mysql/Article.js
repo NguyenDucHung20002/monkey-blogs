@@ -6,11 +6,18 @@ import MongoDB from "../../databases/mongodb/connect.js";
 import clarifai from "../../services/clarifai.js";
 import socket from "../../socket.js";
 import SocketUser from "../mongodb/SocketUser.js";
+import env from "../../config/env.js";
+import Notification from "./Notification.js";
+import User from "./User.js";
 
 const Article = sequelize.define(
   "Article",
   {
-    id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
 
     authorId: {
       type: DataTypes.INTEGER,
@@ -18,15 +25,32 @@ const Article = sequelize.define(
       references: { model: Profile, key: "id" },
     },
 
-    banner: { type: DataTypes.STRING, allowNull: true },
+    banner: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
 
-    title: { type: DataTypes.STRING, allowNull: false },
+    title: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
 
-    preview: { type: DataTypes.STRING, allowNull: true, defaultValue: "" },
+    preview: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      defaultValue: "",
+    },
 
-    slug: { type: DataTypes.STRING, allowNull: false, unique: true },
+    slug: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+    },
 
-    content: { type: DataTypes.TEXT, allowNull: false },
+    content: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+    },
 
     likesCount: {
       type: DataTypes.INTEGER,
@@ -46,10 +70,16 @@ const Article = sequelize.define(
       defaultValue: 0,
     },
 
-    rejectedCount: {
+    rejectsCount: {
       type: DataTypes.INTEGER,
       allowNull: false,
       defaultValue: 0,
+    },
+
+    deletedById: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: { model: User, key: "id" },
     },
 
     status: {
@@ -106,58 +136,48 @@ const Article = sequelize.define(
             return;
           }
 
-          const nsfwFound = results.some((data) =>
-            data.some((val) => "nsfw" in val && val.nsfw > 0.55)
+          const nsfwFound = Boolean(
+            results.some((data) =>
+              data.some((val) => "nsfw" in val && val.nsfw > 0.55)
+            )
           );
 
           const io = socket.getIO();
 
-          if (nsfwFound) {
-            const [recivers] = await Promise.all([
-              SocketUser.find({ userId: article.authorId }),
-              article.update(
-                {
-                  status: "rejected",
-                  rejectedCount: article.rejectedCount + 1,
-                },
-                { hooks: false }
-              ),
-              Profile.increment(
-                { unReadNotificationsCount: 1 },
-                { where: { id: article.authorId } }
-              ),
-            ]);
+          const [recivers, notification] = await Promise.all([
+            SocketUser.find({ userId: article.authorId }),
+            Notification.create({
+              reciverId: article.authorId,
+              content: nsfwFound
+                ? "We've detected explicit content in your article, which is not allowed. Our team will investigate. Please be patient"
+                : "Your article has been approved. You can now view it",
+            }),
+            article.update(
+              {
+                status: nsfwFound ? "rejected" : "approved",
+                rejectedCount: nsfwFound
+                  ? article.rejectedCount + 1
+                  : article.rejectedCount,
+              },
+              { hooks: false }
+            ),
+            Profile.increment(
+              { unReadNotificationsCount: 1 },
+              { where: { id: article.authorId } }
+            ),
+          ]);
 
-            if (recivers.length > 0) {
-              const message =
-                "We've detected explicit content in your article, which is not allowed. Our team will investigate. Please be patient";
-              recivers.forEach((reciver) => {
-                io.to(reciver.socketId).emit("article-rejected", message);
-              });
-            }
-          } else {
-            const [recivers] = await Promise.all([
-              SocketUser.find({ userId: article.authorId }),
-              article.update(
-                {
-                  status: "approved",
-                  rejectedCount: article.rejectedCount + 1,
-                },
-                { hooks: false }
-              ),
-              Profile.increment(
-                { unReadNotificationsCount: 1 },
-                { where: { id: article.authorId } }
-              ),
-            ]);
-            if (recivers.length > 0) {
-              const message =
-                "Your article has been approved. You can now view it";
+          if (recivers.length > 0) {
+            const message = {
+              id: notification.id,
+              content: notification.content,
+              createdAt: notification.createdAt,
+              updatedAt: notification.updatedAt,
+            };
 
-              recivers.forEach((reciver) => {
-                io.to(reciver.socketId).emit("article-rejected", message);
-              });
-            }
+            recivers.forEach((reciver) => {
+              io.to(reciver.socketId).emit(env.SOCKET_LISTENING_EVENT, message);
+            });
           }
         });
       },

@@ -20,6 +20,7 @@ import toUpperCase from "../utils/toUpperCase.js";
 import sequelize from "../databases/mysql/connect.js";
 import extracImg from "../utils/extractImg.js";
 import replaceImgUrlsWithNames from "../utils/replaceImgUrlsWithNames.js";
+import replaceImgNamesWithUrls from "../utils/replaceImgNamesWithUrls.js";
 
 // ==================== create draft ==================== //
 const createADraft = asyncMiddleware(async (req, res, next) => {
@@ -82,10 +83,7 @@ const deleteADraft = asyncMiddleware(async (req, res, next) => {
     fileController.autoRemoveImg(img);
   });
 
-  await Article.destroy({
-    where: { id, authorId: me.profileInfo.id },
-    force: true,
-  });
+  await draft.destroy({ force: true });
 
   res.json({ success: true, message: "Draft deleted successfully" });
 });
@@ -107,8 +105,9 @@ const getAnArticleOrADraftToEdit = asyncMiddleware(async (req, res, next) => {
 
   if (!data) throw ErrorResponse(404, "Not found");
 
+  data.content = replaceImgNamesWithUrls(data.content);
+
   if (data.status === "draft") {
-    console.log("hello world");
     data = {
       id: data.id,
       title: data.title,
@@ -120,9 +119,11 @@ const getAnArticleOrADraftToEdit = asyncMiddleware(async (req, res, next) => {
   if (data.status === "approved") {
     data = {
       id: data.id,
+      banner: data.banner,
       title: data.title,
       preview: data.preview,
       content: data.content,
+      topicNames: data.articleTopics,
       status: data.status,
     };
   }
@@ -135,7 +136,10 @@ const getMyDrafts = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { skip, limit = 15 } = req.query;
 
-  const whereQuery = { authorId: me.profileInfo.id, status: "draft" };
+  const whereQuery = {
+    authorId: me.profileInfo.id,
+    status: "draft",
+  };
 
   if (skip) whereQuery.id = { [Op.lt]: skip };
 
@@ -194,7 +198,6 @@ const updateArticle = asyncMiddleware(async (req, res, next) => {
 
   const article = await Article.findOne({
     where: { id, authorId: me.profileInfo.id, status: "approved" },
-    attributes: ["id", "banner"],
   });
 
   if (!article) throw ErrorResponse(404, "Article not found");
@@ -206,13 +209,7 @@ const updateArticle = asyncMiddleware(async (req, res, next) => {
 
   const updatedSlug = title ? toSlug(title) + "-" + Date.now() : article.slug;
 
-  await article.update({
-    title,
-    preview,
-    slug: updatedSlug,
-    content,
-    banner,
-  });
+  await article.update({ title, preview, slug: updatedSlug, content, banner });
 
   if (topicNames) {
     const data = await Promise.all(
@@ -226,6 +223,7 @@ const updateArticle = asyncMiddleware(async (req, res, next) => {
         return { articleId: article.id, topicId: isExisted.id };
       })
     );
+
     await Promise.all([
       Article_Topic.destroy({ where: { articleId: article.id } }),
       Article_Topic.bulkCreate(data),
@@ -261,7 +259,10 @@ const getProfileArticles = asyncMiddleware(async (req, res, next) => {
   const user = req.user;
   const { skip, limit = 15 } = req.query;
 
-  let whereQuery = { authorId: user.profileInfo.id, status: "approved" };
+  let whereQuery = {
+    authorId: user.profileInfo.id,
+    status: "approved",
+  };
 
   if (skip) whereQuery.id = { [Op.lt]: skip };
 
@@ -274,8 +275,9 @@ const getProfileArticles = asyncMiddleware(async (req, res, next) => {
         "status",
         "likesCount",
         "commentsCount",
-        "approvedById",
         "reportsCount",
+        "rejectsCount",
+        "deletedById",
       ],
     },
     order: [["id", "DESC"]],
@@ -397,12 +399,13 @@ const getAnArticle = asyncMiddleware(async (req, res, next) => {
     where: { slug, status: "approved" },
     attributes: {
       exclude: [
-        "approvedById",
         "preview",
         "slug",
         "authorId",
         "status",
         "reportsCount",
+        "rejectsCount",
+        "deletedById",
       ],
     },
     include: [
@@ -432,6 +435,7 @@ const getAnArticle = asyncMiddleware(async (req, res, next) => {
 
   article.author.avatar = addUrlToImg(article.author.avatar);
   article.banner ? addUrlToImg(article.banner) : null;
+  article.content = replaceImgNamesWithUrls(article.content);
 
   if (me && me.profileInfo.id === article.author.id) {
     article = { ...article.toJSON(), isMyArticle: true };
@@ -443,10 +447,10 @@ const getAnArticle = asyncMiddleware(async (req, res, next) => {
     }));
 
     if (isBlockedByUser) {
-      return res.json({
-        success: true,
-        message: `You can not view this article because the author already blocked you`,
-      });
+      throw ErrorResponse(
+        400,
+        `You can not view this article because the author already blocked you`
+      );
     }
 
     const [authorBlocked, authorFollowed, articleLiked, isSaved] =
@@ -469,10 +473,7 @@ const getAnArticle = asyncMiddleware(async (req, res, next) => {
       ]);
 
     const isInReadingHistory = await Reading_History.findOne({
-      where: {
-        articleId: article.id,
-        profileId: me.profileInfo.id,
-      },
+      where: { articleId: article.id, profileId: me.profileInfo.id },
     });
 
     if (!isInReadingHistory) {
@@ -519,9 +520,10 @@ const getFollowedProfilesArticles = asyncMiddleware(async (req, res, next) => {
         "content",
         "likesCount",
         "commentsCount",
-        "approvedById",
         "status",
         "reportsCount",
+        "rejectsCount",
+        "deletedById",
       ],
     },
     include: [
@@ -565,24 +567,27 @@ const getFollowedProfilesArticles = asyncMiddleware(async (req, res, next) => {
           model: Topic,
           as: "topic",
           attributes: ["id", "name", "slug"],
-          where: { status: "approved" },
+          where: {
+            status: "approved",
+          },
         },
         order: [["id", "ASC"]],
       });
       const isSaved = !!(await Reading_List.findOne({
         where: { profileId: me.profileInfo.id, articleId: article.id },
       }));
-      return topic
-        ? {
-            ...article.toJSON(),
-            topic: {
-              id: topic.topic.id,
-              name: topic.topic.name,
-              slug: topic.topic.slug,
-            },
-            isSaved,
-          }
-        : { ...article.toJSON(), topic: null, isSaved };
+      if (topic) {
+        return {
+          ...article.toJSON(),
+          topic: {
+            id: topic.topic.id,
+            name: topic.topic.name,
+            slug: topic.topic.slug,
+          },
+          isSaved,
+        };
+      }
+      return { ...article.toJSON(), topic: null, isSaved };
     })
   );
 
@@ -597,10 +602,7 @@ const getFollowedTopicArticles = asyncMiddleware(async (req, res, next) => {
   const { slug } = req.params;
   const me = req.me;
 
-  const topic = await Topic.findOne({
-    where: { slug, status: "approved" },
-    attributes: ["id", "name", "slug"],
-  });
+  const topic = await Topic.findOne({ where: { slug, status: "approved" } });
 
   if (!topic) throw ErrorResponse(404, "Topic not found");
 
@@ -621,9 +623,10 @@ const getFollowedTopicArticles = asyncMiddleware(async (req, res, next) => {
         "content",
         "likesCount",
         "commentsCount",
-        "approvedById",
         "status",
         "reportsCount",
+        "rejectsCount",
+        "deletedById",
       ],
     },
     include: [
@@ -714,9 +717,10 @@ const exploreNewArticles = asyncMiddleware(async (req, res, next) => {
         "content",
         "likesCount",
         "commentsCount",
-        "approvedById",
         "status",
         "reportsCount",
+        "rejectsCount",
+        "deletedById",
       ],
     },
     include: [
@@ -770,7 +774,7 @@ const exploreNewArticles = asyncMiddleware(async (req, res, next) => {
       article.author.avatar = addUrlToImg(article.author.avatar);
       const topic = await Article_Topic.findOne({
         attributes: [],
-        where: { articleId: article.id },
+        where: { rticleId: article.id },
         include: {
           model: Topic,
           as: "topic",
@@ -782,17 +786,22 @@ const exploreNewArticles = asyncMiddleware(async (req, res, next) => {
       const isSaved = !!(await Reading_List.findOne({
         where: { profileId: me.profileInfo.id, articleId: article.id },
       }));
-      return topic
-        ? {
-            ...article.toJSON(),
-            topic: {
-              id: topic.topic.id,
-              name: topic.topic.name,
-              slug: topic.topic.slug,
-            },
-            isSaved,
-          }
-        : { ...article.toJSON(), topic: null, isSaved };
+      if (topic) {
+        return {
+          ...article.toJSON(),
+          topic: {
+            id: topic.topic.id,
+            name: topic.topic.name,
+            slug: topic.topic.slug,
+          },
+          isSaved,
+        };
+      }
+      return {
+        ...article.toJSON(),
+        topic: null,
+        isSaved,
+      };
     })
   );
 
@@ -818,9 +827,10 @@ const adminPick = asyncMiddleware(async (req, res, next) => {
         "content",
         "likesCount",
         "commentsCount",
-        "approvedById",
         "status",
         "reportsCount",
+        "rejectsCount",
+        "deletedById",
       ],
     },
     include: [
@@ -923,9 +933,10 @@ const adminPickFullList = asyncMiddleware(async (req, res, next) => {
             "content",
             "likesCount",
             "commentsCount",
-            "approvedById",
             "status",
             "reportsCount",
+            "rejectsCount",
+            "deletedById",
           ],
         },
         as: "readArticle",
@@ -1015,18 +1026,20 @@ const adminPickFullList = asyncMiddleware(async (req, res, next) => {
       const isSaved = !!(await Reading_List.findOne({
         where: { profileId: me.profileInfo.id, articleId: adminPick.id },
       }));
-
-      return topic
-        ? {
-            ...article,
-            topic: {
-              id: topic.topic.id,
-              name: topic.topic.name,
-              slug: topic.topic.slug,
-            },
-            isSaved,
-          }
-        : { ...article, topic: null, isSaved };
+      const isMyArticle = me.profileInfo.id === article.author.id;
+      if (topic) {
+        return {
+          ...article,
+          topic: {
+            id: topic.topic.id,
+            name: topic.topic.name,
+            slug: topic.topic.slug,
+          },
+          isSaved,
+          isMyArticle,
+        };
+      }
+      return { ...article, topic: null, isSaved, isMyArticle };
     })
   );
 
@@ -1049,7 +1062,14 @@ const getAllArticles = asyncMiddleware(async (req, res, next) => {
   const articles = await Article.findAll({
     where: whereQuery,
     attributes: {
-      exclude: ["content", "likesCount", "commentsCount", "banner", "authorId"],
+      exclude: [
+        "content",
+        "likesCount",
+        "commentsCount",
+        "banner",
+        "authorId",
+        "deletedById",
+      ],
     },
     include: {
       model: Profile,
@@ -1075,17 +1095,197 @@ const getAllArticles = asyncMiddleware(async (req, res, next) => {
   res.json({ success: true, data: articles, newSkip });
 });
 
-// ==================== article to draft ==================== //
-const articleToDraft = asyncMiddleware(async (req, res, next) => {
+// ==================== topic articles ==================== //
+const getTopicArticles = asyncMiddleware(async (req, res, next) => {
+  const { skip, limit = 15 } = req.query;
+  const { slug } = req.params;
+  const me = req.me ? req.me : null;
+
+  const topic = await Topic.findOne({ where: { slug } });
+
+  if (!topic) throw ErrorResponse(404, "Topic not found");
+
+  let whereQuery = { topicId: topic.id };
+
+  if (skip) whereQuery.id = { [Op.lt]: skip };
+
+  let articles, topicArticles;
+
+  if (me) {
+    whereQuery["$article.authorMuted.mutedId$"] = null;
+    whereQuery["$article.authorBlocked.blockedId$"] = null;
+    whereQuery["$article.authorBlocker.blockerId$"] = null;
+
+    topicArticles = await Article_Topic.findAll({
+      where: whereQuery,
+      attributes: ["id"],
+      include: {
+        model: Article,
+        as: "article",
+        where: { status: "approved" },
+        attributes: {
+          exclude: [
+            "authorId",
+            "content",
+            "status",
+            "reportsCount",
+            "rejectsCount",
+            "deletedById",
+          ],
+        },
+        include: [
+          {
+            model: Profile,
+            as: "author",
+            attributes: ["id", "fullname", "avatar"],
+            include: {
+              model: User,
+              as: "userInfo",
+              attributes: ["username"],
+              include: { model: Role, as: "role", attributes: ["slug"] },
+            },
+          },
+          {
+            model: Mute,
+            as: "authorMuted",
+            where: { muterId: me.profileInfo.id },
+            attributes: [],
+            required: false,
+          },
+          {
+            model: Block,
+            as: "authorBlocker",
+            where: { blockedId: me.profileInfo.id },
+            attributes: [],
+            required: false,
+          },
+          {
+            model: Block,
+            as: "authorBlocked",
+            attributes: [],
+            where: { blockerId: me.profileInfo.id },
+            required: false,
+          },
+        ],
+      },
+      order: [["id", "DESC"]],
+      limit: Number(limit) ? Number(limit) : null,
+    });
+
+    articles = await Promise.all(
+      topicArticles.map(async (article) => {
+        article.article.author.avatar = addUrlToImg(
+          article.article.author.avatar
+        );
+        article.article.banner = addUrlToImg(article.article.banner);
+        const [isSaved, isLiked] = await Promise.all([
+          Reading_List.findOne({
+            where: {
+              profileId: me.profileInfo.id,
+              articleId: article.article.id,
+            },
+          }),
+          Like.findOne({
+            where: {
+              profileId: me.profileInfo.id,
+              articleId: article.article.id,
+            },
+          }),
+        ]);
+        return {
+          ...article.article.toJSON(),
+          isSaved: !!isSaved,
+          isLiked: !!isLiked,
+          isMyArticle: me.profileInfo.id === article.article.id,
+        };
+      })
+    );
+  } else {
+    topicArticles = await Article_Topic.findAll({
+      where: whereQuery,
+      attributes: ["id"],
+      include: {
+        model: Article,
+        as: "article",
+        where: { status: "approved" },
+        attributes: {
+          exclude: [
+            "authorId",
+            "content",
+            "status",
+            "reportsCount",
+            "rejectsCount",
+            "deletedById",
+          ],
+        },
+        include: [
+          {
+            model: Profile,
+            as: "author",
+            attributes: ["id", "fullname", "avatar"],
+            include: {
+              model: User,
+              as: "userInfo",
+              attributes: ["username"],
+              include: { model: Role, as: "role", attributes: ["slug"] },
+            },
+          },
+        ],
+      },
+      order: [["id", "DESC"]],
+      limit: Number(limit) ? Number(limit) : null,
+    });
+
+    articles = await Promise.all(
+      topicArticles.map(async (article) => {
+        article.article.author.avatar = addUrlToImg(
+          article.article.author.avatar
+        );
+        article.article.banner = addUrlToImg(article.article.banner);
+        return { ...article.article.toJSON() };
+      })
+    );
+  }
+
+  const newSkip =
+    topicArticles.length > 0
+      ? topicArticles[topicArticles.length - 1].id
+      : null;
+
+  res.json({ success: true, data: articles, newSkip });
+});
+
+// ==================== set article back to draft ==================== //
+const setArticleBackToDraft = asyncMiddleware(async (req, res, next) => {
   const { id } = req.params;
 
-  const article = await Article.findOne({ id, status: { [Op.ne]: "draft" } });
+  const article = await Article.findOne({
+    where: { id, status: { [Op.ne]: "draft" } },
+  });
 
   if (!article) throw ErrorResponse(404, "Article not found");
 
   await article.update({ status: "draft" }, { hooks: false });
 
   res.json({ success: true, message: "Set article back to draft" });
+});
+
+// ==================== remove article ==================== //
+const removeArticle = asyncMiddleware(async (req, res, next) => {
+  const { id } = req.params;
+  const me = req.me;
+
+  const article = await Article.findOne({
+    where: { id, status: { [Op.ne]: "draft" } },
+  });
+
+  if (!article) throw ErrorResponse(404, "Article not found");
+
+  await article.update({ deletedById: me.id }, { hooks: false });
+
+  await article.destroy();
+
+  res.json({ success: true, message: "Remove article successfully" });
 });
 
 export default {
@@ -1105,5 +1305,7 @@ export default {
   exploreNewArticles,
   adminPick,
   adminPickFullList,
-  articleToDraft,
+  getTopicArticles,
+  setArticleBackToDraft,
+  removeArticle,
 };

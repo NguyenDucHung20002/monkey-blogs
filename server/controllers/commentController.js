@@ -8,9 +8,6 @@ import Block from "../models/mysql/Block.js";
 import User from "../models/mysql/User.js";
 import { Op } from "sequelize";
 import Role from "../models/mysql/Role.js";
-import SocketUser from "../models/mongodb/SocketUser.js";
-import socket from "../socket.js";
-import Notification from "../models/mysql/Notification.js";
 
 // ==================== add comment ==================== //
 const createComment = asyncMiddleware(async (req, res, next) => {
@@ -24,140 +21,54 @@ const createComment = asyncMiddleware(async (req, res, next) => {
 
   const isAuthor = me.profileInfo.id === article.authorId;
 
-  if (isAuthor) {
-    let newCommentData = {
-      articleId: article.id,
-      authorId: me.profileInfo.id,
-      content,
+  let newCommentData = {
+    articleId: article.id,
+    authorId: me.profileInfo.id,
+    content,
+  };
+
+  let parentComment;
+
+  if (parentCommentId) {
+    parentComment = await Comment.findByPk(parentCommentId);
+
+    if (!parentComment) throw ErrorResponse(404, "Comment not found");
+
+    newCommentData = {
+      ...newCommentData,
+      parentCommentId,
+      depth: parentComment.depth + 1,
     };
 
-    if (parentCommentId) {
-      const parentComment = await Comment.findByPk(parentCommentId);
-
-      if (!parentComment) throw ErrorResponse(404, "Comment not found");
-
-      newCommentData = {
-        ...newCommentData,
-        parentCommentId,
-        depth: parentComment.depth + 1,
-      };
-
-      await parentComment.increment({ repliesCount: 1 });
-    }
-
-    const [newComment] = await Promise.all([
-      Comment.create(newCommentData),
-      article.increment({ commentsCount: 1 }),
-    ]);
-
-    return res.status(201).json({
-      success: true,
-      data: {
-        id: newComment.id,
-        repliesCount: newComment.repliesCount,
-        content: newComment.content,
-        depth: newComment.depth,
-        author: {
-          fullname: me.profileInfo.fullname,
-          username: me.username,
-          avatar: me.profileInfo.avatar,
-          role: me.role.slug,
-          isAuthor,
-        },
-        createdAt: newComment.createdAt,
-        updatedAt: newComment.updatedAt,
-        isMyComment: true,
-      },
-    });
+    await parentComment.increment({ repliesCount: 1 });
   }
 
-  if (!isAuthor) {
-    let newCommentData = {
-      articleId: article.id,
-      authorId: me.profileInfo.id,
-      content,
-    };
+  const newComment = await Comment.create(newCommentData, {
+    me: me,
+    article: article,
+    isAuthor: isAuthor,
+    parentComment: parentComment,
+  });
 
-    let notificationData = {
-      senderId: me.profileInfo.id,
-      reciverId: article.authorId,
-      articleId: article.id,
-      content: `${me.profileInfo.fullname} comment on your article ${article.title}`,
-    };
-
-    if (parentCommentId) {
-      const parentComment = await Comment.findByPk(parentCommentId);
-
-      if (!parentComment) throw ErrorResponse(404, "Comment not found");
-
-      newCommentData = {
-        ...newCommentData,
-        parentCommentId,
-        depth: parentComment.depth + 1,
-      };
-
-      notificationData = {
-        senderId: me.profileInfo.id,
-        reciverId: parentComment.authorId,
-        articleId: article.id,
-        content: `${me.profileInfo.fullname} reply to you on ${article.title}`,
-      };
-
-      await parentComment.increment({ repliesCount: 1 });
-    }
-
-    const [newComment, notification, recivers] = await Promise.all([
-      Comment.create(newCommentData),
-      Notification.create(notificationData),
-      SocketUser.find({ userId: notificationData.reciverId }),
-      Profile.increment(
-        { unReadNotificationsCount: 1 },
-        { where: { id: notificationData.reciverId } }
-      ),
-      article.increment({ commentsCount: 1 }),
-    ]);
-
-    if (recivers && recivers.length > 0) {
-      const message = {
-        id: notification.id,
-        sender: {
-          id: me.profileInfo.id,
-          fullname: me.profileInfo.fullname,
-          avatar: addUrlToImg(me.profileInfo.avatar),
-          username: me.username,
-        },
-        content: notification.content,
-        createdAt: notification.createdAt,
-        updatedAt: notification.updatedAt,
-      };
-
-      const io = socket.getIO();
-
-      recivers.forEach((reciver) => {
-        io.to(reciver.socketId).emit("comment-reply", message);
-      });
-    }
-
-    res.status(201).json({
-      success: true,
-      data: {
-        id: newComment.id,
-        repliesCount: newComment.repliesCount,
-        content: newComment.content,
-        depth: newComment.depth,
-        author: {
-          fullname: me.profileInfo.fullname,
-          username: me.username,
-          avatar: me.profileInfo.avatar,
-          role: me.role.slug,
-          isAuthor,
-        },
-        createdAt: newComment.createdAt,
-        updatedAt: newComment.updatedAt,
-        isMyComment: true,
+  return res.status(201).json({
+    success: true,
+    data: {
+      id: newComment.id,
+      repliesCount: newComment.repliesCount,
+      content: newComment.content,
+      depth: newComment.depth,
+      author: {
+        fullname: me.profileInfo.fullname,
+        username: me.username,
+        avatar: me.profileInfo.avatar,
+        role: me.role.slug,
+        isAuthor,
       },
-    });
-  }
+      createdAt: newComment.createdAt,
+      updatedAt: newComment.updatedAt,
+      isMyComment: true,
+    },
+  });
 });
 
 // ==================== update comment ==================== //

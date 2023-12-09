@@ -14,25 +14,29 @@ const getNotifications = asyncMiddleware(async (req, res, next) => {
 
   if (skip) whereQuery.id = { [Op.lt]: skip };
 
-  let notifications = await Notification.findAll({
-    where: whereQuery,
-    attributes: { exclude: ["senderId", "reciverId", "articleId"] },
-    include: [
-      {
-        model: Profile,
-        as: "sender",
-        attributes: ["id", "fullname", "avatar"],
-        include: {
-          model: User,
-          as: "userInfo",
-          attributes: ["username"],
-          include: { model: Role, as: "role", attributes: ["slug"] },
+  let [notifications] = await Promise.all([
+    Notification.findAll({
+      where: whereQuery,
+      attributes: { exclude: ["senderId", "reciverId", "articleId"] },
+      include: [
+        {
+          model: Profile,
+          as: "sender",
+          attributes: ["id", "fullname", "avatar"],
+          include: {
+            model: User,
+            as: "userInfo",
+            attributes: ["username"],
+            include: { model: Role, as: "role", attributes: ["slug"] },
+          },
         },
-      },
-    ],
-    order: [["id", "DESC"]],
-    limit: Number(limit) ? Number(limit) : 15,
-  });
+      ],
+      order: [["id", "DESC"]],
+      limit: Number(limit) ? Number(limit) : 15,
+    }),
+  ]);
+
+  await me.profileInfo.update({ unReadNotificationsCount: 0 });
 
   notifications.map(async (notification) => {
     return {
@@ -58,7 +62,7 @@ const getNotifications = asyncMiddleware(async (req, res, next) => {
   res.json({
     success: true,
     data: notifications,
-    unReadedCount: me.profileInfo.unReadNotificationsCount,
+    unReadNotificationsCount: 0,
     newSkip,
   });
 });

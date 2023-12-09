@@ -24,6 +24,19 @@ const Follow_Topic = sequelize.define(
   {
     tableName: "follow_topics",
     timestamps: true,
+    hooks: {
+      afterCreate: async (Follow_Topic, options) => {
+        const topic = options.topic;
+
+        await topic.increment({ followersCount: 1 });
+      },
+
+      afterDestroy: async (Follow_Topic, options) => {
+        const topic = options.topic;
+
+        await topic.increment({ followersCount: -1 });
+      },
+    },
   }
 );
 

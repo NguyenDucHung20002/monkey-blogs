@@ -8,9 +8,6 @@ import addUrlToImg from "../utils/addUrlToImg.js";
 import Block from "../models/mysql/Block.js";
 import Role from "../models/mysql/Role.js";
 import sequelize from "../databases/mysql/connect.js";
-import Notification from "../models/mysql/Notification.js";
-import socket from "../socket.js";
-import SocketUser from "../models/mongodb/SocketUser.js";
 
 // ==================== follow a profile ==================== //
 const followAProfile = asyncMiddleware(async (req, res, next) => {
@@ -26,44 +23,13 @@ const followAProfile = asyncMiddleware(async (req, res, next) => {
   });
 
   if (!followProfile) {
-    const [notification, recivers] = await Promise.all([
-      Notification.create({
-        senderId: me.profileInfo.id,
-        reciverId: user.profileInfo.id,
-        content: `${me.profileInfo.fullname} followed you.`,
-      }),
-      SocketUser.find({ userId: user.profileInfo.id }),
-      Follow_Profile.create({
+    await Follow_Profile.create(
+      {
         followedId: user.profileInfo.id,
         followerId: me.profileInfo.id,
-      }),
-      me.profileInfo.increment({ followingCount: 1 }),
-      user.profileInfo.increment({
-        followersCount: 1,
-        unReadNotificationsCount: 1,
-      }),
-    ]);
-
-    if (recivers && recivers.length > 0) {
-      const message = {
-        id: notification.id,
-        sender: {
-          id: me.profileInfo.id,
-          fullname: me.profileInfo.fullname,
-          avatar: addUrlToImg(me.profileInfo.avatar),
-          username: me.username,
-        },
-        content: notification.content,
-        createdAt: notification.createdAt,
-        updatedAt: notification.updatedAt,
-      };
-
-      const io = socket.getIO();
-
-      recivers.forEach((reciver) => {
-        io.to(reciver.socketId).emit("follow-profile", message);
-      });
-    }
+      },
+      { me: me, user: user }
+    );
   }
 
   res.status(201).json({
@@ -86,11 +52,7 @@ const unFollowAProfile = asyncMiddleware(async (req, res, next) => {
   });
 
   if (followProfile) {
-    await Promise.all([
-      followProfile.destroy(),
-      me.profileInfo.increment({ followingCount: -1 }),
-      user.profileInfo.increment({ followersCount: -1 }),
-    ]);
+    await followProfile.destroy({ me: me, user: user });
   }
 
   res.json({
