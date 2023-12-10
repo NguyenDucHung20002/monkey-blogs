@@ -57,9 +57,10 @@ const updateADraft = asyncMiddleware(async (req, res, next) => {
 
   const updatedSlug = title ? toSlug(title) + "-" + Date.now() : draft.slug;
 
-  replaceImgUrlsWithNames(content);
-
-  await draft.update({ title, content, slug: updatedSlug }, { hooks: false });
+  await draft.update(
+    { title, content: replaceImgUrlsWithNames(content), slug: updatedSlug },
+    { hooks: false }
+  );
 
   res.json({ success: true, message: "Draft updated successfully" });
 });
@@ -207,7 +208,13 @@ const updateArticle = asyncMiddleware(async (req, res, next) => {
 
   const updatedSlug = title ? toSlug(title) + "-" + Date.now() : article.slug;
 
-  await article.update({ title, preview, slug: updatedSlug, content, banner });
+  await article.update({
+    title,
+    preview,
+    slug: updatedSlug,
+    content: replaceImgNamesWithUrls(content),
+    banner,
+  });
 
   if (topicNames) {
     const data = await Promise.all(
