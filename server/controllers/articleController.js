@@ -29,12 +29,10 @@ const createADraft = asyncMiddleware(async (req, res, next) => {
 
   const slug = toSlug(title) + "-" + Date.now();
 
-  replaceImgUrlsWithNames(content);
-
   const draft = await Article.create({
     authorId: me.profileInfo.id,
     title,
-    content,
+    content: replaceImgUrlsWithNames(content),
     slug,
   });
 
