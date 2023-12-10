@@ -1053,28 +1053,48 @@ const adminPickFullList = asyncMiddleware(async (req, res, next) => {
 
 // ==================== get all articles ==================== //
 const getAllArticles = asyncMiddleware(async (req, res, next) => {
-  const { skip, limit = 15 } = req.query;
+  const me = req.me;
+  const { skip, limit = 15, search, option } = req.query;
 
-  let whereQuery = {};
+  let whereQuery = { status: { [Op.notIn]: ["pending", "draft"] } };
 
-  if (skip) whereQuery.where = { id: { [Op.lt]: skip } };
+  if (skip) whereQuery.id = { [Op.lt]: skip };
+
+  if (option) {
+    whereQuery = {
+      ...whereQuery,
+      status: {
+        [Op.and]: [{ [Op.notIn]: ["pending", "draft"] }, option],
+      },
+    };
+  }
+
+  if (search) {
+    whereQuery[Op.or] = [
+      { "$author.fullname$": { [Op.substring]: search } },
+      { "$author.userInfo.username$": { [Op.substring]: search } },
+      { title: { [Op.substring]: search } },
+      { slug: { [Op.substring]: search } },
+    ];
+  }
+
+  console.log(whereQuery);
 
   const articles = await Article.findAll({
     where: whereQuery,
-    attributes: {
-      exclude: [
-        "content",
-        "likesCount",
-        "commentsCount",
-        "banner",
-        "authorId",
-        "deletedById",
-      ],
-    },
+    attributes: [
+      "id",
+      "title",
+      "slug",
+      "reportsCount",
+      "rejectsCount",
+      "status",
+    ],
     include: {
       model: Profile,
       as: "author",
-      attributes: ["id", "fullname", "avatar"],
+      where: { id: { [Op.ne]: me.profileInfo.id } },
+      attributes: ["id", "fullname"],
       include: {
         model: User,
         as: "userInfo",
@@ -1084,10 +1104,6 @@ const getAllArticles = asyncMiddleware(async (req, res, next) => {
     },
     order: [["id", "DESC"]],
     limit: Number(limit) ? Number(limit) : 15,
-  });
-
-  articles.forEach((article) => {
-    article.author.avatar = addUrlToImg(article.author.avatar);
   });
 
   const newSkip = articles.length > 0 ? articles[articles.length - 1].id : null;
@@ -1194,8 +1210,8 @@ const getTopicArticles = asyncMiddleware(async (req, res, next) => {
         ]);
         return {
           ...article.article.toJSON(),
-          isSaved: !!isSaved,
-          isLiked: !!isLiked,
+          isSaved: Boolean(isSaved),
+          isLiked: Boolean(isLiked),
           isMyArticle: me.profileInfo.id === article.article.id,
         };
       })

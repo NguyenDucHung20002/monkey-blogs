@@ -78,7 +78,6 @@ const Like = sequelize.define(
 
       afterDestroy: async (Like, options) => {
         const article = options.article;
-
         await article.increment({ likesCount: -1 });
       },
     },
