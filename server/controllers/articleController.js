@@ -707,6 +707,7 @@ const exploreNewArticles = asyncMiddleware(async (req, res, next) => {
       { "$authorBlocker.blockerId$": null },
       { "$authorFollowed.followedId$": null },
       { "$authorMuted.mutedId$": null },
+      { "$readingHistory.articleId$": null },
       { authorId: { [Op.ne]: me.profileInfo.id } },
       { status: "approved" },
     ],
@@ -739,6 +740,13 @@ const exploreNewArticles = asyncMiddleware(async (req, res, next) => {
           attributes: ["username"],
           include: { model: Role, as: "role", attributes: ["slug"] },
         },
+      },
+      {
+        model: Reading_History,
+        as: "readingHistory",
+        where: { profileId: me.profileInfo.id },
+        attributes: [],
+        required: false,
       },
       {
         model: Follow_Profile,

@@ -410,6 +410,12 @@ Reading_List.belongsTo(Profile, {
   as: "readingProfile",
 });
 
+// Article - Reading_History
+Article.hasOne(Reading_History, {
+  foreignKey: "articleId",
+  as: "readingHistory",
+});
+
 // Profile - Block
 Profile.hasOne(Block, {
   sourceKey: "id",

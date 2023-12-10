@@ -37,6 +37,12 @@ export default {
 
   SOCKET_LISTENING_EVENT: process.env.SOCKET_LISTENING_EVENT || "notification",
 
+  PERSPECTIVE_API_KEY:
+    process.env.PERSPECTIVE_API_KEY || "your perspective api key",
+
+  PERSPECTIVE_DISCOVERY_URL:
+    process.env.PERSPECTIVE_DISCOVERY_URL || "perspective url",
+
   getMongodbUri() {
     return `mongodb://${this.MONGODB_HOST}:${this.MONGODB_PORT}/${this.MONGODB_DATABASE}`;
   },

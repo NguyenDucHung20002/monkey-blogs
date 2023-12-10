@@ -5,6 +5,7 @@ import cors from "cors";
 import MongoDB from "./databases/mongodb/connect.js";
 import sequelize from "./databases/mysql/connect.js";
 import errorMiddleware from "./middlewares/errorMiddleware.js";
+import socket from "./socket.js";
 
 const app = express();
 
@@ -44,7 +45,7 @@ app.use(cors());
 MongoDB.connect();
 
 sequelize
-  .sync({ force: false, logging: false })
+  .sync({ force: false, logging: true })
   .then(() => {
     console.log("connect to mysql database successfully");
   })
@@ -82,8 +83,6 @@ app.use(`/${env.API_VERSION}/reading-list`, readingListRoute);
 app.use(`/${env.API_VERSION}/notification`, notificationRoute);
 
 app.use(errorMiddleware);
-
-import socket from "./socket.js";
 
 const httpServer = http.createServer(app);
 
