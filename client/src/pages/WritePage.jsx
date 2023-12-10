@@ -11,7 +11,6 @@ import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 import MyEditor from "../components/input/MyEditor";
 import { apiAddBlog, apiCreateDarft, apiUpdateDarft } from "../api/apiNew";
-import { apiAddBlog, apiCreateDarft, apiUpdateDarft } from "../api/apiNew";
 import { debounce } from "lodash";
 import useUploadImage from "../hooks/useUploadImage";
 
@@ -96,14 +95,12 @@ const WritePage = () => {
     }
     const { preview } = values;
     const topicNames = topics.map((val) => val.name);
-    console.log(topicNames);
     const idDraft = newDraft?.draftId;
     const data = {
       topicNames,
       preview,
       banner: image.filename,
     };
-    console.log(data);
 
     async function fetchAddBlog() {
       if (!token) return;
@@ -142,7 +139,8 @@ const WritePage = () => {
     setIsSaved(false);
     const encoder = new TextEncoder();
     const byteSize = encoder.encode(content).length;
-    if (byteSize >= 102400) {
+    console.log(byteSize);
+    if (byteSize >= 30000) {
       return;
     }
     if (check && !hasRunOnce) {

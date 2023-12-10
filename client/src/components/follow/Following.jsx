@@ -9,20 +9,26 @@ const Following = ({ data = [], token, user }) => {
   const [userFollow, setUserFollow] = useState({});
   async function fetchUserInf(username) {
     const data = await apiGetProfile(token, username);
-      setUserFollow({ ...data });
+    setUserFollow({ ...data });
   }
   const SmallInf = () => {
-    console.log(userFollow);
     return (
       <>
         <div className="w-72">
           <div className="">
-          <Link className="flex items-center" to={`/profile/${userFollow?.username}`}>
-            <div className="w-8 h-8 overflow-hidden rounded-1/2 ">
-              <img className="w-full h-full" src={userFollow?.avatar} alt="" />
-            </div>
-            <p className="ml-2 text-base font-bold">{userFollow?.fullname}</p>
-          </Link>
+            <Link
+              className="flex items-center"
+              to={`/profile/${userFollow?.username}`}
+            >
+              <div className="w-8 h-8 overflow-hidden rounded-1/2 ">
+                <img
+                  className="w-full h-full"
+                  src={userFollow?.avatar}
+                  alt=""
+                />
+              </div>
+              <p className="ml-2 text-base font-bold">{userFollow?.fullname}</p>
+            </Link>
           </div>
           <p className="py-2">{userFollow?.bio ? userFollow.bio : ""} </p>
           <div className="h-[1px] my-3 bg-stone-400"></div>
@@ -55,14 +61,13 @@ const Following = ({ data = [], token, user }) => {
             >
               <div className="flex max-w-[90%]">
                 <div className="w-6 h-6 overflow-hidden rounded-1/2 ">
-                <Link to={`/profile/${val.username}`}>
-                  <img
-                    className="object-cover w-full h-full"
-                    src={val.avatar}
-                    alt=""
-                  />
-                </Link>
-
+                  <Link to={`/profile/${val.username}`}>
+                    <img
+                      className="object-cover w-full h-full"
+                      src={val.avatar}
+                      alt=""
+                    />
+                  </Link>
                 </div>
                 <div className="max-w-[80%] ">
                   <Link to={`/profile/${val.username}`}>
@@ -93,7 +98,9 @@ const Following = ({ data = [], token, user }) => {
         </div>
         <div className="py-2 my-3">
           <button>
-            See all <span>({user?.followingCount})</span>
+            <Link to={`/profile/following/${user?.username}`}>
+              See all <span>({user?.followingCount})</span>
+            </Link>
           </button>
         </div>
       </div>

@@ -16,9 +16,7 @@ const ImageUpload = (props) => {
       <div
         className={`cursor-pointer flex items-center justify-center border border-gray-300 w-full min-h-[200px]  ${className} relative overflow-hidden group`}
       >
-        <label
-          className={`cursor-pointer flex items-center justify-center border border-gray-300 w-full min-h-[200px]  ${className} relative overflow-hidden group`}
-        >
+        <label>
           <input
             type="file"
             name={name}

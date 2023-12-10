@@ -38,7 +38,7 @@ const apiAddTopic = async (token, name) => {
   }
 };
 
-const apiDeleteArticle = async (token, slug) => {
+const apiDeleteArticle = async (slug) => {
   try {
     const res = await axios
       .delete(`${config.SERVER_HOST}/article/${slug}`, {
@@ -514,8 +514,8 @@ const apiUnFollowUser = async (userID, token) => {
 
 const apiUpdateArticle = async (token, slug, formData) => {
   try {
-    const response = await axios.put(
-      `${config.SERVER_HOST}/article/${slug}`,
+    const response = await axios.patch(
+      `${config.SERVER_HOST}/article/update/${slug}`,
       formData,
       {
         headers: {

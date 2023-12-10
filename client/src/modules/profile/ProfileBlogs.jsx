@@ -4,6 +4,7 @@ import { Popover } from "antd";
 import TopicList from "../topic/TopicList";
 import Swal from "sweetalert2";
 import BlogImage from "../blog/BlogImage";
+import { config } from "../../utils/constants";
 
 const ProfileBlogs = ({ blogs, user, fetchDeleteArticle }) => {
   const handleDelete = (slug) => {
@@ -147,7 +148,7 @@ const ProfileBlogs = ({ blogs, user, fetchDeleteArticle }) => {
             <div className="ml-14">
               <BlogImage
                 className="flex-shrink-0"
-                url={val.img}
+                url={`${config.SERVER_HOST}/file/${val.banner}`}
                 alt=""
                 to={`/blog/${val.slug}`}
               ></BlogImage>

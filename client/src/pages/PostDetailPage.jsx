@@ -89,7 +89,6 @@ const PostDetailPagePageStyle = styled.div`
 const PostDetailPage = () => {
   const { slug } = useParams("slug");
   const [blog, setBlog] = useState(null);
-  console.log("blog:", blog);
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
 
@@ -116,7 +115,7 @@ const PostDetailPage = () => {
         <div className="post-header">
           {blog.banner && (
             <PostImage
-              url={`${config.SERVER_HOST}/file/${blog.banner}`}
+              url={`${blog.banner}`}
               className="post-feature"
             ></PostImage>
           )}

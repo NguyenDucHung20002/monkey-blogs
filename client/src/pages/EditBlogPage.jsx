@@ -54,26 +54,28 @@ const EditBlogPage = () => {
   const [isSaved, setIsSaved] = useState(false);
   const [showIsSaved, setShowIsSaved] = useState(false);
   const [content, setContent] = useState("");
-  const [idDraft, setIdDraft] = useState("");
+  const [status, setStatus] = useState();
   const [preview, setPreview] = useState("");
   const [authorSlug, setAuthorSlug] = useState("");
   const { image, setImage, onSelectImage, onDeleteImage } = useUploadImage();
 
   const navigate = useNavigate();
   function resetForm(data) {
-    // console.log("data:", data);
+    console.log("data:", data);
     if (!data) return;
     if (data.length === 0) return;
     const title = data?.title;
     const preview = data?.preview;
     reset({ title, preview });
-    setIdDraft(data.id);
-    setImage({
-      url: `${config.SERVER_HOST}/file/${data?.banner}`,
-      filename: data?.banner,
-    });
+    setStatus({ id: data.id, status: data.status });
+    if (data.banner) {
+      setImage({
+        url: `${config.SERVER_HOST}/file/${data?.banner}`,
+        filename: data?.banner,
+      });
+    }
     setContent(data?.content);
-    setTopics(data?.articleTopics);
+    setTopics(data?.topicNames);
     setAuthorSlug(data?.author?.username);
   }
 
@@ -82,7 +84,6 @@ const EditBlogPage = () => {
       try {
         const response = await apiGetArticleOrDraft(slug);
         if (response) resetForm(response.data);
-        console.log(response);
       } catch (error) {
         // navigate("/*");
         console.log("error", error);
@@ -101,10 +102,11 @@ const EditBlogPage = () => {
     }
   }, [errors]);
 
-  useEffect(() => {
-    const topicsId = topics?.map((topic) => topic._id);
-    setValue("topics", topicsId);
-  }, [setValue, topics]);
+  // useEffect(() => {
+  //   const topicsId = topics?.map((topic) => topic._id);
+  //   console.log("topicsId", topicsId);
+  //   setValue("topics", topicsId);
+  // }, [setValue, topics]);
 
   useEffect(() => {
     setValue("content", content);
@@ -131,7 +133,6 @@ const EditBlogPage = () => {
 
   const handleClickPublish = () => {
     handleSubmit(handleEditBlog)();
-    console.log("submit");
   };
 
   const handleEditBlog = async (values) => {
@@ -143,7 +144,7 @@ const EditBlogPage = () => {
       });
     const { title, content, preview } = values;
     // const cutPreview = preview.slice(0, 200);
-    const topicNames = topics.map((val) => val.name);
+    const topicNames = topics?.map((val) => val.name);
     const formData = {
       title,
       content,
@@ -151,15 +152,16 @@ const EditBlogPage = () => {
       preview,
       banner: image.filename,
     };
+    // console.log("formData", formData);
     if (!token) return null;
-    const response = await apiUpdateArticle(token, slug, formData);
+    const response = await apiUpdateArticle(token, status?.id, formData);
     if (response) {
-      navigate(`/profile/${authorSlug}`);
+      navigate(`/`);
     }
   };
   const watchedTitle = useWatch({ control, name: "title", defaultValue: "" });
   const UpdateDraft = debounce(async () => {
-    const res = await apiUpdateDarft(idDraft, watchedTitle, content);
+    const res = await apiUpdateDarft(status?.id, watchedTitle, content);
     if (res?.success) {
       setIsSaved(true);
     }
@@ -173,21 +175,22 @@ const EditBlogPage = () => {
     setIsSaved(false);
     const encoder = new TextEncoder();
     const byteSize = encoder.encode(content).length;
-    if (byteSize >= 102400) {
+    if (byteSize >= 30000) {
       return;
     }
-    if (idDraft) {
+    if (status.status == "draft") {
+      setShowIsSaved(true);
       UpdateDraft();
     }
     // console.log("newDraft",newDraft);
     // console.log("changeDraft",changeDraft);
   }, [watchedTitle, content]);
-
   return (
     <EditBlogPageStyle>
       <form onSubmit={handleSubmit(handleEditBlog)} autoComplete="off">
         <WriteHeader
           showIsSaved={showIsSaved}
+          isSaved={isSaved}
           image={image.url}
           handleSelectImage={handleSelectImage}
           handleDeleteImage={handleDeleteImage}
