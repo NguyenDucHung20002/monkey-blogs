@@ -32,7 +32,7 @@ const updateDraftSchema = Joi.object({
 
 const createArticleSchema = Joi.object({
   banner: Joi.string(),
-  preview: Joi.string().max(200).required(),
+  preview: Joi.string().max(200),
   topicNames: Joi.array().max(5).items(Joi.string()),
 });
 
