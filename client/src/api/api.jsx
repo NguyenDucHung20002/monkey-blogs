@@ -2,6 +2,7 @@ import axios from "axios";
 import { config } from "../utils/constants";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
+const token = localStorage.getItem("token");
 
 const apiAddTopic = async (token, name) => {
   try {
@@ -202,6 +203,23 @@ const apiGetArticle = async (slug) => {
     if (error.response.status === 404) {
       return null;
     }
+  }
+};
+
+const apiGetArticleOrDraft = async (slug) => {
+  try {
+    const response = await axios.get(
+      `${config.SERVER_HOST}/article/get/${slug} `,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response.data) return response?.data;
+  } catch (error) {
+    console.log("error: ", error);
   }
 };
 
@@ -501,11 +519,12 @@ const apiUpdateArticle = async (token, slug, formData) => {
       {
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
+          "Content-Type": "application/json",
         },
       }
     );
     if (response.data.success) return true;
+    return false;
   } catch (error) {
     if (error.response.status == 404) {
       toast.error("Post not found!", {
@@ -751,6 +770,7 @@ export {
   apiFollowUser,
   apiGetAllUser,
   apiGetArticle,
+  apiGetArticleOrDraft,
   apiGetArticleSkip,
   apiGetComment,
   apiGetCommentReplies,

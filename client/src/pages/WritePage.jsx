@@ -10,11 +10,7 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 import MyEditor from "../components/input/MyEditor";
-import {
-  apiAddBlog,
-  apiCreateDarft,
-  apiUpdateDarft,
-} from "../api/apiNew";
+import { apiAddBlog, apiCreateDarft, apiUpdateDarft } from "../api/apiNew";
 import { debounce } from "lodash";
 import useUploadImage from "../hooks/useUploadImage";
 
@@ -46,6 +42,7 @@ const WritePage = () => {
   const [content, setContent] = useState("");
   const [preview, setPreview] = useState("");
   const [isSaved, setIsSaved] = useState(false);
+  const [showIsSaved, setShowIsSaved] = useState(false);
   const [newDraft, setNewDraft] = useState({});
   const [hasRunOnce, setHasRunOnce] = useState(false);
   const navigate = useNavigate();
@@ -152,11 +149,11 @@ const WritePage = () => {
     setIsSaved(false);
     const encoder = new TextEncoder();
     const byteSize = encoder.encode(content).length;
-    console.log(byteSize);
-    if(byteSize >= 102400){
-      return
+    if (byteSize >= 102400) {
+      return;
     }
     if (check && !hasRunOnce) {
+      setShowIsSaved(true);
       createDraft();
     }
     if (newDraft?.draftId) {
@@ -171,6 +168,7 @@ const WritePage = () => {
     <WritePageStyle>
       <form onSubmit={handleSubmit(handleAddBlog)} autoComplete="off">
         <WriteHeader
+          showIsSaved={showIsSaved}
           isSaved={isSaved}
           image={image?.url}
           handleSelectImage={handleSelectImage}
