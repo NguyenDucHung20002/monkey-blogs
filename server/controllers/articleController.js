@@ -212,7 +212,7 @@ const updateArticle = asyncMiddleware(async (req, res, next) => {
     title,
     preview,
     slug: updatedSlug,
-    content: replaceImgNamesWithUrls(content),
+    content: replaceImgUrlsWithNames(content),
     banner,
   });
 
@@ -1315,6 +1315,44 @@ const removeArticle = asyncMiddleware(async (req, res, next) => {
   res.json({ success: true, message: "Remove article successfully" });
 });
 
+// ==================== remove article ==================== //
+const getRemovedArticles = asyncMiddleware(async (req, res, next) => {
+  const me = req.me;
+  const { skip, limit = 15 } = req.query;
+
+  let whereQuery = { deletedAt: { [Op.ne]: null } };
+
+  if (skip) whereQuery.id = { [Op.lt]: skip };
+
+  const article = await Article.findAll({
+    where: whereQuery,
+    paranoid: false,
+    include: [
+      {
+        model: Profile,
+        as: "author",
+        attributes: ["id", "fullname"],
+        include: {
+          model: User,
+          as: "userInfo",
+          attributes: ["username"],
+          include: { model: Role, as: "role", attributes: ["slug"] },
+        },
+      },
+      {
+        model: User,
+        as: "deletedBy",
+      },
+    ],
+    order: [["id", "DESC"]],
+    limit: Number(limit) ? Number(limit) : null,
+  });
+
+  const newSkip = article.length > 0 ? article[article.length - 1].id : null;
+
+  res.json({ success: true, data: article, newSkip });
+});
+
 export default {
   createADraft,
   updateADraft,
@@ -1335,4 +1373,5 @@ export default {
   getTopicArticles,
   setArticleBackToDraft,
   removeArticle,
+  getRemovedArticles,
 };

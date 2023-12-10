@@ -86,6 +86,15 @@ router.delete(
   articleController.deleteADraft
 );
 
+// remove article
+router.get(
+  "/removed-articles",
+  requiredAuth,
+  fetchMe,
+  authorize("admin"),
+  articleController.getRemovedArticles
+);
+
 // get an article or a draft to edit
 router.get(
   "/get/:id",
