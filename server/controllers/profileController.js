@@ -11,7 +11,12 @@ const getProfile = asyncMiddleware(async (req, res, next) => {
   const me = req.me ? req.me : null;
 
   if (me && me.id === user.id) {
-    user.profileInfo = { ...user.profileInfo.toJSON(), isMyProfile: true };
+    user.profileInfo = {
+      ...user.profileInfo.toJSON(),
+      username: user.username,
+      role: user.role.slug,
+      isMyProfile: true,
+    };
   }
 
   if (me && me.id !== user.id) {
@@ -32,6 +37,7 @@ const getProfile = asyncMiddleware(async (req, res, next) => {
 
     user.profileInfo = {
       ...user.profileInfo.toJSON(),
+      username: user.username,
       role: user.role.slug,
       isMyProfile: false,
       isMuted: Boolean(isMuted),
