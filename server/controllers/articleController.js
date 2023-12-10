@@ -774,7 +774,7 @@ const exploreNewArticles = asyncMiddleware(async (req, res, next) => {
       article.author.avatar = addUrlToImg(article.author.avatar);
       const topic = await Article_Topic.findOne({
         attributes: [],
-        where: { rticleId: article.id },
+        where: { articleId: article.id },
         include: {
           model: Topic,
           as: "topic",

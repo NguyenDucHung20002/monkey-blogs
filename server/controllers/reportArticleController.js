@@ -49,10 +49,7 @@ const reportAnArticle = asyncMiddleware(async (req, res, next) => {
     article.increment({ reportsCount: 1 }),
   ]);
 
-  res.status(201).json({
-    success: true,
-    message: `Article has been reported`,
-  });
+  res.status(201).json({ success: true, message: `Article has been reported` });
 });
 
 // ==================== get list of peding reported articles ==================== //
@@ -68,14 +65,21 @@ const getPendingReportedArticles = asyncMiddleware(async (req, res, next) => {
     ];
   }
 
-  const reports = await Report_Article.findAll({
+  let reportedArticles = await Report_Article.findAll({
     where: { status: "pending" },
     attributes: ["articleId"],
     include: [
       {
         model: Article,
         as: "article",
-        attributes: ["id", "title", "banner", "slug", "reportsCount", "status"],
+        attributes: [
+          "id",
+          "title",
+          "slug",
+          "reportsCount",
+          "rejectsCount",
+          "status",
+        ],
         include: {
           model: Profile,
           as: "author",
@@ -95,31 +99,21 @@ const getPendingReportedArticles = asyncMiddleware(async (req, res, next) => {
     limit: Number(limit) ? Number(limit) : 15,
   });
 
-  const reportedProfiles = reports.map((report) => {
-    return {
-      id: report.article.id,
-      title: report.article.title,
-      banner: report.article.banner,
-      reportsCount: report.article.reportsCount,
-      slug: report.article.slug,
-      status: report.article.status,
-      author: report.article ? report.article.author : null,
-    };
+  reportedArticles = reportedArticles.map((report) => {
+    return { ...report.article.toJSON() };
   });
 
   const newSkipId =
-    reports.length > 0 ? reports[reports.length - 1].articleId : null;
-  const newSkipCount =
-    reports.length > 0
-      ? reports[reports.length - 1].article.reportsCount
+    reportedArticles.length > 0
+      ? reportedArticles[reportedArticles.length - 1].id
       : null;
 
-  res.json({
-    success: true,
-    data: reportedProfiles,
-    newSkipId,
-    newSkipCount,
-  });
+  const newSkipCount =
+    reportedArticles.length > 0
+      ? reportedArticles[reportedArticles.length - 1].reportsCount
+      : null;
+
+  res.json({ success: true, data: reportedArticles, newSkipId, newSkipCount });
 });
 
 // ==================== Get pending reports of article ==================== //
@@ -131,7 +125,7 @@ const getPendingReportsOfArticle = asyncMiddleware(async (req, res, next) => {
 
   if (skip) whereQuery.id = { [Op.lt]: skip };
 
-  let reports = await Report_Article.findAll({
+  const reports = await Report_Article.findAll({
     where: whereQuery,
     attributes: { exclude: ["articleId", "userId", "resolvedById"] },
     include: [
@@ -209,6 +203,17 @@ const getResolvedReports = asyncMiddleware(async (req, res, next) => {
         model: Article,
         as: "article",
         attributes: ["id", "title", "banner", "slug", "reportsCount", "status"],
+        include: {
+          model: Profile,
+          as: "author",
+          attributes: ["id", "fullname"],
+          include: {
+            model: User,
+            as: "userInfo",
+            attributes: ["username"],
+            include: { model: Role, as: "role", attributes: ["name", "slug"] },
+          },
+        },
       },
       { model: User, as: "user", attributes: ["id", "username", "email"] },
       {
