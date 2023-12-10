@@ -1317,16 +1317,23 @@ const removeArticle = asyncMiddleware(async (req, res, next) => {
 
 // ==================== remove article ==================== //
 const getRemovedArticles = asyncMiddleware(async (req, res, next) => {
-  const me = req.me;
   const { skip, limit = 15 } = req.query;
 
   let whereQuery = { deletedAt: { [Op.ne]: null } };
 
   if (skip) whereQuery.id = { [Op.lt]: skip };
 
-  const article = await Article.findAll({
+  const articles = await Article.findAll({
     where: whereQuery,
     paranoid: false,
+    attributes: [
+      "id",
+      "title",
+      "slug",
+      "status",
+      "reportsCount",
+      "rejectsCount",
+    ],
     include: [
       {
         model: Profile,
@@ -1336,21 +1343,30 @@ const getRemovedArticles = asyncMiddleware(async (req, res, next) => {
           model: User,
           as: "userInfo",
           attributes: ["username"],
-          include: { model: Role, as: "role", attributes: ["slug"] },
+          include: { model: Role, as: "role", attributes: ["name", "slug"] },
         },
       },
       {
         model: User,
         as: "deletedBy",
+        attributes: ["username"],
+        include: [
+          {
+            model: Profile,
+            as: "profileInfo",
+            attributes: ["id", "fullname"],
+          },
+          { model: Role, as: "role", attributes: ["name", "slug"] },
+        ],
       },
     ],
     order: [["id", "DESC"]],
     limit: Number(limit) ? Number(limit) : null,
   });
 
-  const newSkip = article.length > 0 ? article[article.length - 1].id : null;
+  const newSkip = articles.length > 0 ? articles[articles.length - 1].id : null;
 
-  res.json({ success: true, data: article, newSkip });
+  res.json({ success: true, data: articles, newSkip });
 });
 
 export default {
