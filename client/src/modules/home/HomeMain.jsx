@@ -58,7 +58,6 @@ const HomeMain = () => {
   useEffect(() => {
     async function fetTopicFollowings() {
       const response = await apiGetMyFollowingTopics(token);
-      console.log("response:", response);
       if (response) setTopicFollowings(response.data);
     }
     fetTopicFollowings();

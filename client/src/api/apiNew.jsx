@@ -1,6 +1,5 @@
 import axios from "axios";
 import { config } from "../utils/constants";
-import { toast } from "react-toastify";
 const token = localStorage.getItem("token");
 
 const apiGetUserFollow = async (username, typeFollow = "followers") => {

@@ -1,15 +1,8 @@
-import { useEffect } from "react";
 import { Button } from "../components/button";
 import { useNavigate } from "react-router-dom";
 
 const SignInPage = () => {
-  const token = localStorage.getItem("token");
   const navigate = useNavigate();
-  useEffect(() => {
-    if (token) {
-      navigate("/");
-    }
-  }, [token, navigate]);
 
   return (
     <div className="w-[100vw] h-[100vh] flex items-center justify-center flex-col">
@@ -50,6 +43,12 @@ const SignInPage = () => {
 
         <p className="ml-3 text-lg">Sign in with Google</p>
       </Button>
+      <button
+        className="mt-5 text-blue-400 hover:text-blue-500 font-semibold"
+        onClick={() => navigate("/")}
+      >
+        I already signed in
+      </button>
     </div>
   );
 };

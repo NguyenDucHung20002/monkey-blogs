@@ -12,19 +12,24 @@ function AuthProvider(props) {
   // console.log("userInfo:", userInfo);
   const value = { userInfo, setUserInfo };
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
+
+  function getToken() {
+    const tokenParams = searchParams.get("token");
+    if (tokenParams) {
+      localStorage.setItem("token", tokenParams);
+      return tokenParams;
+    }
+    const tokenLocal = localStorage.getItem("token");
+    if (tokenLocal) return tokenLocal;
+    return null;
+  }
+  const token = getToken();
+  console.log("token:", token);
 
   useEffect(() => {
-    const tokenParam = searchParams.get("token");
-    if (tokenParam) {
-      localStorage.setItem("token", tokenParam);
-      setSearchParams("");
-    }
-    const token = localStorage.getItem("token");
-    console.log("token:", token);
-    // console.log("token:", token);
-    if (!token) navigate("/sign-in");
     async function fetcher() {
+      if (!token) navigate("/sign-in");
       try {
         const response = await axios.post(
           `${config.SERVER_HOST}/auth/login`,
@@ -36,13 +41,18 @@ function AuthProvider(props) {
             },
           }
         );
-        if (response.data) setUserInfo(response.data);
+
+        if (response?.data?.success) {
+          setUserInfo(response.data);
+        } else {
+          navigate("/sign-in");
+        }
       } catch (error) {
         navigate("/sign-in");
       }
     }
     fetcher();
-  }, [navigate, searchParams, setSearchParams]);
+  }, [navigate, token]);
 
   return <AuthContext.Provider value={value} {...props}></AuthContext.Provider>;
 }

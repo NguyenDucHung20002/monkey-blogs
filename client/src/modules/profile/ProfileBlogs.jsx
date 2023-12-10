@@ -25,7 +25,7 @@ const ProfileBlogs = ({ blogs, user, fetchDeleteArticle }) => {
   const MoreUser = ({ slug }) => {
     return (
       <div>
-        <NavLink to={`/edit-blog/${slug}/article`}>
+        <NavLink to={`/edit-blog/${slug}`}>
           <div className="my-2 ">Edit story</div>
         </NavLink>
         <div
@@ -90,7 +90,7 @@ const ProfileBlogs = ({ blogs, user, fetchDeleteArticle }) => {
             <p className="text-sm">2 days ago</p>
           </div>
           <div className="flex mt-3">
-            <div className="flex-1">
+            <div className="flex-1  max-w-[80%]">
               <Link to={`/blog/${val.slug}`}>
                 <h2 className="pb-1 text-xl font-bold">{val.title}</h2>
                 <p className="text-sm line-clamp-3">{val.preview} </p>
@@ -118,7 +118,7 @@ const ProfileBlogs = ({ blogs, user, fetchDeleteArticle }) => {
                     placement="bottom"
                     content={
                       user?.isMyProfile ? (
-                        <MoreUser slug={val.slug} />
+                        <MoreUser slug={val.id} />
                       ) : (
                         <MoreUserOther />
                       )

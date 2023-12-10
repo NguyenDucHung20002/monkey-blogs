@@ -10,7 +10,7 @@ const HomePageStyle = styled.div``;
 
 const navHome = [
   {
-    title: "For you",
+    title: "New",
     url: "/",
   },
   {

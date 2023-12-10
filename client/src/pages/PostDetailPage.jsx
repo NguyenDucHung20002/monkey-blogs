@@ -11,6 +11,9 @@ import ActionComment from "../action/ActionComment";
 import ActionLike from "../action/ActionLike";
 import { useSocket } from "../contexts/SocketContext";
 import { apiGetArticle } from "../api/api";
+import { config } from "../utils/constants";
+import ButtonSaveBlog from "../components/button/ButtonSaveBlog";
+import ButtonActionBlogsAuthor from "../components/button/ButtonActionBlogsAuthor";
 
 const PostDetailPagePageStyle = styled.div`
   padding: 50px 0;
@@ -86,12 +89,14 @@ const PostDetailPagePageStyle = styled.div`
 const PostDetailPage = () => {
   const { slug } = useParams("slug");
   const [blog, setBlog] = useState(null);
+  console.log("blog:", blog);
+  const token = localStorage.getItem("token");
   const navigate = useNavigate();
-  const { sendNotification } = useSocket();
+
   useEffect(() => {
     async function fetchBlog() {
       try {
-        const response = await apiGetArticle(slug);
+        const response = await apiGetArticle(token, slug);
         if (!response) navigate("/*");
 
         setBlog(response.data);
@@ -101,7 +106,7 @@ const PostDetailPage = () => {
       }
     }
     fetchBlog();
-  }, [navigate, slug]);
+  }, [navigate, slug, token]);
 
   if (!slug) return <PageNotFound></PageNotFound>;
 
@@ -109,8 +114,11 @@ const PostDetailPage = () => {
     <PostDetailPagePageStyle>
       {blog && (
         <div className="post-header">
-          {blog.img && (
-            <PostImage url={blog.img} className="post-feature"></PostImage>
+          {blog.banner && (
+            <PostImage
+              url={`${config.SERVER_HOST}/file/${blog.banner}`}
+              className="post-feature"
+            ></PostImage>
           )}
           <div className="post-info">
             <h1 className="py-10 post-heading">{blog?.title}</h1>
@@ -125,18 +133,25 @@ const PostDetailPage = () => {
               ></PostMeta>
             </div>
             <TopicList data={blog.topics}></TopicList>
-            <div className="py-2 mt-5 border-gray-200 action border-y">
+            <div className="py-2 mt-5 border-gray-200 action border-y flex justify-between items-center">
               <div className="flex items-center gap-5 communicate">
                 <ActionLike
-                  sendLikeNotify={() =>
-                    sendNotification(
-                      blog?.author.username,
-                      "likeArt",
-                      blog.slug
-                    )
-                  }
+                  likesCount={blog.likesCount}
+                  username={blog?.author.username}
+                  liked={blog.articleLiked}
+                  blogId={blog.id}
                 ></ActionLike>
                 <ActionComment blogId={blog.id}></ActionComment>
+              </div>
+              <div className="flex items-center gap-3 ">
+                <ButtonSaveBlog
+                  BlogId={blog.id}
+                  checkMyProfile={blog.isSaved}
+                ></ButtonSaveBlog>
+                <ButtonActionBlogsAuthor
+                  setMuteId={() => {}}
+                  blog={blog}
+                ></ButtonActionBlogsAuthor>
               </div>
             </div>
           </div>

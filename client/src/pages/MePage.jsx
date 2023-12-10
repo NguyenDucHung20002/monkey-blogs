@@ -21,10 +21,6 @@ const navMe = [
     title: "Suggestions",
     url: "/me/suggestions",
   },
-  {
-    title: "Staff picks",
-    url: "/me/staff-picks",
-  },
 ];
 
 const MePage = () => {
