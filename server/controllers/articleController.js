@@ -434,7 +434,7 @@ const getAnArticle = asyncMiddleware(async (req, res, next) => {
   if (!article) throw ErrorResponse(404, "Article not found");
 
   article.author.avatar = addUrlToImg(article.author.avatar);
-  article.banner ? addUrlToImg(article.banner) : null;
+  article.banner = article.banner ? addUrlToImg(article.banner) : null;
   article.content = replaceImgNamesWithUrls(article.content);
 
   if (me && me.profileInfo.id === article.author.id) {
@@ -1077,8 +1077,6 @@ const getAllArticles = asyncMiddleware(async (req, res, next) => {
       { slug: { [Op.substring]: search } },
     ];
   }
-
-  console.log(whereQuery);
 
   const articles = await Article.findAll({
     where: whereQuery,
