@@ -19,11 +19,46 @@ const upLoadAnImg = asyncMiddleware(async (req, res, next) => {
 
 // ==================== upload an avatar ==================== //
 const upLoadAnAvatar = asyncMiddleware(async (req, res, next) => {
+  const filename = req.file?.filename;
   const size = req.file?.size;
 
   const FILE_LIMIT = 5 * 1024 * 1024;
 
   if (size && size > FILE_LIMIT) throw new ErrorResponse(400, "File too large");
+
+  const gfs = MongoDB.gfs;
+
+  const readStream = gfs.openDownloadStreamByName(filename);
+  let chunks = [];
+
+  readStream.on("data", (chunk) => {
+    chunks.push(chunk);
+  });
+
+  await new Promise((resolve, reject) => {
+    readStream.on("end", () => {
+      const imgData = Buffer.concat(chunks).toString("base64");
+
+      clarifai(imgData, (err, results) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+
+        if (results[0][0].nsfw > 0.55) {
+          fileController.autoRemoveImg(filename);
+
+          return res.status(400).json({
+            success: false,
+            message:
+              "Sorry, but your image contains explicit content and is not allowed",
+          });
+        }
+
+        resolve();
+      });
+    });
+  });
 
   res.status(201).json({
     success: true,
