@@ -320,7 +320,7 @@ const apiGetMyFollowingTopics = async (token) => {
 const apiGetNotification = async (token) => {
   try {
     const res = await axios
-      .get(`${config.SERVER_HOST}/notification/me/notify`, {
+      .get(`${config.SERVER_HOST}/notification/me`, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",

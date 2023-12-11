@@ -3,6 +3,9 @@ import { Route, Routes } from "react-router";
 import { ToastContainer } from "react-toastify";
 import StaffPickPage from "./pages/StaffPickPage";
 import MeMuted from "./pages/MeMuted";
+import MeLayout from "./layout/MeLayout";
+import MeStoryPage from "./pages/MeStoryPage";
+import MeLibraryPage from "./pages/MeLibraryPage";
 const ProfileFollowing = React.lazy(() =>
   import("./modules/profile/ProfileFollowing")
 );
@@ -72,6 +75,10 @@ function App() {
                 path="/me/suggestions"
                 element={<MeSuggestionPage></MeSuggestionPage>}
               ></Route>
+            </Route>
+            <Route element={<MeLayout />}>
+              <Route path="/me/stories" element={<MeStoryPage />} />
+              <Route path="/me/library" element={<MeLibraryPage />} />
             </Route>
             <Route
               path="/blog/:slug"

@@ -142,6 +142,21 @@ const apiAddBlog = async (aricleId, formData) => {
     console.log(error);
   }
 };
+
+const apiGetMyDraft = async (username, typeFollow = "followers") => {
+  try {
+    const res = await fetch(`${config.SERVER_HOST}/article/draft/me`, {
+      method: "get",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    }).then((response) => response.json());
+    return res;
+  } catch (error) {
+    console.log("error:", error);
+  }
+};
 export {
   apiGetUserFollow,
   apiUploadImage,
@@ -151,4 +166,5 @@ export {
   apiDeleteDarft,
   apiAddBlog,
   apiUploadCheckImage,
+  apiGetMyDraft,
 };

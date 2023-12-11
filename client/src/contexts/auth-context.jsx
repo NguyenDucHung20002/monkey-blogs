@@ -52,7 +52,7 @@ function AuthProvider(props) {
       }
     }
     fetcher();
-  }, [navigate, token]);
+  }, []);
 
   return <AuthContext.Provider value={value} {...props}></AuthContext.Provider>;
 }

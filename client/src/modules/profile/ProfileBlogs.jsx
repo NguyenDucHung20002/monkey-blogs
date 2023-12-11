@@ -97,7 +97,7 @@ const ProfileBlogs = ({ blogs, user, fetchDeleteArticle }) => {
                 <p className="text-sm line-clamp-3">{val.preview} </p>
               </Link>
               <div className="flex items-center justify-between py-7">
-                <TopicList data={val.topics}></TopicList>
+                <TopicList data={[val?.topic]}></TopicList>
                 <div className="flex items-center">
                   <Popover placement="bottom" content={save} trigger={"click"}>
                     <button className="mx-5">
