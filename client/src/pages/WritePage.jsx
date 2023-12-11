@@ -42,6 +42,7 @@ const WritePage = () => {
   const [content, setContent] = useState("");
   const [preview, setPreview] = useState("");
   const [isSaved, setIsSaved] = useState(false);
+  const [showIsSaved, setShowIsSaved] = useState(false);
   const [newDraft, setNewDraft] = useState({});
   const [hasRunOnce, setHasRunOnce] = useState(false);
   const navigate = useNavigate();
@@ -94,14 +95,12 @@ const WritePage = () => {
     }
     const { preview } = values;
     const topicNames = topics.map((val) => val.name);
-    console.log(topicNames);
     const idDraft = newDraft?.draftId;
     const data = {
       topicNames,
       preview,
       banner: image.filename,
     };
-    console.log(data);
 
     async function fetchAddBlog() {
       if (!token) return;
@@ -141,10 +140,11 @@ const WritePage = () => {
     const encoder = new TextEncoder();
     const byteSize = encoder.encode(content).length;
     console.log(byteSize);
-    if (byteSize >= 102400) {
+    if (byteSize >= 30000) {
       return;
     }
     if (check && !hasRunOnce) {
+      setShowIsSaved(true);
       createDraft();
     }
     if (newDraft?.draftId) {
@@ -159,6 +159,7 @@ const WritePage = () => {
     <WritePageStyle>
       <form onSubmit={handleSubmit(handleAddBlog)} autoComplete="off">
         <WriteHeader
+          showIsSaved={showIsSaved}
           isSaved={isSaved}
           image={image?.url}
           handleSelectImage={handleSelectImage}

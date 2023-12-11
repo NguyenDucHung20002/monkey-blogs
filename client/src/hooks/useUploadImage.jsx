@@ -32,6 +32,7 @@ const useUploadImage = () => {
   };
   return {
     image,
+    setImage,
     onSelectImage,
     onDeleteImage,
   };

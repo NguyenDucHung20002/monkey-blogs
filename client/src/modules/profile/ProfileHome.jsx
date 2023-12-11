@@ -7,7 +7,7 @@ import { NavbarHome } from "../../components/navbar";
 
 const ProfileHome = () => {
   const [blogs, setBlogs] = useState([]);
-  console.log("blogs:", blogs);
+  // console.log("blogs:", blogs);
   const { username } = useParams();
   const { user } = useOutletContext();
 
@@ -43,19 +43,19 @@ const ProfileHome = () => {
       url: `/profile/reading-list/${username}`,
     },
   ];
+  async function fetchUserBlog() {
+    const dataBlogs = await apiGetUserBlogs(username);
+    // console.log(dataBlogs);
+    setBlogs([...dataBlogs]);
+  }
 
   async function fetchDeleteArticle(slug) {
-    const delArticle = await apiDeleteArticle(token, slug);
+    const delArticle = await apiDeleteArticle(slug);
     if (delArticle) {
       fetchUserBlog();
     }
   }
   useEffect(() => {
-    async function fetchUserBlog() {
-      const dataBlogs = await apiGetUserBlogs(username);
-      // console.log(dataBlogs);
-      setBlogs([...dataBlogs]);
-    }
     fetchUserBlog();
   }, [username]);
   return (

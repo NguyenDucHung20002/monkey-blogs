@@ -103,7 +103,19 @@ const HomeStyle = styled.header`
   }
 `;
 
-const WriteHeader = ({isSaved,handleClickPublish,isSubmitting,image,handleDeleteImage,handleSelectImage,token,setTopics,topics}) => {
+const WriteHeader = ({
+  status = "Draft",
+  showIsSaved = false,
+  isSaved,
+  handleClickPublish,
+  isSubmitting,
+  image,
+  handleDeleteImage,
+  handleSelectImage,
+  token,
+  setTopics,
+  topics,
+}) => {
   const { userInfo, setUserInfo } = useAuth();
   const { data } = userInfo;
   const navigate = useNavigate();
@@ -169,12 +181,14 @@ const WriteHeader = ({isSaved,handleClickPublish,isSubmitting,image,handleDelete
               <img srcSet={logo} alt="monkey-blogging" className="logo" />
             </NavLink>
             <p className="text-sm">
-              Draft in{" "}
+              {status} in{" "}
               {data?.fullname && data?.fullname?.length > 10
                 ? data?.fullname.slice(0, 10) + "..."
                 : data?.fullname}
             </p>
-            <p className="ml-3" >{isSaved ? "Saved" : "Saving..."} </p>
+            {showIsSaved && (
+              <p className="ml-3">{isSaved ? "Saved" : "Saving..."} </p>
+            )}
           </div>
           <div className="flex items-center justify-center header-left">
             <Button
@@ -201,67 +215,95 @@ const WriteHeader = ({isSaved,handleClickPublish,isSubmitting,image,handleDelete
                 />
               </Popover>
             </Space>
-            <Modal footer={""} closeIcon={false} title="" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}
-            width={witchScreen} style={{top:0,right:0 ,padding:0 ,height:"auto", margin:0, maxWidth:"100vw",borderRadius:0}}>
-            <div className=" m-auto h-screen">
-              <div className=" flex items-center content-center h-full w-8/12 m-auto">
-                <button onClick={handleCancel} className="absolute top-[25%] right-[15%] z-[1001] text-xl hover:bg-stone-100">
-                  <svg fillRule="evenodd" viewBox="64 64 896 896" focusable="false" data-icon="close" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M799.86 166.31c.02 0 .04.02.08.06l57.69 57.7c.04.03.05.05.06.08a.12.12 0 010 .06c0 .03-.02.05-.06.09L569.93 512l287.7 287.7c.04.04.05.06.06.09a.12.12 0 010 .07c0 .02-.02.04-.06.08l-57.7 57.69c-.03.04-.05.05-.07.06a.12.12 0 01-.07 0c-.03 0-.05-.02-.09-.06L512 569.93l-287.7 287.7c-.04.04-.06.05-.09.06a.12.12 0 01-.07 0c-.02 0-.04-.02-.08-.06l-57.69-57.7c-.04-.03-.05-.05-.06-.07a.12.12 0 010-.07c0-.03.02-.05.06-.09L454.07 512l-287.7-287.7c-.04-.04-.05-.06-.06-.09a.12.12 0 010-.07c0-.02.02-.04.06-.08l57.7-57.69c.03-.04.05-.05.07-.06a.12.12 0 01.07 0c.03 0 .05.02.09.06L512 454.07l287.7-287.7c.04-.04.06-.05.09-.06a.12.12 0 01.07 0z"></path></svg>
-                </button>
-                <div className="w-3/4 mr-10">
-                  <ImageUpload
-                    className="h-[250px]"
-                    image={image}
-                    onChange={handleSelectImage}
-                    handleDeleteImage={handleDeleteImage}
-                  ></ImageUpload>
+            <Modal
+              footer={""}
+              closeIcon={false}
+              title=""
+              open={isModalOpen}
+              onOk={handleOk}
+              onCancel={handleCancel}
+              width={witchScreen}
+              style={{
+                top: 0,
+                right: 0,
+                padding: 0,
+                height: "auto",
+                margin: 0,
+                maxWidth: "100vw",
+                borderRadius: 0,
+              }}
+            >
+              <div className=" m-auto h-screen">
+                <div className=" flex items-center content-center h-full w-8/12 m-auto">
+                  <button
+                    onClick={handleCancel}
+                    className="absolute top-[25%] right-[15%] z-[1001] text-xl hover:bg-stone-100"
+                  >
+                    <svg
+                      fillRule="evenodd"
+                      viewBox="64 64 896 896"
+                      focusable="false"
+                      data-icon="close"
+                      width="1em"
+                      height="1em"
+                      fill="currentColor"
+                      aria-hidden="true"
+                    >
+                      <path d="M799.86 166.31c.02 0 .04.02.08.06l57.69 57.7c.04.03.05.05.06.08a.12.12 0 010 .06c0 .03-.02.05-.06.09L569.93 512l287.7 287.7c.04.04.05.06.06.09a.12.12 0 010 .07c0 .02-.02.04-.06.08l-57.7 57.69c-.03.04-.05.05-.07.06a.12.12 0 01-.07 0c-.03 0-.05-.02-.09-.06L512 569.93l-287.7 287.7c-.04.04-.06.05-.09.06a.12.12 0 01-.07 0c-.02 0-.04-.02-.08-.06l-57.69-57.7c-.04-.03-.05-.05-.06-.07a.12.12 0 010-.07c0-.03.02-.05.06-.09L454.07 512l-287.7-287.7c-.04-.04-.05-.06-.06-.09a.12.12 0 010-.07c0-.02.02-.04.06-.08l57.7-57.69c.03-.04.05-.05.07-.06a.12.12 0 01.07 0c.03 0 .05.02.09.06L512 454.07l287.7-287.7c.04-.04.06-.05.09-.06a.12.12 0 01.07 0z"></path>
+                    </svg>
+                  </button>
+                  <div className="w-3/4 mr-10">
+                    <ImageUpload
+                      className="h-[250px]"
+                      image={image}
+                      onChange={handleSelectImage}
+                      handleDeleteImage={handleDeleteImage}
+                    ></ImageUpload>
+                  </div>
+
+                  <div className="mt-5  topic">
+                    <h2 className="font-normal text-gray-600 ">
+                      Publishing to:{" "}
+                      <span className="font-semibold text-gray-700">
+                        {userInfo?.data?.username}
+                      </span>
+                    </h2>
+                    <p className="mt-5 text-sm text-gray-600">
+                      Add or change topics (up to 5) so readers know what your
+                      story is about
+                    </p>
+                    <SearchAddTopics
+                      topics={topics}
+                      setTopics={setTopics}
+                      token={token}
+                      placeholder="Add a topic"
+                    ></SearchAddTopics>
+                    <p className="mt-5 text-sm text-gray-400 ">
+                      <span className="font-semibold text-gray-600">Note:</span>{" "}
+                      Changes here will affect how your story appears in public
+                      places like Medium’s homepage and in subscribers’ inboxes
+                      — not the contents of the story itself.
+                    </p>
+                    <Button
+                      type="submit"
+                      kind="primary"
+                      height="30px"
+                      isSubmitting={isSubmitting}
+                      disabled={isSubmitting}
+                      className="!font-semibold !text-base !px-5 !mt-4 float-right"
+                      onClick={handleClickPublish}
+                    >
+                      Publish Now
+                    </Button>
+                  </div>
                 </div>
-
-              <div className="mt-5  topic">
-                <h2 className="font-normal text-gray-600 ">
-                  Publishing to:{" "}
-                  <span className="font-semibold text-gray-700">
-                    {userInfo?.data?.username}
-                  </span>
-                </h2>
-                <p className="mt-5 text-sm text-gray-600">
-                  Add or change topics (up to 5) so readers know what your story is
-                  about
-                </p>
-                <SearchAddTopics
-                  topics={topics}
-                  setTopics={setTopics}
-                  token={token}
-                  placeholder="Add a topic"
-                ></SearchAddTopics>
-                <p className="mt-5 text-sm text-gray-400 ">
-                  <span className="font-semibold text-gray-600">Note:</span> Changes
-                  here will affect how your story appears in public places like
-                  Medium’s homepage and in subscribers’ inboxes — not the contents
-                  of the story itself.
-                </p>
-                <Button
-                  type="submit"
-                  kind="primary"
-                  height="30px"
-                  isSubmitting={isSubmitting}
-                  disabled={isSubmitting}
-                  className="!font-semibold !text-base !px-5 !mt-4 float-right"
-                  onClick={handleClickPublish}
-              >
-                Publish Now
-              </Button>
               </div>
-
-              </div>
-            </div>
             </Modal>
-            
+
             {/* {isModalOpen && (            
             <div className="w-screen h-screen bg-white fixed top-0 left-0 bottom-0 z-[9999]">
 
             </div>)} */}
-
           </div>
         </div>
       </HomeStyle>

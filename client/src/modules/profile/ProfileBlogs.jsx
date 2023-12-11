@@ -4,6 +4,7 @@ import { Popover } from "antd";
 import TopicList from "../topic/TopicList";
 import Swal from "sweetalert2";
 import BlogImage from "../blog/BlogImage";
+import { config } from "../../utils/constants";
 
 const ProfileBlogs = ({ blogs, user, fetchDeleteArticle }) => {
   const handleDelete = (slug) => {
@@ -25,7 +26,7 @@ const ProfileBlogs = ({ blogs, user, fetchDeleteArticle }) => {
   const MoreUser = ({ slug }) => {
     return (
       <div>
-        <NavLink to={`/edit-blog/${slug}/article`}>
+        <NavLink to={`/edit-blog/${slug}`}>
           <div className="my-2 ">Edit story</div>
         </NavLink>
         <div
@@ -90,7 +91,7 @@ const ProfileBlogs = ({ blogs, user, fetchDeleteArticle }) => {
             <p className="text-sm">2 days ago</p>
           </div>
           <div className="flex mt-3">
-            <div className="flex-1">
+            <div className="flex-1  max-w-[80%]">
               <Link to={`/blog/${val.slug}`}>
                 <h2 className="pb-1 text-xl font-bold">{val.title}</h2>
                 <p className="text-sm line-clamp-3">{val.preview} </p>
@@ -118,7 +119,7 @@ const ProfileBlogs = ({ blogs, user, fetchDeleteArticle }) => {
                     placement="bottom"
                     content={
                       user?.isMyProfile ? (
-                        <MoreUser slug={val.slug} />
+                        <MoreUser slug={val.id} />
                       ) : (
                         <MoreUserOther />
                       )
@@ -147,7 +148,7 @@ const ProfileBlogs = ({ blogs, user, fetchDeleteArticle }) => {
             <div className="ml-14">
               <BlogImage
                 className="flex-shrink-0"
-                url={val.img}
+                url={`${config.SERVER_HOST}/file/${val.banner}`}
                 alt=""
                 to={`/blog/${val.slug}`}
               ></BlogImage>

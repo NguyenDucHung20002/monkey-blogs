@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
+import { config } from "../../utils/constants";
 const More = ({
   handleMute,
   isMuted,
@@ -71,11 +72,11 @@ const ProfileContext = ({ setIsBlocked, user, token }) => {
   }, [user]);
   const handleCopyToClipboard = async () => {
     try {
-      const currentURL = window.location.href;
+      const currentURL = `${config.CLIENT_HOST}:${config.CLIENT_PORT}/profile/${user?.username}`;
       await navigator.clipboard.writeText(currentURL);
       toast.success("Copy to ClipBoard successfully!", {
         pauseOnHover: false,
-        delay: 500,
+        delay: 100,
       });
     } catch (error) {
       console.error("error when add clipboard:");
@@ -83,7 +84,6 @@ const ProfileContext = ({ setIsBlocked, user, token }) => {
   };
   const handleMute = async () => {
     const type = isMuted ? "delete" : "post";
-    console.log(user);
     const toastContent = !isMuted
       ? "You will no longer see their stories on your homepage "
       : `${user.fullname} has been unmuted`;
@@ -132,7 +132,6 @@ const ProfileContext = ({ setIsBlocked, user, token }) => {
     const reason = values.reason;
     const description = values.description;
     const res = await apiReportUser(token, user.id, reason, description);
-    console.log(res);
     if (res?.success) {
       toast.success(res.message, { pauseOnHover: false, delay: 500 });
     } else {

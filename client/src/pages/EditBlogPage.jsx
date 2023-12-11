@@ -4,7 +4,7 @@ import styled from "styled-components";
 import WriteHeader from "../layout/WriteHeader";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import InputHook from "../components/input/InputHook";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -14,7 +14,15 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "../components/button";
 import ImageUpload from "../components/image/ImageUpload";
 import MyEditor from "../components/input/MyEditor";
-import { apiGetArticle, apiUpdateArticle } from "../api/api";
+import {
+  apiGetArticle,
+  apiGetArticleOrDraft,
+  apiUpdateArticle,
+} from "../api/api";
+import useUploadImage from "../hooks/useUploadImage";
+import { config } from "../utils/constants";
+import { apiUpdateDarft } from "../api/apiNew";
+import { debounce } from "lodash";
 
 const EditBlogPageStyle = styled.div`
   max-width: 1000px;
@@ -42,34 +50,43 @@ const EditBlogPage = () => {
     resolver: yupResolver(schema),
   });
   const { slug } = useParams("slug");
-  const [image, setImage] = useState("");
   const [topics, setTopics] = useState([]);
-  const [imageFilename, setImageFilename] = useState(null);
+  const [isSaved, setIsSaved] = useState(false);
+  const [showIsSaved, setShowIsSaved] = useState(false);
   const [content, setContent] = useState("");
+  const [status, setStatus] = useState();
   const [preview, setPreview] = useState("");
   const [authorSlug, setAuthorSlug] = useState("");
-  const navigate = useNavigate();
+  const { image, setImage, onSelectImage, onDeleteImage } = useUploadImage();
 
+  const navigate = useNavigate();
   function resetForm(data) {
     console.log("data:", data);
     if (!data) return;
     if (data.length === 0) return;
-    const title = data.title;
-    const preview = data.preview;
+    const title = data?.title;
+    const preview = data?.preview;
     reset({ title, preview });
-    setImage(data.img);
-    setContent(data.content);
-    setTopics(data.topics);
-    setAuthorSlug(data.author.username);
+    setStatus({ id: data.id, status: data.status });
+    if (data.banner) {
+      setImage({
+        url: `${config.SERVER_HOST}/file/${data?.banner}`,
+        filename: data?.banner,
+      });
+    }
+    setContent(data?.content);
+    setTopics(data?.topicNames);
+    setAuthorSlug(data?.author?.username);
   }
 
   useEffect(() => {
     async function fetchBlog() {
       try {
-        const response = await apiGetArticle(slug);
+        const response = await apiGetArticleOrDraft(slug);
         if (response) resetForm(response.data);
       } catch (error) {
-        navigate("/*");
+        // navigate("/*");
+        console.log("error", error);
       }
     }
     fetchBlog();
@@ -85,10 +102,11 @@ const EditBlogPage = () => {
     }
   }, [errors]);
 
-  useEffect(() => {
-    const topicsId = topics?.map((topic) => topic._id);
-    setValue("topics", topicsId);
-  }, [setValue, topics]);
+  // useEffect(() => {
+  //   const topicsId = topics?.map((topic) => topic._id);
+  //   console.log("topicsId", topicsId);
+  //   setValue("topics", topicsId);
+  // }, [setValue, topics]);
 
   useEffect(() => {
     setValue("content", content);
@@ -105,70 +123,75 @@ const EditBlogPage = () => {
   }, [content, preview, setValue]);
 
   const handleSelectImage = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    if (file) {
-      const allowedExtensions = /(\.jpg|\.jpeg|\.png|\.gif)$/i;
-      if (!allowedExtensions.exec(file.name)) {
-        alert("Choose inly .jpeg .jpg .png .gif");
-        e.target.value = "";
-        return;
-      }
-      setImageFilename(file);
-      setImage(URL.createObjectURL(file));
-    }
+    if (image) return;
+    onSelectImage(e);
   };
 
   const handleDeleteImage = (e) => {
-    e.target.value = "";
-    setImage("");
+    onDeleteImage(image?.filename);
   };
 
   const handleClickPublish = () => {
     handleSubmit(handleEditBlog)();
-    console.log("submit");
   };
 
-  const handleEditBlog = (values) => {
+  const handleEditBlog = async (values) => {
     if (!isValid) return;
     if (!image)
       toast.error("Please fill out your image title!", {
         pauseOnHover: false,
         delay: 500,
       });
-    const { title, content, topics, preview } = values;
-    const cutPreview = preview.slice(0, 200);
-    const formData = new FormData();
-    if (imageFilename) {
-      formData.set("img", imageFilename);
+    const { title, content, preview } = values;
+    // const cutPreview = preview.slice(0, 200);
+    const topicNames = topics?.map((val) => val.name);
+    const formData = {
+      title,
+      content,
+      topicNames,
+      preview,
+      banner: image.filename,
+    };
+    // console.log("formData", formData);
+    if (!token) return null;
+    const response = await apiUpdateArticle(token, status?.id, formData);
+    if (response) {
+      navigate(`/`);
     }
-    formData.set("title", title);
-    formData.set("content", content);
-    formData.set("preview", cutPreview);
-    topics.forEach((value, index) => {
-      formData.set(`topics[${index}]`, value);
-    });
-    async function fetchAddBlog() {
-      if (!token) return;
-      try {
-        const response = apiUpdateArticle(token, slug, formData);
-        if (response) {
-          navigate(`/profile/${authorSlug}`);
-        }
-      } catch (error) {
-        console.log("error:", error);
-      }
-    }
-    fetchAddBlog();
   };
+  const watchedTitle = useWatch({ control, name: "title", defaultValue: "" });
+  const UpdateDraft = debounce(async () => {
+    const res = await apiUpdateDarft(status?.id, watchedTitle, content);
+    if (res?.success) {
+      setIsSaved(true);
+    }
+  }, 1000);
 
-  if (!token) return null;
-
+  useEffect(() => {
+    // console.log("title",watchedTitle);
+    // console.log("content",content);
+    const check = content !== "" && watchedTitle !== "";
+    if (!check) return;
+    setIsSaved(false);
+    const encoder = new TextEncoder();
+    const byteSize = encoder.encode(content).length;
+    if (byteSize >= 30000) {
+      return;
+    }
+    if (status.status == "draft") {
+      setShowIsSaved(true);
+      UpdateDraft();
+    }
+    // console.log("newDraft",newDraft);
+    // console.log("changeDraft",changeDraft);
+  }, [watchedTitle, content]);
   return (
     <EditBlogPageStyle>
       <form onSubmit={handleSubmit(handleEditBlog)} autoComplete="off">
         <WriteHeader
-          image={image}
+          showIsSaved={showIsSaved}
+          isSaved={isSaved}
+          image={image.url}
           handleSelectImage={handleSelectImage}
           handleDeleteImage={handleDeleteImage}
           topics={topics}
@@ -177,62 +200,14 @@ const EditBlogPage = () => {
           isSubmitting={isSubmitting}
           disabled={isSubmitting}
           handleClickPublish={handleClickPublish}
-
         />
-        {/* <div className="mt-5 form-layout">
-          <div>
-            <ImageUpload
-              className="h-[250px]"
-              image={image}
-              onChange={handleSelectImage}
-              handleDeleteImage={handleDeleteImage}
-            ></ImageUpload>
-            <InputHook
-              className="mt-10"
-              control={control}
-              name="title"
-              placeholder="Add title"
-            ></InputHook>
-          </div>
-
-          <div className="mt-5 topic">
-            <h2 className="font-normal text-gray-600 ">
-              Publishing to:{" "}
-              <span className="font-semibold text-gray-700">
-                {userInfo?.data?.username}
-              </span>
-            </h2>
-            <p className="mt-5 text-sm text-gray-600">
-              Add or change topics (up to 5) so readers know what your story is
-              about
-            </p>
-            <SearchAddTopics
-              topics={topics}
-              setTopics={setTopics}
-              token={token}
-              placeholder="Add a topic"
-            ></SearchAddTopics>
-            <p className="mt-5 text-sm text-gray-400 ">
-              <span className="font-semibold text-gray-600">Note:</span> Changes
-              here will affect how your story appears in public places like
-              Medium’s homepage and in subscribers’ inboxes — not the contents
-              of the story itself.
-            </p>
-          </div>
-        </div> */}
+        <InputHook
+          className=""
+          control={control}
+          name="title"
+          placeholder="Add title"
+        ></InputHook>
         <MyEditor content={content} setContent={setContent}></MyEditor>
-        {/* <div className="sticky bottom-0 flex justify-center p-4">
-          <Button
-            type="submit"
-            kind="primary"
-            height="40px"
-            isSubmitting={isSubmitting}
-            disabled={isSubmitting}
-            className="!font-semibold !text-base !px-5"
-          >
-            Publish
-          </Button>
-        </div> */}
       </form>
     </EditBlogPageStyle>
   );
