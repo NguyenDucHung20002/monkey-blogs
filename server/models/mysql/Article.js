@@ -76,6 +76,12 @@ const Article = sequelize.define(
       defaultValue: 0,
     },
 
+    approvedById: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: { model: User, key: "id" },
+    },
+
     deletedById: {
       type: DataTypes.INTEGER,
       allowNull: true,

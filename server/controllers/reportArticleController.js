@@ -80,17 +80,33 @@ const getPendingReportedArticles = asyncMiddleware(async (req, res, next) => {
           "rejectsCount",
           "status",
         ],
-        include: {
-          model: Profile,
-          as: "author",
-          attributes: ["id", "fullname"],
-          include: {
-            model: User,
-            as: "userInfo",
-            attributes: ["username"],
-            include: { model: Role, as: "role", attributes: ["name", "slug"] },
+        include: [
+          {
+            model: Profile,
+            as: "author",
+            attributes: ["id", "fullname"],
+            include: {
+              model: User,
+              as: "userInfo",
+              attributes: ["username"],
+              include: {
+                model: Role,
+                as: "role",
+                attributes: ["name", "slug"],
+              },
+            },
           },
-        },
+          {
+            model: User,
+            as: "approvedBy",
+            attributes: ["id", "username", "email"],
+            include: {
+              model: Role,
+              as: "role",
+              attributes: ["id", "name", "slug"],
+            },
+          },
+        ],
         where: whereQuery,
       },
     ],
@@ -135,7 +151,11 @@ const getPendingReportsOfArticle = asyncMiddleware(async (req, res, next) => {
         model: User,
         as: "resolvedBy",
         attributes: ["id", "username", "email"],
-        include: { model: Role, as: "role", attributes: ["name", "slug"] },
+        include: {
+          model: Role,
+          as: "role",
+          attributes: ["id", "name", "slug"],
+        },
       },
     ],
     order: [["id", "DESC"]],
@@ -202,7 +222,14 @@ const getResolvedReports = asyncMiddleware(async (req, res, next) => {
       {
         model: Article,
         as: "article",
-        attributes: ["id", "title", "banner", "slug", "reportsCount", "status"],
+        attributes: [
+          "id",
+          "title",
+          "slug",
+          "reportsCount",
+          "rejectsCount",
+          "status",
+        ],
         include: {
           model: Profile,
           as: "author",
@@ -211,7 +238,11 @@ const getResolvedReports = asyncMiddleware(async (req, res, next) => {
             model: User,
             as: "userInfo",
             attributes: ["username"],
-            include: { model: Role, as: "role", attributes: ["name", "slug"] },
+            include: {
+              model: Role,
+              as: "role",
+              attributes: ["id", "name", "slug"],
+            },
           },
         },
       },
@@ -220,7 +251,11 @@ const getResolvedReports = asyncMiddleware(async (req, res, next) => {
         model: User,
         as: "resolvedBy",
         attributes: ["id", "username", "email"],
-        include: { model: Role, as: "role", attributes: ["name", "slug"] },
+        include: {
+          model: Role,
+          as: "role",
+          attributes: ["id", "name", "slug"],
+        },
       },
     ],
     order: [["id", "DESC"]],

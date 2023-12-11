@@ -209,6 +209,15 @@ Topic.belongsTo(User, {
   as: "approvedBy",
 });
 
+// User - Article (Approve) (1-n)
+User.hasMany(Article, {
+  foreignKey: "approvedById",
+});
+Article.belongsTo(User, {
+  foreignKey: "approvedById",
+  as: "approvedBy",
+});
+
 // Article - Profile (Like) (n-n)
 Article.belongsToMany(Profile, {
   through: Like,

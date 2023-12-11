@@ -11,7 +11,6 @@ import validator from "../middlewares/validator.js";
 
 const router = express.Router();
 
-// create draft
 router.post(
   "/draft/create-draft",
   requiredAuth,
@@ -20,10 +19,8 @@ router.post(
   articleController.createADraft
 );
 
-// get my drafts
 router.get("/draft/me", requiredAuth, fetchMe, articleController.getMyDrafts);
 
-// get profile article
 router.get(
   "/:username/all",
   optionalAuth,
@@ -33,7 +30,6 @@ router.get(
   articleController.getProfileArticles
 );
 
-// get followed profile articles
 router.get(
   "/following",
   requiredAuth,
@@ -41,7 +37,6 @@ router.get(
   articleController.getFollowedProfilesArticles
 );
 
-// export new articles
 router.get(
   "/explore-new-articles",
   requiredAuth,
@@ -49,10 +44,8 @@ router.get(
   articleController.exploreNewArticles
 );
 
-// admin pick
 router.get("/admin-pick", requiredAuth, fetchMe, articleController.adminPick);
 
-// admin pick full list
 router.get(
   "/admin-pick-full-list",
   requiredAuth,
@@ -60,7 +53,6 @@ router.get(
   articleController.adminPickFullList
 );
 
-// get all article
 router.get(
   "/",
   requiredAuth,
@@ -69,7 +61,6 @@ router.get(
   articleController.getAllArticles
 );
 
-// update draft
 router.patch(
   "/draft/update-draft/:id",
   requiredAuth,
@@ -78,7 +69,6 @@ router.patch(
   articleController.updateADraft
 );
 
-// delete draft
 router.delete(
   "/draft/delete-draft/:id",
   requiredAuth,
@@ -86,7 +76,6 @@ router.delete(
   articleController.deleteADraft
 );
 
-// remove article
 router.get(
   "/removed-articles",
   requiredAuth,
@@ -95,7 +84,6 @@ router.get(
   articleController.getRemovedArticles
 );
 
-// get an article or a draft to edit
 router.get(
   "/get/:id",
   requiredAuth,
@@ -103,7 +91,6 @@ router.get(
   articleController.getAnArticleOrADraftToEdit
 );
 
-// create article
 router.patch(
   "/:id",
   requiredAuth,
@@ -112,7 +99,6 @@ router.patch(
   articleController.createArticle
 );
 
-// update article
 router.patch(
   "/update/:id",
   requiredAuth,
@@ -121,13 +107,10 @@ router.patch(
   articleController.updateArticle
 );
 
-// delete article
 router.delete("/:id", requiredAuth, fetchMe, articleController.deleteArticle);
 
-// get an article
 router.get("/:slug", optionalAuth, fetchMe, articleController.getAnArticle);
 
-// get followed topic articles
 router.get(
   "/followed/topic/:slug",
   requiredAuth,
@@ -135,7 +118,6 @@ router.get(
   articleController.getFollowedTopicArticles
 );
 
-// get topic articles
 router.get(
   "/topic/:slug",
   optionalAuth,
@@ -143,7 +125,6 @@ router.get(
   articleController.getTopicArticles
 );
 
-// set article back to draft
 router.patch(
   "/set-article-back-to-draft/:id",
   requiredAuth,
@@ -152,7 +133,6 @@ router.patch(
   articleController.setArticleBackToDraft
 );
 
-// remove article
 router.delete(
   "/remove/:id",
   requiredAuth,
