@@ -19,6 +19,7 @@
   "dependencies": {
     "@faker-js/faker": "^8.3.1",
     "babel-register": "^6.26.0",
+    "bcryptjs": "^2.4.3",
     "clarifai-nodejs-grpc": "^9.10.8",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
@@ -32,6 +33,7 @@
     "multer-gridfs-storage": "^5.0.2",
     "mysql2": "^3.6.3",
     "node-cron": "^3.0.3",
+    "nodemailer": "^6.9.7",
     "nodemon": "^3.0.1",
     "passport": "^0.6.0",
     "passport-facebook": "^3.0.0",

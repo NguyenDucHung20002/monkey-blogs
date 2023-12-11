@@ -154,6 +154,7 @@ const Article = sequelize.define(
             SocketUser.find({ userId: article.authorId }),
             Notification.create({
               reciverId: article.authorId,
+              articleId: nsfwFound ? article.id : null,
               content: nsfwFound
                 ? "We've detected explicit content in your article, which is not allowed. Our team will investigate. Please be patient"
                 : "Your article has been approved. You can now view it",

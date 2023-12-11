@@ -5,6 +5,7 @@ import User from "../models/mysql/User.js";
 import Role from "../models/mysql/Role.js";
 import { Op } from "sequelize";
 import ErrorResponse from "../responses/ErrorResponse.js";
+import Article from "../models/mysql/Article.js";
 
 const getNotifications = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
@@ -14,7 +15,7 @@ const getNotifications = asyncMiddleware(async (req, res, next) => {
 
   if (skip) whereQuery.id = { [Op.lt]: skip };
 
-  let [notifications] = await Promise.all([
+  const [notifications] = await Promise.all([
     Notification.findAll({
       where: whereQuery,
       attributes: { exclude: ["senderId", "reciverId", "articleId"] },
@@ -30,29 +31,17 @@ const getNotifications = asyncMiddleware(async (req, res, next) => {
             include: { model: Role, as: "role", attributes: ["slug"] },
           },
         },
+        {
+          model: Article,
+          as: "article",
+          attributes: ["id", "title", "slug"],
+        },
       ],
       order: [["id", "DESC"]],
       limit: Number(limit) ? Number(limit) : 15,
     }),
+    me.profileInfo.update({ unReadNotificationsCount: 0 }),
   ]);
-
-  await me.profileInfo.update({ unReadNotificationsCount: 0 });
-
-  notifications.map(async (notification) => {
-    return {
-      id: notification.id,
-      sender: {
-        id: notification.sender.id,
-        fullname: notification.sender.fullname,
-        username: notification.sender.userInfo.username,
-        role: notification.sender.userInfo.role.slug,
-      },
-      content: notification.content,
-      isReaded: notification.isReaded,
-      createdAt: notification.createdAt,
-      updatedAt: notification.updatedAt,
-    };
-  });
 
   const newSkip =
     notifications.length > 0

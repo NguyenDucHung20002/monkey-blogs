@@ -1,6 +1,6 @@
-import { DataTypes } from "sequelize";
 import sequelize from "../../databases/mysql/connect.js";
 import Role from "../mysql/Role.js";
+import { DataTypes } from "sequelize";
 
 const User = sequelize.define(
   "User",
@@ -21,6 +21,11 @@ const User = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
       unique: true,
+    },
+
+    password: {
+      type: DataTypes.STRING,
+      allowNull: true,
     },
 
     reportsCount: {
@@ -58,6 +63,12 @@ const User = sequelize.define(
         key: "id",
       },
       defaultValue: 1,
+    },
+
+    isVerified: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
     },
 
     status: {
