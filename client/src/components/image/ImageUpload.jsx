@@ -16,9 +16,7 @@ const ImageUpload = (props) => {
       <div
         className={`cursor-pointer flex items-center justify-center border border-gray-300 w-full min-h-[200px]  ${className} relative overflow-hidden group`}
       >
-        <label
-          className={`cursor-pointer flex items-center justify-center border border-gray-300 w-full min-h-[200px]  ${className} relative overflow-hidden group`}
-        >
+        <label>
           <input
             type="file"
             name={name}
@@ -29,13 +27,13 @@ const ImageUpload = (props) => {
           />
 
           {!image && (
-            <div className="flex flex-col items-center text-center pointer-events-none">
+            <div className="flex flex-col items-center text-center cursor-pointer">
               <img
                 src={iconUpload}
                 alt="upload-img"
-                className="max-w-[80px] mb-5"
+                className="max-w-[80px] mb-5 "
               />
-              <p className="font-semibold">Choose photo</p>
+              <p className="font-semibold ">Choose photo</p>
             </div>
           )}
         </label>
@@ -44,12 +42,12 @@ const ImageUpload = (props) => {
           <Fragment>
             <img
               src={image}
-              className=" z-0 object-cover w-full h-full"
+              className="z-0 object-cover w-full h-full "
               alt=""
             />
             <button
               type="button"
-              className=" absolute z-10  flex items-center justify-center invisible w-16 h-16 text-red-500 transition-all bg-white rounded-full opacity-0 cursor-pointer group-hover:opacity-100 group-hover:visible"
+              className="absolute z-10 flex items-center justify-center invisible w-16 h-16 text-red-500 transition-all bg-white rounded-full opacity-0 cursor-pointer group-hover:opacity-100 group-hover:visible"
               onClick={handleDeleteImage}
             >
               <svg
