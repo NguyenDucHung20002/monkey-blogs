@@ -96,6 +96,11 @@ const Comment = sequelize.define(
               avatar: addUrlToImg(me.profileInfo.avatar),
               username: me.username,
             },
+            article: {
+              id: article.id,
+              title: article.title,
+              slug: article.slug,
+            },
             content: notification.content,
             createdAt: notification.createdAt,
             updatedAt: notification.updatedAt,

@@ -154,7 +154,7 @@ const Article = sequelize.define(
             SocketUser.find({ userId: article.authorId }),
             Notification.create({
               reciverId: article.authorId,
-              articleId: nsfwFound ? article.id : null,
+              articleId: nsfwFound ? null : article.id,
               content: nsfwFound
                 ? "We've detected explicit content in your article, which is not allowed. Our team will investigate. Please be patient"
                 : "Your article has been approved. You can now view it",
@@ -175,12 +175,24 @@ const Article = sequelize.define(
           ]);
 
           if (recivers.length > 0) {
-            const message = {
-              id: notification.id,
-              content: notification.content,
-              createdAt: notification.createdAt,
-              updatedAt: notification.updatedAt,
-            };
+            const message = nsfwFound
+              ? {
+                  id: notification.id,
+                  content: notification.content,
+                  createdAt: notification.createdAt,
+                  updatedAt: notification.updatedAt,
+                }
+              : {
+                  id: notification.id,
+                  article: {
+                    id: article.id,
+                    title: article.title,
+                    slug: article.slug,
+                  },
+                  content: notification.content,
+                  createdAt: notification.createdAt,
+                  updatedAt: notification.updatedAt,
+                };
 
             recivers.forEach((reciver) => {
               io.to(reciver.socketId).emit(env.SOCKET_LISTENING_EVENT, message);
