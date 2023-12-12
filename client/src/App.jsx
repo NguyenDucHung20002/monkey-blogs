@@ -6,6 +6,8 @@ import MeMuted from "./pages/MeMuted";
 import MeLayout from "./layout/MeLayout";
 import MeStoryPage from "./pages/MeStoryPage";
 import MeLibraryPage from "./pages/MeLibraryPage";
+import MyDraft from "./modules/story/MyDraft";
+import ReadingHistory from "./modules/library/ReadingHistory";
 const ProfileFollowing = React.lazy(() =>
   import("./modules/profile/ProfileFollowing")
 );
@@ -77,8 +79,18 @@ function App() {
               ></Route>
             </Route>
             <Route element={<MeLayout />}>
-              <Route path="/me/stories" element={<MeStoryPage />} />
-              <Route path="/me/library" element={<MeLibraryPage />} />
+              <Route element={<MeStoryPage />}>
+                <Route
+                  path="/me/stories/drafts"
+                  element={<MyDraft></MyDraft>}
+                />
+              </Route>
+              <Route element={<MeLibraryPage />}>
+                <Route
+                  path="/me/library/reading-history"
+                  element={<ReadingHistory />}
+                />
+              </Route>
             </Route>
             <Route
               path="/blog/:slug"

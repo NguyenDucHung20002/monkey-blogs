@@ -90,12 +90,12 @@ const Header = () => {
             {icons.userIcon} <p className="ml-3">Profile</p>
           </div>
         </NavLink>
-        <NavLink to={`me/library`}>
+        <NavLink to={`/me/library/reading-history`}>
           <div className="flex items-center justify-start my-4">
             {icons.libraryIcon} <p className="ml-3">Library</p>
           </div>
         </NavLink>
-        <NavLink to={`me/stories`}>
+        <NavLink to={`me/stories/drafts`}>
           <div className="flex items-center justify-start my-4">
             {icons.storyIcon} <p className="ml-3">Stories</p>
           </div>

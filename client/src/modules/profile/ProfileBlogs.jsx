@@ -5,6 +5,7 @@ import TopicList from "../topic/TopicList";
 import Swal from "sweetalert2";
 import BlogImage from "../blog/BlogImage";
 import { config } from "../../utils/constants";
+import timeAgo from "../modulesJs/timeAgo";
 
 const ProfileBlogs = ({ blogs, user, fetchDeleteArticle }) => {
   const handleDelete = (slug) => {
@@ -88,7 +89,7 @@ const ProfileBlogs = ({ blogs, user, fetchDeleteArticle }) => {
       {blogs.map((val) => (
         <div key={val.id} className="h-64 pt-6 border-b">
           <div className="">
-            <p className="text-sm">2 days ago</p>
+            <p className="text-sm">{timeAgo(val?.createdAt)}</p>
           </div>
           <div className="flex mt-3">
             <div className="flex-1  max-w-[80%]">

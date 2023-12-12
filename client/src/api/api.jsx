@@ -223,7 +223,22 @@ const apiGetArticleOrDraft = async (slug) => {
     console.log("error: ", error);
   }
 };
-
+const apiDeleteDraft = async (id) => {
+  try {
+    const response = await axios.delete(
+      `${config.SERVER_HOST}/article/draft/delete-draft/${id} `,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response.data) return response?.data;
+  } catch (error) {
+    console.log("error: ", error);
+  }
+};
 const apiGetArticleSkip = async (skipId, token, limit = 5) => {
   try {
     const response = await axios.get(
@@ -776,6 +791,7 @@ export {
   apiGetAllUser,
   apiGetArticle,
   apiGetArticleOrDraft,
+  apiDeleteDraft,
   apiGetArticleSkip,
   apiGetComment,
   apiGetCommentReplies,

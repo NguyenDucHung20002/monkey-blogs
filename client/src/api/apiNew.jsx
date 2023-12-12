@@ -143,7 +143,7 @@ const apiAddBlog = async (aricleId, formData) => {
   }
 };
 
-const apiGetMyDraft = async (username, typeFollow = "followers") => {
+const apiGetMyDraft = async () => {
   try {
     const res = await fetch(`${config.SERVER_HOST}/article/draft/me`, {
       method: "get",
@@ -157,6 +157,57 @@ const apiGetMyDraft = async (username, typeFollow = "followers") => {
     console.log("error:", error);
   }
 };
+
+const apiGetReadingHistory = async () => {
+  try {
+    const response = await axios.get(
+      `${config.SERVER_HOST}/reading-history/me `,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response.data) return response?.data;
+  } catch (error) {
+    console.log("error: ", error);
+  }
+};
+
+const apiDeleteReadingHistory = async () => {
+  try {
+    const response = await axios.delete(
+      `${config.SERVER_HOST}/reading-history/me/clear `,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response.data) return response?.data;
+  } catch (error) {
+    console.log("error: ", error);
+  }
+};
+
+const apiDeleteArticleHistory = async (id) => {
+  try {
+    const response = await axios.delete(
+      `${config.SERVER_HOST}/reading-history/${id} `,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response.data) return response?.data;
+  } catch (error) {
+    console.log("error: ", error);
+  }
+};
 export {
   apiGetUserFollow,
   apiUploadImage,
@@ -167,4 +218,7 @@ export {
   apiAddBlog,
   apiUploadCheckImage,
   apiGetMyDraft,
+  apiGetReadingHistory,
+  apiDeleteReadingHistory,
+  apiDeleteArticleHistory,
 };

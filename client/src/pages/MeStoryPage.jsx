@@ -1,12 +1,13 @@
 import React from "react";
 import { Button } from "../components/button";
 import { NavbarHome } from "../components/navbar";
+import { Outlet } from "react-router-dom";
 
 const MeStoryPage = () => {
   const navStory = [
     {
       title: "Drafts",
-      url: "/me/stories",
+      url: "/me/stories/drafts",
     },
   ];
   return (
@@ -19,6 +20,9 @@ const MeStoryPage = () => {
           </Button>
         </div>
         <NavbarHome data={navStory} className="flex-1 mt-9 w-full"></NavbarHome>
+        <div className="mt-4">
+          <Outlet></Outlet>
+        </div>
       </div>
     </>
   );
