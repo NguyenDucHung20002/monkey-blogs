@@ -7,8 +7,9 @@ import fileController from "./fileController.js";
 import User from "../models/mysql/User.js";
 import Profile from "../models/mysql/Profile.js";
 
+// ==================== setup profile ==================== //
 const setupProfile = asyncMiddleware(async (req, res, next) => {
-  const userId = req.jwtPayLoad.id;
+  const userId = params;
   const { avatar, fullname } = req.body;
 
   const [user, profile] = await Promise.all([
@@ -18,11 +19,28 @@ const setupProfile = asyncMiddleware(async (req, res, next) => {
 
   if (!user) throw ErrorResponse(404, "User not found");
 
-  if (profile) throw ErrorResponse(400, "Profile already exists");
+  if (profile) throw ErrorResponse(409, "Profile already exists");
 
-  await Profile.create({ avatar, fullname, userId });
+  const [token] = await Promise.all([
+    generateJwt({ id: user.id }),
+    Profile.create({ avatar, fullname, userId }),
+  ]);
 
-  res.json({ success: true });
+  res.json({ success: true, token });
+});
+
+// ==================== get login profile ==================== //
+const getLoginProfile = asyncMiddleware(async (req, res, next) => {
+  const me = req.me;
+
+  res.json({
+    success: true,
+    data: {
+      ...me.profileInfo.toJSON(),
+      username: me.username,
+      role: me.role.slug,
+    },
+  });
 });
 
 // ==================== get profile ==================== //
@@ -84,4 +102,4 @@ const updateMyProfile = asyncMiddleware(async (req, res, next) => {
   res.json({ success: true, message: "Profile updated successfully" });
 });
 
-export default { getProfile, setupProfile, updateMyProfile };
+export default { getProfile, setupProfile, updateMyProfile, getLoginProfile };

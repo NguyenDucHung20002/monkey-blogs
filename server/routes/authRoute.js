@@ -2,7 +2,8 @@ import express from "express";
 import passport from "passport";
 import requiredAuth from "../middlewares/requiredAuth.js";
 import authController from "../controllers/authController.js";
-import fetchMe from "../middlewares/fetchMe.js";
+import validator from "../middlewares/validator.js";
+import authSchema from "../validations/authSchema.js";
 
 const router = express.Router();
 
@@ -17,18 +18,42 @@ router.get(
   authController.loginGoogle
 );
 
-router.post("/register", authController.register);
+router.post(
+  "/register",
+  validator(authSchema.registerSchema),
+  authController.register
+);
 
-router.patch("/verify-email", authController.verifyEmail);
+router.patch(
+  "/verify-email",
+  validator(authSchema.verifyTokenSchema),
+  authController.verifyEmail
+);
 
-router.patch("/verify-setup-password", authController.verifySetUpPassword);
+router.patch(
+  "/verify-setup-password",
+  validator(authSchema.verifyTokenSchema),
+  authController.verifySetUpPassword
+);
 
-router.patch("/reset-password/:token", authController.resetPassword);
+router.post(
+  "/forgot-password",
+  validator(authSchema.forgotPasswordSchema),
+  authController.forgotPassword
+);
 
-router.post("/login-email", authController.loginEmail);
-
-router.post("/login-google", requiredAuth, fetchMe, authController.loginGoogle);
+router.post(
+  "/login-email",
+  validator(authSchema.loginSchema),
+  authController.loginEmail
+);
 
 router.delete("/logout", requiredAuth, authController.logout);
+
+router.patch(
+  "/reset-password/:token",
+  validator(authSchema.resetPasswordSchema),
+  authController.resetPassword
+);
 
 export default router;

@@ -1,4 +1,5 @@
 import Joi from "joi";
+import authScheme from "../validations/authSchema.js";
 
 const banAUserSchema = Joi.object({
   banType: Joi.string()
@@ -6,4 +7,10 @@ const banAUserSchema = Joi.object({
     .required(),
 });
 
-export default { banAUserSchema };
+const changePasswordSchema = Joi.object({
+  oldPassword: authScheme.pwSchema,
+  newPassword: authScheme.pwSchema,
+  confirmPassword: authScheme.pwSchema,
+});
+
+export default { banAUserSchema, changePasswordSchema };

@@ -3,6 +3,7 @@ import asyncMiddleware from "../middlewares/asyncMiddleware.js";
 import User from "../models/mysql/User.js";
 import ErrorResponse from "../responses/ErrorResponse.js";
 import Role from "../models/mysql/Role.js";
+import hashPassword from "../utils/hashPassword.js";
 
 // ==================== ban a user ==================== //
 const banAUser = asyncMiddleware(async (req, res, next) => {
@@ -134,4 +135,39 @@ const getAllUsers = asyncMiddleware(async (req, res, next) => {
   res.json({ success: true, data: users, newSkip });
 });
 
-export default { banAUser, unBanAUser, updateUserBan, getAllUsers };
+// ==================== change password ==================== //
+const changePassword = asyncMiddleware(async (req, res, next) => {
+  const userId = req.jwtPayLoad.id;
+
+  const user = await User.findByPk(userId);
+
+  if (!user) throw ErrorResponse(404, "User not found");
+
+  if (!user.password) {
+    throw ErrorResponse(400, "You have not setup password for this account");
+  }
+
+  const { oldPassword, newPassword, confirmPassword } = req.body;
+
+  const isMatch = bcrypt.compareSync(oldPassword, me.password);
+
+  if (!isMatch) throw ErrorResponse(401, "Old password is incorrect");
+
+  if (newPassword !== confirmPassword) {
+    throw ErrorResponse(400, "Confirm password do not match");
+  }
+
+  const hashedPassword = hashPassword(newPassword);
+
+  await user.update({ password: hashedPassword });
+
+  res.json({ success: true, message: "Password changed successfully" });
+});
+
+export default {
+  banAUser,
+  unBanAUser,
+  updateUserBan,
+  getAllUsers,
+  changePassword,
+};

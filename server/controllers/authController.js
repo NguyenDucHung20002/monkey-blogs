@@ -1,4 +1,3 @@
-import Token from "../models/mongodb/JsonWebToken.js";
 import ErrorResponse from "../responses/ErrorResponse.js";
 import asyncMiddleware from "../middlewares/asyncMiddleware.js";
 import User from "../models/mysql/User.js";
@@ -11,6 +10,7 @@ import SetupPasswordToken from "../models/mongodb/SetupPasswordToken.js";
 import Profile from "../models/mysql/Profile.js";
 import bcrypt from "bcryptjs";
 import generateJwt from "../utils/generateJwt.js";
+import JsonWebToken from "../models/mongodb/JsonWebToken.js";
 
 // ==================== register ==================== //
 const register = asyncMiddleware(async (req, res, next) => {
@@ -27,19 +27,19 @@ const register = asyncMiddleware(async (req, res, next) => {
   if (user && user.email.includes("@gmail.com") && !user.password) {
     const link = `${env.CLIENT_HOST}:${env.CLIENT_PORT}/verify-setup-password?token=${token}`;
 
-    const setupToken = await SetupPasswordToken.findOne({ where: { email } });
+    const setupToken = await SetupPasswordToken.findOne({ email });
 
     const operation = setupToken
       ? setupToken.updateOne({ token })
-      : setupToken.create({ email, token, password: hashedPassword });
+      : SetupPasswordToken.create({ email, token, password: hashedPassword });
 
     await Promise.all([
+      operation,
       emailService({
         to: email,
         subject: "Setup password",
         html: `<h3>Click <a href="${link}">here</a> to verify your password setup request.</h3>`,
       }),
-      operation,
     ]);
 
     return res.json({
@@ -78,7 +78,13 @@ const forgotPassword = asyncMiddleware(async (req, res, next) => {
 
   if (!user) throw ErrorResponse(404, "User not found");
 
+  const verifyToken = await VerifyToken.findOne({ email });
+
   const token = randomBytes(32);
+
+  const operation = verifyToken
+    ? verifyToken.updateOne({ token })
+    : VerifyToken.create({ email, token });
 
   const link = `${env.CLIENT_HOST}:${env.CLIENT_PORT}/verify-forgot-password?token=${token}`;
 
@@ -88,7 +94,7 @@ const forgotPassword = asyncMiddleware(async (req, res, next) => {
       subject: "Forgot password",
       html: `<h3>Click <a href="${link}">here</a> to reset your password.</h3>`,
     }),
-    VerifyToken.create({ email, token }),
+    operation,
   ]);
 
   res.json({
@@ -103,14 +109,14 @@ const verifyEmail = asyncMiddleware(async (req, res, next) => {
 
   const tokenToVerify = await VerifyToken.findOne({ token });
 
-  if (!tokenToVerify) throw ErrorResponse(404, "Can not find token to verify");
+  if (!tokenToVerify) throw ErrorResponse(404, "Invalid or expired link");
 
   await Promise.all([
+    tokenToVerify.deleteOne(),
     User.update(
       { isVerified: true },
       { where: { email: tokenToVerify.email } }
     ),
-    tokenToVerify.deleteOne(),
   ]);
 
   res.json({ success: true, message: "Email verified successfully" });
@@ -122,7 +128,7 @@ const verifySetUpPassword = asyncMiddleware(async (req, res, next) => {
 
   const tokenToVerify = await SetupPasswordToken.findOne({ token });
 
-  if (!tokenToVerify) throw ErrorResponse(404, "Can not find token to verify");
+  if (!tokenToVerify) throw ErrorResponse(404, "Invalid or expired link");
 
   await Promise.all([
     User.update(
@@ -142,10 +148,10 @@ const resetPassword = asyncMiddleware(async (req, res, next) => {
 
   const tokenToVerify = await VerifyToken.findOne({ token });
 
-  if (!tokenToVerify) throw ErrorResponse(400, "Invalid or expired token");
+  if (!tokenToVerify) throw ErrorResponse(404, "Invalid or expired link");
 
   if (newPassword !== confirmPassword) {
-    throw ErrorResponse(400, "passwords do not match");
+    throw ErrorResponse(400, "Confirm password do not match");
   }
 
   const hashedPassword = hashPassword(newPassword);
@@ -169,6 +175,10 @@ const loginEmail = asyncMiddleware(async (req, res, next) => {
 
   if (!user) throw ErrorResponse(401, "Email or password is wrong");
 
+  const isMatch = bcrypt.compareSync(password, user.password);
+
+  if (!isMatch) throw ErrorResponse(401, "Email or password is wrong");
+
   if (!user.isVerified) {
     const token = randomBytes(32);
 
@@ -181,12 +191,12 @@ const loginEmail = asyncMiddleware(async (req, res, next) => {
       : VerifyToken.create({ email, token });
 
     await Promise.all([
+      operation,
       emailService({
         to: email,
         subject: "Verify email",
         html: `<h3>Click <a href="${link}">here</a> to verify your email</h3>`,
       }),
-      operation,
     ]);
 
     return res.json({
@@ -195,10 +205,6 @@ const loginEmail = asyncMiddleware(async (req, res, next) => {
     });
   }
 
-  const isMatch = bcrypt.compareSync(password, user.password);
-
-  if (!isMatch) throw ErrorResponse(401, "Email or password is wrong");
-
   const [jsonWebToken, profile] = await Promise.all([
     generateJwt({ id: user.id }),
     Profile.findByPk(user.id),
@@ -206,7 +212,7 @@ const loginEmail = asyncMiddleware(async (req, res, next) => {
 
   if (!profile) {
     return res.redirect(
-      `${env.CLIENT_HOST}:${env.CLIENT_PORT}/setup-profile?token=${jsonWebToken}`
+      `${env.CLIENT_HOST}:${env.CLIENT_PORT}/setup-profile?userId=${user.id}`
     );
   }
 
@@ -234,11 +240,11 @@ const loginGoogle = asyncMiddleware(async (req, res, next) => {
 const logout = asyncMiddleware(async (req, res, next) => {
   const { id: myUserId, iat, exp } = req.jwtPayLoad;
 
-  const myProfile = await User.findByPk(myUserId, { attributes: ["id"] });
+  const user = await User.findByPk(myUserId, { attributes: ["id"] });
 
-  if (!myProfile) throw ErrorResponse(404, "Profile not found");
+  if (!user) throw ErrorResponse(404, "user not found");
 
-  await Token.deleteOne({ userId: myProfile.id, iat, exp });
+  await JsonWebToken.deleteOne({ userId: user.id, iat, exp });
 
   res.json({ success: true, message: "Successfully logout" });
 });
@@ -253,17 +259,3 @@ export default {
   loginEmail,
   logout,
 };
-
-// // ==================== login with google ==================== //
-// const loginGoogle = asyncMiddleware(async (req, res, next) => {
-//   const me = req.me;
-
-//   res.json({
-//     success: true,
-//     data: {
-//       ...me.profileInfo.toJSON(),
-//       username: me.username,
-//       role: me.role.slug,
-//     },
-//   });
-// });
