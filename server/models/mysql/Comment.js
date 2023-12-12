@@ -53,11 +53,21 @@ const Comment = sequelize.define(
 
         let notificationData = {};
 
-        if (isAuthor && !parentComment) {
+        if (
+          (isAuthor && !parentComment) ||
+          (parentComment && parentComment.authorId === me.profileInfo.id)
+        ) {
           return;
         }
 
-        if (isAuthor && parentComment) {
+        if (
+          (isAuthor &&
+            parentComment &&
+            parentComment.authorId !== me.profileInfo.id) ||
+          (!isAuthor &&
+            parentComment &&
+            parentComment.authorId !== me.profileInfo.id)
+        ) {
           notificationData = {
             senderId: me.profileInfo.id,
             reciverId: parentComment.authorId,

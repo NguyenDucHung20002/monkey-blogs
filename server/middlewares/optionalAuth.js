@@ -1,4 +1,4 @@
-import Token from "../models/mongodb/Token.js";
+import JsonWebToken from "../models/mongodb/JsonWebToken.js";
 import jwt from "jsonwebtoken";
 import env from "../config/env.js";
 
@@ -17,7 +17,7 @@ const optionalAuth = async (req, res, next) => {
     return;
   }
 
-  const tokenDoc = await Token.findOne({ token });
+  const tokenDoc = await JsonWebToken.findOne({ token });
   if (!tokenDoc) {
     req.jwtPayLoad = null;
     next();

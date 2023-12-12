@@ -4,6 +4,26 @@ import Mute from "../models/mysql/Mute.js";
 import Follow_Profile from "../models/mysql/Follow_Profile.js";
 import ErrorResponse from "../responses/ErrorResponse.js";
 import fileController from "./fileController.js";
+import User from "../models/mysql/User.js";
+import Profile from "../models/mysql/Profile.js";
+
+const setupProfile = asyncMiddleware(async (req, res, next) => {
+  const userId = req.jwtPayLoad.id;
+  const { avatar, fullname } = req.body;
+
+  const [user, profile] = await Promise.all([
+    User.findByPk(userId),
+    Profile.findOne({ where: { userId } }),
+  ]);
+
+  if (!user) throw ErrorResponse(404, "User not found");
+
+  if (profile) throw ErrorResponse(400, "Profile already exists");
+
+  await Profile.create({ avatar, fullname, userId });
+
+  res.json({ success: true });
+});
 
 // ==================== get profile ==================== //
 const getProfile = asyncMiddleware(async (req, res, next) => {
@@ -64,4 +84,4 @@ const updateMyProfile = asyncMiddleware(async (req, res, next) => {
   res.json({ success: true, message: "Profile updated successfully" });
 });
 
-export default { getProfile, updateMyProfile };
+export default { getProfile, setupProfile, updateMyProfile };

@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const tokenSchema = new mongoose.Schema(
+const JsonWebTokenSchema = new mongoose.Schema(
   {
     userId: { type: String, required: true },
     token: { type: String, required: true, unique: true },
@@ -13,6 +13,6 @@ const tokenSchema = new mongoose.Schema(
   }
 );
 
-tokenSchema.index({ timestamps: 1 }, { expireAfterSeconds: 259200 });
+JsonWebTokenSchema.index({ timestamps: 1 }, { expireAfterSeconds: 259200 });
 
-export default mongoose.model("Token", tokenSchema);
+export default mongoose.model("json-web-token", JsonWebTokenSchema);

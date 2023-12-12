@@ -80,7 +80,11 @@ const getPendingReportedUsers = asyncMiddleware(async (req, res, next) => {
           model: User,
           as: "bannedBy",
           attributes: ["id", "username", "email"],
-          include: { model: Role, as: "role", attributes: ["name", "slug"] },
+          include: {
+            model: Role,
+            as: "role",
+            attributes: ["id", "name", "slug"],
+          },
         },
         where: whereQuery,
       },
@@ -133,12 +137,25 @@ const getPendingReportsOfUser = asyncMiddleware(async (req, res, next) => {
     attributes: { exclude: ["reportedId", "reporterId", "resolvedById"] },
     include: [
       { model: User, as: "reported", where: { id }, attributes: [] },
-      { model: User, as: "reporter", attributes: ["id", "username", "email"] },
+      {
+        model: User,
+        as: "reporter",
+        attributes: ["id", "username", "email"],
+        include: {
+          model: Role,
+          as: "role",
+          attributes: ["id", "name", "slug"],
+        },
+      },
       {
         model: User,
         as: "resolvedBy",
         attributes: ["id", "username", "email"],
-        include: { model: Role, as: "role", attributes: ["name", "slug"] },
+        include: {
+          model: Role,
+          as: "role",
+          attributes: ["id", "name", "slug"],
+        },
       },
     ],
     order: [["id", "DESC"]],
@@ -162,13 +179,35 @@ const getResolvedReports = asyncMiddleware(async (req, res, next) => {
     where: whereQuery,
     attributes: { exclude: ["reportedId", "reporterId", "resolvedById"] },
     include: [
-      { model: User, as: "reported", attributes: ["id", "username", "email"] },
-      { model: User, as: "reporter", attributes: ["id", "username", "email"] },
+      {
+        model: User,
+        as: "reported",
+        attributes: ["id", "username", "email"],
+        include: {
+          model: Role,
+          as: "role",
+          attributes: ["id", "name", "slug"],
+        },
+      },
+      {
+        model: User,
+        as: "reporter",
+        attributes: ["id", "username", "email"],
+        include: {
+          model: Role,
+          as: "role",
+          attributes: ["id", "name", "slug"],
+        },
+      },
       {
         model: User,
         as: "resolvedBy",
         attributes: ["id", "username", "email"],
-        include: { model: Role, as: "role", attributes: ["name", "slug"] },
+        include: {
+          model: Role,
+          as: "role",
+          attributes: ["id", "name", "slug"],
+        },
       },
     ],
     order: [["id", "DESC"]],
@@ -208,7 +247,10 @@ const markAReportAsResolved = asyncMiddleware(async (req, res, next) => {
 
   if (!report) throw ErrorResponse(404, "Report not found");
 
-  await report.update({ status: "resolved", resolvedById: me.id });
+  await Promise.all([
+    report.update({ status: "resolved", resolvedById: me.id }),
+    User.increment({ reportsCount: -1 }, { where: { id: report.reporedId } }),
+  ]);
 
   res.json({
     success: true,

@@ -11,6 +11,8 @@ import checkBlockedByUser from "../middlewares/checBlockedByUser.js";
 
 const router = express.Router();
 
+router.post("/setup-profile", requiredAuth, profileController.setupProfile);
+
 router.patch(
   "/me/update",
   requiredAuth,

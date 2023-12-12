@@ -146,7 +146,16 @@ const getPendingReportsOfArticle = asyncMiddleware(async (req, res, next) => {
     attributes: { exclude: ["articleId", "userId", "resolvedById"] },
     include: [
       { model: Article, as: "article", where: { id }, attributes: [] },
-      { model: User, as: "user", attributes: ["id", "username", "email"] },
+      {
+        model: User,
+        as: "user",
+        attributes: ["id", "username", "email"],
+        include: {
+          model: Role,
+          as: "role",
+          attributes: ["id", "name", "slug"],
+        },
+      },
       {
         model: User,
         as: "resolvedBy",
@@ -176,7 +185,13 @@ const markAReportAsResolved = asyncMiddleware(async (req, res, next) => {
 
   if (!report) throw ErrorResponse(404, "Report not found");
 
-  await report.update({ status: "resolved", resolvedById: me.id });
+  await Promise.all([
+    report.update({ status: "resolved", resolvedById: me.id }),
+    Article.increment(
+      { reportsCount: -1 },
+      { where: { id: report.articleId } }
+    ),
+  ]);
 
   res.json({
     success: true,
@@ -198,7 +213,7 @@ const markAllResolved = asyncMiddleware(async (req, res, next) => {
       { status: "resolved", resolvedById: me.id },
       { where: { status: "pending", articleId: article.id } }
     ),
-    article.update({ reportsCount: 0 }),
+    article.update({ reportsCount: 0 }, { hooks: false }),
   ]);
 
   res.json({
@@ -246,7 +261,16 @@ const getResolvedReports = asyncMiddleware(async (req, res, next) => {
           },
         },
       },
-      { model: User, as: "user", attributes: ["id", "username", "email"] },
+      {
+        model: User,
+        as: "user",
+        attributes: ["id", "username", "email"],
+        include: {
+          model: Role,
+          as: "role",
+          attributes: ["id", "name", "slug"],
+        },
+      },
       {
         model: User,
         as: "resolvedBy",

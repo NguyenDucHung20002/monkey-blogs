@@ -1,4 +1,4 @@
-import Token from "../models/mongodb/Token.js";
+import JsonWebToken from "../models/mongodb/JsonWebToken.js";
 import jwt from "jsonwebtoken";
 import env from "../config/env.js";
 
@@ -19,7 +19,7 @@ const requiredAuth = async (req, res, next) => {
     });
   }
 
-  const tokenDoc = await Token.findOne({ token });
+  const tokenDoc = await JsonWebToken.findOne({ token });
   if (!tokenDoc) {
     return res.status(401).json({
       success: false,
