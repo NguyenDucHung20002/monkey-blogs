@@ -126,7 +126,12 @@ const TopicTable = () => {
           Create topic
         </Button>
       </div>
-      <Table dataSource={topics} key="id" pagination={false}>
+      <Table
+        dataSource={topics}
+        key="id"
+        pagination={false}
+        className="overflow-y-auto"
+      >
         <Column
           title="Name"
           key="name"

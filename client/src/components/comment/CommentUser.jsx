@@ -48,7 +48,7 @@ const CommentUser = ({
     ) {
       setReplyCount(replyCount + 1);
     }
-  }, [commentBlog.length]);
+  }, [commentBlog, commentBlog.length, repliesCount, replyCount]);
 
   const handleOpenChange = (newOpen) => {
     setOpen(newOpen);

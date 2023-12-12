@@ -3,6 +3,10 @@ import { Route, Routes } from "react-router";
 import { ToastContainer } from "react-toastify";
 import StaffPickPage from "./pages/StaffPickPage";
 import MeMuted from "./pages/MeMuted";
+import PostResolved from "./modules/post/PostResolved";
+const PostReportManage = React.lazy(() =>
+  import("./modules/post/PostReportAManage")
+);
 const ProfileFollowing = React.lazy(() =>
   import("./modules/profile/ProfileFollowing")
 );
@@ -136,6 +140,14 @@ function App() {
             <Route
               path="/manage/posts"
               element={<PostManage></PostManage>}
+            ></Route>
+            <Route
+              path="/manage/report-article"
+              element={<PostReportManage></PostReportManage>}
+            ></Route>
+            <Route
+              path="/manage/report-article-resolved"
+              element={<PostResolved></PostResolved>}
             ></Route>
             <Route
               path="/manage/user"

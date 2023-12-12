@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import { config } from "../utils/constants";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -7,15 +7,16 @@ import { useSearchParams } from "react-router-dom";
 const { createContext, useContext, useState } = React;
 
 const AuthContext = createContext();
-function AuthProvider(props) {
+// eslint-disable-next-line react/display-name
+const AuthProvider = React.memo((props) => {
   const [userInfo, setUserInfo] = useState({});
   // console.log("userInfo:", userInfo);
   const value = { userInfo, setUserInfo };
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tokenParams = searchParams.get("token");
 
   function getToken() {
-    const tokenParams = searchParams.get("token");
     if (tokenParams) {
       localStorage.setItem("token", tokenParams);
       return tokenParams;
@@ -27,35 +28,37 @@ function AuthProvider(props) {
   const token = getToken();
   console.log("token:", token);
 
-  useEffect(() => {
-    async function fetcher() {
-      if (!token) navigate("/sign-in");
-      try {
-        const response = await axios.post(
-          `${config.SERVER_HOST}/auth/login`,
-          {},
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        if (response?.data?.success) {
-          setUserInfo(response.data);
-        } else {
-          navigate("/sign-in");
+  const fetcher = useCallback(async () => {
+    if (tokenParams) setSearchParams("");
+    if (!token) navigate("/sign-in");
+    try {
+      const response = await axios.post(
+        `${config.SERVER_HOST}/auth/login`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
         }
-      } catch (error) {
+      );
+
+      if (response?.data?.success) {
+        setUserInfo(response.data);
+      } else {
         navigate("/sign-in");
       }
+    } catch (error) {
+      navigate("/sign-in");
     }
+  }, [navigate, setSearchParams, token, tokenParams]);
+
+  useEffect(() => {
     fetcher();
-  }, [navigate, token]);
+  }, [fetcher]);
 
   return <AuthContext.Provider value={value} {...props}></AuthContext.Provider>;
-}
+});
 function useAuth() {
   const context = useContext(AuthContext);
   if (typeof context === "undefined")

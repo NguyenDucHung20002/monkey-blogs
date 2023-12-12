@@ -1,10 +1,12 @@
 // eslint-disable-next-line no-unused-vars
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { Avatar, Space, Popover } from "antd";
 import styled from "styled-components";
 import logo from "../../assets/logo.png";
 import { useAuth } from "../../contexts/auth-context";
+import axios from "axios";
+import { config } from "../../utils/constants";
 
 const icons = {
   libraryIcon: (
@@ -113,12 +115,31 @@ const DashboardHeader = () => {
   const { userInfo, setUserInfo } = useAuth();
   const { data } = userInfo;
   const navigate = useNavigate();
+  const token = localStorage.getItem("token");
 
-  const handleSignOut = () => {
-    setUserInfo({});
-    localStorage.removeItem("token");
-    navigate("/sign-in");
-  };
+  useEffect(() => {
+    if (data?.role === "user") navigate("/");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data]);
+
+  const handleSignOut = useCallback(async () => {
+    try {
+      const response = await axios.delete(`${config.SERVER_HOST}/auth/logout`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      if (response.data) {
+        setUserInfo({});
+        localStorage.removeItem("token");
+        navigate("/sign-in");
+      }
+    } catch (error) {
+      console.log("error:", error);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const content = useCallback(function (username, fullname) {
     return (
@@ -128,22 +149,13 @@ const DashboardHeader = () => {
             ? fullname.slice(0, 8) + "..."
             : fullname}
         </h2>
-        <NavLink to={`/profile`}>
+        <NavLink to={`/profile/${username}`}>
           <div className="flex items-center justify-start my-4">
             {icons.userIcon} <p className="ml-3">Profile</p>
           </div>
         </NavLink>
-        <NavLink to={`/library`}>
-          <div className="flex items-center justify-start my-4">
-            {icons.libraryIcon} <p className="ml-3">Library</p>
-          </div>
-        </NavLink>
-        <NavLink to={`/stories`}>
-          <div className="flex items-center justify-start my-4">
-            {icons.storyIcon} <p className="ml-3">Stories</p>
-          </div>
-        </NavLink>
-        <div className="w-full border-t border-gray-300 btn-sign-out text-start">
+
+        <div className="w-full btn-sign-out text-start">
           <button
             onClick={handleSignOut}
             className="block px-2 py-2 text-gray-400 hover:text-gray-600"
@@ -153,6 +165,7 @@ const DashboardHeader = () => {
         </div>
       </div>
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -165,6 +178,12 @@ const DashboardHeader = () => {
             </NavLink>
           </div>
           <div className="flex items-center justify-center header-left">
+            <p className="flex items-center gap-2">
+              {data?.username}{" "}
+              <span className="text-sm font-semibold text-red-400">
+                {data?.role?.toUpperCase()}
+              </span>{" "}
+            </p>
             <Space direction="vertical" wrap size={16} className="p-1 ml-5">
               <Popover
                 placement="bottomRight"

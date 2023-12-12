@@ -7,7 +7,7 @@ const ArticleList = ({ blogs = [], className = "" }) => {
       <div className={`grid grid-cols-1 ${className}`}>
         {blogs &&
           blogs.length > 0 &&
-          blogs.map((blog) => <BlogGird key={blog._id} blog={blog}></BlogGird>)}
+          blogs.map((blog) => <BlogGird key={blog.id} blog={blog}></BlogGird>)}
       </div>
     </>
   );

@@ -214,7 +214,7 @@ const UserTable = () => {
         />
         <div className="mr-4 text-blue-400">{icons.searchIcon}</div>
       </div>
-      <Table dataSource={users} pagination={false}>
+      <Table dataSource={users} pagination={false} className="overflow-y-auto">
         <Column
           title="Username"
           key="username"

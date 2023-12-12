@@ -2,7 +2,6 @@ import axios from "axios";
 import { config } from "../utils/constants";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
-const token = localStorage.getItem("token");
 
 const apiAddTopic = async (token, name) => {
   try {
@@ -38,7 +37,7 @@ const apiAddTopic = async (token, name) => {
   }
 };
 
-const apiDeleteArticle = async (slug) => {
+const apiDeleteArticle = async (token, slug) => {
   try {
     const res = await axios
       .delete(`${config.SERVER_HOST}/article/${slug}`, {
@@ -204,23 +203,6 @@ const apiGetArticle = async (token, slug) => {
     if (error.response.status === 404) {
       return null;
     }
-  }
-};
-
-const apiGetArticleOrDraft = async (slug) => {
-  try {
-    const response = await axios.get(
-      `${config.SERVER_HOST}/article/get/${slug} `,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    if (response.data) return response?.data;
-  } catch (error) {
-    console.log("error: ", error);
   }
 };
 
@@ -514,18 +496,17 @@ const apiUnFollowUser = async (userID, token) => {
 
 const apiUpdateArticle = async (token, slug, formData) => {
   try {
-    const response = await axios.patch(
-      `${config.SERVER_HOST}/article/update/${slug}`,
+    const response = await axios.put(
+      `${config.SERVER_HOST}/article/${slug}`,
       formData,
       {
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
+          "Content-Type": "multipart/form-data",
         },
       }
     );
     if (response.data.success) return true;
-    return false;
   } catch (error) {
     if (error.response.status == 404) {
       toast.error("Post not found!", {
@@ -765,6 +746,7 @@ const apiReportUser = async (token, userId, reason, description) => {
 };
 
 export {
+  apiGetTopic,
   apiAddTopic,
   apiAddComment,
   apiBanUser,
@@ -775,14 +757,12 @@ export {
   apiFollowUser,
   apiGetAllUser,
   apiGetArticle,
-  apiGetArticleOrDraft,
   apiGetArticleSkip,
   apiGetComment,
   apiGetCommentReplies,
   apiGetMyFollowingTopics,
   apiGetNotification,
   apiGetProfile,
-  apiGetTopic,
   apiGetTopics,
   apiGetUserBlogs,
   apiGetUserFollowings,

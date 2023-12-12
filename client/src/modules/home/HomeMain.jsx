@@ -82,7 +82,6 @@ const HomeMain = () => {
           );
         } else {
           response = await apiGetExploreBlogs(token, 10, skip.current);
-          console.log("response:", response);
         }
         if (response?.success) {
           const blogsClone = [...blogs, ...response.data];

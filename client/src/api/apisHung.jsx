@@ -368,15 +368,24 @@ const apiGetPendingReportsArticles = async (token) => {
   }
 };
 
-const apiGetAllArticlesAdmin = async (token) => {
+const apiGetAllArticlesAdmin = async (
+  token,
+  limit,
+  search = "",
+  status = "",
+  skip = ""
+) => {
   if (!token) return null;
   try {
-    const response = await axios.get(`${config.SERVER_HOST}/article`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    });
+    const response = await axios.get(
+      `${config.SERVER_HOST}/article?limit=${limit}&skip=${skip}&search=${search}&option=${status}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
     if (response?.data) return response.data;
   } catch (error) {
     console.log("error:", error);
@@ -436,7 +445,128 @@ const apiUnLikeArticle = async (token, blogId) => {
   }
 };
 
+const apiGetPendingReasonsReportsArticles = async (token, blogId) => {
+  if (!token && !blogId) return null;
+  try {
+    const response = await axios.get(
+      `${config.SERVER_HOST}/report-article/${blogId}/pending`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response?.data?.success) return response?.data;
+  } catch (error) {
+    console.log("error:", error);
+  }
+};
+
+const apiMarkReportBlog = async (token, reportBlogId) => {
+  console.log("reportBlogId:", reportBlogId);
+  if (!token && !reportBlogId) return null;
+  try {
+    const response = await axios.patch(
+      `${config.SERVER_HOST}/report-article/report/${reportBlogId}/resolve`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response?.data?.success) return true;
+    return false;
+  } catch (error) {
+    console.log("error:", error);
+  }
+};
+
+const apiMarkAllReportBlog = async (token, BlogId) => {
+  if (!token && !BlogId) return null;
+  try {
+    const response = await axios.patch(
+      `${config.SERVER_HOST}/report-article/${BlogId}`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response?.data?.success) return true;
+    return false;
+  } catch (error) {
+    console.log("error:", error);
+  }
+};
+
+const apiSetBackToDraft = async (token, BlogId) => {
+  if (!token && !BlogId) return null;
+  try {
+    const response = await axios.patch(
+      `${config.SERVER_HOST}/article/set-article-back-to-draft/${BlogId}`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response?.data?.success) return true;
+    return false;
+  } catch (error) {
+    console.log("error:", error);
+  }
+};
+
+const apiGetReportsBlogSolved = async (token) => {
+  if (!token) return null;
+  try {
+    const response = await axios.get(
+      `${config.SERVER_HOST}/report-article/resolved`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response?.data) return response.data;
+  } catch (error) {
+    console.log("error:", error);
+  }
+};
+
+const apiGetBlogsTopic = async (token, slug) => {
+  try {
+    const response = await axios.get(
+      `${config.SERVER_HOST}/article/topic/${slug}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (response.data.success) return response.data;
+  } catch (error) {
+    console.log("error:", error);
+  }
+};
+
 export {
+  apiGetBlogsTopic,
+  apiGetReportsBlogSolved,
+  apiSetBackToDraft,
+  apiMarkAllReportBlog,
+  apiMarkReportBlog,
+  apiGetPendingReasonsReportsArticles,
   apiUnLikeArticle,
   apiLikeArticle,
   apiGetMyMuted,

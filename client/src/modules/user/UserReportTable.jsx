@@ -230,7 +230,7 @@ const UserReportTable = () => {
 
   return (
     <div>
-      <Table dataSource={users} pagination={false}>
+      <Table dataSource={users} pagination={false} className="overflow-y-auto">
         <Column
           title="Username"
           key="username"

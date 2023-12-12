@@ -58,7 +58,9 @@ const ActionComment = ({ blogId = "" }) => {
         onClose={onClose}
         open={open}
       >
-        <Comment blogId={blogId} commentValue={commentValue}></Comment>
+        {open && blogId && (
+          <Comment blogId={blogId} commentValue={commentValue}></Comment>
+        )}
       </Drawer>
     </div>
   );

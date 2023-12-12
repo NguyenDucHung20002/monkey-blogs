@@ -1,6 +1,6 @@
 /* eslint-disable no-undef */
 // eslint-disable-next-line no-unused-vars
-import React, { useCallback, useEffect, useState } from "react";
+import React, { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { Avatar, Space, Popover } from "antd";
 import styled from "styled-components";
@@ -29,7 +29,8 @@ const HomeStyle = styled.header`
   }
 `;
 
-const Header = () => {
+// eslint-disable-next-line react/display-name
+const Header = memo(() => {
   const { userInfo, setUserInfo } = useAuth();
   const { data } = userInfo;
   const navigate = useNavigate();
@@ -39,37 +40,32 @@ const Header = () => {
   const [topics, setTopics] = useState([]);
   const { show, setShow, nodeRef } = useClickOutSide("searchMain");
   const token = localStorage.getItem("token");
+  const [showSearch, setShowSearch] = useState(false);
 
   const {
     show: showNotification,
     setShow: setShowNotification,
     nodeRef: nodeRefNotification,
   } = useClickOutSide("notify");
-  const [showSearch, setShowSearch] = useState(false);
 
-  const handleSignOut = async () => {
-    setUserInfo({});
-    localStorage.removeItem("token");
+  const handleSignOut = useCallback(async () => {
     try {
-      const response = await axios.delete(
-        `${config.SERVER_HOST}/auth/login`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      if (response.data) setUserInfo(response.data);
-    } catch (error) {
-      if (error.response.status === 401) {
+      const response = await axios.delete(`${config.SERVER_HOST}/auth/logout`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      if (response.data) {
+        setUserInfo({});
         localStorage.removeItem("token");
         navigate("/sign-in");
       }
+    } catch (error) {
+      console.log("error:", error);
     }
-    navigate("/sign-in");
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const content = useCallback(function (username) {
     return (
@@ -90,16 +86,20 @@ const Header = () => {
             {icons.userIcon} <p className="ml-3">Profile</p>
           </div>
         </NavLink>
-        <NavLink to={`/library`}>
-          <div className="flex items-center justify-start my-4">
-            {icons.libraryIcon} <p className="ml-3">Library</p>
-          </div>
-        </NavLink>
+
         <NavLink to={`/stories`}>
           <div className="flex items-center justify-start my-4">
             {icons.storyIcon} <p className="ml-3">Stories</p>
           </div>
         </NavLink>
+        {data.role !== "user" && (
+          <NavLink to={`/dashboard`}>
+            <div className="flex items-center justify-start my-4">
+              {icons.dashboardIcon} <p className="ml-3">dashboard</p>
+            </div>
+          </NavLink>
+        )}
+
         <div className="w-full border-t border-gray-300 btn-sign-out text-start">
           <button
             onClick={handleSignOut}
@@ -131,10 +131,13 @@ const Header = () => {
     setShow(true);
   }, 200);
 
-  const handleSearchSubmit = (e) => {
-    e.preventDefault();
-    if (inputSearch) navigation(`/search/?q=${inputSearch}`);
-  };
+  const handleSearchSubmit = useCallback(
+    (e) => {
+      e.preventDefault();
+      if (inputSearch) navigation(`/search/?q=${inputSearch}`);
+    },
+    [inputSearch, navigation]
+  );
 
   return (
     <>
@@ -224,6 +227,6 @@ const Header = () => {
       </HomeStyle>
     </>
   );
-};
+});
 
 export default Header;

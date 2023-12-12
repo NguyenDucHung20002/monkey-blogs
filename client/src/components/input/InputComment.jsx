@@ -18,7 +18,6 @@ const InputComment = ({ blogId = "", parentCommentId, commentValue }) => {
   const HandleRespond = () => {
     setIsSubmit(true);
     async function postRespond() {
-      console.log("parentCommentId:", parentCommentId);
       const response = await apiAddComment(
         blogId,
         parentCommentId,
