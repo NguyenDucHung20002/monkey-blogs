@@ -2,6 +2,7 @@ import axios from "axios";
 import { config } from "../utils/constants";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
+const token = localStorage.get("token");
 
 const apiAddTopic = async (token, name) => {
   try {
@@ -206,6 +207,38 @@ const apiGetArticle = async (token, slug) => {
   }
 };
 
+const apiGetArticleOrDraft = async (slug) => {
+  try {
+    const response = await axios.get(
+      `${config.SERVER_HOST}/article/get/${slug} `,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response.data) return response?.data;
+  } catch (error) {
+    console.log("error: ", error);
+  }
+};
+const apiDeleteDraft = async (id) => {
+  try {
+    const response = await axios.delete(
+      `${config.SERVER_HOST}/article/draft/delete-draft/${id} `,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response.data) return response?.data;
+  } catch (error) {
+    console.log("error: ", error);
+  }
+};
 const apiGetArticleSkip = async (skipId, token, limit = 5) => {
   try {
     const response = await axios.get(
@@ -302,7 +335,7 @@ const apiGetMyFollowingTopics = async (token) => {
 const apiGetNotification = async (token) => {
   try {
     const res = await axios
-      .get(`${config.SERVER_HOST}/notification/me/notify`, {
+      .get(`${config.SERVER_HOST}/notification/me`, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -757,6 +790,8 @@ export {
   apiFollowUser,
   apiGetAllUser,
   apiGetArticle,
+  apiGetArticleOrDraft,
+  apiDeleteDraft,
   apiGetArticleSkip,
   apiGetComment,
   apiGetCommentReplies,

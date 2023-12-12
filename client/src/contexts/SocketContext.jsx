@@ -1,8 +1,14 @@
 // SocketContext.js
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { io } from "socket.io-client";
 import { useAuth } from "./auth-context";
-// import { apiGetNotification } from "../api/api";
+import { apiGetNotification } from "../api/api";
 
 const SocketContext = createContext();
 export function useSocket() {
@@ -14,33 +20,41 @@ export function SocketProvider({ children }) {
   const [error, setError] = useState(null);
   const [notifications, setNotifications] = useState([]);
   const { userInfo } = useAuth();
-  const userName = userInfo?.data?.username;
   const token = localStorage.getItem("token");
+  const [hasRunOne, setHasRunOne] = useState(false);
 
-  // async function fetchNotification() {
-  //   const profileUser = await apiGetNotification(token);
-  //   setNotifications(profileUser);
-  // }
-
-  // useEffect(() => {
-  //   const newSocket = io("http://localhost:5000");
-  //   if (newSocket) return;
-  //   setSocket(newSocket);
-  //   fetchNotification();
-  //   return () => {
-  //     newSocket.disconnect();
-  //   };
-  // }, []);
+  async function fetchNotification() {
+    const profileUser = await apiGetNotification(token);
+    setNotifications(profileUser);
+  }
 
   useEffect(() => {
-    socket?.emit("newUser", { userName });
-    socket?.on("getNotification", (data) => {
-      setNotifications(data);
+    if (!token) return;
+    const newSocket = io("http://localhost:8080");
+    if (!newSocket) return;
+    setSocket(newSocket);
+    fetchNotification();
+    return () => {
+      newSocket.disconnect();
+    };
+  }, [token]);
+
+  useEffect(() => {
+    const userId = userInfo?.data?.id;
+    if (!userId) return;
+    if (!socket) return;
+    if (!hasRunOne) {
+      socket?.emit("new-user", { userId });
+      setHasRunOne(true);
+    }
+    // socket?.emit("new-user", userId);
+    socket?.on("notification", (data) => {
+      setNotifications((prev) => [data, ...prev]);
     });
     socket?.on("error", (data) => {
       setError(data);
     });
-  }, [socket]);
+  }, [socket, userInfo]);
 
   useEffect(() => {
     if (error) {

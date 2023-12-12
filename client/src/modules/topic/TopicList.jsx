@@ -9,11 +9,11 @@ const TopicList = ({ data = [], className = "", kind = "topic/" }) => {
         {data?.length !== 0 &&
           data.map((value, index) => (
             <Topic
-              to={`${kind}${value.slug}`}
+              to={`${kind}${value?.slug}`}
               key={index}
               className="mb-3 mr-3"
             >
-              {value.name}
+              {value?.name}
             </Topic>
           ))}
       </div>

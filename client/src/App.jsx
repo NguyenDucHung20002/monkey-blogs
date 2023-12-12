@@ -7,6 +7,11 @@ import PostResolved from "./modules/post/PostResolved";
 const PostReportManage = React.lazy(() =>
   import("./modules/post/PostReportAManage")
 );
+import MeLayout from "./layout/MeLayout";
+import MeStoryPage from "./pages/MeStoryPage";
+import MeLibraryPage from "./pages/MeLibraryPage";
+import MyDraft from "./modules/story/MyDraft";
+import ReadingHistory from "./modules/library/ReadingHistory";
 const ProfileFollowing = React.lazy(() =>
   import("./modules/profile/ProfileFollowing")
 );
@@ -76,6 +81,20 @@ function App() {
                 path="/me/suggestions"
                 element={<MeSuggestionPage></MeSuggestionPage>}
               ></Route>
+            </Route>
+            <Route element={<MeLayout />}>
+              <Route element={<MeStoryPage />}>
+                <Route
+                  path="/me/stories/drafts"
+                  element={<MyDraft></MyDraft>}
+                />
+              </Route>
+              <Route element={<MeLibraryPage />}>
+                <Route
+                  path="/me/library/reading-history"
+                  element={<ReadingHistory />}
+                />
+              </Route>
             </Route>
             <Route
               path="/blog/:slug"
