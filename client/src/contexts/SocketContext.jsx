@@ -1,16 +1,12 @@
+/* eslint-disable react/prop-types */
 // SocketContext.js
-import React, {
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import { useAuth } from "./auth-context";
 import { apiGetNotification } from "../api/api";
 
 const SocketContext = createContext();
+// eslint-disable-next-line react-refresh/only-export-components
 export function useSocket() {
   return useContext(SocketContext);
 }

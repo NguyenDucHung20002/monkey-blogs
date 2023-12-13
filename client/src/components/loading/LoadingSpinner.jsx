@@ -15,7 +15,7 @@ const SpinnerStyles = styled.div`
     }
   }
 `;
-const LoadingSpinner = ({ size = "40px", borderSize = "5px" }) => {
+const LoadingSpinner = ({ size = "30px", borderSize = "5px" }) => {
   return <SpinnerStyles size={size} borderSize={borderSize}></SpinnerStyles>;
 };
 

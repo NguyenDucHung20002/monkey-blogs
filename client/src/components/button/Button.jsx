@@ -1,7 +1,9 @@
+/* eslint-disable no-extra-boolean-cast */
 /* eslint-disable react/prop-types */
 import styled, { css } from "styled-components";
 import PropTypes from "prop-types";
 import { NavLink } from "react-router-dom";
+import LoadingSpinner from "../loading/LoadingSpinner";
 
 const ButtonStyles = styled.button`
   cursor: pointer;
@@ -12,17 +14,14 @@ const ButtonStyles = styled.button`
   font-weight: 600;
   font-size: 16px;
   height: ${(props) => props.height || "66px"};
+  width: ${(props) => props.width || ""};
   display: flex;
   justify-content: center;
   align-items: center;
   transition: 0.3s;
   z-index: 0;
   position: relative;
-  ${(props) =>
-    props.width &&
-    css`
-      width: props.width;
-    `};
+
   ${(props) =>
     props.notification !== "" &&
     css`
@@ -46,7 +45,6 @@ const ButtonStyles = styled.button`
         background-color: ${(props) => props.theme.red};
       }
     `};
-
   ${(props) =>
     props.kind === "secondary" &&
     css`
@@ -90,7 +88,8 @@ const Button = ({
   to,
   ...props
 }) => {
-  // eslint-disable-next-line react/prop-types
+  const { isLoading } = props;
+  const child = !!isLoading ? <LoadingSpinner></LoadingSpinner> : children;
   if (to !== "" && typeof to === "string") {
     return (
       <NavLink to={to} className="inline-block">
@@ -100,7 +99,7 @@ const Button = ({
           notification={notification}
           {...props}
         >
-          {children}
+          {child}
         </ButtonStyles>
       </NavLink>
     );
@@ -113,7 +112,7 @@ const Button = ({
       onClick={onClick}
       {...props}
     >
-      {children}
+      {child}
     </ButtonStyles>
   );
 };

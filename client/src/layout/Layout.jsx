@@ -1,16 +1,19 @@
 // eslint-disable-next-line no-unused-vars
-import React, { Fragment } from "react";
+import React, { Fragment, useEffect } from "react";
 import Header from "./Header";
 import styled from "styled-components";
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/auth-context";
-import PageNotFound from "../pages/PageNotFound";
 const LayoutStyle = styled.div``;
 // eslint-disable-next-line react/prop-types
 const Layout = () => {
+  const navigate = useNavigate();
   const { userInfo } = useAuth();
+  const { data } = userInfo;
+  useEffect(() => {
+    if (!data) navigate("/sign-in");
+  }, [navigate, data]);
 
-  if (!userInfo) return <PageNotFound></PageNotFound>;
   return (
     <LayoutStyle>
       <Header></Header>

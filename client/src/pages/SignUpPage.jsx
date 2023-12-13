@@ -11,6 +11,7 @@ import { useEffect } from "react";
 import { toast } from "react-toastify";
 
 const schema = yup.object({
+  fullname: yup.string().required("Please enter your fullname"),
   email: yup
     .string()
     .email("Please enter valid email address")
@@ -21,7 +22,7 @@ const schema = yup.object({
     .required("Please enter your password"),
 });
 
-const SignInPage = () => {
+const SignUpPage = () => {
   const navigate = useNavigate();
   const {
     control,
@@ -55,6 +56,15 @@ const SignInPage = () => {
         autoComplete="off"
       >
         <Field>
+          <Label htmlFor="fullname">Fullname</Label>
+          <InputAuth
+            type="text"
+            name="fullname"
+            placeholder="Enter your fullname"
+            control={control}
+          />
+        </Field>
+        <Field>
           <Label htmlFor="email">Email address</Label>
           <InputAuth
             type="email"
@@ -73,8 +83,7 @@ const SignInPage = () => {
           />
         </Field>
         <div className="have-account">
-          You do not have an account?{" "}
-          <NavLink to={"/sign-up"}>Register</NavLink>{" "}
+          You already have an account? <NavLink to={"/sign-in"}>Login</NavLink>{" "}
         </div>
         <div className="flex items-center gap-3 mt-5 justify-center">
           <Button
@@ -85,7 +94,7 @@ const SignInPage = () => {
             isLoading={isSubmitting}
             disabled={isSubmitting}
           >
-            Sign In
+            Sign Up
           </Button>
           <p className="text-lg font-semibold text-gray-400">or</p>
           <Button
@@ -93,7 +102,7 @@ const SignInPage = () => {
             height="45px"
             to={"http://localhost:8080/api/v1/auth/google"}
           >
-            {icons.googleIcon} <span className="ml-2">Login with Google</span>
+            {icons.googleIcon} <span className="ml-2">Sign pn with Google</span>
           </Button>
         </div>
       </form>
@@ -101,4 +110,4 @@ const SignInPage = () => {
   );
 };
 
-export default SignInPage;
+export default SignUpPage;

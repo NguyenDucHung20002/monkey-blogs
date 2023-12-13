@@ -3,7 +3,6 @@ import Topic from "../../modules/topic/Topic";
 import ButtonFollowingTopic from "../button/ButtonFollowingTopic";
 
 const TopicUserHandle = ({ data, initialFollowing = false }) => {
-  console.log("data:", data);
   const { id, slug, name, articlesCount, followersCount } = data;
 
   if (!data) return;

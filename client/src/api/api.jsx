@@ -2,7 +2,8 @@ import axios from "axios";
 import { config } from "../utils/constants";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
-const token = localStorage.get("token");
+
+const token = localStorage.getItem("token");
 
 const apiAddTopic = async (token, name) => {
   try {

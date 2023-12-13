@@ -3,7 +3,6 @@ import { useState } from "react";
 import { apiFollowTopic, apiUnFollowTopic } from "../../api/api";
 
 const ButtonFollowingTopic = ({ initialFollowing = false, topicId = "" }) => {
-  console.log("topicId:", topicId);
   const [followed, setFollowed] = useState(initialFollowing);
   const token = localStorage.getItem("token");
 

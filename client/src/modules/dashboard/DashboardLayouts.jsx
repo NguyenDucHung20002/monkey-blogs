@@ -47,6 +47,10 @@ const DashboardLayout = () => {
   if (userData?.role === "user") navigate("/");
   const [visible, setVisible] = useState(false);
 
+  useEffect(() => {
+    if (!userData) navigate("/sign-in");
+  }, [navigate, userData]);
+
   const toggleVisible = debounce(() => {
     const scrolled = document.documentElement.scrollTop;
     if (scrolled > 300) {

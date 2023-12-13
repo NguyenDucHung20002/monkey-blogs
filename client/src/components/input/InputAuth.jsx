@@ -1,6 +1,6 @@
+/* eslint-disable react/prop-types */
 import styled from "styled-components";
 import { useController } from "react-hook-form";
-import PropTypes from "prop-types";
 
 const InputStyles = styled.div`
   position: relative;
@@ -10,11 +10,14 @@ const InputStyles = styled.div`
     padding: ${(props) =>
       props.hasIcon ? "16px 60px 16px 20px" : "16px 20px"};
     background-color: transparent;
-    border: 1px solid ${(props) => props.theme.grayLight};
+    border: 1px solid ${(props) => props.theme.grayF1};
     border-radius: 8px;
     transition: all 0.2s linear;
-    color: ${(props) => props.theme.grayLight};
+    color: ${(props) => props.theme.black};
     font-size: 14px;
+    &:focus {
+      border: 1px solid ${(props) => props.theme.gray4b};
+    }
   }
   input::-webkit-input-placeholder {
     color: #b2b3bd;
@@ -37,7 +40,13 @@ const InputStyles = styled.div`
  * @param {*} control - control from react hook form
  * @returns Input
  */
-const Input = ({ name = "", type = "text", children, control, ...props }) => {
+const InputAuth = ({
+  name = "",
+  type = "text",
+  children,
+  control,
+  ...props
+}) => {
   const { field } = useController({
     control,
     name,
@@ -50,11 +59,5 @@ const Input = ({ name = "", type = "text", children, control, ...props }) => {
     </InputStyles>
   );
 };
-Input.propTypes = {
-  // value: PropTypes.string
-  name: PropTypes.string.isRequired,
-  type: PropTypes.string,
-  children: PropTypes.any,
-  control: PropTypes.any.isRequired,
-};
-export default Input;
+
+export default InputAuth;

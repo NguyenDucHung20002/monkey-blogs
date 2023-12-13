@@ -1,17 +1,23 @@
 import React, { Suspense } from "react";
 import { Route, Routes } from "react-router";
 import { ToastContainer } from "react-toastify";
-import StaffPickPage from "./pages/StaffPickPage";
-import MeMuted from "./pages/MeMuted";
-import PostResolved from "./modules/post/PostResolved";
+const AuthenticationPage = React.lazy(() =>
+  import("./pages/AuthenticationPage")
+);
+const StaffPickPage = React.lazy(() => import("./pages/StaffPickPage"));
+const MeMuted = React.lazy(() => import("./pages/MeMuted"));
+const PostResolved = React.lazy(() => import("./modules/post/PostResolved"));
 const PostReportManage = React.lazy(() =>
   import("./modules/post/PostReportAManage")
 );
-import MeLayout from "./layout/MeLayout";
-import MeStoryPage from "./pages/MeStoryPage";
-import MeLibraryPage from "./pages/MeLibraryPage";
-import MyDraft from "./modules/story/MyDraft";
-import ReadingHistory from "./modules/library/ReadingHistory";
+const MeLayout = React.lazy(() => import("./layout/MeLayout"));
+const MeStoryPage = React.lazy(() => import("./pages/MeStoryPage"));
+const MeLibraryPage = React.lazy(() => import("./pages/MeLibraryPage"));
+const MyDraft = React.lazy(() => import("./modules/story/MyDraft"));
+const ReadingHistory = React.lazy(() =>
+  import("./modules/library/ReadingHistory")
+);
+const SignUpPage = React.lazy(() => import("./pages/SignUpPage"));
 const ProfileFollowing = React.lazy(() =>
   import("./modules/profile/ProfileFollowing")
 );
@@ -49,7 +55,6 @@ const WritePage = React.lazy(() => import("./pages/WritePage"));
 const DashboardLayout = React.lazy(() =>
   import("./modules/dashboard/DashboardLayouts")
 );
-
 const DashboardPage = React.lazy(() => import("./pages/DashboardPage"));
 const ProfilePage = React.lazy(() => import("./pages/ProfilePage"));
 const Layout = React.lazy(() => import("./layout/Layout"));
@@ -63,6 +68,11 @@ function App() {
     <div id="main">
       <Suspense>
         <Routes>
+          <Route element={<AuthenticationPage></AuthenticationPage>}>
+            <Route path="/sign-in" element={<SignInPage></SignInPage>}></Route>
+            <Route path="/sign-up" element={<SignUpPage></SignUpPage>}></Route>
+          </Route>
+
           <Route element={<Layout></Layout>}>
             <Route element={<HomePage></HomePage>}>
               <Route path="/" element={<HomeMain></HomeMain>}></Route>
@@ -181,7 +191,6 @@ function App() {
               element={<UserReportsResolved></UserReportsResolved>}
             ></Route>
           </Route>
-          <Route path="/sign-in" element={<SignInPage></SignInPage>}></Route>
           <Route
             path="/get-started/topics"
             element={<StartedTopicsPage></StartedTopicsPage>}

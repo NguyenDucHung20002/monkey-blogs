@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect } from "react";
 import { config } from "../utils/constants";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 import { useSearchParams } from "react-router-dom";
 
 const { createContext, useContext, useState } = React;
@@ -12,7 +11,6 @@ const AuthProvider = React.memo((props) => {
   const [userInfo, setUserInfo] = useState({});
   // console.log("userInfo:", userInfo);
   const value = { userInfo, setUserInfo };
-  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const tokenParams = searchParams.get("token");
 
@@ -30,11 +28,10 @@ const AuthProvider = React.memo((props) => {
 
   const fetcher = useCallback(async () => {
     if (tokenParams) setSearchParams("");
-    if (!token) navigate("/sign-in");
+    if (!token) return;
     try {
-      const response = await axios.post(
-        `${config.SERVER_HOST}/auth/login`,
-        {},
+      const response = await axios.get(
+        `${config.SERVER_HOST}/profile/login-profile`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -42,16 +39,16 @@ const AuthProvider = React.memo((props) => {
           },
         }
       );
+      console.log("response:", response);
 
       if (response?.data?.success) {
         setUserInfo(response.data);
-      } else {
-        navigate("/sign-in");
       }
+      return null;
     } catch (error) {
-      navigate("/sign-in");
+      console.log("error:", error);
     }
-  }, [navigate, setSearchParams, token, tokenParams]);
+  }, [setSearchParams, token, tokenParams]);
 
   useEffect(() => {
     fetcher();
