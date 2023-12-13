@@ -38,7 +38,6 @@ const Article = sequelize.define(
     preview: {
       type: DataTypes.STRING,
       allowNull: true,
-      defaultValue: "",
     },
 
     slug: {

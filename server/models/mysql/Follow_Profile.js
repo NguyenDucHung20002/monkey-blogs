@@ -10,7 +10,11 @@ import env from "../../config/env.js";
 const Follow_Profile = sequelize.define(
   "Follow_Profile",
   {
-    id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
 
     followedId: {
       type: DataTypes.INTEGER,

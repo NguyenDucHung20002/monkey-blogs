@@ -5,7 +5,11 @@ import User from "./User.js";
 const Report_User = sequelize.define(
   "Report_User",
   {
-    id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
 
     reportedId: {
       type: DataTypes.INTEGER,

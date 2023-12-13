@@ -5,9 +5,17 @@ import User from "../mysql/User.js";
 const Topic = sequelize.define(
   "Topic",
   {
-    id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
 
-    name: { type: DataTypes.STRING, allowNull: false, unique: true },
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+    },
 
     followersCount: {
       type: DataTypes.INTEGER,
@@ -21,7 +29,11 @@ const Topic = sequelize.define(
       defaultValue: 0,
     },
 
-    slug: { type: DataTypes.STRING, allowNull: false, unique: true },
+    slug: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+    },
 
     approvedById: {
       type: DataTypes.INTEGER,

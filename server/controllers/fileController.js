@@ -1,15 +1,10 @@
 import MongoDB from "../databases/mongodb/connect.js";
 import ErrorResponse from "../responses/ErrorResponse.js";
 import asyncMiddleware from "../middlewares/asyncMiddleware.js";
+import clarifai from "../services/clarifai.js";
 
 // ==================== upload an image ==================== //
 const upLoadAnImg = asyncMiddleware(async (req, res, next) => {
-  const size = req.file?.size;
-
-  const FILE_LIMIT = 15 * 1024 * 1024;
-
-  if (size && size > FILE_LIMIT) throw new ErrorResponse(400, "File too large");
-
   res.status(201).json({
     success: true,
     message: "File uploaded successfully",
@@ -20,11 +15,6 @@ const upLoadAnImg = asyncMiddleware(async (req, res, next) => {
 // ==================== upload an avatar ==================== //
 const upLoadAnAvatar = asyncMiddleware(async (req, res, next) => {
   const filename = req.file?.filename;
-  const size = req.file?.size;
-
-  const FILE_LIMIT = 5 * 1024 * 1024;
-
-  if (size && size > FILE_LIMIT) throw new ErrorResponse(400, "File too large");
 
   const gfs = MongoDB.gfs;
 
@@ -48,11 +38,10 @@ const upLoadAnAvatar = asyncMiddleware(async (req, res, next) => {
         if (results[0][0].nsfw > 0.55) {
           fileController.autoRemoveImg(filename);
 
-          return res.status(400).json({
-            success: false,
-            message:
-              "Sorry, but your image contains explicit content and is not allowed",
-          });
+          throw ErrorResponse(
+            400,
+            "Your image contains explicit content and is not allowed"
+          );
         }
 
         resolve();
@@ -104,15 +93,12 @@ const autoRemoveImg = async (filename) => {
   const gfs = MongoDB.gfs;
 
   const files = await gfs.find({ filename }).toArray();
-  if (!files || !files.length) {
-    console.log("file not found");
-    return;
-  }
+
+  if (!files || !files.length) return;
 
   const fileId = files[0]._id;
-  await gfs.delete(fileId);
 
-  console.log(`file ${filename} removed successfully`);
+  await gfs.delete(fileId);
 };
 
 export default {

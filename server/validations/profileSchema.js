@@ -7,4 +7,9 @@ const updateProfileSchema = Joi.object({
   avatar: Joi.string(),
 });
 
-export default { updateProfileSchema };
+const setupProfileSchema = Joi.object({
+  avatar: Joi.string().required(),
+  fullname: Joi.string().min(3).max(75),
+});
+
+export default { updateProfileSchema, setupProfileSchema };

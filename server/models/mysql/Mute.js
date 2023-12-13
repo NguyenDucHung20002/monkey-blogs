@@ -5,7 +5,11 @@ import Profile from "./Profile.js";
 const Mute = sequelize.define(
   "Mute",
   {
-    id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
 
     mutedId: {
       type: DataTypes.INTEGER,

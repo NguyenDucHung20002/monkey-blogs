@@ -6,7 +6,11 @@ import Profile from "./Profile.js";
 const Reading_List = sequelize.define(
   "Reading_List",
   {
-    id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
 
     articleId: {
       type: DataTypes.INTEGER,

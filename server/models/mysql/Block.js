@@ -9,7 +9,11 @@ import Reading_List from "./Reading_List.js";
 const Block = sequelize.define(
   "Block",
   {
-    id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
 
     blockedId: {
       type: DataTypes.INTEGER,

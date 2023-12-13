@@ -6,7 +6,11 @@ import Profile from "./Profile.js";
 const Follow_Topic = sequelize.define(
   "Follow_Topic",
   {
-    id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
 
     topicId: {
       type: DataTypes.INTEGER,

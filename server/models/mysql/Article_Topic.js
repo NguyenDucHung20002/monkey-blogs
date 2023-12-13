@@ -23,7 +23,7 @@ const Article_Topic = sequelize.define(
 
   {
     tableName: "articles_topics",
-    timestamps: true,
+    timestamps: false,
   }
 );
 

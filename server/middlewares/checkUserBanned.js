@@ -8,13 +8,13 @@ const checkBanned = async (req, res, next) => {
       if (user.bannedUntil === null) {
         return res.status(403).json({
           success: false,
-          message: `This user have been permanent banned`,
+          message: `This user have been permanently banned`,
         });
       }
 
       return res.status(403).json({
         success: false,
-        message: `This user have been temporary banned`,
+        message: `This user have been temporarily banned`,
       });
     }
 

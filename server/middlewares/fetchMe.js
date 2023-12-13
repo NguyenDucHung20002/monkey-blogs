@@ -20,7 +20,7 @@ const fetchMe = async (req, res, next) => {
         {
           model: Profile,
           as: "profileInfo",
-          attributes: ["id", "fullname", "avatar", "unReadNotificationsCount"],
+          attributes: ["id", "fullname", "avatar", "notificationsCount"],
         },
         { model: Role, as: "role", attributes: ["slug"] },
       ],
@@ -37,7 +37,7 @@ const fetchMe = async (req, res, next) => {
       if (me.bannedUntil === null) {
         return res.status(403).json({
           success: false,
-          message: `You have been permanent banned`,
+          message: `You have been permanently banned`,
         });
       }
 

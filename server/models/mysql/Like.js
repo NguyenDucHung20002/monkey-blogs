@@ -11,7 +11,11 @@ import env from "../../config/env.js";
 const Like = sequelize.define(
   "Like",
   {
-    id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
 
     articleId: {
       type: DataTypes.INTEGER,

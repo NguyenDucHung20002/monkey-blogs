@@ -26,7 +26,7 @@ const fetchUser = async (req, res, next) => {
         {
           model: Profile,
           as: "profileInfo",
-          attributes: { exclude: ["userId"] },
+          attributes: { exclude: ["userId", "notificationsCount"] },
         },
         { model: Role, as: "role", attributes: ["name", "slug"] },
       ],

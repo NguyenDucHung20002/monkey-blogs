@@ -12,11 +12,15 @@ router.get(
   passport.authenticate("google", { scope: ["profile", "email"] })
 );
 
+// -------------------- login with google -------------------- //
+
 router.get(
   "/google/callback",
   passport.authenticate("google", { session: false }),
   authController.loginGoogle
 );
+
+// -------------------- register -------------------- //
 
 router.post(
   "/register",
@@ -24,11 +28,15 @@ router.post(
   authController.register
 );
 
+// -------------------- verify email -------------------- //
+
 router.patch(
   "/verify-email",
   validator(authSchema.verifyTokenSchema),
   authController.verifyEmail
 );
+
+// -------------------- verify setup password -------------------- //
 
 router.patch(
   "/verify-setup-password",
@@ -36,11 +44,23 @@ router.patch(
   authController.verifySetUpPassword
 );
 
+// -------------------- forgot password -------------------- //
+
 router.post(
   "/forgot-password",
   validator(authSchema.forgotPasswordSchema),
   authController.forgotPassword
 );
+
+// -------------------- reset password -------------------- //
+
+router.patch(
+  "/reset-password/:token",
+  validator(authSchema.resetPasswordSchema),
+  authController.resetPassword
+);
+
+// -------------------- login with email and password -------------------- //
 
 router.post(
   "/login-email",
@@ -48,12 +68,8 @@ router.post(
   authController.loginEmail
 );
 
-router.delete("/logout", requiredAuth, authController.logout);
+// -------------------- logout -------------------- //
 
-router.patch(
-  "/reset-password/:token",
-  validator(authSchema.resetPasswordSchema),
-  authController.resetPassword
-);
+router.delete("/logout", requiredAuth, authController.logout);
 
 export default router;

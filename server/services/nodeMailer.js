@@ -1,5 +1,5 @@
-import nodemailer from "nodemailer";
 import generateOAuthAccessToken from "../utils/generateOAuthAccessToken.js";
+import nodemailer from "nodemailer";
 import env from "../config/env.js";
 
 const emailService = async (options) => {
@@ -11,10 +11,15 @@ const emailService = async (options) => {
       clientSecret: env.NODEMAILER_GOOGLE_CLIENT_SECRET,
     },
   });
+
   const { token } = await generateOAuthAccessToken();
 
+  if (!token) {
+    throw new Error("Unable to generate OAuth token");
+  }
+
   const MailOptions = {
-    from: `Trinity <${env.GOOGLE_EMAIL}>`,
+    from: `Monkey Medium <${env.GOOGLE_EMAIL}>`,
     to: options.to,
     subject: options.subject,
     text: options.text,

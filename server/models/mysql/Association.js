@@ -16,27 +16,9 @@ import Reading_History from "./Reading_History.js";
 import Reading_List from "./Reading_List.js";
 import Notification from "./Notification.js";
 
-// Role - User (1-n)
-Role.hasMany(User, {
-  foreignKey: "roleId",
-  as: "role",
-});
-User.belongsTo(Role, {
-  foreignKey: "roleId",
-  as: "role",
-});
+// ==================== Mute ==================== //
 
-// Profile - User (1-1)
-User.hasOne(Profile, {
-  foreignKey: "userId",
-  as: "profileInfo",
-});
-Profile.belongsTo(User, {
-  foreignKey: "userId",
-  as: "userInfo",
-});
-
-// Profile - Profile (Mute) (n-n)
+// Profile - Profile
 Profile.belongsToMany(Profile, {
   through: Mute,
   foreignKey: "mutedId",
@@ -58,7 +40,9 @@ Mute.belongsTo(Profile, {
   as: "muter",
 });
 
-// Profile - Profile (Block) (n-n)
+// ==================== Block ==================== //
+
+// Profile - Profile
 Profile.belongsToMany(Profile, {
   through: Block,
   foreignKey: "blockedId",
@@ -80,13 +64,18 @@ Block.belongsTo(Profile, {
   as: "blocker",
 });
 
-// User - User (Ban) (1-n)
-User.hasMany(User, {
-  foreignKey: "bannedById",
+// ==================== Report User ==================== //
+
+// User - User
+User.belongsToMany(User, {
+  through: Report_User,
+  foreignKey: "reportedId",
+  as: "reporters",
 });
-User.belongsTo(User, {
-  foreignKey: "bannedById",
-  as: "bannedBy",
+User.belongsToMany(User, {
+  through: Report_User,
+  foreignKey: "reporterId",
+  as: "reporteds",
 });
 
 // Report - User
@@ -99,7 +88,7 @@ Report_User.belongsTo(User, {
   as: "reporter",
 });
 
-// User - Report (Resolve) (1-n)
+// User - Report_User
 User.hasMany(Report_User, {
   foreignKey: "resolvedById",
 });
@@ -108,7 +97,9 @@ Report_User.belongsTo(User, {
   as: "resolvedBy",
 });
 
-// Profile - Profile (Follow) (n-n)
+// ==================== Follow Profile ==================== //
+
+// Profile - Profile
 Profile.belongsToMany(Profile, {
   through: Follow_Profile,
   foreignKey: "followedId",
@@ -130,29 +121,9 @@ Follow_Profile.belongsTo(Profile, {
   as: "follower",
 });
 
-// Follow_Profile - Block (1-1)
-Follow_Profile.hasOne(Block, {
-  sourceKey: "followedId",
-  foreignKey: "blockedId",
-  as: "blockedFollowed",
-});
-Block.belongsTo(Follow_Profile, {
-  sourceKey: "followedId",
-  foreignKey: "blockedId",
-  as: "blockedFollowed",
-});
-Follow_Profile.hasOne(Block, {
-  sourceKey: "followerId",
-  foreignKey: "blockedId",
-  as: "blockerFollower",
-});
-Block.belongsTo(Follow_Profile, {
-  sourceKey: "followerId",
-  foreignKey: "blockedId",
-  as: "blockerFollower",
-});
+// ==================== Follow Topic ==================== //
 
-// Profile - Topic (Follow) (n-n)
+// Profile - Topic
 Profile.belongsToMany(Topic, {
   through: Follow_Topic,
   foreignKey: "profileId",
@@ -176,7 +147,9 @@ Follow_Topic.belongsTo(Topic, {
   as: "topicFollower",
 });
 
-// Article - Topic (n-n)
+// ==================== Article Topic ==================== //
+
+// Article - Topic
 Article.belongsToMany(Topic, {
   through: Article_Topic,
   foreignKey: "articleId",
@@ -200,25 +173,9 @@ Article_Topic.belongsTo(Topic, {
   as: "topic",
 });
 
-// User - Topic (Approve) (1-n)
-User.hasMany(Topic, {
-  foreignKey: "approvedById",
-});
-Topic.belongsTo(User, {
-  foreignKey: "approvedById",
-  as: "approvedBy",
-});
+// ==================== Like ==================== //
 
-// User - Article (Approve) (1-n)
-User.hasMany(Article, {
-  foreignKey: "approvedById",
-});
-Article.belongsTo(User, {
-  foreignKey: "approvedById",
-  as: "approvedBy",
-});
-
-// Article - Profile (Like) (n-n)
+// Article - Profile
 Article.belongsToMany(Profile, {
   through: Like,
   foreignKey: "articleId",
@@ -242,13 +199,238 @@ Like.belongsTo(Profile, {
   as: "articleLike",
 });
 
-// Profile - Article (1-n)
+// ==================== Report Article ==================== //
+
+// User - Article
+User.belongsToMany(Article, {
+  through: Report_Article,
+  foreignKey: "userId",
+  as: "reportedArticles",
+});
+Article.belongsToMany(User, {
+  through: Report_Article,
+  foreignKey: "articleId",
+  as: "reportedUsers",
+});
+
+// Report_Article - Article
+Report_Article.belongsTo(Article, {
+  foreignKey: "articleId",
+  as: "article",
+});
+
+// Report_Article - User
+Report_Article.belongsTo(User, {
+  foreignKey: "userId",
+  as: "user",
+});
+
+// User - Report_Article
+User.hasMany(Report_Article, {
+  foreignKey: "resolvedById",
+});
+Report_Article.belongsTo(User, {
+  foreignKey: "resolvedById",
+  as: "resolvedBy",
+});
+
+// ==================== Reading History ==================== //
+
+// Profile - Article
+Article.belongsToMany(Profile, {
+  through: Reading_History,
+  foreignKey: "articleId",
+  as: "historyProfiles",
+});
+Profile.belongsToMany(Article, {
+  through: Reading_History,
+  foreignKey: "profileId",
+  as: "readHistoryArticles",
+});
+
+// Reading_History - Article
+Reading_History.belongsTo(Article, {
+  foreignKey: "articleId",
+  as: "readArticle",
+});
+
+// Reading_History - Profile
+Reading_History.belongsTo(Profile, {
+  foreignKey: "profileId",
+  as: "readingProfile",
+});
+
+// ==================== Reading List ==================== //
+
+// Profile - Article
+Article.belongsToMany(Profile, {
+  through: Reading_List,
+  foreignKey: "articleId",
+  as: "readingProfiles",
+});
+Profile.belongsToMany(Article, {
+  through: Reading_List,
+  foreignKey: "profileId",
+  as: "readArticles",
+});
+
+// Reading_List - Article
+Reading_List.belongsTo(Article, {
+  foreignKey: "articleId",
+  as: "readArticle",
+});
+
+// Reading_List - Profile
+Reading_List.belongsTo(Profile, {
+  foreignKey: "profileId",
+  as: "readingProfile",
+});
+
+// ==================== Notification ==================== //
+
+// Profile - Profile
+Profile.belongsToMany(Profile, {
+  through: Notification,
+  foreignKey: "senderId",
+  as: "recivers",
+});
+Profile.belongsToMany(Profile, {
+  through: Notification,
+  foreignKey: "reciverId",
+  as: "senders",
+});
+
+// Notification - Profile
+Notification.belongsTo(Profile, {
+  foreignKey: "reciverId",
+  as: "reciver",
+});
+Notification.belongsTo(Profile, {
+  foreignKey: "senderId",
+  as: "sender",
+});
+
+// Notification - Article
+Notification.belongsTo(Article, {
+  foreignKey: "articleId",
+  as: "article",
+});
+
+// ==================== Comment ==================== //
+
+// Commnet - Profile
+Profile.hasMany(Comment, {
+  foreignKey: "authorId",
+});
+Comment.belongsTo(Profile, {
+  foreignKey: "authorId",
+  as: "author",
+});
+
+// Comment - Comment
+Comment.hasMany(Comment, {
+  foreignKey: "parentCommentId",
+});
+Comment.belongsTo(Comment, {
+  foreignKey: "parentCommentId",
+  as: "repliesComment",
+});
+
+// ==================== Article ==================== //
+
+// Profile - Article
 Profile.hasMany(Article, {
   foreignKey: "authorId",
 });
 Article.belongsTo(Profile, {
   foreignKey: "authorId",
   as: "author",
+});
+
+// User - Article
+User.hasMany(Article, {
+  foreignKey: "approvedById",
+});
+Article.belongsTo(User, {
+  foreignKey: "approvedById",
+  as: "approvedBy",
+});
+
+// User - Article
+User.hasMany(Article, {
+  foreignKey: "deletedById",
+});
+Article.belongsTo(User, {
+  foreignKey: "deletedById",
+  as: "deletedBy",
+});
+
+// ==================== Topic ==================== //
+
+// User - Topic
+User.hasMany(Topic, {
+  foreignKey: "approvedById",
+});
+Topic.belongsTo(User, {
+  foreignKey: "approvedById",
+  as: "approvedBy",
+});
+
+// ==================== User ==================== //
+
+// User - User
+User.hasMany(User, {
+  foreignKey: "bannedById",
+});
+User.belongsTo(User, {
+  foreignKey: "bannedById",
+  as: "bannedBy",
+});
+
+// Role - User
+Role.hasMany(User, {
+  foreignKey: "roleId",
+  as: "role",
+});
+User.belongsTo(Role, {
+  foreignKey: "roleId",
+  as: "role",
+});
+
+// ==================== Profile ==================== //
+
+// Profile - User
+User.hasOne(Profile, {
+  foreignKey: "userId",
+  as: "profileInfo",
+});
+Profile.belongsTo(User, {
+  foreignKey: "userId",
+  as: "userInfo",
+});
+
+// ==================== Others ==================== //
+
+// Follow_Profile - Block (1-1)
+Follow_Profile.hasOne(Block, {
+  sourceKey: "followedId",
+  foreignKey: "blockedId",
+  as: "blockedFollowed",
+});
+Block.belongsTo(Follow_Profile, {
+  sourceKey: "followedId",
+  foreignKey: "blockedId",
+  as: "blockedFollowed",
+});
+Follow_Profile.hasOne(Block, {
+  sourceKey: "followerId",
+  foreignKey: "blockedId",
+  as: "blockerFollower",
+});
+Block.belongsTo(Follow_Profile, {
+  sourceKey: "followerId",
+  foreignKey: "blockedId",
+  as: "blockerFollower",
 });
 
 // Article - Follow_Profile
@@ -277,45 +459,6 @@ Article.hasOne(Block, {
   as: "authorBlocker",
 });
 
-// Report_Article - Article
-Report_Article.belongsTo(Article, {
-  foreignKey: "articleId",
-  as: "article",
-});
-
-// Report_Article - User
-Report_Article.belongsTo(User, {
-  foreignKey: "userId",
-  as: "user",
-});
-
-// User - Report_Article (Resolve) (1-n)
-User.hasMany(Report_Article, {
-  foreignKey: "resolvedById",
-});
-Report_Article.belongsTo(User, {
-  foreignKey: "resolvedById",
-  as: "resolvedBy",
-});
-
-// User - Article (delete) (1-n)
-User.hasMany(Article, {
-  foreignKey: "deletedById",
-});
-Article.belongsTo(User, {
-  foreignKey: "deletedById",
-  as: "deletedBy",
-});
-
-// Comment - Comment (Reply) (1-n)
-Comment.hasMany(Comment, {
-  foreignKey: "parentCommentId",
-});
-Comment.belongsTo(Comment, {
-  foreignKey: "parentCommentId",
-  as: "repliesComment",
-});
-
 // Comment - Block
 Comment.hasOne(Block, {
   sourceKey: "authorId",
@@ -326,15 +469,6 @@ Comment.hasOne(Block, {
   sourceKey: "authorId",
   foreignKey: "blockerId",
   as: "authorBlocker",
-});
-
-// Commnet - Profile
-Profile.hasMany(Comment, {
-  foreignKey: "authorId",
-});
-Comment.belongsTo(Profile, {
-  foreignKey: "authorId",
-  as: "author",
 });
 
 // Like - Block
@@ -383,42 +517,6 @@ Profile.hasOne(Block, {
   as: "profileBlocker",
 });
 
-// Article - Profile
-Article.belongsToMany(Profile, {
-  through: Reading_History,
-  foreignKey: "articleId",
-  as: "readingProfiles",
-});
-Profile.belongsToMany(Article, {
-  through: Reading_History,
-  foreignKey: "profileId",
-  as: "readArticles",
-});
-
-// Reading_History - Article
-Reading_History.belongsTo(Article, {
-  foreignKey: "articleId",
-  as: "readArticle",
-});
-
-// Reading_History - Profile
-Reading_History.belongsTo(Profile, {
-  foreignKey: "profileId",
-  as: "readingProfile",
-});
-
-// Reading_List - Article
-Reading_List.belongsTo(Article, {
-  foreignKey: "articleId",
-  as: "readArticle",
-});
-
-// Reading_List - Profile
-Reading_List.belongsTo(Profile, {
-  foreignKey: "profileId",
-  as: "readingProfile",
-});
-
 // Article - Reading_History
 Article.hasOne(Reading_History, {
   foreignKey: "articleId",
@@ -442,22 +540,6 @@ Profile.hasOne(Follow_Profile, {
   sourceKey: "id",
   foreignKey: "followedId",
   as: "followeds",
-});
-
-// Notification - Profile
-Notification.belongsTo(Profile, {
-  foreignKey: "reciverId",
-  as: "reciver",
-});
-Notification.belongsTo(Profile, {
-  foreignKey: "senderId",
-  as: "sender",
-});
-
-// Notification - Article
-Notification.belongsTo(Article, {
-  foreignKey: "articleId",
-  as: "article",
 });
 
 // Topic - Follow_Topic

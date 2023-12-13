@@ -55,6 +55,10 @@ export default {
   PERSPECTIVE_DISCOVERY_URL:
     process.env.PERSPECTIVE_DISCOVERY_URL || "perspective url",
 
+  IMAGE_FILE_SIZE_LIMIT: process.env.IMAGE_SIZE_LIMIT || 15,
+
+  AVATAR_FILE_SIZE_LIMIT: process.env.AVATAR_FILE_SIZE_LIMIT || 5,
+
   getMongodbUri() {
     return `mongodb://${this.MONGODB_HOST}:${this.MONGODB_PORT}/${this.MONGODB_DATABASE}`;
   },

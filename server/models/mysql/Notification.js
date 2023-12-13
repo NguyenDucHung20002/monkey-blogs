@@ -6,7 +6,11 @@ import Article from "../mysql/Article.js";
 const Notification = sequelize.define(
   "Notification",
   {
-    id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
 
     senderId: {
       type: DataTypes.INTEGER,
@@ -26,9 +30,12 @@ const Notification = sequelize.define(
       references: { model: Article, key: "id" },
     },
 
-    content: { type: DataTypes.STRING, allowNull: false },
+    content: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
 
-    isReaded: {
+    isRead: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: false,

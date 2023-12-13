@@ -11,8 +11,8 @@ export default {
       },
     });
     io.on("connection", (socket) => {
-      socket.on("new-user", async (userId) => {
-        await SocketUser.create({ userId, socketId: socket.id });
+      socket.on("new-user", async (data) => {
+        await SocketUser.create({ userId: data.userId, socketId: socket.id });
       });
 
       socket.on("follow-profile", (notification) => {

@@ -11,8 +11,8 @@ const checkBlockByUser = async (req, res, next) => {
       }));
 
       if (isBlockedByUser) {
-        return res.json({
-          success: true,
+        return res.status(403).json({
+          success: false,
           message: `You have been blocked by ${user.profileInfo.fullname}`,
         });
       }

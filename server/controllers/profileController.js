@@ -6,31 +6,10 @@ import ErrorResponse from "../responses/ErrorResponse.js";
 import fileController from "./fileController.js";
 import User from "../models/mysql/User.js";
 import Profile from "../models/mysql/Profile.js";
+import JsonWebToken from "../models/mongodb/JsonWebToken.js";
 
-// ==================== setup profile ==================== //
-const setupProfile = asyncMiddleware(async (req, res, next) => {
-  const userId = params;
-  const { avatar, fullname } = req.body;
-
-  const [user, profile] = await Promise.all([
-    User.findByPk(userId),
-    Profile.findOne({ where: { userId } }),
-  ]);
-
-  if (!user) throw ErrorResponse(404, "User not found");
-
-  if (profile) throw ErrorResponse(409, "Profile already exists");
-
-  const [token] = await Promise.all([
-    generateJwt({ id: user.id }),
-    Profile.create({ avatar, fullname, userId }),
-  ]);
-
-  res.json({ success: true, token });
-});
-
-// ==================== get login profile ==================== //
-const getLoginProfile = asyncMiddleware(async (req, res, next) => {
+// ==================== get logged in profile information ==================== //
+const getLoggedInProfile = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
 
   res.json({
@@ -41,6 +20,26 @@ const getLoginProfile = asyncMiddleware(async (req, res, next) => {
       role: me.role.slug,
     },
   });
+});
+
+// ==================== setup profile ==================== //
+const setupProfile = asyncMiddleware(async (req, res, next) => {
+  const { id: myUserId, iat, exp } = req.jwtPayLoad;
+  const { avatar, fullname } = req.body;
+
+  const [user, profile, jsonWebToken] = await Promise.all([
+    User.findByPk(myUserId),
+    Profile.findOne({ where: { userId: myUserId } }),
+    JsonWebToken.findOne({ userId: myUserId, iat, exp }),
+  ]);
+
+  if (!user) throw ErrorResponse(404, "User not found");
+
+  if (profile) throw ErrorResponse(409, "Profile already exists");
+
+  await Profile.create({ avatar, fullname, userId: user.id });
+
+  res.json({ success: true, token: jsonWebToken.token });
 });
 
 // ==================== get profile ==================== //
@@ -94,7 +93,7 @@ const updateMyProfile = asyncMiddleware(async (req, res, next) => {
 
   if (avatar !== me.profileInfo.avatar) {
     const oldAvatar = me.profileInfo.avatar.split("/");
-    fileController.autoRemoveImg(oldAvatar[oldAvatar.length - 1]);
+    await fileController.autoRemoveImg(oldAvatar[oldAvatar.length - 1]);
   }
 
   await me.profileInfo.update({ fullname, bio, about, avatar });
@@ -102,4 +101,9 @@ const updateMyProfile = asyncMiddleware(async (req, res, next) => {
   res.json({ success: true, message: "Profile updated successfully" });
 });
 
-export default { getProfile, setupProfile, updateMyProfile, getLoginProfile };
+export default {
+  getProfile,
+  setupProfile,
+  updateMyProfile,
+  getLoggedInProfile,
+};

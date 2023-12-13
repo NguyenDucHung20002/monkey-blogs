@@ -6,7 +6,11 @@ import Profile from "./Profile.js";
 const Reading_History = sequelize.define(
   "Reading_History",
   {
-    id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
 
     articleId: {
       type: DataTypes.INTEGER,

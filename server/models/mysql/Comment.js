@@ -11,7 +11,11 @@ import env from "../../config/env.js";
 const Comment = sequelize.define(
   "Comment",
   {
-    id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
 
     articleId: {
       type: DataTypes.INTEGER,
@@ -25,7 +29,10 @@ const Comment = sequelize.define(
       references: { model: Profile, key: "id" },
     },
 
-    parentCommentId: { type: DataTypes.INTEGER, allowNull: true },
+    parentCommentId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
 
     repliesCount: {
       type: DataTypes.INTEGER,
@@ -33,7 +40,11 @@ const Comment = sequelize.define(
       defaultValue: 0,
     },
 
-    depth: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 1 },
+    depth: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 1,
+    },
 
     content: {
       type: DataTypes.STRING,

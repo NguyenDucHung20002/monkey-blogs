@@ -5,15 +5,31 @@ import User from "./User.js";
 const Profile = sequelize.define(
   "Profile",
   {
-    id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
 
-    avatar: { type: DataTypes.STRING, allowNull: false },
+    avatar: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
 
-    fullname: { type: DataTypes.STRING, allowNull: false },
+    fullname: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
 
-    bio: { type: DataTypes.STRING, allowNull: true },
+    bio: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
 
-    about: { type: DataTypes.TEXT, allowNull: true },
+    about: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
 
     followingCount: {
       type: DataTypes.INTEGER,
@@ -27,7 +43,7 @@ const Profile = sequelize.define(
       defaultValue: 0,
     },
 
-    unReadNotificationsCount: {
+    notificationsCount: {
       type: DataTypes.INTEGER,
       allowNull: false,
       defaultValue: 0,

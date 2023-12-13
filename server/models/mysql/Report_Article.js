@@ -6,7 +6,11 @@ import Article from "./Article.js";
 const Report_Article = sequelize.define(
   "Report_Article",
   {
-    id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
 
     articleId: {
       type: DataTypes.INTEGER,

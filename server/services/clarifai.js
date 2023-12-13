@@ -4,6 +4,7 @@ import { ClarifaiStub, grpc } from "clarifai-nodejs-grpc";
 const stub = ClarifaiStub.grpc();
 
 const metadata = new grpc.Metadata();
+
 metadata.set("authorization", `Key ${env.CLARIFAI_API_KEY}`);
 
 const clarifai = (inputs, callback) => {
@@ -21,8 +22,9 @@ const clarifai = (inputs, callback) => {
     (err, response) => {
       if (err) {
         console.log("Error: " + err);
-        return;
+        return callback(err);
       }
+
       if (response.status.code !== 10000) {
         console.log(
           "Received failed status: " +
@@ -30,9 +32,11 @@ const clarifai = (inputs, callback) => {
             "\n" +
             response.status.details
         );
-        return;
+        return callback(new Error("Clarifai failed"));
       }
+
       let results = [];
+
       for (const output of response.outputs) {
         let resultForImage = [];
         for (const c of output.data.concepts) {

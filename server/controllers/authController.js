@@ -13,6 +13,7 @@ import generateJwt from "../utils/generateJwt.js";
 import JsonWebToken from "../models/mongodb/JsonWebToken.js";
 
 // ==================== register ==================== //
+
 const register = asyncMiddleware(async (req, res, next) => {
   const { email, password } = req.body;
 
@@ -71,6 +72,7 @@ const register = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== forgot password ==================== //
+
 const forgotPassword = asyncMiddleware(async (req, res, next) => {
   const { email } = req.body;
 
@@ -78,9 +80,9 @@ const forgotPassword = asyncMiddleware(async (req, res, next) => {
 
   if (!user) throw ErrorResponse(404, "User not found");
 
-  const verifyToken = await VerifyToken.findOne({ email });
-
   const token = randomBytes(32);
+
+  const verifyToken = await VerifyToken.findOne({ email });
 
   const operation = verifyToken
     ? verifyToken.updateOne({ token })
@@ -104,6 +106,7 @@ const forgotPassword = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== verify email ==================== //
+
 const verifyEmail = asyncMiddleware(async (req, res, next) => {
   const { token } = req.body;
 
@@ -123,6 +126,7 @@ const verifyEmail = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== verify setup password ==================== //
+
 const verifySetUpPassword = asyncMiddleware(async (req, res, next) => {
   const { token } = req.body;
 
@@ -142,6 +146,7 @@ const verifySetUpPassword = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== reset password ==================== //
+
 const resetPassword = asyncMiddleware(async (req, res, next) => {
   const { token } = req.params;
   const { newPassword, confirmPassword } = req.body;
@@ -168,6 +173,7 @@ const resetPassword = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== login with email and password ==================== //
+
 const loginEmail = asyncMiddleware(async (req, res, next) => {
   const { email, password } = req.body;
 
@@ -212,7 +218,7 @@ const loginEmail = asyncMiddleware(async (req, res, next) => {
 
   if (!profile) {
     return res.redirect(
-      `${env.CLIENT_HOST}:${env.CLIENT_PORT}/setup-profile?userId=${user.id}`
+      `${env.CLIENT_HOST}:${env.CLIENT_PORT}/setup-profile?token=${jsonWebToken}`
     );
   }
 
@@ -220,6 +226,7 @@ const loginEmail = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== login with google ==================== //
+
 const loginGoogle = asyncMiddleware(async (req, res, next) => {
   const { avatar, fullname, email } = req.user;
 
@@ -237,14 +244,11 @@ const loginGoogle = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== logout ==================== //
+
 const logout = asyncMiddleware(async (req, res, next) => {
   const { id: myUserId, iat, exp } = req.jwtPayLoad;
 
-  const user = await User.findByPk(myUserId, { attributes: ["id"] });
-
-  if (!user) throw ErrorResponse(404, "user not found");
-
-  await JsonWebToken.deleteOne({ userId: user.id, iat, exp });
+  await JsonWebToken.deleteOne({ userId: myUserId, iat, exp });
 
   res.json({ success: true, message: "Successfully logout" });
 });
