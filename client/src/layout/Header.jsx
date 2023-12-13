@@ -1,6 +1,4 @@
-/* eslint-disable no-undef */
-// eslint-disable-next-line no-unused-vars
-import React, { memo, useCallback, useEffect, useMemo, useState } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { Avatar, Space, Popover } from "antd";
 import styled from "styled-components";
@@ -16,6 +14,7 @@ import { config, icons } from "../utils/constants";
 import Notify from "../modules/notification/Notify";
 import axios from "axios";
 import { apiTopicsSearch, apiUserSearch } from "../api/apisHung";
+import { useSocket } from "../contexts/SocketContext";
 
 const HomeStyle = styled.header`
   .wrapper {
@@ -41,12 +40,21 @@ const Header = memo(() => {
   const { show, setShow, nodeRef } = useClickOutSide("searchMain");
   const token = localStorage.getItem("token");
   const [showSearch, setShowSearch] = useState(false);
-
+  const { notifications } = useSocket();
+  const refCountNotify = useRef(0);
   const {
     show: showNotification,
     setShow: setShowNotification,
     nodeRef: nodeRefNotification,
   } = useClickOutSide("notify");
+
+  useEffect(() => {
+    if (notifications) {
+      notifications.forEach((notify) => {
+        if (!notify.isReaded) refCountNotify.current++;
+      });
+    }
+  }, [notifications]);
 
   const handleSignOut = useCallback(async () => {
     try {
@@ -185,7 +193,7 @@ const Header = memo(() => {
                 <Button
                   kind="secondary"
                   height="40px"
-                  notification={"1"}
+                  notification={refCountNotify.current + ""}
                   className=""
                   id="notify"
                   onClick={() => setShowNotification(!showNotification)}
@@ -206,7 +214,10 @@ const Header = memo(() => {
                   </Popover>
                 </Space>
                 {showNotification && (
-                  <Notify ref={nodeRefNotification}></Notify>
+                  <Notify
+                    ref={nodeRefNotification}
+                    notifications={notifications}
+                  ></Notify>
                 )}
               </div>
             </div>

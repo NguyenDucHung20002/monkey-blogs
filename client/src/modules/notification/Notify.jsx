@@ -1,18 +1,21 @@
+/* eslint-disable react/prop-types */
 import React from "react";
-import { useSocket } from "../../contexts/SocketContext";
 import { Link } from "react-router-dom";
 import timeSince from "../modulesJs/timeAgo";
 import logo from "../../assets/logo.png";
+import Avatar from "../user/Avatar";
+// eslint-disable-next-line react/display-name
 const Notify = React.forwardRef((props, ref) => {
-  const { notifications } = useSocket();
+  const { notifications } = props;
   return (
     <div ref={ref} id="notify">
       <div className="absolute top-full right-2 z-auto bg-white">
         <div className="w-96 max-h-[800px]  shadow-lg rounded-lg overflow-y-scroll ">
-          <div className="p-2">
-            <h1 className="text-lg font-bold">Notification</h1>
-            <div className="mt-3">
-              {notifications?.map((val, idx) => (
+          <h1 className="text-lg font-bold py-2">Notification</h1>
+          <div className="mt-3">
+            {notifications &&
+              notifications.length > 0 &&
+              notifications?.map((val, idx) => (
                 <Link
                   key={idx}
                   to={val?.article?.slug ? `/blog/${val?.article?.slug}` : `/`}
@@ -22,17 +25,22 @@ const Notify = React.forwardRef((props, ref) => {
                     }
                   }}
                 >
-                  <div className="flex items-center py-2 hover:bg-stone-100 rounded-lg cursor-pointer ">
+                  <div
+                    className={`flex items-center py-2 hover:bg-stone-100  cursor-pointer ${
+                      !val.isReaded && "bg-stone-100"
+                    }`}
+                  >
                     <div className="m-2">
-                      <img
-                        className="w-14 h-14 rounded-1/2 overflow-hidden"
-                        src={val?.sender?.avatar || logo}
-                        alt=""
-                      />
+                      <Avatar
+                        size="medium"
+                        url={val?.sender?.avatar || logo}
+                      ></Avatar>
                     </div>
                     <div className="flex-1">
-                      <p className="line-clamp-3 text-base">{val?.content} </p>
-                      <div className="">
+                      <p className="line-clamp-2 text-sm font-semibold  ">
+                        {val?.content}{" "}
+                      </p>
+                      <div className="text-xs text-gray-400">
                         {timeSince(val?.createdAt) || "now"}
                       </div>
                     </div>
@@ -40,7 +48,6 @@ const Notify = React.forwardRef((props, ref) => {
                   </div>
                 </Link>
               ))}
-            </div>
           </div>
         </div>
       </div>

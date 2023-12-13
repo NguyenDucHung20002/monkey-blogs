@@ -1,6 +1,12 @@
 /* eslint-disable react/prop-types */
 // SocketContext.js
-import { createContext, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { io } from "socket.io-client";
 import { useAuth } from "./auth-context";
 import { apiGetNotification } from "../api/api";
@@ -19,10 +25,10 @@ export function SocketProvider({ children }) {
   const token = localStorage.getItem("token");
   const [hasRunOne, setHasRunOne] = useState(false);
 
-  async function fetchNotification() {
+  const fetchNotification = useCallback(async () => {
     const profileUser = await apiGetNotification(token);
     setNotifications(profileUser);
-  }
+  }, [token]);
 
   useEffect(() => {
     if (!token) return;
@@ -33,7 +39,7 @@ export function SocketProvider({ children }) {
     return () => {
       newSocket.disconnect();
     };
-  }, [token]);
+  }, [fetchNotification, token]);
 
   useEffect(() => {
     const userId = userInfo?.data?.id;
@@ -58,18 +64,8 @@ export function SocketProvider({ children }) {
     }
   }, [error]);
 
-  const sendNotification = (receiverName, type, slug) => {
-    socket.emit("sendNotification", {
-      senderName: userName,
-      receiverName,
-      type,
-      slug,
-    });
-  };
-
   const value = {
     socket,
-    sendNotification,
     notifications,
   };
   return (
