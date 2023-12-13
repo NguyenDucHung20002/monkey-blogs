@@ -89,7 +89,7 @@ const PostDetailPagePageStyle = styled.div`
 const PostDetailPage = () => {
   const { slug } = useParams("slug");
   const [blog, setBlog] = useState(null);
-  console.log("blog:", blog);
+  // console.log("blog:", blog);
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
 

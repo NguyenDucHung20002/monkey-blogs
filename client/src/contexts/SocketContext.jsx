@@ -9,7 +9,7 @@ import {
 } from "react";
 import { io } from "socket.io-client";
 import { useAuth } from "./auth-context";
-import { apiGetNotification } from "../api/api";
+import { apiGetNotification, apiMarkAsReadNotification } from "../api/api";
 
 const SocketContext = createContext();
 // eslint-disable-next-line react-refresh/only-export-components
@@ -21,14 +21,30 @@ export function SocketProvider({ children }) {
   const [socket, setSocket] = useState(null);
   const [error, setError] = useState(null);
   const [notifications, setNotifications] = useState([]);
+  const [countUnRead, setCountUnRead] = useState(0);
   const { userInfo } = useAuth();
   const token = localStorage.getItem("token");
   const [hasRunOne, setHasRunOne] = useState(false);
 
+  useEffect(() => {
+    if (notifications) {
+      let count = 0;
+      notifications.forEach((notify) => {
+        if (!notify.isReaded) count++;
+      });
+      setCountUnRead(count);
+    }
+  }, [notifications]);
+
   const fetchNotification = useCallback(async () => {
-    const profileUser = await apiGetNotification(token);
-    setNotifications(profileUser);
+    const notificationResponse = await apiGetNotification(token);
+    setNotifications(notificationResponse);
   }, [token]);
+
+  const handleReadNotify = useCallback(async () => {
+    await apiMarkAsReadNotification();
+    fetchNotification(token);
+  }, []);
 
   useEffect(() => {
     if (!token) return;
@@ -39,7 +55,7 @@ export function SocketProvider({ children }) {
     return () => {
       newSocket.disconnect();
     };
-  }, [fetchNotification, token]);
+  }, [token]);
 
   useEffect(() => {
     const userId = userInfo?.data?.id;
@@ -67,6 +83,8 @@ export function SocketProvider({ children }) {
   const value = {
     socket,
     notifications,
+    countUnRead,
+    handleReadNotify,
   };
   return (
     <SocketContext.Provider value={value}>{children}</SocketContext.Provider>

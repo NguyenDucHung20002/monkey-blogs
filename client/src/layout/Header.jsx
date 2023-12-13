@@ -40,21 +40,12 @@ const Header = memo(() => {
   const { show, setShow, nodeRef } = useClickOutSide("searchMain");
   const token = localStorage.getItem("token");
   const [showSearch, setShowSearch] = useState(false);
-  const { notifications } = useSocket();
-  const refCountNotify = useRef(0);
+  const { notifications, countUnRead, handleReadNotify } = useSocket();
   const {
     show: showNotification,
     setShow: setShowNotification,
     nodeRef: nodeRefNotification,
   } = useClickOutSide("notify");
-
-  useEffect(() => {
-    if (notifications) {
-      notifications.forEach((notify) => {
-        if (!notify.isReaded) refCountNotify.current++;
-      });
-    }
-  }, [notifications]);
 
   const handleSignOut = useCallback(async () => {
     try {
@@ -193,7 +184,7 @@ const Header = memo(() => {
                 <Button
                   kind="secondary"
                   height="40px"
-                  notification={refCountNotify.current + ""}
+                  notification={countUnRead + ""}
                   className=""
                   id="notify"
                   onClick={() => setShowNotification(!showNotification)}
@@ -217,6 +208,7 @@ const Header = memo(() => {
                   <Notify
                     ref={nodeRefNotification}
                     notifications={notifications}
+                    handleReadNotify={handleReadNotify}
                   ></Notify>
                 )}
               </div>

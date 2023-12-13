@@ -353,7 +353,26 @@ const apiGetNotification = async (token) => {
     console.log("error:", error);
   }
 };
-
+const apiMarkAsReadNotification = async () => {
+  try {
+    const res = await axios.patch(
+      `${config.SERVER_HOST}/notification/mark-all-as-readed`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (!res?.data.success) {
+      return null;
+    }
+    return res.data.data;
+  } catch (error) {
+    console.log("error:", error);
+  }
+};
 const apiGetProfile = async (token, username) => {
   try {
     const res = await axios
@@ -798,6 +817,7 @@ export {
   apiGetCommentReplies,
   apiGetMyFollowingTopics,
   apiGetNotification,
+  apiMarkAsReadNotification,
   apiGetProfile,
   apiGetTopics,
   apiGetUserBlogs,
