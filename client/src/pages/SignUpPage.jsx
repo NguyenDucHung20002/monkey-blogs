@@ -102,7 +102,7 @@ const SignUpPage = () => {
             height="45px"
             to={"http://localhost:8080/api/v1/auth/google"}
           >
-            {icons.googleIcon} <span className="ml-2">Sign pn with Google</span>
+            {icons.googleIcon} <span className="ml-2">Sign up with Google</span>
           </Button>
         </div>
       </form>
