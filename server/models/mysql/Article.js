@@ -116,11 +116,11 @@ const Article = sequelize.define(
                 articleId: article.id,
                 content: `Your article ${article.title} has been approved by ${me.role.slug}. You can now view it`,
               }),
+              Profile.increment(
+                { notificationsCount: 1 },
+                { where: { id: article.authorId } }
+              ),
             ]);
-            Profile.increment(
-              { notificationsCount: 1 },
-              { where: { id: article.authorId } }
-            );
           }
 
           if (article.status === "draft") {
@@ -130,11 +130,11 @@ const Article = sequelize.define(
                 articleId: article.id,
                 content: `Your article ${article.title} has been set back to draft by ${me.role.slug}`,
               }),
+              Profile.increment(
+                { notificationsCount: 1 },
+                { where: { id: article.authorId } }
+              ),
             ]);
-            Profile.increment(
-              { notificationsCount: 1 },
-              { where: { id: article.authorId } }
-            );
           }
         }
 
@@ -173,19 +173,19 @@ const Article = sequelize.define(
           })
         );
 
-        if (array.length > 0) {
+        if (array.length === 0) {
           [notification] = await Promise.all([
             Notification.create({
               reciverId: article.authorId,
               articleId: article.id,
               content: `Your article ${article.title} has been approved. You can now view it`,
             }),
+            article.update({ status: "draft" }, { hooks: false }),
+            Profile.increment(
+              { notificationsCount: 1 },
+              { where: { id: article.authorId } }
+            ),
           ]);
-          article.update({ status: "approved" }, { hooks: false });
-          Profile.increment(
-            { notificationsCount: 1 },
-            { where: { id: article.authorId } }
-          );
         } else {
           clarifai(array, async (err, results) => {
             if (err) {
