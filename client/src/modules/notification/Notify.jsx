@@ -8,6 +8,8 @@ import Avatar from "../user/Avatar";
 const Notify = React.forwardRef((props, ref) => {
   const { notifications, handleReadNotify } = props;
   const isMounted = useRef(false);
+  const url = createObjectURL(logo);
+  console.log(url);
   useEffect(() => {
     return () => {
       if (isMounted.current) {

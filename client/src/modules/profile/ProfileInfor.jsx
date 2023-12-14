@@ -1,16 +1,19 @@
 /* eslint-disable react/prop-types */
 import ButtonFollowingUser from "../../components/button/ButtonFollowingUser";
+import Avatar from "../user/Avatar";
 
 // eslint-disable-next-line react/prop-types
-const ProfileInfor =({isBlocked, setShow, user }) => {
+const ProfileInfor = ({ isBlocked, setShow, user }) => {
   return (
     <>
       <div className="mb-8">
-        <div className="w-20 h-20 overflow-hidden rounded-1/2 ">
-          <img className="w-full h-full" src={user?.avatar} alt="" />
-        </div>
+        <Avatar url={user?.avatar} size="large"></Avatar>
         <p className="my-2">{user?.fullname}</p>
-        {user?.followersCount ? <p className="my-2">{user?.followersCount} Follower</p>:""}
+        {user?.followersCount ? (
+          <p className="my-2">{user?.followersCount} Follower</p>
+        ) : (
+          ""
+        )}
         <p className="mb-2">{user?.bio ? user.bio : ""} </p>
         <p className="mb-2">{user?.about ? user.about : ""}</p>
         {user.isMyProfile ? (
@@ -20,12 +23,12 @@ const ProfileInfor =({isBlocked, setShow, user }) => {
           >
             Edit Profile
           </button>
-        ) : !isBlocked ?(
+        ) : !isBlocked ? (
           <div className="flex items-center">
-              <ButtonFollowingUser
-                userId={user.id}
-                initialFollowing={user.isFollowed }
-              />
+            <ButtonFollowingUser
+              userId={user.id}
+              initialFollowing={user.isFollowed}
+            />
             <button className="ml-2 overflow-hidden bg-green-600 w-9 h-9 rounded-1/2">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -43,7 +46,9 @@ const ProfileInfor =({isBlocked, setShow, user }) => {
               </svg>
             </button>
           </div>
-        ):""}
+        ) : (
+          ""
+        )}
       </div>
     </>
   );

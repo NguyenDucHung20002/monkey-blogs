@@ -39,7 +39,7 @@ const apiAddTopic = async (token, name) => {
   }
 };
 
-const apiDeleteArticle = async (token, slug) => {
+const apiDeleteArticle = async (slug) => {
   try {
     const res = await axios
       .delete(`${config.SERVER_HOST}/article/${slug}`, {
@@ -171,7 +171,7 @@ const apiFollowUser = async (userID, token) => {
   return false;
 };
 
-const apiGetAllUser = async (token, limit = "10", skip, search = "") => {
+const apiGetAllUser = async (token, limit = "10", skip = "", search = "") => {
   if (!token) return;
   try {
     const response = await axios.get(
