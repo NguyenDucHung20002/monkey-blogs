@@ -62,7 +62,7 @@ const getPendingReportedUsers = asyncMiddleware(async (req, res, next) => {
   if (skipId && skipCount) {
     whereQuery[Op.or] = [
       { reportsCount: { [Op.lt]: skipCount } },
-      { [Op.and]: [{ reportsCount: skipCount }, { id: { [Op.gt]: skipId } }] },
+      { [Op.and]: [{ reportsCount: skipCount }, { id: { [Op.lt]: skipId } }] },
     ];
   }
 
@@ -89,7 +89,10 @@ const getPendingReportedUsers = asyncMiddleware(async (req, res, next) => {
         where: whereQuery,
       },
     ],
-    order: [[{ model: User, as: "reported" }, "reportsCount", "DESC"]],
+    order: [
+      [{ model: User, as: "reported" }, "reportsCount", "DESC"],
+      [{ model: User, as: "reported" }, "id", "DESC"],
+    ],
     group: ["reportedId"],
     limit: Number(limit) ? Number(limit) : 15,
   });

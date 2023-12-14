@@ -112,7 +112,10 @@ const getPendingReportedArticles = asyncMiddleware(async (req, res, next) => {
         where: whereQuery,
       },
     ],
-    order: [[{ model: Article, as: "article" }, "reportsCount", "DESC"]],
+    order: [
+      [{ model: Article, as: "article" }, "reportsCount", "DESC"],
+      [{ model: Article, as: "article" }, "id", "DESC"],
+    ],
     group: ["articleId"],
     limit: Number(limit) ? Number(limit) : 15,
   });
