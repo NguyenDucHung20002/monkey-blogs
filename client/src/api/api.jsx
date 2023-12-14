@@ -39,7 +39,7 @@ const apiAddTopic = async (token, name) => {
   }
 };
 
-const apiDeleteArticle = async (token, slug) => {
+const apiDeleteArticle = async (slug) => {
   try {
     const res = await axios
       .delete(`${config.SERVER_HOST}/article/${slug}`, {
@@ -171,7 +171,7 @@ const apiFollowUser = async (userID, token) => {
   return false;
 };
 
-const apiGetAllUser = async (token, limit = "10", skip, search = "") => {
+const apiGetAllUser = async (token, limit = "10", skip = "", search = "") => {
   if (!token) return;
   try {
     const response = await axios.get(
@@ -353,7 +353,26 @@ const apiGetNotification = async (token) => {
     console.log("error:", error);
   }
 };
-
+const apiMarkAsReadNotification = async () => {
+  try {
+    const res = await axios.patch(
+      `${config.SERVER_HOST}/notification/mark-all-as-readed`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (!res?.data.success) {
+      return null;
+    }
+    return res.data.data;
+  } catch (error) {
+    console.log("error:", error);
+  }
+};
 const apiGetProfile = async (token, username) => {
   try {
     const res = await axios
@@ -798,6 +817,7 @@ export {
   apiGetCommentReplies,
   apiGetMyFollowingTopics,
   apiGetNotification,
+  apiMarkAsReadNotification,
   apiGetProfile,
   apiGetTopics,
   apiGetUserBlogs,

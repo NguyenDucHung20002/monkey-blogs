@@ -6,6 +6,7 @@ import Swal from "sweetalert2";
 import BlogImage from "../blog/BlogImage";
 import { config } from "../../utils/constants";
 import timeAgo from "../modulesJs/timeAgo";
+import Avatar from "../user/Avatar";
 
 const ProfileBlogs = ({ blogs, user, fetchDeleteArticle }) => {
   const handleDelete = (slug) => {
@@ -63,9 +64,7 @@ const ProfileBlogs = ({ blogs, user, fetchDeleteArticle }) => {
       <div className="flex overflow-hidden border rounded-lg bg-neutral-50 mt-11 border-neutral-50">
         <div className="w-2/4 p-6">
           <div className="flex">
-            <div className="w-6 h-6 overflow-hidden rounded-1/2">
-              <img className="w-full h-full " src={user?.avatar} alt="" />
-            </div>
+            <Avatar url={user?.avatar} size="small"></Avatar>
             <div className="flex items-center justify-between px-2">
               {user?.fullname}
             </div>

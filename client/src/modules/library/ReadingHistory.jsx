@@ -8,6 +8,8 @@ import timeAgo from "../modulesJs/timeAgo";
 import { Link } from "react-router-dom";
 import TopicList from "../topic/TopicList";
 import Swal from "sweetalert2";
+import BlogImage from "../blog/BlogImage";
+import { config } from "../../utils/constants";
 
 const ReadingHistory = () => {
   const [history, setHistory] = useState([]);

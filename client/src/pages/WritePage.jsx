@@ -101,11 +101,10 @@ const WritePage = () => {
       preview,
       banner: image.filename,
     };
-
     async function fetchAddBlog() {
       if (!token) return;
       const response = await apiAddBlog(idDraft, data);
-      if (response.success) {
+      if (response?.success) {
         navigate("/");
       }
     }

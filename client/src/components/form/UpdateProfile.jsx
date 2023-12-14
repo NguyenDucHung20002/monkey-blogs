@@ -8,6 +8,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { apiUpdateProfile } from "../../api/api";
 import { apiDeleteImage, apiUploadCheckImage } from "../../api/apiNew";
 import { config } from "../../utils/constants";
+import Avatar from "../../modules/user/Avatar";
 
 const UpdateProfile = ({ show, setShow, user }) => {
   const [imageSrc, setImageSrc] = useState(null);
@@ -127,7 +128,7 @@ const UpdateProfile = ({ show, setShow, user }) => {
                     onClick={() => document.getElementById("upl").click()}
                     className="upload"
                   >
-                    <img src={imageSrc?.imageUrl} alt="" />
+                    <Avatar url={imageSrc?.imageUrl} size="large"></Avatar>
                   </button>
                 </div>
                 <div className="photo-context">

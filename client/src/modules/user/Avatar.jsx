@@ -1,5 +1,6 @@
 /* eslint-disable react/prop-types */
 import styled, { css } from "styled-components";
+import addUrlToImg from "../modulesJs/addUrlToImg";
 
 const AvatarStyle = styled.div`
   ${(props) =>
@@ -23,8 +24,8 @@ const AvatarStyle = styled.div`
   ${(props) =>
     props.size === "large" &&
     css`
-      height: 65px;
-      width: 65px;
+      height: 80px;
+      width: 80px;
     `};
   .avatar {
     width: 100%;
@@ -36,7 +37,12 @@ const AvatarStyle = styled.div`
 const Avatar = ({ url = "", alt = "", size }) => {
   return (
     <AvatarStyle size={size}>
-      <img className="avatar rounded-1/2" src={url} alt={alt} loading="lazy" />
+      <img
+        className="avatar rounded-1/2"
+        src={addUrlToImg(url)}
+        alt={alt}
+        loading="lazy"
+      />
     </AvatarStyle>
   );
 };

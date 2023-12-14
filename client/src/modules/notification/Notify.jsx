@@ -1,12 +1,21 @@
 /* eslint-disable react/prop-types */
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import timeSince from "../modulesJs/timeAgo";
 import logo from "../../assets/logo.png";
 import Avatar from "../user/Avatar";
 // eslint-disable-next-line react/display-name
 const Notify = React.forwardRef((props, ref) => {
-  const { notifications } = props;
+  const { notifications, handleReadNotify } = props;
+  const isMounted = useRef(false);
+  useEffect(() => {
+    return () => {
+      if (isMounted.current) {
+        handleReadNotify();
+      }
+      isMounted.current = true;
+    };
+  }, []);
   return (
     <div ref={ref} id="notify">
       <div className="absolute top-full right-2 z-auto bg-white">
@@ -27,7 +36,7 @@ const Notify = React.forwardRef((props, ref) => {
                 >
                   <div
                     className={`flex items-center py-2 hover:bg-stone-100  cursor-pointer ${
-                      !val.isReaded && "bg-stone-100"
+                      !val?.isRead && "bg-stone-100"
                     }`}
                   >
                     <div className="m-2">
