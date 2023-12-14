@@ -6,6 +6,7 @@ import { Op } from "sequelize";
 import Role from "../models/mysql/Role.js";
 
 // ==================== report a user ==================== //
+
 const reportAUser = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const user = req.user;
@@ -14,6 +15,8 @@ const reportAUser = asyncMiddleware(async (req, res, next) => {
   if (user.id === me.id) {
     throw ErrorResponse(400, "You can not report yourself");
   }
+
+  if (user.role === 3) throw ErrorResponse(400, "You can not report admin");
 
   const reportUser = await Report_User.findOne({
     where: {
@@ -47,6 +50,7 @@ const reportAUser = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== get list of peding reported users ==================== //
+
 const getPendingReportedUsers = asyncMiddleware(async (req, res, next) => {
   const { skipId, skipCount, limit = 15, search } = req.query;
 
@@ -127,6 +131,7 @@ const getPendingReportedUsers = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== Get pending reports of the user ==================== //
+
 const getPendingReportsOfUser = asyncMiddleware(async (req, res, next) => {
   const { skip, limit = 15 } = req.query;
   const { id } = req.params;
@@ -171,6 +176,7 @@ const getPendingReportsOfUser = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== Get resolved reports ==================== //
+
 const getResolvedReports = asyncMiddleware(async (req, res, next) => {
   const { skip, limit = 15 } = req.query;
 
@@ -223,6 +229,7 @@ const getResolvedReports = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== Mark all reports of the user as resolved ==================== //
+
 const markAllResolved = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const user = req.user;
@@ -242,6 +249,7 @@ const markAllResolved = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== Mark a report of the user as resolved ==================== //
+
 const markAReportAsResolved = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { id } = req.params;

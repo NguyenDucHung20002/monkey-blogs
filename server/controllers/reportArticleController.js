@@ -8,6 +8,7 @@ import Article from "../models/mysql/Article.js";
 import Profile from "../models/mysql/Profile.js";
 
 // ==================== report an article ==================== //
+
 const reportAnArticle = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { id } = req.params;
@@ -53,6 +54,7 @@ const reportAnArticle = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== get list of peding reported articles ==================== //
+
 const getPendingReportedArticles = asyncMiddleware(async (req, res, next) => {
   const { skipId, skipCount, limit = 15 } = req.query;
   const me = req.me;
@@ -138,6 +140,7 @@ const getPendingReportedArticles = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== Get pending reports of article ==================== //
+
 const getPendingReportsOfArticle = asyncMiddleware(async (req, res, next) => {
   const { skip, limit = 15 } = req.query;
   const { id } = req.params;
@@ -182,6 +185,7 @@ const getPendingReportsOfArticle = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== Mark a report of the article as resolved ==================== //
+
 const markAReportAsResolved = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { id } = req.params;
@@ -205,6 +209,7 @@ const markAReportAsResolved = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== Mark all reports of the article as resolved ==================== //
+
 const markAllResolved = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { id } = req.params;
@@ -228,6 +233,7 @@ const markAllResolved = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== Get resolved reports ==================== //
+
 const getResolvedReports = asyncMiddleware(async (req, res, next) => {
   const { skip, limit = 15 } = req.query;
 

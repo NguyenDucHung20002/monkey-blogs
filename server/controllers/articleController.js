@@ -1359,7 +1359,7 @@ const approveArticle = asyncMiddleware(async (req, res, next) => {
 
   if (!article) throw ErrorResponse(404, "Article not found");
 
-  if (aritlce.status === "approved") {
+  if (article.status === "approved") {
     throw ErrorResponse(400, "Article already approved");
   }
 
