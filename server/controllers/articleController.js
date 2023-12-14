@@ -1099,17 +1099,19 @@ const getAllArticles = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { skip, limit = 15, search, option } = req.query;
 
-  let whereQuery = { status: { [Op.notIn]: ["pending", "draft"] } };
+  let whereQuery = {
+    [Op.and]: [
+      { status: { [Op.notIn]: ["pending", "draft"] } },
+      { authorId: { [Op.ne]: me.profileInfo.id } },
+    ],
+  };
 
-  if (skip) whereQuery.id = { [Op.lt]: skip };
+  if (skip) {
+    whereQuery[Op.and].push({ id: { [Op.lt]: skip } });
+  }
 
   if (option) {
-    whereQuery = {
-      ...whereQuery,
-      status: {
-        [Op.and]: [{ [Op.notIn]: ["pending", "draft"] }, option],
-      },
-    };
+    whereQuery[Op.and].push({ status: { [Op.eq]: option } });
   }
 
   if (search) {
