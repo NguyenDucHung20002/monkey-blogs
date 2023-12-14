@@ -86,13 +86,13 @@ const WritePage = () => {
 
   const handleAddBlog = (values) => {
     if (!isValid) return;
-    if (!image) {
-      toast.error("Please fill out your image title!", {
-        pauseOnHover: false,
-        delay: 500,
-      });
-      return;
-    }
+    // if (!image) {
+    //   toast.error("Please fill out your image title!", {
+    //     pauseOnHover: false,
+    //     delay: 500,
+    //   });
+    //   return;
+    // }
     const { preview } = values;
     const topicNames = topics.map((val) => val.name);
     const idDraft = newDraft?.draftId;
@@ -139,7 +139,6 @@ const WritePage = () => {
     setIsSaved(false);
     const encoder = new TextEncoder();
     const byteSize = encoder.encode(content).length;
-    console.log(byteSize);
     if (byteSize >= 30000) {
       return;
     }

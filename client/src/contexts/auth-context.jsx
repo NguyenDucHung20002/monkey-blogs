@@ -31,7 +31,7 @@ const AuthProvider = React.memo((props) => {
     if (!token) return;
     try {
       const response = await axios.get(
-        `${config.SERVER_HOST}/profile/login-profile`,
+        `${config.SERVER_HOST}/profile/logged-in-profile-information`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

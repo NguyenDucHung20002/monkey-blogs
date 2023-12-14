@@ -10,7 +10,7 @@ const FollowingUserHandle = ({ data = {}, initialFollowing = false }) => {
     <div className="flex items-center justify-between">
       <div className="flex items-center ">
         <Link to={`/profile/${username}`}>
-          <Avatar className="cursor-pointer" size="small" url={avatar} />
+          <Avatar size="small" url={avatar} />
         </Link>
         <div className="py-3 pr-5 ml-2 ">
           <Link to={`/profile/${username}`}>

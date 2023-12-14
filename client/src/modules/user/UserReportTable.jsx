@@ -6,7 +6,6 @@ import { Tag, Table, Popover, Drawer } from "antd";
 import Column from "antd/es/table/Column";
 import { apiBanUser, apiLiftTheBan, apiUpdateBan } from "../../api/api";
 import { toast } from "react-toastify";
-import Button from "../../components/button/Button";
 import {
   apiGetPendingReportUsers,
   apiResolveReportedAllUsers,
@@ -19,15 +18,16 @@ const UserReportTable = () => {
   const [statusRender, setStatusRender] = useState(false);
   const banTypes = ["1week", "1month", "1year", "permanent"];
   const skip = useRef("");
+  const skipCount = useRef("");
   const [open, setOpen] = useState(false);
   const [userReportedId, setUserReportedId] = useState("");
 
   useEffect(() => {
     async function fetchUsers() {
-      const response = await apiGetPendingReportUsers(token, 10, "");
-      console.log("response:", response);
+      const response = await apiGetPendingReportUsers(token);
       if (response) {
         skip.current = response.newSkipId;
+        skipCount.current = response.newSkipCount;
         const mapUsers = response.data.map((user) => {
           return {
             ...user,
@@ -42,22 +42,28 @@ const UserReportTable = () => {
     fetchUsers();
   }, [statusRender, token]);
 
-  const handleLoadMore = async () => {
-    const newSkip = skip.current;
-    const response = await apiGetPendingReportUsers(token, 10, newSkip);
-    if (response) {
-      console.log("response:", response);
-      const mapUsers = response.data.map((user) => {
-        return {
-          ...user,
-          key: user.id,
-        };
-      });
-      setUsers([...users, ...mapUsers]);
-      skip.current = response.newSkipId;
-    }
-    return [];
-  };
+  // const handleLoadMore = async () => {
+  //   const newSkip = skip.current;
+  //   const newSkipCount = skipCount.current;
+  //   const response = await apiGetPendingReportUsers(
+  //     token,
+  //     2,
+  //     newSkip,
+  //     newSkipCount
+  //   );
+  //   if (response) {
+  //     const mapUsers = response.data.map((user) => {
+  //       return {
+  //         ...user,
+  //         key: user.id,
+  //       };
+  //     });
+  //     setUsers([...users, ...mapUsers]);
+  //     skip.current = response.newSkipId;
+  //     skipCount.current = response.newSkipCount;
+  //   }
+  //   return [];
+  // };
 
   const handleLiftTheBan = async (userId) => {
     const response = await apiLiftTheBan(token, userId);
@@ -278,13 +284,13 @@ const UserReportTable = () => {
         </Drawer>
       )}
 
-      {users && users.length > 0 && (
+      {/* {users && users.length > 0 && (
         <div className="flex justify-center mt-5" onClick={handleLoadMore}>
           <Button type="button" kind="primary" height="40px">
             Load more
           </Button>
         </div>
-      )}
+      )} */}
     </div>
   );
 };

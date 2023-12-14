@@ -6,16 +6,17 @@ const UserReportsContent = ({ reason, description }) => {
 
   return (
     <div>
-      <p className="mb-2 text-base font-medium">
-        Reason: <span className="text-gray-400">{reason}</span>{" "}
+      <p className="mb-2 text-sm font-medium">
+        Reason: <span className="text-gray-600">{reason}</span>{" "}
       </p>
       {description && (
         <p
-          className={`mt-3 content font-medium text-base ${
+          className={`mt-3 content font-medium text-sm ${
             !showMore && "line-clamp-2"
           }`}
         >
-          Description: <span className="text-gray-400">{description}</span>
+          Description:{" "}
+          <span className="text-sm text-gray-600">{description}</span>
         </p>
       )}
 

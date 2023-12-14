@@ -5,15 +5,16 @@ import {
   apiGetReportedUsers,
   apiResolveReportedUsers,
 } from "../../api/apisHung";
-import Avatar from "./Avatar";
 import { NavLink } from "react-router-dom";
 import useTimeAgo from "../../hooks/useTimeAgo";
 import UserReportsContent from "./UserReportsContent";
 import Button from "../../components/button/Button";
+import { Tag } from "antd";
 
 const UserModelReportReason = ({ id, token }) => {
   console.log("id:", id);
   const [users, setUsers] = useState([]);
+  console.log("users:", users);
   const getTimeAgo = useTimeAgo;
   const skip = useRef("");
   useEffect(() => {
@@ -45,18 +46,22 @@ const UserModelReportReason = ({ id, token }) => {
         users.map((user) => (
           <div key={user.id} className="pb-2 mb-2 border-b border-gray-200">
             <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-4 info">
-                <NavLink to={`/profile/${user.reporter.username}`}>
-                  <Avatar url={user.reporter.avatar} size="medium"></Avatar>
-                </NavLink>
-                <div>
+              <div>
+                <div className="flex items-center gap-4 info">
                   <NavLink to={`/profile/${user.reporter.username}`}>
-                    <p className="font-medium">{user.reporter.username}</p>
+                    <p className="font-medium text-base">
+                      {user.reporter.username}
+                    </p>
                   </NavLink>
-                  <p className="font-medium text-gray-400">
-                    {getTimeAgo(user.createdAt)}
-                  </p>
+                  {user.reporter.role.name === "User" ? (
+                    <Tag color="green">{user.reporter.role.name}</Tag>
+                  ) : (
+                    <Tag color="red">{user.reporter.role.name}</Tag>
+                  )}
                 </div>
+                <p className="font-medium text-gray-400">
+                  {getTimeAgo(user.createdAt)}
+                </p>
               </div>
               <Button
                 type="button"

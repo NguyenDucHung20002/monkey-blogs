@@ -2,11 +2,11 @@ import axios from "axios";
 import { config } from "../utils/constants";
 import { toast } from "react-toastify";
 
-const apiGetPendingReportUsers = async (token, limit = 10, skipCount) => {
+const apiGetPendingReportUsers = async (token) => {
   if (!token) return null;
   try {
     const response = await axios.get(
-      `${config.SERVER_HOST}/report-user/pending?limit=${limit}&skipCount=${skipCount}`,
+      `${config.SERVER_HOST}/report-user/pending`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
