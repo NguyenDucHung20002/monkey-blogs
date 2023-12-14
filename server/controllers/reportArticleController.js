@@ -55,6 +55,7 @@ const reportAnArticle = asyncMiddleware(async (req, res, next) => {
 // ==================== get list of peding reported articles ==================== //
 const getPendingReportedArticles = asyncMiddleware(async (req, res, next) => {
   const { skipId, skipCount, limit = 15 } = req.query;
+  const me = req.me;
 
   let whereQuery = {};
 
@@ -80,6 +81,7 @@ const getPendingReportedArticles = asyncMiddleware(async (req, res, next) => {
           "rejectsCount",
           "status",
         ],
+        where: { authorId: { [Op.ne]: me.profileInfo.id } },
         include: [
           {
             model: Profile,

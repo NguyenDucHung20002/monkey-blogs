@@ -274,8 +274,6 @@ module.exports = {
       data.push({
         articleId: faker.number.int({ min: 1, max: 15 }),
         topicId: faker.number.int({ min: 1, max: 15 }),
-        createdAt: new Date(),
-        updatedAt: new Date(),
       });
     }
 
