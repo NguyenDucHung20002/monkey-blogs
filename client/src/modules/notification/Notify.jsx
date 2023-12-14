@@ -8,8 +8,6 @@ import Avatar from "../user/Avatar";
 const Notify = React.forwardRef((props, ref) => {
   const { notifications, handleReadNotify } = props;
   const isMounted = useRef(false);
-  const url = createObjectURL(logo);
-  console.log(url);
   useEffect(() => {
     return () => {
       if (isMounted.current) {
@@ -38,7 +36,7 @@ const Notify = React.forwardRef((props, ref) => {
                 >
                   <div
                     className={`flex items-center py-2 hover:bg-stone-100  cursor-pointer ${
-                      !val.isReaded && "bg-stone-100"
+                      !val?.isRead && "bg-stone-100"
                     }`}
                   >
                     <div className="m-2">

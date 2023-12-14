@@ -6,6 +6,8 @@ const addUrlToImg = (img) => {
   }
   if (img.startsWith("https://") || img.startsWith("http://")) {
     img;
+  } else if (img.includes("assets")) {
+    img;
   } else {
     img = `${config.SERVER_HOST}/file/${img}`;
   }

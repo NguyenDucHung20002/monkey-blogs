@@ -30,7 +30,7 @@ export function SocketProvider({ children }) {
     if (notifications) {
       let count = 0;
       notifications.forEach((notify) => {
-        if (!notify.isReaded) count++;
+        if (!notify?.isRead) count++;
       });
       setCountUnRead(count);
     }
