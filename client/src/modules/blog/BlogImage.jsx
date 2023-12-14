@@ -2,6 +2,7 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 import styled, { css } from "styled-components";
+import addUrlToImg from "../modulesJs/addUrlToImg";
 const BlogImageStyles = styled.div`
   max-width: 120px;
   width: 100%;
@@ -32,7 +33,7 @@ const BlogImage = ({ className = "", url = "", alt = "", to = "", kind }) => {
     return (
       <NavLink to={to} style={{ display: "block" }}>
         <BlogImageStyles className={`post-image ${className}`} kind={kind}>
-          <img src={url} alt={alt} loading="lazy" />
+          <img src={addUrlToImg(url)} alt={alt} loading="lazy" />
         </BlogImageStyles>
       </NavLink>
     );

@@ -148,7 +148,7 @@ const ProfileBlogs = ({ blogs, user, fetchDeleteArticle }) => {
             <div className="ml-14">
               <BlogImage
                 className="flex-shrink-0"
-                url={`${config.SERVER_HOST}/file/${val.banner}`}
+                url={val.banner}
                 alt=""
                 to={`/blog/${val.slug}`}
               ></BlogImage>
