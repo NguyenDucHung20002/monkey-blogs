@@ -10,6 +10,7 @@ import toUpperCase from "../utils/toUpperCase.js";
 import sequelize from "../databases/mysql/connect.js";
 
 // ==================== create topic ==================== //
+
 const createTopic = asyncMiddleware(async (req, res, next) => {
   const { name } = req.body;
 
@@ -23,7 +24,7 @@ const createTopic = asyncMiddleware(async (req, res, next) => {
 
   const upperCaseName = toUpperCase(name);
 
-  await Topic.create({ name: upperCaseName, slug });
+  await Topic.create({ name: upperCaseName, slug, status: "approved" });
 
   res.status(201).json({
     success: true,
@@ -32,6 +33,7 @@ const createTopic = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== update topic ==================== //
+
 const updateTopic = asyncMiddleware(async (req, res, next) => {
   const { id } = req.params;
   const { name } = req.body;
@@ -39,6 +41,10 @@ const updateTopic = asyncMiddleware(async (req, res, next) => {
   const existingTopic = await Topic.findByPk(id);
 
   if (!existingTopic) throw ErrorResponse(404, "Topic not found");
+
+  if (existingTopic.status !== "approved") {
+    throw ErrorResponse(400, "Topic need to be approved before update");
+  }
 
   const updatedSlug = toSlug(name);
 
@@ -58,6 +64,7 @@ const updateTopic = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== delete topic ==================== //
+
 const deleteTopic = asyncMiddleware(async (req, res, next) => {
   const { id } = req.params;
 
@@ -67,6 +74,7 @@ const deleteTopic = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== get a topic ==================== //
+
 const getATopic = asyncMiddleware(async (req, res, next) => {
   const me = req.me ? req.me : null;
   const { slug } = req.params;
@@ -91,6 +99,7 @@ const getATopic = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== get all topics ==================== //
+
 const getAllTopics = asyncMiddleware(async (req, res, next) => {
   const { skip, limit = 15, search } = req.query;
 
@@ -119,6 +128,7 @@ const getAllTopics = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== mark topic as approved ==================== //
+
 const martTopicAsApproved = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { id } = req.params;
@@ -140,6 +150,7 @@ const martTopicAsApproved = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== search for topics during create article ==================== //
+
 const searchTopicsCreateArticle = asyncMiddleware(async (req, res, next) => {
   const { skip = 0, limit = 15, search } = req.query;
 
@@ -166,6 +177,7 @@ const searchTopicsCreateArticle = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== explore all topics ==================== //
+
 const exploreAllTopics = asyncMiddleware(async (req, res, next) => {
   const { skip = 0, limit = 15 } = req.query;
 
@@ -181,6 +193,7 @@ const exploreAllTopics = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== recommended topics ==================== //
+
 const recommendedTopics = asyncMiddleware(async (req, res, next) => {
   const { max = 8 } = req.query;
   const me = req.me;
@@ -215,7 +228,7 @@ const recommendedTopics = asyncMiddleware(async (req, res, next) => {
       )
     ) AS CombinedResults ON t.id = CombinedResults.topicId
     LEFT JOIN follow_topics AS ft ON t.id = ft.topicId AND ft.profileId = ${me.profileInfo.id}
-    WHERE ft.id IS NULL AND CombinedResults.topicId IS NOT NULL
+    WHERE ft.id IS NULL AND CombinedResults.topicId IS NOT NULL AND t.status = "approved"
     GROUP BY t.id, t.name, t.slug, t.followersCount
     ORDER BY COALESCE(SUM(topicCount), 0) DESC
     LIMIT ${max};
@@ -229,6 +242,7 @@ const recommendedTopics = asyncMiddleware(async (req, res, next) => {
       where: {
         id: { [Op.notIn]: recommendedTopicsId },
         "$followTopic.topicId$": null,
+        status: "approved",
       },
       attributes: {
         exclude: ["approvedById", "status", "createdAt", "updatedAt"],

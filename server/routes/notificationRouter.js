@@ -5,6 +5,8 @@ import fetchMe from "../middlewares/fetchMe.js";
 
 const router = express.Router();
 
+// -------------------- get notifications -------------------- //
+
 router.get(
   "/me",
   requiredAuth,
@@ -12,12 +14,16 @@ router.get(
   notificationController.getNotifications
 );
 
+// -------------------- mark all as readed -------------------- //
+
 router.patch(
   "/mark-all-as-readed",
   requiredAuth,
   fetchMe,
   notificationController.martAllAsReaded
 );
+
+// -------------------- mark as readed -------------------- //
 
 router.patch(
   "/mark-as-readed/:id",

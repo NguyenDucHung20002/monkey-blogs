@@ -5,6 +5,8 @@ import readingHistoryController from "../controllers/readingHistoryController.js
 
 const router = express.Router();
 
+// -------------------- delete article from reading history -------------------- //
+
 router.delete(
   "/:id",
   requiredAuth,
@@ -12,12 +14,16 @@ router.delete(
   readingHistoryController.deleteAnArticleInHistory
 );
 
+// -------------------- clear my reading history -------------------- //
+
 router.delete(
   "/me/clear",
   requiredAuth,
   fetchMe,
   readingHistoryController.clearMyReadingHistory
 );
+
+// -------------------- get my reading history -------------------- //
 
 router.get(
   "/me",

@@ -100,6 +100,44 @@ const Article = sequelize.define(
     paranoid: true,
     hooks: {
       afterUpdate: async (article, options) => {
+        const me = options.me ? options.me : null;
+
+        const io = socket.getIO();
+
+        const recivers = await SocketUser.find({ userId: article.authorId });
+
+        let notification;
+
+        if (me) {
+          if (article.status === "approved" && approvedById === me.id) {
+            [notification] = await Promise.all([
+              Notification.create({
+                reciverId: article.authorId,
+                articleId: article.id,
+                content: `Your article ${article.title} has been approved by ${me.role.slug}. You can now view it`,
+              }),
+            ]);
+            Profile.increment(
+              { notificationsCount: 1 },
+              { where: { id: article.authorId } }
+            );
+          }
+
+          if (article.status === "draft") {
+            [notification] = await Promise.all([
+              Notification.create({
+                reciverId: article.authorId,
+                articleId: article.id,
+                content: `Your article ${article.title} has been set back to draft by ${me.role.slug}`,
+              }),
+            ]);
+            Profile.increment(
+              { notificationsCount: 1 },
+              { where: { id: article.authorId } }
+            );
+          }
+        }
+
         const imgsName = extractImg(article.content);
 
         imgsName.push(article.banner);
@@ -113,7 +151,7 @@ const Article = sequelize.define(
             const files = await gfs.find({ filename: imgName }).toArray();
 
             if (!files || !files.length) {
-              console.log(`Image not found: ${imgName}`);
+              return;
             }
 
             const readStream = gfs.openDownloadStreamByName(imgName);
@@ -135,69 +173,146 @@ const Article = sequelize.define(
           })
         );
 
-        clarifai(array, async (err, results) => {
-          if (err) {
-            console.log(err);
-            return;
-          }
-
-          const nsfwFound = Boolean(
-            results.some((data) =>
-              data.some((val) => "nsfw" in val && val.nsfw > 0.55)
-            )
-          );
-
-          const io = socket.getIO();
-
-          const [recivers, notification] = await Promise.all([
-            SocketUser.find({ userId: article.authorId }),
+        if (array.length > 0) {
+          [notification] = await Promise.all([
             Notification.create({
               reciverId: article.authorId,
-              articleId: nsfwFound ? null : article.id,
-              content: nsfwFound
-                ? "We've detected explicit content in your article, which is not allowed. Our team will investigate. Please be patient"
-                : "Your article has been approved. You can now view it",
+              articleId: article.id,
+              content: `Your article ${article.title} has been approved. You can now view it`,
             }),
-            article.update(
-              {
-                status: nsfwFound ? "rejected" : "approved",
-                rejectedCount: nsfwFound
-                  ? article.rejectedCount + 1
-                  : article.rejectedCount,
-              },
-              { hooks: false }
-            ),
-            Profile.increment(
-              { unReadNotificationsCount: 1 },
-              { where: { id: article.authorId } }
-            ),
           ]);
+          article.update({ status: "approved" }, { hooks: false });
+          Profile.increment(
+            { notificationsCount: 1 },
+            { where: { id: article.authorId } }
+          );
+        } else {
+          clarifai(array, async (err, results) => {
+            if (err) {
+              return;
+            }
 
-          if (recivers.length > 0) {
-            const message = nsfwFound
-              ? {
-                  id: notification.id,
-                  content: notification.content,
-                  createdAt: notification.createdAt,
-                  updatedAt: notification.updatedAt,
-                }
-              : {
-                  id: notification.id,
-                  article: {
-                    id: article.id,
-                    title: article.title,
-                    slug: article.slug,
-                  },
-                  content: notification.content,
-                  createdAt: notification.createdAt,
-                  updatedAt: notification.updatedAt,
-                };
+            const nsfwFound = Boolean(
+              results.some((data) =>
+                data.some((val) => "nsfw" in val && val.nsfw > 0.55)
+              )
+            );
 
-            recivers.forEach((reciver) => {
-              io.to(reciver.socketId).emit(env.SOCKET_LISTENING_EVENT, message);
-            });
-          }
-        });
+            [notification] = await Promise.all([
+              Notification.create({
+                reciverId: article.authorId,
+                articleId: nsfwFound ? null : article.id,
+                content: nsfwFound
+                  ? `Explicit content detected in your article ${article.title}. Investigation underway. Thank you for your patience`
+                  : `Your article ${article.title} has been approved. You can now view it`,
+              }),
+              article.update(
+                {
+                  status: nsfwFound ? "rejected" : "approved",
+                  rejectedCount: nsfwFound
+                    ? article.rejectedCount + 1
+                    : article.rejectedCount,
+                },
+                { hooks: false }
+              ),
+              Profile.increment(
+                { notificationsCount: 1 },
+                { where: { id: article.authorId } }
+              ),
+            ]);
+          });
+        }
+
+        if (recivers.length > 0) {
+          const message = notification.articleId
+            ? {
+                id: notification.id,
+                article: {
+                  id: article.id,
+                  title: article.title,
+                  slug: article.slug,
+                },
+                content: notification.content,
+                createdAt: notification.createdAt,
+                updatedAt: notification.updatedAt,
+              }
+            : {
+                id: notification.id,
+                content: notification.content,
+                createdAt: notification.createdAt,
+                updatedAt: notification.updatedAt,
+              };
+
+          recivers.forEach((reciver) => {
+            io.to(reciver.socketId).emit(env.SOCKET_LISTENING_EVENT, message);
+          });
+        }
+      },
+
+      afterDestroy: async (article, options) => {
+        const me = options.me;
+
+        const io = socket.getIO();
+
+        const [recivers, notification] = await Promise.all([
+          SocketUser.find({ userId: article.authorId }),
+          Notification.create({
+            reciverId: article.authorId,
+            content: `Your article ${article.title} was removed by ${me.role.name} for violation of the rules`,
+          }),
+          Profile.increment(
+            { notificationsCount: 1 },
+            { where: { id: article.authorId } }
+          ),
+        ]);
+
+        if (recivers.length > 0) {
+          const message = {
+            id: notification.id,
+            content: notification.content,
+            createdAt: notification.createdAt,
+            updatedAt: notification.updatedAt,
+          };
+
+          recivers.forEach((reciver) => {
+            io.to(reciver.socketId).emit(env.SOCKET_LISTENING_EVENT, message);
+          });
+        }
+      },
+
+      afterRestore: async (article, options) => {
+        const me = options.me;
+        const io = socket.getIO();
+
+        const [recivers, notification] = await Promise.all([
+          SocketUser.find({ userId: article.authorId }),
+          Notification.create({
+            reciverId: article.authorId,
+            content: `Your article ${article.title} has been restored by ${me.role.name}`,
+          }),
+          Profile.increment(
+            { notificationsCount: 1 },
+            { where: { id: article.authorId } }
+          ),
+        ]);
+
+        if (recivers.length > 0) {
+          const message = {
+            id: notification.id,
+            article: {
+              id: article.id,
+              title: article.title,
+              slug: article.slug,
+            },
+            content: notification.content,
+            createdAt: notification.createdAt,
+            updatedAt: notification.updatedAt,
+          };
+
+          recivers.forEach((reciver) => {
+            io.to(reciver.socketId).emit(env.SOCKET_LISTENING_EVENT, message);
+          });
+        }
       },
     },
   }

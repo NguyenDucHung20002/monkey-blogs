@@ -4,6 +4,7 @@ import asyncMiddleware from "../middlewares/asyncMiddleware.js";
 import clarifai from "../services/clarifai.js";
 
 // ==================== upload an image ==================== //
+
 const upLoadAnImg = asyncMiddleware(async (req, res, next) => {
   res.status(201).json({
     success: true,
@@ -13,6 +14,7 @@ const upLoadAnImg = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== upload an avatar ==================== //
+
 const upLoadAnAvatar = asyncMiddleware(async (req, res, next) => {
   const filename = req.file?.filename;
 
@@ -57,6 +59,7 @@ const upLoadAnAvatar = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== get an image ==================== //
+
 const getAnImg = asyncMiddleware(async (req, res, next) => {
   const { filename } = req.params;
 
@@ -72,6 +75,7 @@ const getAnImg = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== detete an image ==================== //
+
 const deleteAnImg = asyncMiddleware(async (req, res, next) => {
   const { filename } = req.params;
 
@@ -89,6 +93,7 @@ const deleteAnImg = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== auto remove image ==================== //
+
 const autoRemoveImg = async (filename) => {
   const gfs = MongoDB.gfs;
 

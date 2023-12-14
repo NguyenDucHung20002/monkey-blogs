@@ -5,29 +5,24 @@ import Profile from "../models/mysql/Profile.js";
 import User from "../models/mysql/User.js";
 import ErrorResponse from "../responses/ErrorResponse.js";
 import addUrlToImg from "../utils/addUrlToImg.js";
-import Follow_Profile from "../models/mysql/Follow_Profile.js";
-import Mute from "../models/mysql/Mute.js";
-import Reading_List from "../models/mysql/Reading_List.js";
-import Reading_History from "../models/mysql/Reading_History.js";
 
 // ==================== block a profile ==================== //
+
 const blockAProfile = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const user = req.user;
 
   if (user.profileInfo.id === me.profileInfo.id) {
-    throw ErrorResponse(400, "Bad Request: Cannot block your own profile");
+    throw ErrorResponse(400, "Cannot block your own profile");
   }
 
   if (user.role.slug === "admin" || user.role.slug === "staff") {
-    throw ErrorResponse(400, `Cannot block ${user.role.slug}`);
+    throw ErrorResponse(400, `Cannot block ${user.role.name}`);
   }
 
-  const [blocks] = await Promise.all([
-    Block.findOne({
-      where: { blockedId: user.profileInfo.id, blockerId: me.profileInfo.id },
-    }),
-  ]);
+  const blocks = await Block.findOne({
+    where: { blockedId: user.profileInfo.id, blockerId: me.profileInfo.id },
+  });
 
   if (!blocks) {
     await Block.create(
@@ -43,12 +38,13 @@ const blockAProfile = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== unblock a profile ==================== //
+
 const unBlockAProfile = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const user = req.user;
 
   if (user.profileInfo.id === me.profileInfo.id) {
-    throw ErrorResponse(400, "Bad Request: cannot unblock your own profile");
+    throw ErrorResponse(400, "Cannot unblock your own profile");
   }
 
   const blocks = await Block.findOne({
@@ -64,6 +60,7 @@ const unBlockAProfile = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== get list of blockd profiles ==================== //
+
 const getBlockedProfiles = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { skip = 0, limit = 15 } = req.query;

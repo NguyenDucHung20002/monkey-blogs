@@ -20,7 +20,7 @@ const fetchUser = async (req, res, next) => {
     }
 
     const user = await User.findOne({
-      where: { [Op.or]: [{ id: userId }, { username }] },
+      where: { [Op.or]: [{ id: userId }, { username }], isVerified: true },
       attributes: ["status", "bannedUntil", "id", "username"],
       include: [
         {

@@ -10,6 +10,8 @@ import checkUserBanned from "../middlewares/checkUserBanned.js";
 
 const router = express.Router();
 
+// -------------------- get pending reported users -------------------- //
+
 router.get(
   "/pending",
   requiredAuth,
@@ -18,6 +20,8 @@ router.get(
   reportUserController.getPendingReportedUsers
 );
 
+// -------------------- get resolved reports -------------------- //
+
 router.get(
   "/resolved",
   requiredAuth,
@@ -25,6 +29,8 @@ router.get(
   authorize("admin"),
   reportUserController.getResolvedReports
 );
+
+// -------------------- report a user -------------------- //
 
 router.post(
   "/:id",
@@ -37,6 +43,8 @@ router.post(
   reportUserController.reportAUser
 );
 
+// -------------------- get pending reports of user -------------------- //
+
 router.get(
   "/:id/pending",
   requiredAuth,
@@ -44,6 +52,8 @@ router.get(
   authorize("staff", "admin"),
   reportUserController.getPendingReportsOfUser
 );
+
+// -------------------- mark all resolved -------------------- //
 
 router.patch(
   "/:id",
@@ -53,6 +63,8 @@ router.patch(
   fetchUser,
   reportUserController.markAllResolved
 );
+
+// -------------------- mark a report as resolved -------------------- //
 
 router.patch(
   "/report/:id/resolve",

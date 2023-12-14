@@ -217,6 +217,7 @@ const search = asyncMiddleware(async (req, res, next) => {
             { fullname: { [Op.substring]: users } },
             { "$userInfo.username$": { [Op.substring]: users } },
           ],
+          isVerified: true,
         },
         attributes: ["id", "fullname", "avatar", "bio"],
         include: {
@@ -250,6 +251,7 @@ const search = asyncMiddleware(async (req, res, next) => {
           ],
           "$profileBlocker.blockerId$": null,
           "$profileBlocked.blockedId$": null,
+          isVerified: true,
         },
         attributes: ["id", "fullname", "avatar", "bio"],
         include: [

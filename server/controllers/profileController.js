@@ -9,6 +9,7 @@ import Profile from "../models/mysql/Profile.js";
 import JsonWebToken from "../models/mongodb/JsonWebToken.js";
 
 // ==================== get logged in profile information ==================== //
+
 const getLoggedInProfile = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
 
@@ -23,6 +24,7 @@ const getLoggedInProfile = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== setup profile ==================== //
+
 const setupProfile = asyncMiddleware(async (req, res, next) => {
   const { id: myUserId, iat, exp } = req.jwtPayLoad;
   const { avatar, fullname } = req.body;
@@ -43,6 +45,7 @@ const setupProfile = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== get profile ==================== //
+
 const getProfile = asyncMiddleware(async (req, res, next) => {
   const user = req.user;
   const me = req.me ? req.me : null;
@@ -87,6 +90,7 @@ const getProfile = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== update my profile ==================== //
+
 const updateMyProfile = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { fullname, bio, about, avatar } = req.body;

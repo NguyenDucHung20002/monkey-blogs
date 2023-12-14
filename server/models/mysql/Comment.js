@@ -62,6 +62,8 @@ const Comment = sequelize.define(
         const isAuthor = options.isAuthor;
         const parentComment = options.parentComment;
 
+        await article.increment({ commentsCount: 1 });
+
         let notificationData = {};
 
         if (
@@ -100,10 +102,9 @@ const Comment = sequelize.define(
           Notification.create(notificationData),
           SocketUser.find({ userId: notificationData.reciverId }),
           Profile.increment(
-            { unReadNotificationsCount: 1 },
+            { notificationsCount: 1 },
             { where: { id: notificationData.reciverId } }
           ),
-          article.increment({ commentsCount: 1 }),
         ]);
 
         if (recivers && recivers.length > 0) {
@@ -116,6 +117,7 @@ const Comment = sequelize.define(
               fullname: me.profileInfo.fullname,
               avatar: addUrlToImg(me.profileInfo.avatar),
               username: me.username,
+              role: me.role.slug,
             },
             article: {
               id: article.id,

@@ -13,10 +13,6 @@ const generateOAuthAccessToken = async () => {
 
   const accessToken = await OAuth2Client.getAccessToken();
 
-  if (!accessToken) {
-    throw new Error("Failed to retrieve OAuth access token");
-  }
-
   return accessToken;
 };
 

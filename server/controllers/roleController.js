@@ -3,6 +3,7 @@ import asyncMiddleware from "../middlewares/asyncMiddleware.js";
 import User from "../models/mysql/User.js";
 
 // ==================== make a user staff ==================== //
+
 const makeUserStaff = asyncMiddleware(async (req, res, next) => {
   const user = req.user;
 
@@ -10,11 +11,12 @@ const makeUserStaff = asyncMiddleware(async (req, res, next) => {
 
   res.json({
     success: true,
-    message: `Make ${user.username} staff successfully`,
+    message: `Make ${user.profileInfo.fullname} staff successfully`,
   });
 });
 
 // ==================== make a user user ==================== //
+
 const makeUserUser = asyncMiddleware(async (req, res, next) => {
   const user = req.user;
 
@@ -22,11 +24,12 @@ const makeUserUser = asyncMiddleware(async (req, res, next) => {
 
   res.json({
     success: true,
-    message: `Make ${user.username} user successfully`,
+    message: `Make ${user.profileInfo.fullname} user successfully`,
   });
 });
 
 // ==================== get all staffs ==================== //
+
 const getAllStaffs = asyncMiddleware(async (req, res, next) => {
   const { skip = 0, limit = 15, search } = req.query;
 
@@ -43,7 +46,7 @@ const getAllStaffs = asyncMiddleware(async (req, res, next) => {
 
   const staffs = await User.findAll({
     where: whereQuery,
-    attributes: { exclude: ["roleId"] },
+    attributes: { exclude: ["roleId", "isVerified", "password"] },
     limit: Number(limit) ? Number(limit) : 15,
   });
 

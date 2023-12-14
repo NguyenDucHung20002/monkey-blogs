@@ -5,6 +5,7 @@ import Reading_History from "../models/mysql/Reading_History.js";
 import addUrlToImg from "../utils/addUrlToImg.js";
 
 // ==================== delete an article in reading history ==================== //
+
 const deleteAnArticleInHistory = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { id } = req.params;
@@ -20,6 +21,7 @@ const deleteAnArticleInHistory = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== clear my history reading ==================== //
+
 const clearMyReadingHistory = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
 
@@ -32,6 +34,7 @@ const clearMyReadingHistory = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== get history reading ==================== //
+
 const getMyReadingHistory = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { skip, limit = 15 } = req.query;

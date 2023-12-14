@@ -4,8 +4,10 @@ import User from "../models/mysql/User.js";
 import ErrorResponse from "../responses/ErrorResponse.js";
 import Role from "../models/mysql/Role.js";
 import hashPassword from "../utils/hashPassword.js";
+import bcrypt from "bcryptjs";
 
 // ==================== ban a user ==================== //
+
 const banAUser = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const user = req.user;
@@ -42,11 +44,12 @@ const banAUser = asyncMiddleware(async (req, res, next) => {
 
   res.status(201).json({
     success: true,
-    message: `${user.username} has been banned`,
+    message: `${user.profileInfo.fullname} has been banned`,
   });
 });
 
 // ==================== update user ban ==================== //
+
 const updateUserBan = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const user = req.user;
@@ -82,11 +85,12 @@ const updateUserBan = asyncMiddleware(async (req, res, next) => {
 
   res.json({
     success: true,
-    message: `Update ${user.username} ban successfully`,
+    message: `Update ${user.profileInfo.fullname} ban successfully`,
   });
 });
 
 // ==================== unban a user ==================== //
+
 const unBanAUser = asyncMiddleware(async (req, res, next) => {
   const user = req.user;
 
@@ -100,15 +104,21 @@ const unBanAUser = asyncMiddleware(async (req, res, next) => {
 
   res.json({
     success: true,
-    message: `${user.username} has been unbanned`,
+    message: `${user.profileInfo.fullname} has been unbanned`,
   });
 });
 
 // ==================== get all users ==================== //
+
 const getAllUsers = asyncMiddleware(async (req, res, next) => {
+  const me = req.me;
   const { skip = 0, limit = 15, search } = req.query;
 
-  let whereQuery = { id: { [Op.gt]: skip }, roleId: 1 };
+  let whereQuery = {
+    id: { [Op.and]: [{ [Op.gt]: skip }, { [Op.ne]: me.profileInfo.id }] },
+    roleId: 1,
+    isVerified: true,
+  };
 
   if (search) {
     whereQuery[Op.or] = [
@@ -119,12 +129,20 @@ const getAllUsers = asyncMiddleware(async (req, res, next) => {
 
   const users = await User.findAll({
     where: whereQuery,
-    attributes: { exclude: ["roleId", "bannedById", "reportsCount"] },
+    attributes: {
+      exclude: [
+        "roleId",
+        "bannedById",
+        "reportsCount",
+        "isVerified",
+        "password",
+      ],
+    },
     include: {
       model: User,
       as: "bannedBy",
-      attributes: ["email", "username"],
-      include: { model: Role, as: "role", attributes: ["name", "slug"] },
+      attributes: ["id", "email", "username"],
+      include: { model: Role, as: "role", attributes: ["id", "name", "slug"] },
     },
     limit: Number(limit) ? Number(limit) : 15,
     order: [["reportsCount", "DESC"]],
@@ -136,14 +154,11 @@ const getAllUsers = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== change password ==================== //
+
 const changePassword = asyncMiddleware(async (req, res, next) => {
-  const userId = req.jwtPayLoad.id;
+  const me = req.me;
 
-  const user = await User.findByPk(userId);
-
-  if (!user) throw ErrorResponse(404, "User not found");
-
-  if (!user.password) {
+  if (!me.password) {
     throw ErrorResponse(400, "You have not setup password for this account");
   }
 
@@ -159,7 +174,7 @@ const changePassword = asyncMiddleware(async (req, res, next) => {
 
   const hashedPassword = hashPassword(newPassword);
 
-  await user.update({ password: hashedPassword });
+  await me.update({ password: hashedPassword });
 
   res.json({ success: true, message: "Password changed successfully" });
 });

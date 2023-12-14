@@ -8,7 +8,11 @@ import checkBlockedByUser from "../middlewares/checBlockedByUser.js";
 
 const router = express.Router();
 
+// -------------------- get muted profiles -------------------- //
+
 router.get("/me", requiredAuth, fetchMe, muteController.getMutedProfiles);
+
+// -------------------- mute a profile -------------------- //
 
 router.post(
   "/:id",
@@ -19,6 +23,8 @@ router.post(
   checkBlockedByUser,
   muteController.muteAProfile
 );
+
+// -------------------- unmute a profile -------------------- //
 
 router.delete(
   "/:id",

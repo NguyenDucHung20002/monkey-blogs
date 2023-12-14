@@ -23,6 +23,7 @@ import replaceImgUrlsWithNames from "../utils/replaceImgUrlsWithNames.js";
 import replaceImgNamesWithUrls from "../utils/replaceImgNamesWithUrls.js";
 
 // ==================== create draft ==================== //
+
 const createADraft = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { title, content } = req.body;
@@ -44,6 +45,7 @@ const createADraft = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== update draft ==================== //
+
 const updateADraft = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { id } = req.params;
@@ -66,6 +68,7 @@ const updateADraft = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== delete draft ==================== //
+
 const deleteADraft = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { id } = req.params;
@@ -82,12 +85,13 @@ const deleteADraft = asyncMiddleware(async (req, res, next) => {
     fileController.autoRemoveImg(img);
   });
 
-  await draft.destroy({ force: true });
+  await draft.destroy({ force: true }, { hooks: false });
 
   res.json({ success: true, message: "Draft deleted successfully" });
 });
 
 // ==================== get an article or a draft to edit ==================== //
+
 const getAnArticleOrADraftToEdit = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { id } = req.params;
@@ -131,6 +135,7 @@ const getAnArticleOrADraftToEdit = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== get my draft ==================== //
+
 const getMyDrafts = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { skip, limit = 15 } = req.query;
@@ -155,6 +160,7 @@ const getMyDrafts = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== create article ==================== //
+
 const createArticle = asyncMiddleware(async (req, res, next) => {
   const { id } = req.params;
   const me = req.me;
@@ -190,6 +196,7 @@ const createArticle = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== update article ==================== //
+
 const updateArticle = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { id } = req.params;
@@ -239,6 +246,7 @@ const updateArticle = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== delete article ==================== //
+
 const deleteArticle = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { id } = req.params;
@@ -253,12 +261,13 @@ const deleteArticle = asyncMiddleware(async (req, res, next) => {
     fileController.autoRemoveImg(img);
   });
 
-  await article.destroy({ force: true });
+  await article.destroy({ force: true }, { hooks: false });
 
   res.json({ success: true, message: "Article deleted successfully" });
 });
 
 // ==================== get profile articles ==================== //
+
 const getProfileArticles = asyncMiddleware(async (req, res, next) => {
   const me = req.me ? req.me : null;
   const user = req.user;
@@ -398,6 +407,7 @@ const getProfileArticles = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== get an article ==================== //
+
 const getAnArticle = asyncMiddleware(async (req, res, next) => {
   const { slug } = req.params;
   const me = req.me ? req.me : null;
@@ -509,6 +519,7 @@ const getAnArticle = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== get followed profiles articles ==================== //
+
 const getFollowedProfilesArticles = asyncMiddleware(async (req, res, next) => {
   const { skip, limit = 15 } = req.query;
   const me = req.me;
@@ -608,6 +619,7 @@ const getFollowedProfilesArticles = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== get followed topic articles ==================== //
+
 const getFollowedTopicArticles = asyncMiddleware(async (req, res, next) => {
   const { skip, limit = 15 } = req.query;
   const { slug } = req.params;
@@ -697,6 +709,7 @@ const getFollowedTopicArticles = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== explore new articles ==================== //
+
 const exploreNewArticles = asyncMiddleware(async (req, res, next) => {
   const { skip, limit = 15 } = req.query;
   const me = req.me;
@@ -834,6 +847,7 @@ const exploreNewArticles = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== admin pick ==================== //
+
 const adminPick = asyncMiddleware(async (req, res, next) => {
   const { limit = 3 } = req.query;
   const me = req.me;
@@ -934,6 +948,7 @@ const adminPick = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== admin pick full list ==================== //
+
 const adminPickFullList = asyncMiddleware(async (req, res, next) => {
   const { skip, limit = 15 } = req.query;
   const me = req.me;
@@ -1079,6 +1094,7 @@ const adminPickFullList = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== get all articles ==================== //
+
 const getAllArticles = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { skip, limit = 15, search, option } = req.query;
@@ -1149,6 +1165,7 @@ const getAllArticles = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== topic articles ==================== //
+
 const getTopicArticles = asyncMiddleware(async (req, res, next) => {
   const { skip, limit = 15 } = req.query;
   const { slug } = req.params;
@@ -1313,11 +1330,12 @@ const getTopicArticles = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== set article back to draft ==================== //
+
 const setArticleBackToDraft = asyncMiddleware(async (req, res, next) => {
   const { id } = req.params;
 
   const article = await Article.findOne({
-    where: { id, status: { [Op.ne]: "draft" } },
+    where: { id, status: { [Op.notIn]: ["draft", "pending"] } },
   });
 
   if (!article) throw ErrorResponse(404, "Article not found");
@@ -1327,25 +1345,71 @@ const setArticleBackToDraft = asyncMiddleware(async (req, res, next) => {
   res.json({ success: true, message: "Set article back to draft" });
 });
 
+// ==================== approve article ==================== //
+
+const approveArticle = asyncMiddleware(async (req, res, next) => {
+  const { id } = req.params;
+  const me = req.me;
+
+  const article = await Article.findOne({
+    where: { id, status: { [Op.notIn]: ["draft", "pending"] } },
+  });
+
+  if (!article) throw ErrorResponse(404, "Article not found");
+
+  if (aritlce.status === "approved") {
+    throw ErrorResponse(400, "Article already approved");
+  }
+
+  await article.update({ status: "approved", approvedById: me.id }, { me: me });
+
+  res.json({ success: true, message: "Article approved successfully" });
+});
+
 // ==================== remove article ==================== //
+
 const removeArticle = asyncMiddleware(async (req, res, next) => {
   const { id } = req.params;
   const me = req.me;
 
   const article = await Article.findOne({
-    where: { id, status: { [Op.ne]: "draft" } },
+    where: { id, status: { [Op.notIn]: ["draft", "pending"] } },
   });
 
   if (!article) throw ErrorResponse(404, "Article not found");
 
   await article.update({ deletedById: me.id }, { hooks: false });
 
-  await article.destroy();
+  await article.destroy({ me: me });
 
-  res.json({ success: true, message: "Remove article successfully" });
+  res.json({ success: true, message: "Article removed successfully" });
 });
 
-// ==================== remove article ==================== //
+// ==================== restore article ==================== //
+
+const restoreArticle = asyncMiddleware(async (req, res, next) => {
+  const { id } = req.params;
+  const me = req.me;
+
+  const article = await Article.findOne({
+    where: {
+      id,
+      status: { [Op.notIn]: ["draft", "pending"] },
+    },
+    paranoid: false,
+  });
+
+  if (!article) throw ErrorResponse(404, "Article not found");
+
+  await article.update({ deletedById: null }, { hooks: false });
+
+  await article.restore({ me: me });
+
+  res.json({ success: true, message: "Article restored successfully" });
+});
+
+// ==================== get removed articles ==================== //
+
 const getRemovedArticles = asyncMiddleware(async (req, res, next) => {
   const { skip, limit = 15 } = req.query;
 
@@ -1427,4 +1491,6 @@ export default {
   setArticleBackToDraft,
   removeArticle,
   getRemovedArticles,
+  approveArticle,
+  restoreArticle,
 };

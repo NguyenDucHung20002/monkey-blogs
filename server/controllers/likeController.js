@@ -11,6 +11,7 @@ import Follow_Profile from "../models/mysql/Follow_Profile.js";
 import Role from "../models/mysql/Role.js";
 
 // ==================== like an article ==================== //
+
 const likeAnArticle = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { id } = req.params;
@@ -20,7 +21,7 @@ const likeAnArticle = asyncMiddleware(async (req, res, next) => {
   if (!article) throw ErrorResponse(404, "Article not found");
 
   if (article.authorId === me.profileInfo.id) {
-    throw ErrorResponse(400, "Bad Request: cannot like you own article");
+    throw ErrorResponse(400, "Cannot like you own article");
   }
 
   const like = await Like.findOne({
@@ -38,6 +39,7 @@ const likeAnArticle = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== unlike an article ==================== //
+
 const unLikeAnArticle = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { id } = req.params;
@@ -58,6 +60,7 @@ const unLikeAnArticle = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== get an article likers ==================== //
+
 const getArticleLiker = asyncMiddleware(async (req, res, next) => {
   const me = req.me ? req.me : null;
   const { skip = 0, limit = 15 } = req.query;
@@ -67,9 +70,7 @@ const getArticleLiker = asyncMiddleware(async (req, res, next) => {
 
   if (!article) throw ErrorResponse(404, "Article not found");
 
-  let likeProfiles;
-
-  let likers;
+  let likers, likeProfiles;
 
   if (!me) {
     likeProfiles = await Like.findAll({

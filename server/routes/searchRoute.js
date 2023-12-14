@@ -5,6 +5,8 @@ import fetchMe from "../middlewares/fetchMe.js";
 
 const router = express.Router();
 
+// -------------------- search -------------------- //
+
 router.get("/", optinalAuth, fetchMe, searchController.search);
 
 export default router;

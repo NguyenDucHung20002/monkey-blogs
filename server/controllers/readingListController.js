@@ -11,6 +11,7 @@ import Article_Topic from "../models/mysql/Article_Topic.js";
 import Role from "../models/mysql/Role.js";
 
 // ==================== add an article to reading list ==================== //
+
 const addToReadingList = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { id } = req.params;
@@ -20,7 +21,7 @@ const addToReadingList = asyncMiddleware(async (req, res, next) => {
   if (!article) throw ErrorResponse(404, "Article not found");
 
   if (article.authorId === me.profileInfo.id) {
-    throw ErrorResponse(400, "Bad Request: Cannot add you own article");
+    throw ErrorResponse(400, "Cannot add you own article");
   }
 
   const readingList = await Reading_List.findOne({
@@ -41,6 +42,7 @@ const addToReadingList = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== remove an article from reading list ==================== //
+
 const removeFromReadingList = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { id } = req.params;
@@ -56,6 +58,7 @@ const removeFromReadingList = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== get my reading list ==================== //
+
 const getMyReadingList = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { skip, limit = 15 } = req.query;
@@ -148,6 +151,7 @@ const getMyReadingList = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== get my recently saved ==================== //
+
 const getMyRecentlySaved = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
 

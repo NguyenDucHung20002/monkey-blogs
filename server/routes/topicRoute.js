@@ -9,6 +9,8 @@ import fetchMe from "../middlewares/fetchMe.js";
 
 const router = express.Router();
 
+// -------------------- create topic -------------------- //
+
 router.post(
   "/",
   requiredAuth,
@@ -18,6 +20,8 @@ router.post(
   topicController.createTopic
 );
 
+// -------------------- get all topics -------------------- //
+
 router.get(
   "/",
   requiredAuth,
@@ -26,6 +30,8 @@ router.get(
   topicController.getAllTopics
 );
 
+// -------------------- search for topics during create article -------------------- //
+
 router.get(
   "/create-article",
   requiredAuth,
@@ -33,7 +39,11 @@ router.get(
   topicController.searchTopicsCreateArticle
 );
 
+// -------------------- explore topics -------------------- //
+
 router.get("/explore-topics", topicController.exploreAllTopics);
+
+// -------------------- recommended topics -------------------- //
 
 router.get(
   "/recommended-topics",
@@ -41,6 +51,8 @@ router.get(
   fetchMe,
   topicController.recommendedTopics
 );
+
+// -------------------- update topic -------------------- //
 
 router.patch(
   "/:id",
@@ -66,6 +78,8 @@ router.patch(
   authorize("admin", "staff"),
   topicController.martTopicAsApproved
 );
+
+// -------------------- get a topic -------------------- //
 
 router.get("/:slug", optionalAuth, fetchMe, topicController.getATopic);
 

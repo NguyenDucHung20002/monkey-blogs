@@ -5,6 +5,8 @@ import fetchMe from "../middlewares/fetchMe.js";
 
 const router = express.Router();
 
+// -------------------- get my followed topics -------------------- //
+
 router.get(
   "/me",
   requiredAuth,
@@ -12,7 +14,11 @@ router.get(
   followTopicController.getMyFollowedTopics
 );
 
+// -------------------- follow a topic -------------------- //
+
 router.post("/:id", requiredAuth, fetchMe, followTopicController.followATopic);
+
+// -------------------- unfollow a topic -------------------- //
 
 router.delete(
   "/:id",

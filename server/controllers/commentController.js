@@ -10,6 +10,7 @@ import { Op } from "sequelize";
 import Role from "../models/mysql/Role.js";
 
 // ==================== add comment ==================== //
+
 const createComment = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { id } = req.params;
@@ -19,36 +20,35 @@ const createComment = asyncMiddleware(async (req, res, next) => {
 
   if (!article) throw ErrorResponse(404, "Article not found");
 
-  const isAuthor = me.profileInfo.id === article.authorId;
+  const parentComment = parentCommentId
+    ? await Comment.findByPk(parentCommentId)
+    : null;
 
-  let newCommentData = {
-    articleId: article.id,
-    authorId: me.profileInfo.id,
-    content,
-  };
+  if (parentCommentId && !parentComment) {
+    throw ErrorResponse(404, "Comment not found");
+  }
 
-  let parentComment;
-
-  if (parentCommentId) {
-    parentComment = await Comment.findByPk(parentCommentId);
-
-    if (!parentComment) throw ErrorResponse(404, "Comment not found");
-
-    newCommentData = {
-      ...newCommentData,
-      parentCommentId,
-      depth: parentComment.depth + 1,
-    };
-
+  if (parentComment) {
     await parentComment.increment({ repliesCount: 1 });
   }
 
-  const newComment = await Comment.create(newCommentData, {
-    me: me,
-    article: article,
-    isAuthor: isAuthor,
-    parentComment: parentComment,
-  });
+  const isAuthor = me.profileInfo.id === article.authorId;
+
+  const newComment = await Comment.create(
+    {
+      articleId: article.id,
+      authorId: me.profileInfo.id,
+      parentCommentId: parentCommentId ? parentComment.id : null,
+      depth: parentCommentId ? parentComment.depth + 1 : 1,
+      content,
+    },
+    {
+      me: me,
+      article: article,
+      isAuthor: isAuthor,
+      parentComment: parentComment,
+    }
+  );
 
   return res.status(201).json({
     success: true,
@@ -72,6 +72,7 @@ const createComment = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== update comment ==================== //
+
 const updateComment = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { id } = req.params;
@@ -89,6 +90,7 @@ const updateComment = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== delete comment ==================== //
+
 const deleteComment = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { id } = req.params;
@@ -133,6 +135,7 @@ const deleteComment = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== get article main comments ==================== //
+
 const getMainComments = asyncMiddleware(async (req, res, next) => {
   const me = req.me ? req.me : null;
   const { id } = req.params;
@@ -260,6 +263,7 @@ const getMainComments = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== get article nested comments of main comment ==================== //
+
 const getNestedComments = asyncMiddleware(async (req, res, next) => {
   const me = req.me ? req.me : null;
   const { id } = req.params;

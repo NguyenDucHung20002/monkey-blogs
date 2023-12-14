@@ -9,12 +9,16 @@ import checkBlockedByUser from "../middlewares/checBlockedByUser.js";
 
 const router = express.Router();
 
+// -------------------- who to follow -------------------- //
+
 router.get(
   "/who-to-follow",
   requiredAuth,
   fetchMe,
   followProfileController.whoToFollow
 );
+
+// -------------------- follow a profile -------------------- //
 
 router.post(
   "/:id",
@@ -26,6 +30,8 @@ router.post(
   followProfileController.followAProfile
 );
 
+// -------------------- unfollow a profile -------------------- //
+
 router.delete(
   "/:id",
   requiredAuth,
@@ -33,6 +39,8 @@ router.delete(
   fetchUser,
   followProfileController.unFollowAProfile
 );
+
+// -------------------- get list of followed profiles -------------------- //
 
 router.get(
   "/:username/following",
@@ -43,6 +51,8 @@ router.get(
   checkBlockedByUser,
   followProfileController.getFolloweds
 );
+
+// -------------------- get list of follower profiles -------------------- //
 
 router.get(
   "/:username/followers",

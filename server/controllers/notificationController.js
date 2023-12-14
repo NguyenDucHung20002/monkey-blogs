@@ -7,6 +7,8 @@ import { Op } from "sequelize";
 import ErrorResponse from "../responses/ErrorResponse.js";
 import Article from "../models/mysql/Article.js";
 
+// ==================== get notifications ==================== //
+
 const getNotifications = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { skip, limit = 15 } = req.query;
@@ -40,7 +42,7 @@ const getNotifications = asyncMiddleware(async (req, res, next) => {
       order: [["id", "DESC"]],
       limit: Number(limit) ? Number(limit) : 15,
     }),
-    me.profileInfo.update({ unReadNotificationsCount: 0 }),
+    me.profileInfo.update({ notificationsCount: 0 }),
   ]);
 
   const newSkip =
@@ -51,25 +53,24 @@ const getNotifications = asyncMiddleware(async (req, res, next) => {
   res.json({
     success: true,
     data: notifications,
-    unReadNotificationsCount: 0,
+    notificationsCount: 0,
     newSkip,
   });
 });
+
+// ==================== mark as readed ==================== //
 
 const markAsReaded = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { id } = req.params;
 
   const notification = await Notification.findOne({
-    where: { id, isReaded: false },
+    where: { id, isRead: false },
   });
 
   if (!notification) throw ErrorResponse(404, "Notification not found");
 
-  await Promise.all([
-    notification.update({ isReaded: true }),
-    me.profileInfo.increment({ unReadNotificationsCount: -1 }),
-  ]);
+  await notification.update({ isRead: true });
 
   res.json({
     success: true,
@@ -77,17 +78,15 @@ const markAsReaded = asyncMiddleware(async (req, res, next) => {
   });
 });
 
+// ==================== mark all as readed ==================== //
+
 const martAllAsReaded = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
 
-  const markAsReadedNotifications = await Notification.update(
-    { isReaded: true },
-    { where: { reciverId: me.profileInfo.id, isReaded: false } }
+  await Notification.update(
+    { isRead: true },
+    { where: { reciverId: me.profileInfo.id, isRead: false } }
   );
-
-  await me.profileInfo.increment({
-    unReadNotificationsCount: -markAsReadedNotifications,
-  });
 
   res.json({
     success: true,

@@ -9,12 +9,17 @@ import fetchUser from "../middlewares/fetchUser.js";
 
 const router = express.Router();
 
+// -------------------- change password -------------------- //
+
 router.patch(
   "/me/change-password",
   requiredAuth,
+  fetchMe,
   validator(userSchema.changePasswordSchema),
   userController.changePassword
 );
+
+// -------------------- get all users -------------------- //
 
 router.get(
   "/",
@@ -23,6 +28,8 @@ router.get(
   authorize("staff", "admin"),
   userController.getAllUsers
 );
+
+// -------------------- ban a user -------------------- //
 
 router.patch(
   "/ban/:id",
@@ -34,6 +41,8 @@ router.patch(
   userController.banAUser
 );
 
+// -------------------- unban a user -------------------- //
+
 router.patch(
   "/unban/:id",
   requiredAuth,
@@ -42,6 +51,8 @@ router.patch(
   fetchUser,
   userController.unBanAUser
 );
+
+// -------------------- update user ban -------------------- //
 
 router.patch(
   "/update-ban/:id",

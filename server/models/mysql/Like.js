@@ -47,7 +47,7 @@ const Like = sequelize.define(
             content: `${me.profileInfo.fullname} liked your article ${article.title}`,
           }),
           Profile.increment(
-            { unReadNotificationsCount: 1 },
+            { notificationsCount: 1 },
             { where: { id: article.authorId } }
           ),
           article.increment({ likesCount: 1 }),

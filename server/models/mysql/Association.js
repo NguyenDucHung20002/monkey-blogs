@@ -288,17 +288,17 @@ Reading_List.belongsTo(Profile, {
 
 // ==================== Notification ==================== //
 
-// Profile - Profile
-Profile.belongsToMany(Profile, {
-  through: Notification,
-  foreignKey: "senderId",
-  as: "recivers",
-});
-Profile.belongsToMany(Profile, {
-  through: Notification,
-  foreignKey: "reciverId",
-  as: "senders",
-});
+// // Profile - Profile
+// Profile.belongsToMany(Profile, {
+//   through: Notification,
+//   foreignKey: "senderId",
+//   as: "recivers",
+// });
+// Profile.belongsToMany(Profile, {
+//   through: Notification,
+//   foreignKey: "reciverId",
+//   as: "senders",
+// });
 
 // Notification - Profile
 Notification.belongsTo(Profile, {

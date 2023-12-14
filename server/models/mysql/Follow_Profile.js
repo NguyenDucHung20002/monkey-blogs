@@ -46,7 +46,7 @@ const Follow_Profile = sequelize.define(
           me.profileInfo.increment({ followingCount: 1 }),
           user.profileInfo.increment({
             followersCount: 1,
-            unReadNotificationsCount: 1,
+            notificationsCount: 1,
           }),
         ]);
 
@@ -58,6 +58,7 @@ const Follow_Profile = sequelize.define(
               fullname: me.profileInfo.fullname,
               avatar: addUrlToImg(me.profileInfo.avatar),
               username: me.username,
+              role: me.role.slug,
             },
             content: notification.content,
             createdAt: notification.createdAt,
@@ -71,6 +72,7 @@ const Follow_Profile = sequelize.define(
           });
         }
       },
+
       afterDestroy: async (follow_profile, options) => {
         const me = options.me;
         const user = options.user;

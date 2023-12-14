@@ -8,6 +8,8 @@ import commentSchema from "../validations/commentSchema.js";
 
 const router = express.Router();
 
+// -------------------- create comment -------------------- //
+
 router.post(
   "/:id",
   requiredAuth,
@@ -15,6 +17,8 @@ router.post(
   validator(commentSchema.createCommentSchema),
   commentController.createComment
 );
+
+// -------------------- update comment -------------------- //
 
 router.patch(
   "/:id",
@@ -24,9 +28,15 @@ router.patch(
   commentController.updateComment
 );
 
+// -------------------- delete comment -------------------- //
+
 router.delete("/:id", requiredAuth, fetchMe, commentController.deleteComment);
 
+// -------------------- get main comments -------------------- //
+
 router.get("/:id", optinalAuth, fetchMe, commentController.getMainComments);
+
+// -------------------- get replies comments -------------------- //
 
 router.get(
   "/:id/replies",

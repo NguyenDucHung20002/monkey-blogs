@@ -10,12 +10,13 @@ import Role from "../models/mysql/Role.js";
 import sequelize from "../databases/mysql/connect.js";
 
 // ==================== follow a profile ==================== //
+
 const followAProfile = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const user = req.user;
 
   if (user.profileInfo.id === me.profileInfo.id) {
-    throw ErrorResponse(400, "Bad Request: Cannot follow yourself");
+    throw ErrorResponse(400, "Cannot follow yourself");
   }
 
   const followProfile = await Follow_Profile.findOne({
@@ -39,6 +40,7 @@ const followAProfile = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== unfollow a profile ==================== //
+
 const unFollowAProfile = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const user = req.user;
@@ -62,6 +64,7 @@ const unFollowAProfile = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== get list of followed profiles ==================== //
+
 const getFolloweds = asyncMiddleware(async (req, res, next) => {
   const me = req.me ? req.me : null;
   const user = req.user;
@@ -199,6 +202,7 @@ const getFolloweds = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== get list of follower profiles ==================== //
+
 const getFollowers = asyncMiddleware(async (req, res, next) => {
   const me = req.me ? req.me : null;
   const user = req.user;
@@ -342,6 +346,7 @@ const getFollowers = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== who to follow ==================== //
+
 const whoToFollow = asyncMiddleware(async (req, res, next) => {
   const { max = 5 } = req.query;
   const me = req.me;
@@ -371,7 +376,7 @@ const whoToFollow = asyncMiddleware(async (req, res, next) => {
     JOIN profiles p ON recommendedAuthors.authorId = p.id
     JOIN users u ON p.userId = u.id
     JOIN roles r ON u.roleId = r.id
-    WHERE u.status = 'normal'
+    WHERE u.status = 'normal' and u.isVerified = 'true'
     GROUP BY p.id, p.avatar, p.fullname, u.username, r.slug;
     `,
     { type: sequelize.QueryTypes.SELECT }
@@ -379,6 +384,7 @@ const whoToFollow = asyncMiddleware(async (req, res, next) => {
 
   if (whoToFollow.length < max) {
     const whoToFollowIds = whoToFollow.map((whoToFollow) => whoToFollow.id);
+
     let random = await Profile.findAll({
       where: {
         id: {
@@ -418,7 +424,7 @@ const whoToFollow = asyncMiddleware(async (req, res, next) => {
           model: User,
           as: "userInfo",
           attributes: ["username"],
-          where: { status: "normal" },
+          where: { status: "normal", isVerified: true },
           include: { model: Role, as: "role", attributes: ["slug"] },
         },
       ],

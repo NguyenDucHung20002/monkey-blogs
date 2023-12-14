@@ -8,12 +8,13 @@ import addUrlToImg from "../utils/addUrlToImg.js";
 import Role from "../models/mysql/Role.js";
 
 // ==================== mute a profile ==================== //
+
 const muteAProfile = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const user = req.user;
 
   if (user.profileInfo.id === me.profileInfo.id) {
-    throw ErrorResponse(400, "Bad Request: Cannot mute your own profile");
+    throw ErrorResponse(400, "Cannot mute your own profile");
   }
 
   if (user.role.slug === "admin" || user.role.slug === "staff") {
@@ -38,6 +39,7 @@ const muteAProfile = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== unmute a profile ==================== //
+
 const unMuteAProfile = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const user = req.user;

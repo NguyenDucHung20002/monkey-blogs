@@ -5,6 +5,7 @@ import ErrorResponse from "../responses/ErrorResponse.js";
 import { Op } from "sequelize";
 
 // ==================== follow a topic ==================== //
+
 const followATopic = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { id } = req.params;
@@ -12,8 +13,6 @@ const followATopic = asyncMiddleware(async (req, res, next) => {
   const topic = await Topic.findOne({ where: { id, status: "approved" } });
 
   if (!topic) throw ErrorResponse(404, "Topic not found");
-
-  if (!me.profileInfo) throw ErrorResponse(404, "Profile not found");
 
   const followTopic = await Follow_Topic.findOne({
     where: { topicId: topic.id, profileId: me.profileInfo.id },
@@ -33,6 +32,7 @@ const followATopic = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== unfollow a topic ==================== //
+
 const unFollowATopic = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { id } = req.params;
@@ -41,14 +41,12 @@ const unFollowATopic = asyncMiddleware(async (req, res, next) => {
 
   if (!topic) throw ErrorResponse(404, "Topic not found");
 
-  if (!me.profileInfo) throw ErrorResponse(404, "Profile not found");
-
   const followTopic = await Follow_Topic.findOne({
     where: { topicId: topic.id, profileId: me.profileInfo.id },
   });
 
   if (followTopic) {
-    await followTopic.destroy();
+    await followTopic.destroy({ me: me, topic: topic });
   }
 
   res.json({
@@ -58,6 +56,7 @@ const unFollowATopic = asyncMiddleware(async (req, res, next) => {
 });
 
 // ==================== get my followed topics ==================== //
+
 const getMyFollowedTopics = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { skip = 0, limit = 15 } = req.query;
