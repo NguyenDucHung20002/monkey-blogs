@@ -106,7 +106,7 @@ const Article = sequelize.define(
 
         const recivers = await SocketUser.find({ userId: article.authorId });
 
-        let notification;
+        let notification, message;
 
         if (me) {
           if (article.status === "approved" && approvedById === me.id) {
@@ -121,6 +121,18 @@ const Article = sequelize.define(
                 { where: { id: article.authorId } }
               ),
             ]);
+
+            message = {
+              id: notification.id,
+              article: {
+                id: article.id,
+                title: article.title,
+                slug: article.slug,
+              },
+              content: notification.content,
+              createdAt: notification.createdAt,
+              updatedAt: notification.updatedAt,
+            };
           }
 
           if (article.status === "draft") {
@@ -135,6 +147,13 @@ const Article = sequelize.define(
                 { where: { id: article.authorId } }
               ),
             ]);
+
+            message = {
+              id: notification.id,
+              content: notification.content,
+              createdAt: notification.createdAt,
+              updatedAt: notification.updatedAt,
+            };
           }
         }
 
@@ -186,6 +205,18 @@ const Article = sequelize.define(
               { where: { id: article.authorId } }
             ),
           ]);
+
+          message = {
+            id: notification.id,
+            article: {
+              id: article.id,
+              title: article.title,
+              slug: article.slug,
+            },
+            content: notification.content,
+            createdAt: notification.createdAt,
+            updatedAt: notification.updatedAt,
+          };
         } else {
           clarifai(array, async (err, results) => {
             if (err) {
@@ -220,29 +251,29 @@ const Article = sequelize.define(
                 { where: { id: article.authorId } }
               ),
             ]);
+
+            message = nsfwFound
+              ? {
+                  id: notification.id,
+                  content: notification.content,
+                  createdAt: notification.createdAt,
+                  updatedAt: notification.updatedAt,
+                }
+              : {
+                  id: notification.id,
+                  article: {
+                    id: article.id,
+                    title: article.title,
+                    slug: article.slug,
+                  },
+                  content: notification.content,
+                  createdAt: notification.createdAt,
+                  updatedAt: notification.updatedAt,
+                };
           });
         }
 
         if (recivers.length > 0) {
-          const message = notification.articleId
-            ? {
-                id: notification.id,
-                article: {
-                  id: article.id,
-                  title: article.title,
-                  slug: article.slug,
-                },
-                content: notification.content,
-                createdAt: notification.createdAt,
-                updatedAt: notification.updatedAt,
-              }
-            : {
-                id: notification.id,
-                content: notification.content,
-                createdAt: notification.createdAt,
-                updatedAt: notification.updatedAt,
-              };
-
           recivers.forEach((reciver) => {
             io.to(reciver.socketId).emit(env.SOCKET_LISTENING_EVENT, message);
           });
