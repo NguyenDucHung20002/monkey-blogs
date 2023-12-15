@@ -222,13 +222,27 @@ const updateArticle = asyncMiddleware(async (req, res, next) => {
 
   const updatedSlug = title ? toSlug(title) + "-" + Date.now() : article.slug;
 
-  await article.update({
-    title,
-    preview,
-    slug: updatedSlug,
-    content: replaceImgUrlsWithNames(content),
-    banner,
-  });
+  const operation =
+    me.role.id === 3
+      ? article.update(
+          {
+            title,
+            preview,
+            slug: updatedSlug,
+            content: replaceImgUrlsWithNames(content),
+            banner,
+          },
+          { hooks: false }
+        )
+      : article.update({
+          title,
+          preview,
+          slug: updatedSlug,
+          content: replaceImgUrlsWithNames(content),
+          banner,
+        });
+
+  await operation;
 
   if (topicNames) {
     const data = await Promise.all(

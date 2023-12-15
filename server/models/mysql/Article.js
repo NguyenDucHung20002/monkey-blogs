@@ -199,7 +199,7 @@ const Article = sequelize.define(
               articleId: article.id,
               content: `Your article ${article.title} has been approved. You can now view it`,
             }),
-            article.update({ status: "draft" }, { hooks: false }),
+            article.update({ status: "approved" }, { hooks: false }),
             Profile.increment(
               { notificationsCount: 1 },
               { where: { id: article.authorId } }
