@@ -39,17 +39,14 @@ const apiAddTopic = async (token, name) => {
   }
 };
 
-const apiDeleteArticle = async (token, blogId) => {
+const apiDeleteArticle = async (blogId) => {
   try {
-    const res = await axios.delete(
-      `${config.SERVER_HOST}/article/remove/${blogId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    const res = await axios.delete(`${config.SERVER_HOST}/article/${blogId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
 
     if (!res?.data.success) {
       return false;
@@ -553,13 +550,13 @@ const apiUnFollowUser = async (userID, token) => {
 
 const apiUpdateArticle = async (token, slug, formData) => {
   try {
-    const response = await axios.put(
-      `${config.SERVER_HOST}/article/${slug}`,
+    const response = await axios.patch(
+      `${config.SERVER_HOST}/article/update/${slug}`,
       formData,
       {
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
+          "Content-Type": "application/json",
         },
       }
     );
