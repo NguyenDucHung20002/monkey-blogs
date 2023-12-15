@@ -89,6 +89,7 @@ const getArticleLiker = asyncMiddleware(async (req, res, next) => {
           },
         },
       ],
+      order: [["id", "ASC"]],
       limit: Number(limit) ? Number(limit) : null,
     });
 
@@ -176,6 +177,7 @@ const getArticleLiker = asyncMiddleware(async (req, res, next) => {
           required: false,
         },
       ],
+      order: [["id", "ASC"]],
       limit: Number(limit) ? Number(limit) : null,
     });
 

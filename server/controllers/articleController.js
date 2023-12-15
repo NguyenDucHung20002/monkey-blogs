@@ -172,7 +172,12 @@ const createArticle = asyncMiddleware(async (req, res, next) => {
 
   if (!draft) throw ErrorResponse(404, "Draft not found");
 
-  await draft.update({ banner, preview, status: "pending" });
+  const operation =
+    me.role.id === 3
+      ? draft.update({ banner, preview, status: "approved" }, { hooks: false })
+      : draft.update({ banner, preview, status: "pending" });
+
+  await operation;
 
   if (topicNames) {
     const data = await Promise.all(
@@ -1137,7 +1142,6 @@ const getAllArticles = asyncMiddleware(async (req, res, next) => {
       {
         model: Profile,
         as: "author",
-        where: { id: { [Op.ne]: me.profileInfo.id } },
         attributes: ["id", "fullname"],
         include: {
           model: User,
@@ -1429,6 +1433,7 @@ const getRemovedArticles = asyncMiddleware(async (req, res, next) => {
       "status",
       "reportsCount",
       "rejectsCount",
+      "deletedAt",
     ],
     include: [
       {

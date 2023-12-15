@@ -217,7 +217,6 @@ const search = asyncMiddleware(async (req, res, next) => {
             { fullname: { [Op.substring]: users } },
             { "$userInfo.username$": { [Op.substring]: users } },
           ],
-          isVerified: true,
         },
         attributes: ["id", "fullname", "avatar", "bio"],
         include: {
@@ -225,6 +224,7 @@ const search = asyncMiddleware(async (req, res, next) => {
           as: "userInfo",
           attributes: ["username"],
           include: { model: Role, as: "role", attributes: ["slug"] },
+          isVerified: true,
         },
         limit: Number(limit) ? Number(limit) : 15,
       });
@@ -251,7 +251,6 @@ const search = asyncMiddleware(async (req, res, next) => {
           ],
           "$profileBlocker.blockerId$": null,
           "$profileBlocked.blockedId$": null,
-          isVerified: true,
         },
         attributes: ["id", "fullname", "avatar", "bio"],
         include: [
@@ -274,6 +273,7 @@ const search = asyncMiddleware(async (req, res, next) => {
             as: "userInfo",
             attributes: ["username"],
             include: { model: Role, as: "role", attributes: ["slug"] },
+            isVerified: true,
           },
         ],
         limit: Number(limit) ? Number(limit) : 15,

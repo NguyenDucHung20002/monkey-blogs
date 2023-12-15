@@ -17,12 +17,21 @@ const reportAnArticle = asyncMiddleware(async (req, res, next) => {
   const article = await Article.findOne({
     where: { id, status: "approved" },
     attributes: ["id", "authorid"],
+    include: {
+      model: Profile,
+      as: "author",
+      include: { model: User, as: "userInfo" },
+    },
   });
 
   if (!article) throw ErrorResponse(404, "Article not found");
 
   if (article.authorId === me.profileInfo.id) {
     throw ErrorResponse(400, "You can not report your own article");
+  }
+
+  if (article.author.userInfo.roleId === 3) {
+    throw ErrorResponse(400, "Can't report admin article");
   }
 
   const reportAnArticle = await Report_Article.findOne({

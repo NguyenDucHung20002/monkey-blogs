@@ -109,7 +109,7 @@ const Article = sequelize.define(
         let notification, message;
 
         if (me) {
-          if (article.status === "approved" && approvedById === me.id) {
+          if (article.status === "approved" && article.approvedById === me.id) {
             [notification] = await Promise.all([
               Notification.create({
                 reciverId: article.authorId,

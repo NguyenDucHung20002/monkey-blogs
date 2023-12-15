@@ -16,7 +16,9 @@ const reportAUser = asyncMiddleware(async (req, res, next) => {
     throw ErrorResponse(400, "You can not report yourself");
   }
 
-  if (user.role === 3) throw ErrorResponse(400, "You can not report admin");
+  if (user.role.id === 3) {
+    throw ErrorResponse(400, "You can not report admin");
+  }
 
   const reportUser = await Report_User.findOne({
     where: {
@@ -54,7 +56,7 @@ const reportAUser = asyncMiddleware(async (req, res, next) => {
 const getPendingReportedUsers = asyncMiddleware(async (req, res, next) => {
   const { skipId, skipCount, limit = 15, search } = req.query;
 
-  let whereQuery = {};
+  let whereQuery = { roleId: 1 };
 
   if (search) {
     whereQuery[Op.or] = [

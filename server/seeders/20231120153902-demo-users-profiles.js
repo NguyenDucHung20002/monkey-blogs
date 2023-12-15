@@ -13,6 +13,7 @@ module.exports = {
       const user = {
         username: `@${email.split("@")[0]}`,
         email: email,
+        isVerified: 1,
         createdAt: generateDate(),
         updatedAt: generateDate(),
       };

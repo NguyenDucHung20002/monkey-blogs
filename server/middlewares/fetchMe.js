@@ -22,7 +22,7 @@ const fetchMe = async (req, res, next) => {
           as: "profileInfo",
           attributes: ["id", "fullname", "avatar", "notificationsCount"],
         },
-        { model: Role, as: "role", attributes: ["name", "slug"] },
+        { model: Role, as: "role", attributes: ["id", "name", "slug"] },
       ],
     });
 
@@ -50,6 +50,7 @@ const fetchMe = async (req, res, next) => {
     me.profileInfo.avatar = addUrlToImg(me.profileInfo.avatar);
 
     req.me = me;
+
     next();
   } catch (error) {
     const err = getError(error);
