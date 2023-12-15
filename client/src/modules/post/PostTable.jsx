@@ -10,7 +10,7 @@ import Column from "antd/es/table/Column";
 import { Button } from "../../components/button";
 import { debounce } from "lodash";
 import { icons } from "../../utils/constants";
-import { apiDeleteArticle } from "../../api/api";
+import { apiDeleteAdminArticle } from "../../api/api";
 
 const PostTable = () => {
   const [blogReports, setBlogReports] = useState([]);
@@ -84,7 +84,7 @@ const PostTable = () => {
 
   const handleRemoveArticle = useCallback(
     async (id) => {
-      const response = await apiDeleteArticle(token, id);
+      const response = await apiDeleteAdminArticle(token, id);
       if (response) {
         fetchReports();
       }

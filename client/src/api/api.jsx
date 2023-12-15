@@ -39,7 +39,28 @@ const apiAddTopic = async (token, name) => {
   }
 };
 
-const apiDeleteArticle = async (token, blogId) => {
+const apiDeleteArticle = async (token, slug) => {
+  try {
+    const res = await axios
+      .delete(`${config.SERVER_HOST}/article/${slug}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+    if (!res?.data.success) {
+      return null;
+    }
+    return true;
+  } catch (error) {
+    console.log("error:", error);
+  }
+};
+
+const apiDeleteAdminArticle = async (token, blogId) => {
   try {
     const res = await axios.delete(
       `${config.SERVER_HOST}/article/remove/${blogId}`,
@@ -553,13 +574,13 @@ const apiUnFollowUser = async (userID, token) => {
 
 const apiUpdateArticle = async (token, slug, formData) => {
   try {
-    const response = await axios.put(
-      `${config.SERVER_HOST}/article/${slug}`,
+    const response = await axios.patch(
+      `${config.SERVER_HOST}/article/update/${slug}`,
       formData,
       {
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
+          "Content-Type": "application/json",
         },
       }
     );
@@ -803,6 +824,7 @@ const apiReportUser = async (token, userId, reason, description) => {
 };
 
 export {
+  apiDeleteAdminArticle,
   apiGetTopic,
   apiAddTopic,
   apiAddComment,
