@@ -73,6 +73,8 @@ const deleteADraft = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { id } = req.params;
 
+  console.log("hello world");
+
   const draft = await Article.findOne({
     where: { id, authorId: me.profileInfo.id, status: "draft" },
   });
@@ -85,7 +87,7 @@ const deleteADraft = asyncMiddleware(async (req, res, next) => {
     fileController.autoRemoveImg(img);
   });
 
-  await draft.destroy({ force: true }, { hooks: false });
+  await draft.destroy({ force: true, hooks: false });
 
   res.json({ success: true, message: "Draft deleted successfully" });
 });
@@ -266,7 +268,7 @@ const deleteArticle = asyncMiddleware(async (req, res, next) => {
     fileController.autoRemoveImg(img);
   });
 
-  await article.destroy({ force: true }, { hooks: false });
+  await article.destroy({ force: true, hooks: false });
 
   res.json({ success: true, message: "Article deleted successfully" });
 });
