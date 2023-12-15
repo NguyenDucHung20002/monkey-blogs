@@ -30,7 +30,11 @@ const ActionLike = ({ likesCount = 0, liked, blogId, title }) => {
     await fetchUserLiked();
   };
 
-  const handleCancel = async () => {
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleSeeMore = async () => {
     const newSkip = skip.current;
     const response = await apiGetUserLikedBlogs(token, blogId, 2, newSkip);
     if (response.data && response.newSkip) {
@@ -95,13 +99,14 @@ const ActionLike = ({ likesCount = 0, liked, blogId, title }) => {
       <Modal
         title={`${likeRef.current} person liked ${title}`}
         open={isModalOpen}
+        onCancel={handleCancel}
         footer={
           userLiked &&
           userLiked.length > 0 && (
             <div className="flex justify-center">
               <button
                 className="py-1 px-2 border border-black rounded-2xl mt-5 font-semibold cursor-pointer"
-                onClick={handleCancel}
+                onClick={handleSeeMore}
               >
                 See more Likes
               </button>
@@ -114,6 +119,7 @@ const ActionLike = ({ likesCount = 0, liked, blogId, title }) => {
             userLiked.length > 0 &&
             userLiked.map((user) => (
               <FollowingUserHandle
+                initialFollowing={user.isFollowed}
                 key={user.id}
                 data={user}
               ></FollowingUserHandle>

@@ -1,4 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
+/* eslint-disable react/prop-types */
+import { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useForm, useWatch } from "react-hook-form";
 import * as yup from "yup";
@@ -14,7 +15,6 @@ const UpdateProfile = ({ show, setShow, user }) => {
   const [imageSrc, setImageSrc] = useState(null);
   const [showAnimation, setShowAnimation] = useState(false);
   const token = localStorage.getItem("token");
-  const formData = new FormData();
   const options = {
     pauseOnHover: false,
     delay: 300,
@@ -73,7 +73,6 @@ const UpdateProfile = ({ show, setShow, user }) => {
   const bioValue = useWatch({ control, name: "bio" });
 
   const onSubmitHandeler = async (values) => {
-    console.log(values);
     const { fullname, bio, about } = values;
     let data = { fullname, bio, about };
     if (imageSrc?.avatar) {
@@ -101,7 +100,8 @@ const UpdateProfile = ({ show, setShow, user }) => {
       ? setValue("about", profile?.about)
       : "";
     setImageSrc({ ["imageUrl"]: `${profile?.avatar}` });
-  }, [user]);
+  }, [setValue, user]);
+
   return (
     <>
       <ProfileStyles showAnimation={showAnimation}>
@@ -124,12 +124,14 @@ const UpdateProfile = ({ show, setShow, user }) => {
                     id="upl"
                     // {...register('avatar')}
                   />
-                  <button
-                    onClick={() => document.getElementById("upl").click()}
-                    className="upload"
-                  >
-                    <Avatar url={imageSrc?.imageUrl} size="large"></Avatar>
-                  </button>
+                  {imageSrc?.imageUrl && (
+                    <button
+                      onClick={() => document.getElementById("upl").click()}
+                      className="upload"
+                    >
+                      <Avatar url={imageSrc?.imageUrl} size="large"></Avatar>
+                    </button>
+                  )}
                 </div>
                 <div className="photo-context">
                   <div className="group-btn">

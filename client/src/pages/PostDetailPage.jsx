@@ -89,6 +89,7 @@ const PostDetailPagePageStyle = styled.div`
 const PostDetailPage = () => {
   const { slug } = useParams("slug");
   const [blog, setBlog] = useState(null);
+  console.log("blog:", blog);
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
 
@@ -128,7 +129,7 @@ const PostDetailPage = () => {
               </Link>
               <PostMeta blog={blog}></PostMeta>
             </div>
-            <TopicList data={blog.topics}></TopicList>
+            <TopicList data={blog.articleTopics}></TopicList>
             <div className="py-2 mt-5 border-gray-200 action border-y flex justify-between items-center">
               <div className="flex items-center gap-5 communicate">
                 <ActionLike

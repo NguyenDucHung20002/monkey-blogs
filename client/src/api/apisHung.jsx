@@ -635,13 +635,12 @@ const apiRestoreArticle = async (token, BlogId) => {
 };
 
 const apiGetUserLikedBlogs = async (token, blogId, limit = 2, skip = "") => {
-  console.log("token:", token);
   try {
     const response = await axios.get(
       `${config.SERVER_HOST}/like/${blogId}?limit=${limit}&skip=${skip}`,
       {
         headers: {
-          Authorization: `Bearer ${`eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTAwMSwiaWF0IjoxNzAyNjM5NzI0LCJleHAiOjE3MDI4OTg5MjR9.UFdc1gI1GOqlSmpbuBlIYiV7qklCMRcik4hDsEEYpsA`}`,
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
       }

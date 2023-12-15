@@ -4,11 +4,11 @@ import { Popover } from "antd";
 import TopicList from "../topic/TopicList";
 import Swal from "sweetalert2";
 import BlogImage from "../blog/BlogImage";
-import { config } from "../../utils/constants";
 import timeAgo from "../modulesJs/timeAgo";
 import Avatar from "../user/Avatar";
 
 const ProfileBlogs = ({ blogs, user, fetchDeleteArticle }) => {
+  console.log("blogs:", blogs);
   const handleDelete = (slug) => {
     Swal.fire({
       title: "Are you sure?",
@@ -145,14 +145,16 @@ const ProfileBlogs = ({ blogs, user, fetchDeleteArticle }) => {
                 </div>
               </div>
             </div>
-            <div className="ml-14">
-              <BlogImage
-                className="flex-shrink-0"
-                url={val.banner}
-                alt=""
-                to={`/blog/${val.slug}`}
-              ></BlogImage>
-            </div>
+            {val.banner && (
+              <div className="ml-14">
+                <BlogImage
+                  className="flex-shrink-0"
+                  url={val.banner}
+                  alt=""
+                  to={`/blog/${val.slug}`}
+                ></BlogImage>
+              </div>
+            )}
           </div>
         </div>
       ))}

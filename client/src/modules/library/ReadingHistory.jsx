@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   apiDeleteArticleHistory,
   apiDeleteReadingHistory,
@@ -12,6 +12,7 @@ import BlogImage from "../blog/BlogImage";
 
 const ReadingHistory = () => {
   const [history, setHistory] = useState([]);
+  console.log("history:", history);
   const fetchApiClearHistory = async () => {
     const response = await apiDeleteReadingHistory();
     if (response?.success) {
@@ -34,21 +35,24 @@ const ReadingHistory = () => {
       }
     });
   };
-  const getHistory = async () => {
+  const getHistory = useCallback(async () => {
     const response = await apiGetReadingHistory();
     if (response?.success) {
       setHistory(response.data);
     }
-  };
-  const handleDeleteAnArticle = async (id) => {
-    const response = await apiDeleteArticleHistory(id);
-    if (response?.success) {
-      getHistory();
-    }
-  };
+  }, []);
+  const handleDeleteAnArticle = useCallback(
+    async (id) => {
+      const response = await apiDeleteArticleHistory(id);
+      if (response?.success) {
+        getHistory();
+      }
+    },
+    [getHistory]
+  );
   useEffect(() => {
     getHistory();
-  }, []);
+  }, [getHistory]);
   return (
     <div>
       <div className="rounded-sm text-base flex items-center justify-between w-full py-6 px-4 bg-stone-200">
