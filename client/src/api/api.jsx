@@ -39,38 +39,14 @@ const apiAddTopic = async (token, name) => {
   }
 };
 
-const apiDeleteArticle = async (token, slug) => {
+const apiDeleteArticle = async (blogId) => {
   try {
-    const res = await axios
-      .delete(`${config.SERVER_HOST}/article/${slug}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-    if (!res?.data.success) {
-      return null;
-    }
-    return true;
-  } catch (error) {
-    console.log("error:", error);
-  }
-};
-
-const apiDeleteAdminArticle = async (token, blogId) => {
-  try {
-    const res = await axios.delete(
-      `${config.SERVER_HOST}/article/remove/${blogId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    const res = await axios.delete(`${config.SERVER_HOST}/article/${blogId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
 
     if (!res?.data.success) {
       return false;
