@@ -21,7 +21,7 @@ import {
 } from "../api/api";
 import useUploadImage from "../hooks/useUploadImage";
 import { config } from "../utils/constants";
-import { apiUpdateDarft } from "../api/apiNew";
+import { apiAddBlog, apiUpdateDarft } from "../api/apiNew";
 import { debounce } from "lodash";
 
 const EditBlogPageStyle = styled.div`
@@ -137,24 +137,33 @@ const EditBlogPage = () => {
 
   const handleEditBlog = async (values) => {
     if (!isValid) return;
+    if (!token) return null;
     if (!image)
       toast.error("Please fill out your image title!", {
         pauseOnHover: false,
         delay: 500,
       });
     const { title, content, preview } = values;
+    let response;
     // const cutPreview = preview.slice(0, 200);
     const topicNames = topics?.map((val) => val.name);
-    const formData = {
-      title,
-      content,
-      topicNames,
-      preview,
-      banner: image.filename,
-    };
-    // console.log("formData", formData);
-    if (!token) return null;
-    const response = await apiUpdateArticle(token, status?.id, formData);
+    if (status?.status == "draft") {
+      const data = {
+        topicNames,
+        preview,
+        banner: image.filename,
+      };
+      response = await apiAddBlog(status?.id, data);
+    } else {
+      const formData = {
+        title,
+        content,
+        topicNames,
+        preview,
+        banner: image.filename,
+      };
+      response = await apiUpdateArticle(token, status?.id, formData);
+    }
     if (response) {
       navigate(`/`);
     }
