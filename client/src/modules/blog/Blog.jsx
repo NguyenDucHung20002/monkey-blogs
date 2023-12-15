@@ -11,7 +11,6 @@ import Topic from "../topic/Topic";
 import useTimeAgo from "../../hooks/useTimeAgo";
 import ButtonSaveBlog from "../../components/button/ButtonSaveBlog";
 import ButtonActionBlogsAuthor from "../../components/button/ButtonActionBlogsAuthor";
-import addUrlToImg from "../modulesJs/addUrlToImg";
 
 const BlogStyle = styled.div`
   display: flex;
@@ -81,7 +80,7 @@ const Blog = ({ blog, isMyProfile, mute = {} }) => {
       {banner && (
         <BlogImage
           className="flex-shrink-0"
-          url={addUrlToImg(banner)}
+          url={banner}
           alt=""
           to={`/blog/${slug}`}
         ></BlogImage>
