@@ -67,6 +67,7 @@ export function SocketProvider({ children }) {
     }
     // socket?.emit("new-user", userId);
     socket?.on("notification", (data) => {
+      if (!data) return;
       setNotifications((prev) => [data, ...prev]);
     });
     socket?.on("error", (data) => {

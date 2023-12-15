@@ -42,12 +42,16 @@ const apiAddTopic = async (token, name) => {
 const apiDeleteArticle = async (slug) => {
   try {
     const res = await axios
-      .delete(`${config.SERVER_HOST}/article/${slug}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      })
+      .delete(
+        `${config.SERVER_HOST}/article/${slug}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      )
       .catch((err) => {
         console.log(err);
       });

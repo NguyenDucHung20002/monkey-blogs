@@ -20,7 +20,7 @@ const Notify = React.forwardRef((props, ref) => {
     <div ref={ref} id="notify">
       <div className="absolute top-full right-2 z-auto bg-white">
         <div className="w-96 max-h-[800px]  shadow-lg rounded-lg overflow-y-scroll ">
-          <h1 className="text-lg font-bold py-2">Notification</h1>
+          <h1 className="text-lg font-bold p-2">Notification</h1>
           <div className="mt-3">
             {notifications &&
               notifications.length > 0 &&

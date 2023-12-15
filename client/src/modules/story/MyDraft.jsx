@@ -34,7 +34,6 @@ const MyDraft = () => {
   useEffect(() => {
     fetchDrafts();
   }, []);
-  console.log(draft);
   return (
     <>
       {draft?.map((val, idx) => (

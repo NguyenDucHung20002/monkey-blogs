@@ -9,7 +9,6 @@ import { Link } from "react-router-dom";
 import TopicList from "../topic/TopicList";
 import Swal from "sweetalert2";
 import BlogImage from "../blog/BlogImage";
-import { config } from "../../utils/constants";
 
 const ReadingHistory = () => {
   const [history, setHistory] = useState([]);
@@ -92,7 +91,7 @@ const ReadingHistory = () => {
               <div className="ml-14">
                 <BlogImage
                   className="flex-shrink-0"
-                  url={`${config.SERVER_HOST}/file/${val?.banner}`}
+                  url={val?.banner}
                   alt=""
                   to={`/blog/${val.slug}`}
                 ></BlogImage>
