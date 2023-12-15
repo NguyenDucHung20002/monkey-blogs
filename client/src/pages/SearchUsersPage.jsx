@@ -8,6 +8,7 @@ const SearchUsersPage = () => {
   const [searchParams] = useSearchParams();
   const search = searchParams.get("q");
   const [users, setUsers] = useState([]);
+  console.log("users:", users);
   const token = localStorage.getItem("token");
   const windowHeight = useRef(window.innerHeight);
   const scrollY = useRef(window.scrollY);
@@ -61,7 +62,11 @@ const SearchUsersPage = () => {
       {users &&
         users.length > 0 &&
         users.map((user) => (
-          <FollowingUserHandle key={user.id} data={user}></FollowingUserHandle>
+          <FollowingUserHandle
+            key={user.id}
+            data={user}
+            initialFollowing={user.isFollowed}
+          ></FollowingUserHandle>
         ))}
     </div>
   );

@@ -1,27 +1,65 @@
-import { useCallback, useEffect, useState } from "react";
-import { useSocket } from "../contexts/SocketContext";
-import { apiLikeArticle, apiUnLikeArticle } from "../api/apisHung";
+import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  apiGetUserLikedBlogs,
+  apiLikeArticle,
+  apiUnLikeArticle,
+} from "../api/apisHung";
+import { Modal } from "antd";
+import FollowingUserHandle from "../components/following/FollowingUserHandle";
 
 /* eslint-disable react/prop-types */
-const ActionLike = ({ likesCount = 0, liked, username, blogId }) => {
+const ActionLike = ({ likesCount = 0, liked, blogId, title }) => {
   const [isLiked, setIsLiked] = useState(false);
-  const { sendNotification } = useSocket();
+  const [userLiked, setUserLiked] = useState([]);
+  console.log("userLiked:", userLiked);
+  const likeRef = useRef(likesCount);
   const token = localStorage.getItem("token");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const skip = useRef("");
+
+  const fetchUserLiked = useCallback(async () => {
+    const response = await apiGetUserLikedBlogs(token, blogId, 2);
+    if (response.data) {
+      skip.current = response.newSkip;
+      setUserLiked(response.data);
+    }
+  }, [blogId, token]);
+
+  const showModal = async () => {
+    setIsModalOpen(true);
+    await fetchUserLiked();
+  };
+
+  const handleCancel = async () => {
+    const newSkip = skip.current;
+    const response = await apiGetUserLikedBlogs(token, blogId, 2, newSkip);
+    if (response.data && response.newSkip) {
+      skip.current = response.newSkip;
+      setUserLiked([...userLiked, ...response.data]);
+    }
+    return [];
+  };
 
   useEffect(() => {
-    if (typeof liked === "boolean") setIsLiked(true);
+    if (typeof liked === "boolean" && liked) setIsLiked(true);
   }, [liked]);
 
   const handleLike = useCallback(async () => {
     // sendNotification(username, "likeArt", blogId);
     if (isLiked) {
       const response = await apiUnLikeArticle(token, blogId);
-      if (response) setIsLiked(!isLiked);
+      if (response) {
+        likeRef.current--;
+        setIsLiked(!isLiked);
+      }
     } else {
       const response = await apiLikeArticle(token, blogId);
-      if (response) setIsLiked(!isLiked);
+      if (response) {
+        likeRef.current++;
+        setIsLiked(!isLiked);
+      }
     }
-  }, [blogId, isLiked, sendNotification, token, username]);
+  }, [blogId, isLiked, token]);
 
   const hand = {
     handUpOutLine: (
@@ -53,15 +91,52 @@ const ActionLike = ({ likesCount = 0, liked, username, blogId }) => {
   };
 
   return (
-    <div>
-      <button
-        onClick={handleLike}
-        className="flex items-center gap-2 text-gray-400 transition-all hover:text-black"
+    <>
+      <Modal
+        title={`${likeRef.current} person liked ${title}`}
+        open={isModalOpen}
+        footer={
+          userLiked &&
+          userLiked.length > 0 && (
+            <div className="flex justify-center">
+              <button
+                className="py-1 px-2 border border-black rounded-2xl mt-5 font-semibold cursor-pointer"
+                onClick={handleCancel}
+              >
+                See more Likes
+              </button>
+            </div>
+          )
+        }
       >
-        {isLiked ? hand.handUpSolid : hand.handUpOutLine}
-        <span className="inline-block pt-1 text-sm">{likesCount}</span>
-      </button>
-    </div>
+        <div className="mt-5">
+          {userLiked &&
+            userLiked.length > 0 &&
+            userLiked.map((user) => (
+              <FollowingUserHandle
+                key={user.id}
+                data={user}
+              ></FollowingUserHandle>
+            ))}
+        </div>
+      </Modal>
+      <div className="flex items-center gap-2">
+        <button
+          onClick={handleLike}
+          className=" text-gray-400 transition-all hover:text-black"
+        >
+          {isLiked ? hand.handUpSolid : hand.handUpOutLine}
+        </button>
+        <button
+          className="inline-block text-sm font-semibold text-gray-400 transition-all hover:text-black"
+          onClick={showModal}
+        >
+          {likeRef.current <= 1
+            ? `${likeRef.current} like`
+            : `${likeRef.current} likes`}{" "}
+        </button>
+      </div>
+    </>
   );
 };
 

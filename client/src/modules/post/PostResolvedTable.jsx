@@ -9,7 +9,6 @@ import useTimeAgo from "../../hooks/useTimeAgo";
 const PostResolvedTable = () => {
   const getTimeAgo = useTimeAgo;
   const [blogReports, setBlogReports] = useState([]);
-  console.log("blogReports:", blogReports);
   const token = localStorage.getItem("token");
   const skip = useRef(0);
   // const [searchBlogs, setSearchBlogs] = useState("");

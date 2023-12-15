@@ -47,8 +47,10 @@ const ActionComment = ({ blogId = "" }) => {
           />
         </svg>
 
-        <span className="inline-block pt-1 text-sm font-medium ">
-          {commentBlog.length}
+        <span className="inline-block text-sm font-medium ">
+          {commentBlog.length <= 1
+            ? `${commentBlog.length} comment`
+            : `${commentBlog.length} comments`}
         </span>
       </button>
       <Drawer

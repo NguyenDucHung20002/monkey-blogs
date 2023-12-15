@@ -9,7 +9,6 @@ import { Avatar } from "antd";
 import { Link } from "react-router-dom";
 import Topic from "../topic/Topic";
 import useTimeAgo from "../../hooks/useTimeAgo";
-import { config } from "../../utils/constants";
 import ButtonSaveBlog from "../../components/button/ButtonSaveBlog";
 import ButtonActionBlogsAuthor from "../../components/button/ButtonActionBlogsAuthor";
 import addUrlToImg from "../modulesJs/addUrlToImg";

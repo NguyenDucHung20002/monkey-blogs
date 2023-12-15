@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { icons } from "../../utils/constants";
 import { NavLink } from "react-router-dom";
 import { Tag, Table, Popover, Drawer } from "antd";
@@ -11,6 +11,7 @@ import {
   apiResolveReportedAllUsers,
 } from "../../api/apisHung";
 import UserModelReportReason from "./UserModelReportReason";
+import { Button } from "../../components/button";
 
 const UserReportTable = () => {
   const [users, setUsers] = useState([]);
@@ -24,7 +25,7 @@ const UserReportTable = () => {
 
   useEffect(() => {
     async function fetchUsers() {
-      const response = await apiGetPendingReportUsers(token);
+      const response = await apiGetPendingReportUsers(token, 2);
       if (response) {
         skip.current = response.newSkipId;
         skipCount.current = response.newSkipCount;
@@ -42,28 +43,29 @@ const UserReportTable = () => {
     fetchUsers();
   }, [statusRender, token]);
 
-  // const handleLoadMore = async () => {
-  //   const newSkip = skip.current;
-  //   const newSkipCount = skipCount.current;
-  //   const response = await apiGetPendingReportUsers(
-  //     token,
-  //     2,
-  //     newSkip,
-  //     newSkipCount
-  //   );
-  //   if (response) {
-  //     const mapUsers = response.data.map((user) => {
-  //       return {
-  //         ...user,
-  //         key: user.id,
-  //       };
-  //     });
-  //     setUsers([...users, ...mapUsers]);
-  //     skip.current = response.newSkipId;
-  //     skipCount.current = response.newSkipCount;
-  //   }
-  //   return [];
-  // };
+  const handleLoadMore = useCallback(async () => {
+    const newSkip = skip.current;
+    const newSkipCount = skipCount.current;
+    const response = await apiGetPendingReportUsers(
+      token,
+      2,
+      newSkip,
+      newSkipCount
+    );
+    console.log("response:", response);
+    if (response) {
+      const mapUsers = response.data.map((user) => {
+        return {
+          ...user,
+          key: user.id,
+        };
+      });
+      setUsers([...users, ...mapUsers]);
+      skip.current = response.newSkipId;
+      skipCount.current = response.newSkipCount;
+    }
+    return [];
+  }, [token, users]);
 
   const handleLiftTheBan = async (userId) => {
     const response = await apiLiftTheBan(token, userId);
@@ -284,13 +286,13 @@ const UserReportTable = () => {
         </Drawer>
       )}
 
-      {/* {users && users.length > 0 && (
+      {users && users.length > 0 && (
         <div className="flex justify-center mt-5" onClick={handleLoadMore}>
           <Button type="button" kind="primary" height="40px">
             Load more
           </Button>
         </div>
-      )} */}
+      )}
     </div>
   );
 };

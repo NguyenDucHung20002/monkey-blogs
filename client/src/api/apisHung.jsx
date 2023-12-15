@@ -2,11 +2,17 @@ import axios from "axios";
 import { config } from "../utils/constants";
 import { toast } from "react-toastify";
 
-const apiGetPendingReportUsers = async (token) => {
+const apiGetPendingReportUsers = async (
+  token,
+  limit = 10,
+  skipId = "",
+  skipCount = ""
+) => {
+  console.log('skipId = "", skipCount:', skipId, skipCount);
   if (!token) return null;
   try {
     const response = await axios.get(
-      `${config.SERVER_HOST}/report-user/pending`,
+      `${config.SERVER_HOST}/report-user/pending?limit=${limit}&skipId=${skipId}&skipCount=${skipCount}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -139,6 +145,7 @@ const apiDeleteMyComment = async (token, commentId) => {
 };
 
 const apiUserSearch = async (token, inputSearch, limit = 10, skip) => {
+  console.log("inputSearch:", inputSearch);
   if (!inputSearch) return null;
   try {
     const response = await axios.get(
@@ -520,7 +527,10 @@ const apiSetBackToDraft = async (token, BlogId) => {
     if (response?.data?.success) return true;
     return false;
   } catch (error) {
-    console.log("error:", error);
+    toast.warning(error.response.data.message, {
+      pauseOnHover: false,
+      delay: 200,
+    });
   }
 };
 
@@ -542,10 +552,10 @@ const apiGetReportsBlogSolved = async (token) => {
   }
 };
 
-const apiGetBlogsTopic = async (token, slug) => {
+const apiGetBlogsTopic = async (token, slug, limit = 9, skip = "") => {
   try {
     const response = await axios.get(
-      `${config.SERVER_HOST}/article/topic/${slug}`,
+      `${config.SERVER_HOST}/article/topic/${slug}?limit=${limit}&skip=${skip}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -560,7 +570,94 @@ const apiGetBlogsTopic = async (token, slug) => {
   }
 };
 
+const apiSetApproved = async (token, BlogId) => {
+  if (!token && !BlogId) return null;
+  try {
+    const response = await axios.patch(
+      `${config.SERVER_HOST}/article/approve/${BlogId}`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response?.data?.success) return true;
+    return false;
+  } catch (error) {
+    toast.warning(error.response.data.message, {
+      pauseOnHover: false,
+      delay: 200,
+    });
+  }
+};
+
+const apiGetRemovedArticles = async (token, limit = 9, skip = "") => {
+  try {
+    const response = await axios.get(
+      `${config.SERVER_HOST}/article/removed-articles?limit=${limit}&skip=${skip}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (response.data.success) return response.data;
+  } catch (error) {
+    console.log("error:", error);
+  }
+};
+
+const apiRestoreArticle = async (token, BlogId) => {
+  if (!token && !BlogId) return null;
+  try {
+    const response = await axios.patch(
+      `${config.SERVER_HOST}/article/restore/${BlogId}`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response?.data?.success) return true;
+    return false;
+  } catch (error) {
+    toast.warning(error.response.data.message, {
+      pauseOnHover: false,
+      delay: 200,
+    });
+  }
+};
+
+const apiGetUserLikedBlogs = async (token, blogId, limit = 2, skip = "") => {
+  console.log("token:", token);
+  try {
+    const response = await axios.get(
+      `${config.SERVER_HOST}/like/${blogId}?limit=${limit}&skip=${skip}`,
+      {
+        headers: {
+          Authorization: `Bearer ${`eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTAwMSwiaWF0IjoxNzAyNjM5NzI0LCJleHAiOjE3MDI4OTg5MjR9.UFdc1gI1GOqlSmpbuBlIYiV7qklCMRcik4hDsEEYpsA`}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (response.data.success) return response.data;
+  } catch (error) {
+    console.log("error:", error);
+  }
+};
+
 export {
+  apiGetUserLikedBlogs,
+  apiRestoreArticle,
+  apiGetRemovedArticles,
+  apiSetApproved,
   apiGetBlogsTopic,
   apiGetReportsBlogSolved,
   apiSetBackToDraft,

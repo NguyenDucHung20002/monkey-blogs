@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
 import PostImage from "../modules/post/PostImage";
 import PostMeta from "../modules/post/PostMeta";
@@ -89,24 +89,24 @@ const PostDetailPagePageStyle = styled.div`
 const PostDetailPage = () => {
   const { slug } = useParams("slug");
   const [blog, setBlog] = useState(null);
-  // console.log("blog:", blog);
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
 
-  useEffect(() => {
-    async function fetchBlog() {
-      try {
-        const response = await apiGetArticle(token, slug);
-        if (!response) navigate("/*");
+  const fetchBlog = useCallback(async () => {
+    try {
+      const response = await apiGetArticle(token, slug);
+      if (!response) navigate("/*");
 
-        setBlog(response.data);
-      } catch (error) {
-        console.log("error:", error);
-        navigate("/*");
-      }
+      setBlog(response.data);
+    } catch (error) {
+      console.log("error:", error);
+      navigate("/*");
     }
-    fetchBlog();
   }, [navigate, slug, token]);
+
+  useEffect(() => {
+    fetchBlog();
+  }, [fetchBlog]);
 
   if (!slug) return <PageNotFound></PageNotFound>;
 
@@ -123,23 +123,19 @@ const PostDetailPage = () => {
           <div className="post-info">
             <h1 className="py-10 post-heading">{blog?.title}</h1>
             <div className="flex items-center gap-5 mb-5">
-              <Link to={`/profile/${blog.author?.username}`}>
-                <Avatar url={blog.author?.avatar} size="large"></Avatar>
+              <Link to={`/profile/${blog.author?.userInfo?.username}`}>
+                <Avatar url={blog.author?.avatar} size="medium"></Avatar>
               </Link>
-              <PostMeta
-                date={blog.createdAt}
-                authorName={blog.author?.fullname}
-                to={blog.author?.username}
-              ></PostMeta>
+              <PostMeta blog={blog}></PostMeta>
             </div>
             <TopicList data={blog.topics}></TopicList>
             <div className="py-2 mt-5 border-gray-200 action border-y flex justify-between items-center">
               <div className="flex items-center gap-5 communicate">
                 <ActionLike
                   likesCount={blog.likesCount}
-                  username={blog?.author.username}
                   liked={blog.articleLiked}
                   blogId={blog.id}
+                  title={blog.title}
                 ></ActionLike>
                 <ActionComment blogId={blog.id}></ActionComment>
               </div>

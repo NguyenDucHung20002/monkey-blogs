@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import TopicUserHandle from "../components/topic/TopicUserHandle";
 import { apiTopicsSearch } from "../api/apisHung";
+import TopicList from "../modules/topic/TopicList";
 
 const SearchTopicsPage = () => {
   const [topics, setTopics] = useState([]);
@@ -22,11 +22,7 @@ const SearchTopicsPage = () => {
 
   return (
     <div className="max-w-[700px] w-full mx-auto px-5 mt-5">
-      {topics &&
-        topics.length > 0 &&
-        topics.map((topic) => (
-          <TopicUserHandle key={topic.id} data={topic}></TopicUserHandle>
-        ))}
+      <TopicList data={topics}></TopicList>
     </div>
   );
 };

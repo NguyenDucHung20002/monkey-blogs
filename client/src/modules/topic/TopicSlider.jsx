@@ -56,9 +56,13 @@ const SliderStyle = styled.div`
     border-radius: 18px;
     margin: 0 10px;
     color: #808e9b;
+    transition: all 0.2s;
+    &:hover {
+      color: #222;
+    }
   }
   .swiper-slide:first-child {
-    margin: 0 0 0 30px;
+    margin: 0 0 0 42px;
   }
 
   .active {

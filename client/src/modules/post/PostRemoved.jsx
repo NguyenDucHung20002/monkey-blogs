@@ -1,36 +1,21 @@
 /* eslint-disable react/prop-types */
 import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  apiGetAllArticlesAdmin,
-  apiSetApproved,
-  apiSetBackToDraft,
-} from "../../api/apisHung";
-import { Popover, Select, Table, Tag } from "antd";
+import { apiGetRemovedArticles, apiRestoreArticle } from "../../api/apisHung";
+import { Popover, Table, Tag } from "antd";
 import Column from "antd/es/table/Column";
 import { Button } from "../../components/button";
-import { debounce } from "lodash";
 import { icons } from "../../utils/constants";
-import { apiDeleteArticle } from "../../api/api";
+import useTimeAgo from "../../hooks/useTimeAgo";
 
-const PostTable = () => {
+const PostRemoved = () => {
   const [blogReports, setBlogReports] = useState([]);
   console.log("blogReports:", blogReports);
   const token = localStorage.getItem("token");
-  const [searchBlogs, setSearchBlogs] = useState("");
-  const [status, setStatus] = useState("");
   const skip = useRef(0);
-
-  const handleChangeSearch = debounce((e) => {
-    setSearchBlogs(e.target.value);
-  }, 200);
+  const getTimeAgo = useTimeAgo;
 
   const fetchReports = useCallback(async () => {
-    const response = await apiGetAllArticlesAdmin(
-      token,
-      10,
-      searchBlogs,
-      status
-    );
+    const response = await apiGetRemovedArticles(token, 10);
     if (response.data) {
       skip.current = response.newSkip;
       const mapBlogs = response.data.map((user) => {
@@ -41,20 +26,14 @@ const PostTable = () => {
       });
       setBlogReports(mapBlogs);
     }
-  }, [searchBlogs, status, token]);
+  }, [token]);
   useEffect(() => {
     fetchReports();
   }, [fetchReports]);
 
   const handleLoadMore = async () => {
     const newSkip = skip.current;
-    const response = await apiGetAllArticlesAdmin(
-      token,
-      10,
-      searchBlogs,
-      status,
-      newSkip
-    );
+    const response = await apiGetRemovedArticles(token, 10, newSkip);
     if (response) {
       const mapBlogs = response.data.map((user) => {
         return {
@@ -68,32 +47,9 @@ const PostTable = () => {
     return [];
   };
 
-  const handleChange = (value) => {
-    setStatus(value);
-  };
-
-  const handleSetBackToDraft = useCallback(
+  const handleRestoreArticle = useCallback(
     async (id) => {
-      const response = await apiSetBackToDraft(token, id);
-      if (response) {
-        fetchReports();
-      }
-    },
-    [fetchReports, token]
-  );
-
-  const handleRemoveArticle = useCallback(
-    async (id) => {
-      const response = await apiDeleteArticle(token, id);
-      if (response) {
-        fetchReports();
-      }
-    },
-    [fetchReports, token]
-  );
-  const handleSetApproved = useCallback(
-    async (id) => {
-      const response = await apiSetApproved(token, id);
+      const response = await apiRestoreArticle(token, id);
       if (response) {
         fetchReports();
       }
@@ -110,29 +66,11 @@ const PostTable = () => {
             <div>
               <button
                 className="block w-full py-1 text-left hover:text-blue-400"
-                onClick={() => handleSetBackToDraft(blog.id)}
+                onClick={() => handleRestoreArticle(blog.id)}
               >
-                Set Back To Draft
+                Restore this Article
               </button>
             </div>
-            <div>
-              <button
-                className="block w-full py-1 text-left hover:text-blue-400"
-                onClick={() => handleRemoveArticle(blog.id)}
-              >
-                Remove this Article
-              </button>
-            </div>
-            {blog.status === "rejected" && (
-              <div>
-                <button
-                  className="block w-full py-1 text-left hover:text-blue-400"
-                  onClick={() => handleSetApproved(blog.id)}
-                >
-                  Set approved
-                </button>
-              </div>
-            )}
           </div>
         </>
       }
@@ -146,26 +84,6 @@ const PostTable = () => {
 
   return (
     <>
-      <div className="flex items-center gap-5">
-        <div className="my-3 border-gray-300 hover:border-blue-400 text-gray-300 hover:text-blue-400 transition-all border rounded-lg w-full max-w-[320px] pl-4 flex py-1">
-          <input
-            className="flex-1 text-sm text-gray-500 placeholder:text-sm "
-            type="text"
-            placeholder="Search slug"
-            onChange={handleChangeSearch}
-          />
-          <div className="flex items-center mr-3 ">{icons.searchIcon}</div>
-        </div>
-        <Select
-          defaultValue="Status"
-          style={{ width: "120px" }}
-          onChange={handleChange}
-          options={[
-            { value: "approved", label: "Approved" },
-            { value: "rejected", label: "Rejected" },
-          ]}
-        />
-      </div>
       <Table
         dataSource={blogReports}
         pagination={false}
@@ -217,6 +135,27 @@ const PostTable = () => {
           render={(blog) => <p className="w-40 font-medium">{blog.title}</p>}
         />
         <Column
+          title="Deleted by"
+          key="deletedBy"
+          render={(blog) => (
+            <div className="flex justify-center gap-2">
+              <p className="font-semibold text-gray-500">
+                {blog.deletedBy.username}
+              </p>
+              <Tag color="red">{blog?.deletedBy.role.name}</Tag>
+            </div>
+          )}
+        />
+        <Column
+          title="Deleted at"
+          key="deletedAt"
+          render={(blog) => (
+            <p className="font-semibold text-gray-500 whitespace-nowrap">
+              {getTimeAgo(blog.deletedAt)}
+            </p>
+          )}
+        />
+        <Column
           title="Status"
           key="status"
           render={(blog) =>
@@ -245,4 +184,4 @@ const PostTable = () => {
   );
 };
 
-export default PostTable;
+export default PostRemoved;

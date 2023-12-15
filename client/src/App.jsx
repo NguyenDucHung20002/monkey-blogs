@@ -1,6 +1,7 @@
 import React, { Suspense } from "react";
 import { Route, Routes } from "react-router";
 import { ToastContainer } from "react-toastify";
+import PostRemoved from "./modules/post/PostRemoved";
 const AuthenticationPage = React.lazy(() =>
   import("./pages/AuthenticationPage")
 );
@@ -72,7 +73,6 @@ function App() {
             <Route path="/sign-in" element={<SignInPage></SignInPage>}></Route>
             <Route path="/sign-up" element={<SignUpPage></SignUpPage>}></Route>
           </Route>
-
           <Route element={<Layout></Layout>}>
             <Route element={<HomePage></HomePage>}>
               <Route path="/" element={<HomeMain></HomeMain>}></Route>
@@ -169,6 +169,10 @@ function App() {
             <Route
               path="/manage/posts"
               element={<PostManage></PostManage>}
+            ></Route>
+            <Route
+              path="/manage/removed-article"
+              element={<PostRemoved></PostRemoved>}
             ></Route>
             <Route
               path="/manage/report-article"

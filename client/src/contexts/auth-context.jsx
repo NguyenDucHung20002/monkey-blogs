@@ -39,7 +39,6 @@ const AuthProvider = React.memo((props) => {
           },
         }
       );
-      console.log("response:", response);
 
       if (response?.data?.success) {
         setUserInfo(response.data);
