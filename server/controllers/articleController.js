@@ -1493,6 +1493,50 @@ const getRemovedArticles = asyncMiddleware(async (req, res, next) => {
   res.json({ success: true, data: articles, newSkip });
 });
 
+// ==================== get article detail ==================== //
+
+const getArticleDetail = asyncMiddleware(async (req, res, next) => {
+  const { id } = req.params;
+
+  const article = await Article.findOne({
+    where: { id },
+    attributes: ["id", "banner", "title", "content", "createdAt", "updatedAt"],
+    include: [
+      {
+        model: Profile,
+        as: "author",
+        attributes: ["id", "fullname", "avatar"],
+        include: {
+          model: User,
+          as: "userInfo",
+          attributes: ["username"],
+          include: {
+            model: Role,
+            as: "role",
+            attributes: ["id", "name", "slug"],
+          },
+        },
+      },
+      {
+        model: Topic,
+        as: "articleTopics",
+        through: { attributes: [] },
+        attributes: ["id", "name", "slug"],
+        where: { status: "approved" },
+        required: false,
+      },
+    ],
+  });
+
+  if (!article) throw ErrorResponse(404, "Article not found");
+
+  article.author.avatar = addUrlToImg(article.author.avatar);
+  article.banner = article.banner ? addUrlToImg(article.banner) : null;
+  article.content = replaceImgNamesWithUrls(article.content);
+
+  res.json({ success: true, data: article });
+});
+
 export default {
   createADraft,
   updateADraft,
@@ -1516,4 +1560,5 @@ export default {
   getRemovedArticles,
   approveArticle,
   restoreArticle,
+  getArticleDetail,
 };

@@ -201,4 +201,14 @@ router.patch(
   articleController.restoreArticle
 );
 
+// -------------------- get article detail -------------------- //
+
+router.get(
+  "/detail/:id",
+  requiredAuth,
+  fetchMe,
+  authorize("admin", "staff"),
+  articleController.getArticleDetail
+);
+
 export default router;
