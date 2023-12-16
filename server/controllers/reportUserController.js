@@ -132,6 +132,87 @@ const getPendingReportedUsers = asyncMiddleware(async (req, res, next) => {
   });
 });
 
+// ==================== get list of peding reported staffs ==================== //
+
+const getPendingReportedStaffs = asyncMiddleware(async (req, res, next) => {
+  const { skipId, skipCount, limit = 15, search } = req.query;
+
+  let whereQuery = { roleId: 2 };
+
+  if (search) {
+    whereQuery[Op.or] = [
+      { email: { [Op.substring]: search } },
+      { username: { [Op.substring]: search } },
+    ];
+  }
+
+  if (skipId && skipCount) {
+    whereQuery[Op.or] = [
+      { reportsCount: { [Op.lt]: skipCount } },
+      { [Op.and]: [{ reportsCount: skipCount }, { id: { [Op.lt]: skipId } }] },
+    ];
+  }
+
+  const reports = await Report_User.findAll({
+    where: { status: "pending" },
+    attributes: ["reportedId"],
+    include: [
+      {
+        model: User,
+        as: "reported",
+        attributes: {
+          exclude: ["roleId", "createdAt", "updatedAt", "bannedById"],
+        },
+        include: {
+          model: User,
+          as: "bannedBy",
+          attributes: ["id", "username", "email"],
+          include: {
+            model: Role,
+            as: "role",
+            attributes: ["id", "name", "slug"],
+          },
+        },
+        where: whereQuery,
+      },
+    ],
+    order: [
+      [{ model: User, as: "reported" }, "reportsCount", "DESC"],
+      [{ model: User, as: "reported" }, "id", "DESC"],
+    ],
+    group: ["reportedId"],
+    limit: Number(limit) ? Number(limit) : 15,
+  });
+
+  const reportedStaffs = reports.map((report) => {
+    return {
+      id: report.reported.id,
+      username: report.reported.username,
+      email: report.reported.email,
+      reportsCount: report.reported.reportsCount,
+      bannedsCount: report.reported.bannedsCount,
+      banType: report.reported.banType,
+      bannedUntil: report.reported.bannedUntil,
+      status: report.reported.status,
+      bannedBy: report.reported ? report.reported.bannedBy : null,
+    };
+  });
+
+  const newSkipId =
+    reports.length > 0 ? reports[reports.length - 1].reportedId : null;
+  const newSkipCount =
+    reports.length > 0
+      ? reports[reports.length - 1].reported.reportsCount
+      : null;
+
+  res.json({
+    success: true,
+    data: reportedStaffs,
+    newSkipId,
+    newSkipCount,
+  });
+});
+
 // ==================== Get pending reports of the user ==================== //
 
 const getPendingReportsOfUser = asyncMiddleware(async (req, res, next) => {
@@ -278,4 +359,5 @@ export default {
   markAllResolved,
   markAReportAsResolved,
   getResolvedReports,
+  getPendingReportedStaffs,
 };

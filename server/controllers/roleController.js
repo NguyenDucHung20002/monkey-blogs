@@ -46,7 +46,7 @@ const getAllStaffs = asyncMiddleware(async (req, res, next) => {
 
   const staffs = await User.findAll({
     where: whereQuery,
-    attributes: { exclude: ["roleId", "isVerified", "password"] },
+    attributes: { exclude: ["roleId", "bannedById", "isVerified", "password"] },
     limit: Number(limit) ? Number(limit) : 15,
   });
 

@@ -129,15 +129,7 @@ const getAllUsers = asyncMiddleware(async (req, res, next) => {
 
   const users = await User.findAll({
     where: whereQuery,
-    attributes: {
-      exclude: [
-        "roleId",
-        "bannedById",
-        "reportsCount",
-        "isVerified",
-        "password",
-      ],
-    },
+    attributes: { exclude: ["roleId", "bannedById", "isVerified", "password"] },
     include: {
       model: User,
       as: "bannedBy",

@@ -13,11 +13,21 @@ const router = express.Router();
 // -------------------- get pending reported users -------------------- //
 
 router.get(
-  "/pending",
+  "/user/pending",
   requiredAuth,
   fetchMe,
   authorize("staff", "admin"),
   reportUserController.getPendingReportedUsers
+);
+
+// -------------------- get pending reported staffs -------------------- //
+
+router.get(
+  "/staff/pending",
+  requiredAuth,
+  fetchMe,
+  authorize("admin"),
+  reportUserController.getPendingReportedStaffs
 );
 
 // -------------------- get resolved reports -------------------- //
