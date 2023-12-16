@@ -3,36 +3,32 @@ import SocketUser from "./models/mongodb/SocketUser.js";
 
 let io;
 
-export default {
-  initializeSocket: (server) => {
-    io = new Server(server, {
-      cors: {
-        origin: "*",
-      },
-    });
-    io.on("connection", (socket) => {
-      socket.on("new-user", async (data) => {
+const initializeSocket = (server) => {
+  io = new Server(server, {
+    cors: {
+      origin: "*",
+    },
+  });
+  io.on("connection", (socket) => {
+    socket.on("new-user", async (data) => {
+      const socketUser = await SocketUser.findOne({ socketId: socket.id });
+      if (!socketUser) {
         await SocketUser.create({ userId: data.userId, socketId: socket.id });
-      });
-
-      socket.on("follow-profile", (notification) => {
-        console.log(notification);
-      });
-
-      socket.on("disconnect", async () => {
-        await SocketUser.findOneAndDelete({ socketId: socket.id });
-      });
+      }
     });
 
-    return io;
-  },
+    socket.on("disconnect", async () => {
+      await SocketUser.findOneAndDelete({ socketId: socket.id });
+    });
+  });
 
-  getIO: () => {
-    if (!io) {
-      throw new Error(
-        "Can't get io instance before calling initializeSocket()"
-      );
-    }
-    return io;
-  },
+  return io;
 };
+
+const getIO = () => {
+  if (io) {
+    return io;
+  }
+};
+
+export default { initializeSocket, getIO };

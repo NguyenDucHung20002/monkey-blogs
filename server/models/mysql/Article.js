@@ -218,59 +218,61 @@ const Article = sequelize.define(
             updatedAt: notification.updatedAt,
           };
         } else {
+          let nsfwFound;
+
           clarifai(array, async (err, results) => {
             if (err) {
               return;
             }
 
-            const nsfwFound = Boolean(
+            nsfwFound = Boolean(
               results.some((data) =>
                 data.some((val) => "nsfw" in val && val.nsfw > 0.55)
               )
             );
-
-            [notification] = await Promise.all([
-              Notification.create({
-                reciverId: article.authorId,
-                articleId: nsfwFound ? null : article.id,
-                content: nsfwFound
-                  ? `Explicit content detected in your article ${article.title}. Investigation underway. Thank you for your patience`
-                  : `Your article ${article.title} has been approved. You can now view it`,
-              }),
-              article.update(
-                {
-                  status: nsfwFound ? "rejected" : "approved",
-                  rejectedCount: nsfwFound
-                    ? article.rejectedCount + 1
-                    : article.rejectedCount,
-                },
-                { hooks: false }
-              ),
-              Profile.increment(
-                { notificationsCount: 1 },
-                { where: { id: article.authorId } }
-              ),
-            ]);
-
-            message = nsfwFound
-              ? {
-                  id: notification.id,
-                  content: notification.content,
-                  createdAt: notification.createdAt,
-                  updatedAt: notification.updatedAt,
-                }
-              : {
-                  id: notification.id,
-                  article: {
-                    id: article.id,
-                    title: article.title,
-                    slug: article.slug,
-                  },
-                  content: notification.content,
-                  createdAt: notification.createdAt,
-                  updatedAt: notification.updatedAt,
-                };
           });
+
+          [notification] = await Promise.all([
+            Notification.create({
+              reciverId: article.authorId,
+              articleId: nsfwFound ? null : article.id,
+              content: nsfwFound
+                ? `Explicit content detected in your article ${article.title}. Investigation underway. Thank you for your patience`
+                : `Your article ${article.title} has been approved. You can now view it`,
+            }),
+            article.update(
+              {
+                status: nsfwFound ? "rejected" : "approved",
+                rejectedCount: nsfwFound
+                  ? article.rejectedCount + 1
+                  : article.rejectedCount,
+              },
+              { hooks: false }
+            ),
+            Profile.increment(
+              { notificationsCount: 1 },
+              { where: { id: article.authorId } }
+            ),
+          ]);
+
+          message = nsfwFound
+            ? {
+                id: notification.id,
+                content: notification.content,
+                createdAt: notification.createdAt,
+                updatedAt: notification.updatedAt,
+              }
+            : {
+                id: notification.id,
+                article: {
+                  id: article.id,
+                  title: article.title,
+                  slug: article.slug,
+                },
+                content: notification.content,
+                createdAt: notification.createdAt,
+                updatedAt: notification.updatedAt,
+              };
         }
 
         if (recivers.length > 0) {
