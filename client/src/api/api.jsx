@@ -60,6 +60,27 @@ const apiDeleteArticle = async (blogId) => {
     });
   }
 };
+const apiDeleteAdminArticle = async (token, blogId) => {
+  try {
+    const res = await axios.delete(`${config.SERVER_HOST}/article/${blogId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!res?.data.success) {
+      return false;
+    }
+    return true;
+  } catch (error) {
+    console.log("error:", error);
+    toast.warning(error.response.data.message, {
+      pauseOnHover: false,
+      delay: 200,
+    });
+  }
+};
 
 const apiDeleteTopic = async (token, id) => {
   try {
