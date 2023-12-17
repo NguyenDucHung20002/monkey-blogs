@@ -376,6 +376,15 @@ Topic.belongsTo(User, {
   as: "approvedBy",
 });
 
+// User - Topic
+User.hasMany(Topic, {
+  foreignKey: "rejectedById",
+});
+Topic.belongsTo(User, {
+  foreignKey: "rejectedById",
+  as: "rejectedBy",
+});
+
 // ==================== User ==================== //
 
 // User - User

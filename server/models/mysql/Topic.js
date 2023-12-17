@@ -44,8 +44,17 @@ const Topic = sequelize.define(
       },
     },
 
+    rejectedById: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: User,
+        key: "id",
+      },
+    },
+
     status: {
-      type: DataTypes.ENUM("pending", "approved"),
+      type: DataTypes.ENUM("pending", "approved", "rejected"),
       allowNull: false,
       defaultValue: "pending",
     },

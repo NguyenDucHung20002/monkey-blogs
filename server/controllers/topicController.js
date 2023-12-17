@@ -101,7 +101,7 @@ const getATopic = asyncMiddleware(async (req, res, next) => {
 // ==================== get all topics ==================== //
 
 const getAllTopics = asyncMiddleware(async (req, res, next) => {
-  const { skip, limit = 15, search } = req.query;
+  const { skip, limit = 15, search, option } = req.query;
 
   let whereQuery = {};
 
@@ -109,13 +109,23 @@ const getAllTopics = asyncMiddleware(async (req, res, next) => {
 
   if (search) whereQuery.slug = { [Op.substring]: search };
 
+  if (option) {
+    whereQuery.status = { [Op.eq]: option };
+  }
+
   const topics = await Topic.findAll({
     where: whereQuery,
     include: {
       model: User,
       as: "approvedBy",
       attributes: ["id", "email", "username"],
-      include: { model: Role, as: "role", attributes: ["name", "slug"] },
+      include: { model: Role, as: "role", attributes: ["id", "name", "slug"] },
+    },
+    include: {
+      model: User,
+      as: "rejectedBy",
+      attributes: ["id", "email", "username"],
+      include: { model: Role, as: "role", attributes: ["id", "name", "slug"] },
     },
     attributes: { exclude: ["approvedById"] },
     limit: Number(limit) ? Number(limit) : 15,
@@ -146,6 +156,28 @@ const martTopicAsApproved = asyncMiddleware(async (req, res, next) => {
   res.json({
     success: true,
     message: `Topic ${topic.name} approved successfully`,
+  });
+});
+
+// ==================== mark topic as rejected ==================== //
+
+const martTopicAsRejected = asyncMiddleware(async (req, res, next) => {
+  const me = req.me;
+  const { id } = req.params;
+
+  const topic = await Topic.findByPk(id);
+
+  if (!topic) throw ErrorResponse(404, "Topic not found ");
+
+  if (topic.status === "rejected") {
+    throw ErrorResponse(400, "Topic already rejected");
+  }
+
+  await topic.update({ status: "rejected", rejectedById: me.id });
+
+  res.json({
+    success: true,
+    message: `Topic ${topic.name} rejected successfully`,
   });
 });
 
@@ -271,6 +303,7 @@ export default {
   getATopic,
   getAllTopics,
   martTopicAsApproved,
+  martTopicAsRejected,
   searchTopicsCreateArticle,
   exploreAllTopics,
   recommendedTopics,

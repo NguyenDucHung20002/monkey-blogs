@@ -71,12 +71,24 @@ router.delete(
   topicController.deleteTopic
 );
 
+// -------------------- mark topic as approved -------------------- //
+
 router.patch(
   "/:id/approve",
   requiredAuth,
   fetchMe,
   authorize("admin", "staff"),
   topicController.martTopicAsApproved
+);
+
+// -------------------- mark topic as rejected -------------------- //
+
+router.patch(
+  "/:id/reject",
+  requiredAuth,
+  fetchMe,
+  authorize("admin", "staff"),
+  topicController.martTopicAsRejected
 );
 
 // -------------------- get a topic -------------------- //

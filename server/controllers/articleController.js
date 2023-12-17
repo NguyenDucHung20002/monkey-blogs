@@ -112,26 +112,27 @@ const getAnArticleOrADraftToEdit = asyncMiddleware(async (req, res, next) => {
 
   data.content = replaceImgNamesWithUrls(data.content);
 
-  if (data.status === "draft") {
-    data = {
-      id: data.id,
-      title: data.title,
-      content: data.content,
-      status: data.status,
-    };
-  }
+  // if (data.status === "draft") {
+  //   data = {
+  //     id: data.id,
+  //     banner: data.banner,
+  //     title: data.title,
+  //     content: data.content,
+  //     status: data.status,
+  //   };
+  // }
 
-  if (data.status === "approved") {
-    data = {
-      id: data.id,
-      banner: data.banner,
-      title: data.title,
-      preview: data.preview,
-      content: data.content,
-      topicNames: data.articleTopics,
-      status: data.status,
-    };
-  }
+  // if (data.status === "approved") {
+  data = {
+    id: data.id,
+    banner: data.banner,
+    title: data.title,
+    preview: data.preview,
+    content: data.content,
+    topicNames: data.articleTopics,
+    status: data.status,
+  };
+  // }
 
   res.json({ success: true, data });
 });
@@ -193,7 +194,10 @@ const createArticle = asyncMiddleware(async (req, res, next) => {
         return { articleId: draft.id, topicId: isExisted.id };
       })
     );
-    await Article_Topic.bulkCreate(data);
+    await Promise.all([
+      Article_Topic.destroy({ where: { articleId: draft.id } }),
+      Article_Topic.bulkCreate(data),
+    ]);
   }
 
   res.status(201).json({
@@ -1355,6 +1359,7 @@ const getTopicArticles = asyncMiddleware(async (req, res, next) => {
 
 const setArticleBackToDraft = asyncMiddleware(async (req, res, next) => {
   const { id } = req.params;
+  const me = req.me;
 
   const article = await Article.findOne({
     where: { id, status: { [Op.notIn]: ["draft", "pending"] } },
@@ -1362,7 +1367,7 @@ const setArticleBackToDraft = asyncMiddleware(async (req, res, next) => {
 
   if (!article) throw ErrorResponse(404, "Article not found");
 
-  await article.update({ status: "draft" }, { hooks: false });
+  await article.update({ status: "draft" }, { me: me });
 
   res.json({ success: true, message: "Set article back to draft" });
 });
@@ -1433,11 +1438,20 @@ const restoreArticle = asyncMiddleware(async (req, res, next) => {
 // ==================== get removed articles ==================== //
 
 const getRemovedArticles = asyncMiddleware(async (req, res, next) => {
-  const { skip, limit = 15 } = req.query;
+  const { skip, limit = 15, search } = req.query;
 
   let whereQuery = { deletedAt: { [Op.ne]: null } };
 
   if (skip) whereQuery.id = { [Op.lt]: skip };
+
+  if (search) {
+    whereQuery[Op.or] = [
+      { "$author.fullname$": { [Op.substring]: search } },
+      { "$author.userInfo.username$": { [Op.substring]: search } },
+      { title: { [Op.substring]: search } },
+      { slug: { [Op.substring]: search } },
+    ];
+  }
 
   const articles = await Article.findAll({
     where: whereQuery,
