@@ -26,9 +26,7 @@ const initializeSocket = (server) => {
 };
 
 const getIO = () => {
-  if (io) {
-    return io;
-  }
+  if (io) return io;
 };
 
 export default { initializeSocket, getIO };

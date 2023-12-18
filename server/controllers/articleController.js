@@ -73,21 +73,25 @@ const deleteADraft = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { id } = req.params;
 
-  console.log("hello world");
-
   const draft = await Article.findOne({
     where: { id, authorId: me.profileInfo.id, status: "draft" },
+    include: { model: Topic, as: "articleTopics", through: { attributes: [] } },
   });
 
-  if (!draft) throw ErrorResponse(404, "Draft not found");
+  if (draft) {
+    const contentImgs = extracImg(draft.content);
 
-  const imgList = extracImg(draft.content);
-
-  imgList.forEach((img) => {
-    fileController.autoRemoveImg(img);
-  });
-
-  await draft.destroy({ force: true, hooks: false });
+    await Promise.all([
+      contentImgs.forEach(async (img) => {
+        await fileController.autoRemoveImg(img);
+      }),
+      draft.articleTopics.forEach(async (articleTopic) => {
+        await articleTopic.increment({ articlesCount: -1 });
+      }),
+      draft.destroy({ force: true, hooks: false }),
+      fileController.autoRemoveImg(draft.banner),
+    ]);
+  }
 
   res.json({ success: true, message: "Draft deleted successfully" });
 });
@@ -112,17 +116,6 @@ const getAnArticleOrADraftToEdit = asyncMiddleware(async (req, res, next) => {
 
   data.content = replaceImgNamesWithUrls(data.content);
 
-  // if (data.status === "draft") {
-  //   data = {
-  //     id: data.id,
-  //     banner: data.banner,
-  //     title: data.title,
-  //     content: data.content,
-  //     status: data.status,
-  //   };
-  // }
-
-  // if (data.status === "approved") {
   data = {
     id: data.id,
     banner: data.banner,
@@ -132,7 +125,6 @@ const getAnArticleOrADraftToEdit = asyncMiddleware(async (req, res, next) => {
     topicNames: data.articleTopics,
     status: data.status,
   };
-  // }
 
   res.json({ success: true, data });
 });
@@ -171,6 +163,7 @@ const createArticle = asyncMiddleware(async (req, res, next) => {
 
   const draft = await Article.findOne({
     where: { id, authorId: me.profileInfo.id, status: "draft" },
+    include: { model: Topic, as: "articleTopics", through: { attributes: [] } },
   });
 
   if (!draft) throw ErrorResponse(404, "Draft not found");
@@ -183,7 +176,7 @@ const createArticle = asyncMiddleware(async (req, res, next) => {
   await operation;
 
   if (topicNames) {
-    const data = await Promise.all(
+    const newTopics = await Promise.all(
       topicNames.map(async (topicName) => {
         let isExisted = await Topic.findOne({ where: { name: topicName } });
         if (!isExisted) {
@@ -194,16 +187,17 @@ const createArticle = asyncMiddleware(async (req, res, next) => {
         return { articleId: draft.id, topicId: isExisted.id };
       })
     );
+
     await Promise.all([
-      Article_Topic.destroy({ where: { articleId: draft.id } }),
-      Article_Topic.bulkCreate(data),
+      Article_Topic.destroy({
+        where: { articleId: draft.id },
+        oldTopics: draft.articleTopics,
+      }),
+      Article_Topic.bulkCreate(newTopics),
     ]);
   }
 
-  res.status(201).json({
-    success: true,
-    message: "Article created successfully",
-  });
+  res.json({ success: true, message: "Article created successfully" });
 });
 
 // ==================== update article ==================== //
@@ -215,6 +209,7 @@ const updateArticle = asyncMiddleware(async (req, res, next) => {
 
   const article = await Article.findOne({
     where: { id, authorId: me.profileInfo.id, status: "approved" },
+    include: { model: Topic, as: "articleTopics", through: { attributes: [] } },
   });
 
   if (!article) throw ErrorResponse(404, "Article not found");
@@ -249,7 +244,7 @@ const updateArticle = asyncMiddleware(async (req, res, next) => {
   await operation;
 
   if (topicNames) {
-    const data = await Promise.all(
+    const newTopics = await Promise.all(
       topicNames.map(async (topicName) => {
         let isExisted = await Topic.findOne({ where: { name: topicName } });
         if (!isExisted) {
@@ -262,8 +257,11 @@ const updateArticle = asyncMiddleware(async (req, res, next) => {
     );
 
     await Promise.all([
-      Article_Topic.destroy({ where: { articleId: article.id } }),
-      Article_Topic.bulkCreate(data),
+      Article_Topic.destroy({
+        where: { articleId: article.id },
+        oldTopics: article.articleTopics,
+      }),
+      Article_Topic.bulkCreate(newTopics),
     ]);
   }
 
@@ -278,15 +276,23 @@ const deleteArticle = asyncMiddleware(async (req, res, next) => {
 
   const article = await Article.findOne({
     where: { id, authorId: me.profileInfo.id, status: "approved" },
+    include: { model: Topic, as: "articleTopics", through: { attributes: [] } },
   });
 
-  const imgList = extracImg(article.content);
+  if (article) {
+    const contentImgs = extracImg(article.content);
 
-  imgList.forEach((img) => {
-    fileController.autoRemoveImg(img);
-  });
-
-  await article.destroy({ force: true, hooks: false });
+    await Promise.all([
+      contentImgs.forEach(async (img) => {
+        await fileController.autoRemoveImg(img);
+      }),
+      article.articleTopics.forEach(async (articleTopic) => {
+        await articleTopic.increment({ articlesCount: -1 });
+      }),
+      fileController.autoRemoveImg(article.banner),
+      article.destroy({ force: true, hooks: false }),
+    ]);
+  }
 
   res.json({ success: true, message: "Article deleted successfully" });
 });
