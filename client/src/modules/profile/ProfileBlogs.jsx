@@ -8,7 +8,7 @@ import timeAgo from "../modulesJs/timeAgo";
 import Avatar from "../user/Avatar";
 
 const ProfileBlogs = ({ blogs, user, fetchDeleteArticle }) => {
-  console.log("blogs:", blogs);
+  // console.log("blogs:", blogs);
   const handleDelete = (slug) => {
     Swal.fire({
       title: "Are you sure?",

@@ -1,6 +1,7 @@
+/* eslint-disable react/prop-types */
 import { Popover } from "antd";
-import React, { useEffect, useState } from "react";
-import { apiDeleteDarft, apiGetMyDraft } from "../../api/apiNew";
+import { useEffect, useState } from "react";
+import { apiGetMyDraft } from "../../api/apiNew";
 import timeAgo from "../modulesJs/timeAgo";
 import { Link } from "react-router-dom";
 import { apiDeleteDraft } from "../../api/api";
@@ -36,7 +37,7 @@ const MyDraft = () => {
   }, []);
   return (
     <>
-      {draft?.map((val, idx) => (
+      {draft?.map((val) => (
         <div
           key={val?.id}
           className="text-base py-3 border-b w-full overflow-hidden"
