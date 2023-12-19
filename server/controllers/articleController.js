@@ -114,14 +114,12 @@ const getAnArticleOrADraftToEdit = asyncMiddleware(async (req, res, next) => {
 
   if (!data) throw ErrorResponse(404, "Not found");
 
-  data.content = replaceImgNamesWithUrls(data.content);
-
   data = {
     id: data.id,
-    banner: data.banner,
+    banner: addUrlToImg(data.banner),
     title: data.title,
     preview: data.preview,
-    content: data.content,
+    content: replaceImgNamesWithUrls(data.content),
     topicNames: data.articleTopics,
     status: data.status,
   };
