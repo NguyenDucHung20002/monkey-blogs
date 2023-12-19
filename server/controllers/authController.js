@@ -217,11 +217,11 @@ const loginEmail = asyncMiddleware(async (req, res, next) => {
     Profile.findByPk(user.id),
   ]);
 
-  if (!profile) {
-    return res.json({ success: true, hasProfile: false, token: jsonWebToken });
-  }
-
-  res.json({ success: true, token: jsonWebToken });
+  res.json({
+    success: true,
+    hasProfile: Boolean(profile),
+    token: jsonWebToken,
+  });
 });
 
 // ==================== login with google ==================== //
