@@ -8,6 +8,7 @@ import Avatar from "../user/Avatar";
 const Notify = React.forwardRef((props, ref) => {
   const { notifications, handleReadNotify } = props;
   const isMounted = useRef(false);
+  const limitNotifications = 10;
   useEffect(() => {
     return () => {
       if (isMounted.current) {
@@ -19,12 +20,19 @@ const Notify = React.forwardRef((props, ref) => {
   return (
     <div ref={ref} id="notify">
       <div className="absolute top-full right-2 z-auto bg-white">
-        <div className="w-96 max-h-[800px]  shadow-lg rounded-lg overflow-y-scroll ">
-          <h1 className="text-lg font-bold p-2">Notification</h1>
+        <div className="w-96 max-h-[800px]  shadow-lg rounded-lg overflow-y-auto ">
+          <div className="m-2 flex items-center justify-between">
+            <h1 className="text-lg font-bold mx-2">Notification</h1>
+            <Link to={"/me/notifications"}>
+              <button className="font-medium text-blue-500 hover:text-blue-400 ">
+                See all
+              </button>
+            </Link>
+          </div>
           <div className="mt-3">
             {notifications &&
               notifications.length > 0 &&
-              notifications?.map((val, idx) => (
+              notifications?.slice(0, limitNotifications)?.map((val, idx) => (
                 <Link
                   key={idx}
                   to={val?.article?.slug ? `/blog/${val?.article?.slug}` : `/`}

@@ -4,6 +4,8 @@ import { ToastContainer } from "react-toastify";
 import PostRemoved from "./modules/post/PostRemoved";
 import StaffManage from "./modules/user/StaffManage";
 import PostDetailAdminPage from "./pages/PostDetailAdminPage";
+import MeNotificationPage from "./pages/MeNotificationPage";
+import AllNotification from "./modules/notification/AllNotification";
 const AuthenticationPage = React.lazy(() =>
   import("./pages/AuthenticationPage")
 );
@@ -106,6 +108,9 @@ function App() {
                   path="/me/library/reading-history"
                   element={<ReadingHistory />}
                 />
+              </Route>
+              <Route element={<MeNotificationPage />}>
+                <Route path="/me/notifications" element={<AllNotification />} />
               </Route>
             </Route>
             <Route
