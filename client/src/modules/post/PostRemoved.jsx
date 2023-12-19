@@ -6,6 +6,7 @@ import Column from "antd/es/table/Column";
 import { Button } from "../../components/button";
 import { icons } from "../../utils/constants";
 import useTimeAgo from "../../hooks/useTimeAgo";
+import { NavLink } from "react-router-dom";
 
 const PostRemoved = () => {
   const [blogReports, setBlogReports] = useState([]);
@@ -34,6 +35,7 @@ const PostRemoved = () => {
   const handleLoadMore = async () => {
     const newSkip = skip.current;
     const response = await apiGetRemovedArticles(token, 10, newSkip);
+    console.log("response:", response);
     if (response) {
       const mapBlogs = response.data.map((user) => {
         return {
@@ -90,50 +92,32 @@ const PostRemoved = () => {
         className="overflow-y-auto"
       >
         <Column
-          title="User name"
+          title="Author"
           key="username"
           render={(blog) => (
-            <>
-              <p className="font-semibold text-gray-500">
-                {blog?.author?.userInfo?.username}
-              </p>
-            </>
-          )}
-        />
-        <Column
-          title="Full name"
-          key="fullname"
-          render={(blog) => (
-            <>
-              <p className="flex-wrap font-semibold text-gray-500 whitespace-nowrap">
-                {blog?.author?.fullname}
-              </p>
-            </>
-          )}
-        />
-        <Column
-          title="Role"
-          key="role"
-          render={(blog) => (
-            <>
+            <div className="flex items-center gap-2">
               {blog?.author?.userInfo?.role.slug === "user" ? (
                 <Tag color="green">{blog?.author?.userInfo?.role.slug}</Tag>
               ) : (
                 <Tag color="red">{blog?.author?.userInfo?.role.slug}</Tag>
               )}
-            </>
+              <p className="font-semibold text-gray-500">
+                {blog?.author?.userInfo?.username}
+              </p>
+            </div>
           )}
         />
-        <Column
-          title="Slug"
-          key="slug"
-          render={(blog) => <p className="w-40 font-medium">{blog.slug}</p>}
-        />
+
         <Column
           title="Title"
           key="title"
-          render={(blog) => <p className="w-40 font-medium">{blog.title}</p>}
+          render={(blog) => (
+            <NavLink to={`/blog-detail/${blog.id}`} target="_blank">
+              <p className="w-40 font-medium">{blog.title}</p>
+            </NavLink>
+          )}
         />
+
         <Column
           title="Deleted by"
           key="deletedBy"
@@ -146,8 +130,9 @@ const PostRemoved = () => {
             </div>
           )}
         />
+
         <Column
-          title="Deleted at"
+          title={<p className="whitespace-nowrap">Deleted at</p>}
           key="deletedAt"
           render={(blog) => (
             <p className="font-semibold text-gray-500 whitespace-nowrap">
@@ -155,6 +140,7 @@ const PostRemoved = () => {
             </p>
           )}
         />
+
         <Column
           title="Status"
           key="status"
@@ -167,6 +153,9 @@ const PostRemoved = () => {
           }
         />
         <Column title="Reports" dataIndex="reportsCount" key="reportsCount" />
+
+        <Column title="Rejects" dataIndex="rejectsCount" key="rejectsCount" />
+
         <Column
           title="Action"
           key="action"

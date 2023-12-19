@@ -17,6 +17,7 @@ const AuthProvider = React.memo((props) => {
   function getToken() {
     if (tokenParams) {
       localStorage.setItem("token", tokenParams);
+      setSearchParams("");
       return tokenParams;
     }
     const tokenLocal = localStorage.getItem("token");
@@ -26,8 +27,8 @@ const AuthProvider = React.memo((props) => {
   const token = getToken();
   console.log("token:", token);
 
+  if (tokenParams);
   const fetcher = useCallback(async () => {
-    if (tokenParams) setSearchParams("");
     if (!token) return;
     try {
       const response = await axios.get(
@@ -47,7 +48,7 @@ const AuthProvider = React.memo((props) => {
     } catch (error) {
       console.log("error:", error);
     }
-  }, [setSearchParams, token, tokenParams]);
+  }, [token]);
 
   useEffect(() => {
     fetcher();

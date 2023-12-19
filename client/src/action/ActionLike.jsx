@@ -11,7 +11,6 @@ import FollowingUserHandle from "../components/following/FollowingUserHandle";
 const ActionLike = ({ likesCount = 0, liked, blogId, title }) => {
   const [isLiked, setIsLiked] = useState(false);
   const [userLiked, setUserLiked] = useState([]);
-  console.log("userLiked:", userLiked);
   const likeRef = useRef(likesCount);
   const token = localStorage.getItem("token");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -41,7 +40,6 @@ const ActionLike = ({ likesCount = 0, liked, blogId, title }) => {
       skip.current = response.newSkip;
       setUserLiked([...userLiked, ...response.data]);
     }
-    return [];
   };
 
   useEffect(() => {
@@ -49,7 +47,6 @@ const ActionLike = ({ likesCount = 0, liked, blogId, title }) => {
   }, [liked]);
 
   const handleLike = useCallback(async () => {
-    // sendNotification(username, "likeArt", blogId);
     if (isLiked) {
       const response = await apiUnLikeArticle(token, blogId);
       if (response) {

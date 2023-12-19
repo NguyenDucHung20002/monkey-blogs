@@ -11,6 +11,7 @@ import { Button } from "../../components/button";
 import { debounce } from "lodash";
 import { icons } from "../../utils/constants";
 import { apiDeleteAdminArticle } from "../../api/api";
+import { NavLink } from "react-router-dom";
 
 const PostTable = () => {
   const [blogReports, setBlogReports] = useState([]);
@@ -151,7 +152,7 @@ const PostTable = () => {
           <input
             className="flex-1 text-sm text-gray-500 placeholder:text-sm "
             type="text"
-            placeholder="Search slug"
+            placeholder="Search"
             onChange={handleChangeSearch}
           />
           <div className="flex items-center mr-3 ">{icons.searchIcon}</div>
@@ -172,50 +173,32 @@ const PostTable = () => {
         className="overflow-y-auto"
       >
         <Column
-          title="User name"
+          title="Author"
           key="username"
           render={(blog) => (
-            <>
-              <p className="font-semibold text-gray-500">
-                {blog?.author?.userInfo?.username}
-              </p>
-            </>
-          )}
-        />
-        <Column
-          title="Full name"
-          key="fullname"
-          render={(blog) => (
-            <>
-              <p className="flex-wrap font-semibold text-gray-500 whitespace-nowrap">
-                {blog?.author?.fullname}
-              </p>
-            </>
-          )}
-        />
-        <Column
-          title="Role"
-          key="role"
-          render={(blog) => (
-            <>
+            <div className="flex items-center gap-1">
               {blog?.author?.userInfo?.role.slug === "user" ? (
                 <Tag color="green">{blog?.author?.userInfo?.role.slug}</Tag>
               ) : (
                 <Tag color="red">{blog?.author?.userInfo?.role.slug}</Tag>
               )}
-            </>
+              <p className="font-semibold text-gray-500">
+                {blog?.author?.userInfo?.username}
+              </p>
+            </div>
           )}
         />
-        <Column
-          title="Slug"
-          key="slug"
-          render={(blog) => <p className="w-40 font-medium">{blog.slug}</p>}
-        />
+
         <Column
           title="Title"
           key="title"
-          render={(blog) => <p className="w-40 font-medium">{blog.title}</p>}
+          render={(blog) => (
+            <NavLink to={`/blog-detail/${blog.id}`} target="_blank">
+              <p className="w-40 font-medium">{blog.title}</p>
+            </NavLink>
+          )}
         />
+
         <Column
           title="Status"
           key="status"
@@ -227,7 +210,28 @@ const PostTable = () => {
             )
           }
         />
+
+        <Column
+          title="Approved by"
+          key="approvedBy"
+          render={(blog) => {
+            if (blog.approvedBy) {
+              return (
+                <div className="flex justify-center gap-2">
+                  <p className="font-semibold text-gray-500">
+                    {blog.approvedBy.username}
+                  </p>
+                  <Tag color="red">{blog?.approvedBy.role.name}</Tag>
+                </div>
+              );
+            }
+          }}
+        />
+
         <Column title="Reports" dataIndex="reportsCount" key="reportsCount" />
+
+        <Column title="Rejects" dataIndex="rejectsCount" key="rejectsCount" />
+
         <Column
           title="Action"
           key="action"

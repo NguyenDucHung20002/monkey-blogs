@@ -76,29 +76,36 @@ const UserReportsResolved = () => {
     <div>
       <DashboardHeading title="Report Users Resolved"></DashboardHeading>
       <Table dataSource={reports} pagination={false}>
-        <Column title="Id" key="id" dataIndex="id" />
         <Column
-          title="Accused"
-          key="accused"
+          title="Reported"
+          key="reported"
           render={(report) => (
-            <NavLink to={`profile/${report.reported.username}`}>
-              <p className="font-medium whitespace-nowrap">
-                {report.reported.username}
-              </p>
-            </NavLink>
+            <div className="flex items-center gap-2">
+              <NavLink to={`profile/${report.reported.username}`}>
+                <p className="font-medium whitespace-nowrap">
+                  {report.reported.username}
+                </p>
+              </NavLink>
+              <Tag color="red">{report?.reported.role.name}</Tag>
+            </div>
           )}
         />
         <Column
-          title="Accuser"
-          key="accuser"
+          title="Reporter"
+          key="Reporter"
           render={(report) => (
-            <NavLink to={`profile/${report.reporter.username}`}>
-              <p className="font-medium whitespace-nowrap">
-                {report.reporter.username}
-              </p>
-            </NavLink>
+            <div className="flex items-center gap-2">
+              <NavLink to={`profile/${report.reporter.username}`}>
+                <p className="font-medium whitespace-nowrap">
+                  {report.reporter.username}
+                </p>
+              </NavLink>
+              <Tag color="red">{report?.reported.role.name}</Tag>
+            </div>
           )}
         />
+        <Column title="Reason" dataIndex="reason" key="reason" />
+        <Column title="Description" dataIndex="description" key="description" />
         <Column
           title="Status"
           key="status"
@@ -108,6 +115,20 @@ const UserReportsResolved = () => {
               reason={report.reason}
               description={report.description}
             ></ButtonBaned>
+          )}
+        />
+        <Column
+          title="Resolved By"
+          key="resolvedBy"
+          render={(report) => (
+            <div className="flex items-center gap-2">
+              <NavLink to={`profile/${report.resolvedBy.username}`}>
+                <p className="font-medium whitespace-nowrap">
+                  {report.resolvedBy.username}
+                </p>
+              </NavLink>
+              <Tag color="red">{report?.resolvedBy.role.name}</Tag>
+            </div>
           )}
         />
       </Table>

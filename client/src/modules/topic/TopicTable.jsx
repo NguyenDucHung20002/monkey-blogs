@@ -1,16 +1,18 @@
+/* eslint-disable no-unsafe-optional-chaining */
 /* eslint-disable react/prop-types */
-import { useEffect, useRef, useState } from "react";
-import { apiApproveTopic, apiDeleteTopic, apiGetTopics } from "../../api/api";
+import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  apiApproveTopic,
+  apiDeleteTopic,
+  apiGetTopics,
+  apiRejectTopic,
+} from "../../api/api";
 import Column from "antd/es/table/Column";
 import Button from "../../components/button/Button";
-import { Popover, Table, Tag } from "antd";
+import { Popover, Select, Table, Tag } from "antd";
 import { icons } from "../../utils/constants";
-import useTimeAgo from "../../hooks/useTimeAgo";
 import { debounce } from "lodash";
-import ActionEdit from "../../action/ActionEdit";
-import ActionDelete from "../../action/ActionDelete";
-import { useNavigate } from "react-router-dom";
-import ActionApproved from "../../action/ActionApproved";
+import { NavLink } from "react-router-dom";
 import { useAuth } from "../../contexts/auth-context";
 
 const TopicTable = () => {
@@ -19,13 +21,12 @@ const TopicTable = () => {
   const [topics, setTopics] = useState([]);
   console.log("topics:", topics);
   const skip = useRef("");
-  const getTimeAgo = useTimeAgo;
   const [searchTopic, setSearchTopic] = useState("");
-  const navigate = useNavigate();
+  const [status, setStatus] = useState("");
 
   useEffect(() => {
     async function fetchTopics() {
-      const response = await apiGetTopics(token, 5, searchTopic);
+      const response = await apiGetTopics(token, 5, searchTopic, status);
       const mapTopics = response.data.map((topic) => {
         return {
           ...topic,
@@ -36,11 +37,15 @@ const TopicTable = () => {
       skip.current = response.newSkip;
     }
     fetchTopics();
-  }, [token, searchTopic]);
+  }, [token, searchTopic, status]);
 
   const handleChangeSearch = debounce((e) => {
     setSearchTopic(e.target.value);
   }, 200);
+
+  const handleChange = (value) => {
+    setStatus(value);
+  };
 
   const handleLoadMore = async () => {
     const newSkip = skip.current;
@@ -58,69 +63,151 @@ const TopicTable = () => {
     return [];
   };
 
-  const handleApproved = async (id) => {
-    console.log("id:", id);
-    const response = await apiApproveTopic(token, id);
-    if (response) {
-      const { data } = userInfo;
-      const newTopics = topics.map((topic) => {
-        if (topic.id === id) {
-          return {
-            ...topic,
-            status: "approved",
-            approvedBy: {
-              id: data.id,
-              email: data.email,
-              username: data.username,
-              role: {
-                name: data.role,
-                slug: data.role,
+  const handleApproved = useCallback(
+    async (id) => {
+      const response = await apiApproveTopic(token, id);
+      if (response) {
+        const { data } = userInfo;
+        const newTopics = topics.map((topic) => {
+          if (topic.id === id) {
+            return {
+              ...topic,
+              key: topic.id,
+              status: "approved",
+              approvedBy: {
+                id: data.id,
+                email: data.email,
+                username: data.username,
+                role: {
+                  name: data.role,
+                  slug: data.role,
+                },
               },
-            },
-          };
-        }
-        return topic;
-      });
+            };
+          }
+          return topic;
+        });
 
-      setTopics(newTopics);
-    }
-  };
-
-  const handleDeleteTopic = async (id) => {
-    const response = await apiDeleteTopic(token, id);
-    const filterTopics = topics.filter((topic) => topic.id != id);
-    if (response) setTopics([...filterTopics]);
-  };
-
-  const ButtonBaned = ({ approvedBy }) => (
-    <Popover
-      content={
-        <div>
-          <p>
-            <span>Approved by</span> {approvedBy?.username} (
-            {approvedBy?.role?.name})
-          </p>
-        </div>
+        setTopics(newTopics);
       }
-      placement="bottom"
+    },
+    [token, topics, userInfo]
+  );
+  const handleRejected = useCallback(
+    async (id) => {
+      const response = await apiRejectTopic(token, id);
+      if (response) {
+        const { data } = userInfo;
+        const newTopics = topics.map((topic) => {
+          if (topic.id === id) {
+            return {
+              ...topic,
+              key: topic.id,
+              status: "rejected",
+              rejectedBy: {
+                id: data.id,
+                email: data.email,
+                username: data.username,
+                role: {
+                  name: data.role,
+                  slug: data.role,
+                },
+              },
+            };
+          }
+          return topic;
+        });
+
+        setTopics(newTopics);
+      }
+    },
+    [token, topics, userInfo]
+  );
+
+  const handleDeleteTopic = useCallback(
+    async (id) => {
+      const response = await apiDeleteTopic(token, id);
+      const filterTopics = topics.filter((topic) => topic.id != id);
+      if (response) setTopics([...filterTopics]);
+    },
+    [token, topics]
+  );
+
+  const ButtonMore = (topic) => (
+    <Popover
+      placement="leftTop"
+      content={
+        <>
+          <div>
+            <div>
+              <NavLink
+                to={`/manage/update-topic/?id=${topic.id}&name=${topic.name}`}
+              >
+                <button className="block w-full py-1 text-left hover:text-blue-400">
+                  Edit
+                </button>
+              </NavLink>
+            </div>
+            <div>
+              <button
+                className="block w-full py-1 text-left hover:text-blue-400"
+                onClick={() => handleDeleteTopic(topic.id)}
+              >
+                Remove this Topic
+              </button>
+            </div>
+            {topic.status === "rejected" ? (
+              <div>
+                <button
+                  className="block w-full py-1 text-left hover:text-blue-400"
+                  onClick={() => handleApproved(topic.id)}
+                >
+                  Set approve
+                </button>
+              </div>
+            ) : (
+              <div>
+                <button
+                  className="block w-full py-1 text-left hover:text-blue-400"
+                  onClick={() => handleRejected(topic.id)}
+                >
+                  Set reject
+                </button>
+              </div>
+            )}
+          </div>
+        </>
+      }
     >
-      <Tag className="cursor-pointer" color="green">
-        APPROVED
-      </Tag>
+      <button className="flex items-center justify-center text-blue-400 rounded-md cursor-pointer w-7 h-7">
+        {icons.moreIcon}
+      </button>
+      <div></div>
     </Popover>
   );
 
   return (
     <div>
       <div className="flex items-center justify-between">
-        <div className="my-3  border-blue-400 border rounded-lg w-full max-w-[320px] pl-4 flex py-2">
-          <input
-            className="flex-1 text-sm placeholder:text-sm"
-            type="text"
-            placeholder="Search slug"
-            onChange={handleChangeSearch}
+        <div className="flex items-center gap-5">
+          <div className="my-3 border-gray-300 hover:border-blue-400 text-gray-300 hover:text-blue-400 transition-all border rounded-lg w-full max-w-[320px] pl-4 flex py-1">
+            <input
+              className="flex-1 text-sm text-gray-500 placeholder:text-sm "
+              type="text"
+              placeholder="Search"
+              onChange={handleChangeSearch}
+            />
+            <div className="flex items-center mr-3 ">{icons.searchIcon}</div>
+          </div>
+          <Select
+            defaultValue="Status"
+            style={{ width: "120px" }}
+            onChange={handleChange}
+            options={[
+              { value: "approved", label: "Approved" },
+              { value: "rejected", label: "Rejected" },
+            ]}
           />
-          <div className="mr-4 text-blue-400">{icons.searchIcon}</div>
         </div>
         <Button kind="primary" height="45px" to="/manage/add-topic">
           Create topic
@@ -139,14 +226,6 @@ const TopicTable = () => {
             <p className="font-medium whitespace-nowrap">{topic.name}</p>
           )}
         />
-        <Column title="Slug" dataIndex="slug" key="slug" />
-        <Column
-          title="Crated time"
-          key="createdAt"
-          render={(topic) => (
-            <p className="whitespace-nowrap">{getTimeAgo(topic.createdAt)}</p>
-          )}
-        />
 
         <Column
           title="Articles"
@@ -162,37 +241,52 @@ const TopicTable = () => {
           title="Status"
           key="status"
           render={(topic) =>
-            topic.status === "pending" ? (
-              <Tag>PENDING</Tag>
+            topic.status === "approved" ? (
+              <Tag color="green">APPROVED</Tag>
             ) : (
-              <ButtonBaned approvedBy={topic.approvedBy}></ButtonBaned>
+              <Tag color="red">REJECTED</Tag>
             )
           }
         />
 
         <Column
+          title="Approved by"
+          key="approvedBy"
+          render={(topic) => {
+            if (topic.approvedBy) {
+              return (
+                <div className="flex justify-center gap-2">
+                  <p className="font-semibold text-gray-500">
+                    {topic.approvedBy.username}
+                  </p>
+                  <Tag color="red">{topic?.approvedBy.role.name}</Tag>
+                </div>
+              );
+            }
+          }}
+        />
+
+        <Column
+          title="Rejected by"
+          key="RejectedBy"
+          render={(topic) => {
+            if (topic.rejectedBy) {
+              return (
+                <div className="flex justify-center gap-2">
+                  <p className="font-semibold text-gray-500">
+                    {topic.rejectedBy.username}
+                  </p>
+                  <Tag color="red">{topic?.rejectedBy.role.name}</Tag>
+                </div>
+              );
+            }
+          }}
+        />
+
+        <Column
           title="Action"
           key="action"
-          render={(topic) => (
-            <div className="flex items-center text-gray-500 gap-x-3">
-              {topic.status === "approved" ? (
-                <ActionEdit
-                  onClick={() =>
-                    navigate(
-                      `/manage/update-topic/?id=${topic.id}&name=${topic.name}`
-                    )
-                  }
-                ></ActionEdit>
-              ) : (
-                <ActionApproved
-                  onClick={() => handleApproved(topic.id)}
-                ></ActionApproved>
-              )}
-              <ActionDelete
-                onClick={() => handleDeleteTopic(topic.id)}
-              ></ActionDelete>
-            </div>
-          )}
+          render={(blog) => ButtonMore(blog)}
         />
       </Table>
       <div className="flex justify-center mt-5" onClick={handleLoadMore}>

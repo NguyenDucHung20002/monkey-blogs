@@ -57,7 +57,7 @@ const SearchMain = ({ onChange, className }) => {
       <input
         type="text"
         className="search-main"
-        placeholder="Search Medium"
+        placeholder="Search"
         onChange={onChange}
       />
     </SearchStyled>

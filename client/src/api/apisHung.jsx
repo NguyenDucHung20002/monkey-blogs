@@ -12,7 +12,7 @@ const apiGetPendingReportUsers = async (
   if (!token) return null;
   try {
     const response = await axios.get(
-      `${config.SERVER_HOST}/report-user/pending?limit=${limit}&skipId=${skipId}&skipCount=${skipCount}`,
+      `${config.SERVER_HOST}/report-user/user/pending?limit=${limit}&skipId=${skipId}&skipCount=${skipCount}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -652,7 +652,55 @@ const apiGetUserLikedBlogs = async (token, blogId, limit = 2, skip = "") => {
   }
 };
 
+const apiSetStaff = async (token, userId) => {
+  if (!token && !userId) return null;
+  try {
+    const response = await axios.patch(
+      `${config.SERVER_HOST}/role/make-staff/${userId}`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response?.data?.success) return true;
+    return false;
+  } catch (error) {
+    toast.warning(error.response.data.message, {
+      pauseOnHover: false,
+      delay: 200,
+    });
+  }
+};
+
+const apiSetUser = async (token, userId) => {
+  if (!token && !userId) return null;
+  try {
+    const response = await axios.patch(
+      `${config.SERVER_HOST}/role/make-user/${userId}`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response?.data?.success) return true;
+    return false;
+  } catch (error) {
+    toast.warning(error.response.data.message, {
+      pauseOnHover: false,
+      delay: 200,
+    });
+  }
+};
+
 export {
+  apiSetUser,
+  apiSetStaff,
   apiGetUserLikedBlogs,
   apiRestoreArticle,
   apiGetRemovedArticles,
