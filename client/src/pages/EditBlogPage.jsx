@@ -8,17 +8,9 @@ import { useForm, useWatch } from "react-hook-form";
 import InputHook from "../components/input/InputHook";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useAuth } from "../contexts/auth-context";
-import SearchAddTopics from "../components/search/SearchAddTopics";
 import { useNavigate, useParams } from "react-router-dom";
-import { Button } from "../components/button";
-import ImageUpload from "../components/image/ImageUpload";
 import MyEditor from "../components/input/MyEditor";
-import {
-  apiGetArticle,
-  apiGetArticleOrDraft,
-  apiUpdateArticle,
-} from "../api/api";
+import { apiGetArticleOrDraft, apiUpdateArticle } from "../api/api";
 import useUploadImage from "../hooks/useUploadImage";
 import { config } from "../utils/constants";
 import { apiAddBlog, apiUpdateDarft } from "../api/apiNew";
@@ -38,7 +30,6 @@ const schema = yup.object({
 });
 
 const EditBlogPage = () => {
-  const { userInfo } = useAuth();
   const token = localStorage.getItem("token");
   const {
     control,
@@ -50,13 +41,13 @@ const EditBlogPage = () => {
     resolver: yupResolver(schema),
   });
   const { slug } = useParams("slug");
+  const [topicInput, setTopicInput] = useState("");
   const [topics, setTopics] = useState([]);
   const [isSaved, setIsSaved] = useState(false);
   const [showIsSaved, setShowIsSaved] = useState(false);
   const [content, setContent] = useState("");
   const [status, setStatus] = useState();
   const [preview, setPreview] = useState("");
-  const [authorSlug, setAuthorSlug] = useState("");
   const { image, setImage, onSelectImage, onDeleteImage } = useUploadImage();
 
   const navigate = useNavigate();
@@ -76,7 +67,6 @@ const EditBlogPage = () => {
     }
     setContent(data?.content);
     setTopics(data?.topicNames);
-    setAuthorSlug(data?.author?.username);
   }
 
   useEffect(() => {
@@ -127,7 +117,7 @@ const EditBlogPage = () => {
     onSelectImage(e);
   };
 
-  const handleDeleteImage = (e) => {
+  const handleDeleteImage = () => {
     onDeleteImage(image?.filename);
   };
 
@@ -138,19 +128,19 @@ const EditBlogPage = () => {
   const handleEditBlog = async (values) => {
     if (!isValid) return;
     if (!token) return null;
-    if (!image)
-      toast.error("Please fill out your image title!", {
-        pauseOnHover: false,
-        delay: 500,
-      });
     const { title, content, preview } = values;
     let response;
-    // const cutPreview = preview.slice(0, 200);
-    const topicNames = topics?.map((val) => val.name);
+    const cutPreview = preview.slice(0, 200);
+    const getTopicNames = topics.map((val) => val.name);
+    const topicsSplit = topicInput
+      .trim()
+      .split(/[,\s]+/)
+      .filter(Boolean);
+    const topicNames = [...getTopicNames, ...topicsSplit];
     if (status?.status == "draft") {
       const data = {
         topicNames,
-        preview,
+        preview: cutPreview,
         banner: image.filename,
       };
       response = await apiAddBlog(status?.id, data);
@@ -198,6 +188,8 @@ const EditBlogPage = () => {
     <EditBlogPageStyle>
       <form onSubmit={handleSubmit(handleEditBlog)} autoComplete="off">
         <WriteHeader
+          topicInput={topicInput}
+          setTopicInput={setTopicInput}
           showIsSaved={showIsSaved}
           isSaved={isSaved}
           image={image.url}

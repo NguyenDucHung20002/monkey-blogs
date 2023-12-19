@@ -1,7 +1,6 @@
 /* eslint-disable react/prop-types */
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { icons } from "../../utils/constants";
-import useTimeAgo from "../../hooks/useTimeAgo";
 import { NavLink } from "react-router-dom";
 import { Tag, Table, Popover } from "antd";
 import Column from "antd/es/table/Column";
@@ -14,34 +13,47 @@ import {
 import { toast } from "react-toastify";
 import Button from "../../components/button/Button";
 import { debounce } from "lodash";
+import { apiSetStaff } from "../../api/apisHung";
+import { useAuth } from "../../contexts/auth-context";
 
 const UserTable = () => {
-  const getTimeAgo = useTimeAgo;
   const [users, setUsers] = useState([]);
   const token = localStorage.getItem("token");
+  const { userInfo } = useAuth();
+  console.log("userInfo:", userInfo);
   const [statusRender, setStatusRender] = useState(false);
   const [search, setSearch] = useState("");
   const banTypes = ["1week", "1month", "1year", "permanent"];
-  const skip = useRef("0");
+  const skip = useRef("");
+
+  const fetchUsers = useCallback(async () => {
+    const response = await apiGetAllUser(token, 10, null, search);
+    if (response) {
+      skip.current = response.newSkip;
+      const mapUsers = response.data.map((user) => {
+        return {
+          ...user,
+          key: user.id,
+        };
+      });
+      setUsers(mapUsers);
+    }
+  }, [search, token]);
 
   useEffect(() => {
-    async function fetchUsers() {
-      const response = await apiGetAllUser(token, 10, null, search);
+    fetchUsers();
+  }, [fetchUsers]);
+
+  const handleSetStaff = useCallback(
+    async (userId) => {
+      const response = await apiSetStaff(token, userId);
       if (response) {
-        skip.current = response.newSkip;
-        const mapUsers = response.data.map((user) => {
-          return {
-            ...user,
-            key: user.id,
-          };
-        });
+        const mapUsers = users.filter((user) => user.id != userId);
         setUsers(mapUsers);
       }
-      return [];
-    }
-
-    fetchUsers();
-  }, [statusRender, token, search]);
+    },
+    [token, users]
+  );
 
   const handleLoadMore = async () => {
     const newSkip = skip.current;
@@ -140,6 +152,15 @@ const UserTable = () => {
             >
               <span className="font-medium">Profile</span>
             </NavLink>
+            {userInfo && userInfo.data.role === "admin" && (
+              <button
+                className="block w-full text-left hover:text-blue-400"
+                onClick={() => handleSetStaff(user.id)}
+              >
+                Set Staff
+              </button>
+            )}
+
             {user.status === "normal" && (
               <Popover
                 placement="left"
@@ -209,7 +230,7 @@ const UserTable = () => {
         <input
           className="flex-1 text-sm placeholder:text-sm"
           type="text"
-          placeholder="Search username"
+          placeholder="Search"
           onChange={handleChangeSearch}
         />
         <div className="mr-4 text-blue-400">{icons.searchIcon}</div>
@@ -219,17 +240,18 @@ const UserTable = () => {
           title="Username"
           key="username"
           render={(user) => (
-            <p className="font-medium whitespace-nowrap">{user.username}</p>
+            <NavLink to={`/profile/${user.username}`} target="_blank">
+              <p className="w-40 font-medium whitespace-nowrap">
+                {user.username}
+              </p>
+            </NavLink>
           )}
         />
-        <Column title="Accusers" dataIndex="bansCount" key="bansCount" />
-        <Column
-          title="Crated time"
-          key="createdAt"
-          render={(user) => (
-            <p className="whitespace-nowrap">{getTimeAgo(user.createdAt)}</p>
-          )}
-        />
+
+        <Column title="Bans" dataIndex="bansCount" key="bansCount" />
+
+        <Column title="Reports" dataIndex="reportsCount" key="reportsCount" />
+
         <Column
           title="Status"
           key="status"
@@ -245,6 +267,32 @@ const UserTable = () => {
             )
           }
         />
+
+        <Column title="Ban type" dataIndex="banType" key="banType" />
+
+        <Column
+          title="Banned until"
+          dataIndex="bannedUntil"
+          key="bannedUntil"
+        />
+
+        <Column
+          title="Banned by"
+          key="bannedBy"
+          render={(user) => {
+            if (user.bannedBy) {
+              return (
+                <div className="flex justify-center gap-2">
+                  <p className="font-semibold text-gray-500">
+                    {user.bannedBy.username}
+                  </p>
+                  <Tag color="red">{user?.bannedBy.role.name}</Tag>
+                </div>
+              );
+            }
+          }}
+        />
+
         <Column title="More" key="More" render={(user) => ButtonMore(user)} />
       </Table>
       <div className="flex justify-center mt-5" onClick={handleLoadMore}>

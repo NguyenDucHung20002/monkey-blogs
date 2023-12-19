@@ -3,12 +3,12 @@ import { useEffect, useRef, useState } from "react";
 import { apiGetReportsBlogSolved } from "../../api/apisHung";
 import { Table, Tag } from "antd";
 import Column from "antd/es/table/Column";
-import useTimeAgo from "../../hooks/useTimeAgo";
+import { NavLink } from "react-router-dom";
 // import { Button } from "../../components/button";
 
 const PostResolvedTable = () => {
-  const getTimeAgo = useTimeAgo;
   const [blogReports, setBlogReports] = useState([]);
+  console.log("blogReports:", blogReports);
   const token = localStorage.getItem("token");
   const skip = useRef(0);
   // const [searchBlogs, setSearchBlogs] = useState("");
@@ -113,59 +113,37 @@ const PostResolvedTable = () => {
         pagination={false}
         className="overflow-y-auto"
       >
+        <Column title="Id" key="id" dataIndex="id" />
+
         <Column
-          title="User name"
-          key="username"
+          title="Author"
+          key="author"
           render={(blog) => (
             <>
-              <p className="font-semibold text-gray-500">
-                {blog?.article?.author?.userInfo?.username}
-              </p>
-            </>
-          )}
-        />
-        <Column
-          title="Full name"
-          key="fullname"
-          render={(blog) => (
-            <>
-              <p className="flex-wrap font-semibold text-gray-500 whitespace-nowrap">
-                {blog?.article?.author?.fullname}
-              </p>
-            </>
-          )}
-        />
-        <Column
-          title="Role"
-          key="role"
-          render={(blog) => (
-            <>
-              {blog?.article?.author?.userInfo?.role.slug === "user" ? (
-                <Tag color="green">
-                  {blog?.article?.author?.userInfo?.role.name}
-                </Tag>
-              ) : (
+              <div className="flex items-center gap-2">
+                <p className="font-semibold text-gray-500">
+                  {blog?.article?.author?.userInfo?.username}
+                </p>
                 <Tag color="red">
-                  {blog?.article?.author?.userInfo?.role.name}
+                  {blog?.article?.author.userInfo.role.name}
                 </Tag>
-              )}
+              </div>
             </>
           )}
         />
-        <Column
-          title="Slug"
-          key="slug"
-          render={(blog) => (
-            <p className="w-40 font-medium">{blog?.article.slug}</p>
-          )}
-        />
+
         <Column
           title="Title"
           key="title"
           render={(blog) => (
-            <p className="w-40 font-medium">{blog?.article.title}</p>
+            <NavLink to={`/blog-detail/${blog.article.id}`} target="_blank">
+              <p className="w-40 font-medium">{blog.article.title}</p>
+            </NavLink>
           )}
         />
+
+        <Column title="Reason" key="reason" dataIndex="reason" />
+
         <Column
           title="Status"
           key="status"
@@ -175,21 +153,12 @@ const PostResolvedTable = () => {
           title="Resolved by"
           key="resolvedBy"
           render={(blog) => (
-            <div className="flex justify-center gap-2">
+            <div className="flex gap-2">
               <p className="font-semibold text-gray-500">
                 {blog.resolvedBy.username}
               </p>
               <Tag color="red">{blog?.resolvedBy.role.name}</Tag>
             </div>
-          )}
-        />
-        <Column
-          title="Resolved at"
-          key="resolvedAt"
-          render={(blog) => (
-            <p className="font-semibold text-gray-500 whitespace-nowrap">
-              {getTimeAgo(blog.updatedAt)}
-            </p>
           )}
         />
       </Table>

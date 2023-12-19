@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { useEffect, useState } from "react";
 import FollowingUserHandle from "../components/following/FollowingUserHandle";
 import TopicUserHandle from "../components/topic/TopicUserHandle";
@@ -29,7 +30,7 @@ const MeSuggestionPage = () => {
     <div>
       <div className="user-following max-w-[700px] w-full mx-auto">
         <div className="mt-6">
-          <h3 className="text-base font-bold mb-3">Who to follow</h3>
+          <h3 className="mb-3 text-base font-bold">Who to follow</h3>
           {users &&
             users.length > 0 &&
             users.map((user) => (
@@ -39,21 +40,21 @@ const MeSuggestionPage = () => {
               ></FollowingUserHandle>
             ))}
           <button
-            className="text-blue-400 mt-3 hover:text-blue-500 "
+            className="mt-3 text-blue-400 hover:text-blue-500 "
             onClick={() => setIsLoadNewUsers(!isLoadNewUsers)}
           >
             Refresh new who to follow
           </button>
         </div>
         <div className="mt-6 ">
-          <h3 className="text-base font-bold mb-3">Topics to follow</h3>
+          <h3 className="mb-3 text-base font-bold">Topics to follow</h3>
           {topics &&
             topics.length > 0 &&
             topics.map((topic) => (
               <TopicUserHandle key={topic.id} data={topic}></TopicUserHandle>
             ))}
           <button
-            className="text-blue-400 mt-3 hover:text-blue-500 "
+            className="mt-3 text-blue-400 hover:text-blue-500 "
             onClick={() => setIsLoadNewTopics(!isLoadNewTopics)}
           >
             Refresh Recommend topics

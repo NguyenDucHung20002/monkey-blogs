@@ -62,12 +62,15 @@ const apiDeleteArticle = async (blogId) => {
 };
 const apiDeleteAdminArticle = async (token, blogId) => {
   try {
-    const res = await axios.delete(`${config.SERVER_HOST}/article/${blogId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    });
+    const res = await axios.delete(
+      `${config.SERVER_HOST}/article/remove/${blogId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
     if (!res?.data.success) {
       return false;
@@ -174,18 +177,11 @@ const apiFollowUser = async (userID, token) => {
         },
       }
     )
-    .catch((err) => {
-      if (err.response.status == 404) {
-        toast.error("Can not find user!", {
-          pauseOnHover: false,
-          delay: 500,
-        });
-      } else {
-        toast.error("User banned!", {
-          pauseOnHover: false,
-          delay: 500,
-        });
-      }
+    .catch((error) => {
+      toast.warning(error.response.data.message, {
+        pauseOnHover: false,
+        delay: 200,
+      });
     });
   if (res?.data?.success) {
     return true;
@@ -198,6 +194,27 @@ const apiGetAllUser = async (token, limit = "10", skip = "", search = "") => {
   try {
     const response = await axios.get(
       `${config.SERVER_HOST}/user?limit=${limit}&skip=${skip}&search=${search}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response.data) return response.data;
+    console.log("response.data:", response);
+  } catch (error) {
+    if (error.response.status === 404) {
+      return null;
+    }
+  }
+};
+
+const apiGetAllStaff = async (token, limit = "10", skip = "", search = "") => {
+  if (!token) return;
+  try {
+    const response = await axios.get(
+      `${config.SERVER_HOST}/role/staffs?limit=${limit}&skip=${skip}&search=${search}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -227,6 +244,23 @@ const apiGetArticle = async (token, slug) => {
     if (error.response.status === 404) {
       return null;
     }
+  }
+};
+
+const apiGetArticleAdminDetail = async (token, blogId) => {
+  try {
+    const response = await axios.get(
+      `${config.SERVER_HOST}/article/detail/${blogId} `,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response.data) return response.data;
+  } catch (error) {
+    console.log("error:", error);
   }
 };
 
@@ -436,10 +470,17 @@ const apiGetTopic = async (token, slug) => {
   }
 };
 
-const apiGetTopics = async (token, limit = "10", search = "", skip = "") => {
+const apiGetTopics = async (
+  token,
+  limit = "10",
+  search = "",
+  option = "",
+  skip = ""
+) => {
+  console.log('skip = "":', skip);
   try {
     const response = await axios.get(
-      `${config.SERVER_HOST}/topic?limit=${limit}&search=${search}&skip=${skip}`,
+      `${config.SERVER_HOST}/topic?limit=${limit}&search=${search}&skip=${skip}&option=${option}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -549,18 +590,11 @@ const apiUnFollowUser = async (userID, token) => {
         "Content-Type": "application/json",
       },
     })
-    .catch((err) => {
-      if (err.response.status == 404) {
-        toast.error("Can not find user!", {
-          pauseOnHover: false,
-          delay: 500,
-        });
-      } else {
-        toast.error("User banned!", {
-          pauseOnHover: false,
-          delay: 500,
-        });
-      }
+    .catch((error) => {
+      toast.warning(error.response.data.message, {
+        pauseOnHover: false,
+        delay: 200,
+      });
     });
   if (res?.data.success) {
     return true;
@@ -800,6 +834,30 @@ const apiApproveTopic = async (token, id) => {
     console.log("error:", error);
   }
 };
+
+const apiRejectTopic = async (token, id) => {
+  try {
+    const data = await axios.patch(
+      `${config.SERVER_HOST}/topic/${id}/reject`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    console.log("data:", data);
+    if (!data.data.success) {
+      return false;
+    }
+    return true;
+  } catch (error) {
+    console.log("error:", error);
+  }
+};
+
 const apiReportUser = async (token, userId, reason, description) => {
   try {
     const res = await fetch(`${config.SERVER_HOST}/report-user/${userId}`, {
@@ -821,6 +879,9 @@ const apiReportUser = async (token, userId, reason, description) => {
 };
 
 export {
+  apiGetArticleAdminDetail,
+  apiGetAllStaff,
+  apiRejectTopic,
   apiDeleteAdminArticle,
   apiGetTopic,
   apiAddTopic,

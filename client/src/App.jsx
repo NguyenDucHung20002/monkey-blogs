@@ -2,6 +2,8 @@ import React, { Suspense } from "react";
 import { Route, Routes } from "react-router";
 import { ToastContainer } from "react-toastify";
 import PostRemoved from "./modules/post/PostRemoved";
+import StaffManage from "./modules/user/StaffManage";
+import PostDetailAdminPage from "./pages/PostDetailAdminPage";
 import MeNotificationPage from "./pages/MeNotificationPage";
 import AllNotification from "./modules/notification/AllNotification";
 const AuthenticationPage = React.lazy(() =>
@@ -116,6 +118,10 @@ function App() {
               element={<PostDetailPage></PostDetailPage>}
             ></Route>
             <Route
+              path="/blog-detail/:id"
+              element={<PostDetailAdminPage></PostDetailAdminPage>}
+            ></Route>
+            <Route
               path="/topic/:slug"
               element={<TopicPage></TopicPage>}
             ></Route>
@@ -163,6 +169,7 @@ function App() {
               path="/manage/topic"
               element={<TopicManage></TopicManage>}
             ></Route>
+
             <Route
               path="/manage/add-topic"
               element={<TopicAddNew></TopicAddNew>}
@@ -186,6 +193,10 @@ function App() {
             <Route
               path="/manage/report-article-resolved"
               element={<PostResolved></PostResolved>}
+            ></Route>
+            <Route
+              path="/manage/staff"
+              element={<StaffManage></StaffManage>}
             ></Route>
             <Route
               path="/manage/user"

@@ -11,6 +11,7 @@ import { icons } from "../../utils/constants";
 import PostModalReport from "./PostModalReport";
 import Button from "../../components/button/Button";
 import { toast } from "react-toastify";
+import { NavLink } from "react-router-dom";
 
 const PostReportTable = () => {
   const token = localStorage.getItem("token");
@@ -146,52 +147,63 @@ const PostReportTable = () => {
         className="overflow-y-auto"
       >
         <Column
-          title="User name"
-          key="username"
+          title="Author"
+          key="author"
           render={(blog) => (
             <>
-              <p className="font-semibold text-gray-500">
-                {blog?.author?.userInfo?.username}
-              </p>
+              <div className="flex items-center gap-2">
+                <p className="font-semibold text-gray-500">
+                  {blog?.author?.userInfo?.username}
+                </p>
+                <Tag color="red">{blog?.author.userInfo.role.name}</Tag>
+              </div>
             </>
           )}
         />
-        <Column
-          title="Full name"
-          key="fullname"
-          render={(blog) => (
-            <>
-              <p className="flex-wrap font-semibold text-gray-500 whitespace-nowrap">
-                {blog?.author?.fullname}
-              </p>
-            </>
-          )}
-        />
-        <Column
-          title="Role"
-          key="role"
-          render={(blog) => (
-            <>
-              {blog?.author?.userInfo?.role.slug === "user" ? (
-                <Tag color="green">{blog?.author?.userInfo?.role.name}</Tag>
-              ) : (
-                <Tag color="red">{blog?.author?.userInfo?.role.name}</Tag>
-              )}
-            </>
-          )}
-        />
-        <Column
-          title="Slug"
-          key="slug"
-          render={(blog) => <p className="w-40 font-medium">{blog.slug}</p>}
-        />
+
         <Column
           title="Title"
           key="title"
-          render={(blog) => <p className="w-40 font-medium">{blog.title}</p>}
+          render={(blog) => (
+            <NavLink to={`/blog-detail/${blog.id}`} target="_blank">
+              <p className="w-40 font-medium">{blog.title}</p>
+            </NavLink>
+          )}
         />
 
-        <Column title="Rejected" dataIndex="rejectsCount" key="rejectsCount" />
+        <Column
+          title="Status"
+          key="status"
+          render={(blog) =>
+            blog.status === "approved" ? (
+              <Tag color="green">APPROVED</Tag>
+            ) : (
+              <Tag color="red">REJECTED</Tag>
+            )
+          }
+        />
+
+        <Column
+          title="Approved by"
+          key="approvedBy"
+          render={(blog) => {
+            if (blog.approvedBy) {
+              return (
+                <div className="flex justify-center gap-2">
+                  <p className="font-semibold text-gray-500">
+                    {blog.approvedBy.username}
+                  </p>
+                  <Tag color="red">{blog?.approvedBy.role.name}</Tag>
+                </div>
+              );
+            }
+          }}
+        />
+
+        <Column title="Reports" dataIndex="reportsCount" key="reportsCount" />
+
+        <Column title="Rejects" dataIndex="rejectsCount" key="rejectsCount" />
+
         <Column title="More" key="More" render={(blog) => ButtonMore(blog)} />
       </Table>
       {/* {blogReports && blogReports.length >= 5 && (

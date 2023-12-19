@@ -2,57 +2,67 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { icons } from "../../utils/constants";
 import { NavLink } from "react-router-dom";
-import { Tag, Table, Popover, Drawer } from "antd";
+import { Tag, Table, Popover } from "antd";
 import Column from "antd/es/table/Column";
-import { apiBanUser, apiLiftTheBan, apiUpdateBan } from "../../api/api";
-import { toast } from "react-toastify";
 import {
-  apiGetPendingReportUsers,
-  apiResolveReportedAllUsers,
-} from "../../api/apisHung";
-import UserModelReportReason from "./UserModelReportReason";
-import { Button } from "../../components/button";
+  apiBanUser,
+  apiGetAllStaff,
+  apiLiftTheBan,
+  apiUpdateBan,
+} from "../../api/api";
+import { toast } from "react-toastify";
+import Button from "../../components/button/Button";
+import { debounce } from "lodash";
+import { apiSetUser } from "../../api/apisHung";
+import { useAuth } from "../../contexts/auth-context";
 
-const UserReportTable = () => {
+const StaffManage = () => {
   const [users, setUsers] = useState([]);
   const token = localStorage.getItem("token");
+  const { userInfo } = useAuth();
   const [statusRender, setStatusRender] = useState(false);
+  const [search, setSearch] = useState("");
   const banTypes = ["1week", "1month", "1year", "permanent"];
   const skip = useRef("");
-  const skipCount = useRef("");
-  const [open, setOpen] = useState(false);
-  const [userReportedId, setUserReportedId] = useState("");
+
+  const fetchUsers = useCallback(async () => {
+    const response = await apiGetAllStaff(token, 10, null, search);
+    if (response) {
+      skip.current = response.newSkip;
+      const mapUsers = response.data.map((user) => {
+        return {
+          ...user,
+          key: user.id,
+        };
+      });
+      setUsers(mapUsers);
+    }
+  }, [search, token]);
 
   useEffect(() => {
-    async function fetchUsers() {
-      const response = await apiGetPendingReportUsers(token, 2);
+    fetchUsers();
+  }, [fetchUsers]);
+
+  const handleSetUser = useCallback(
+    async (userId) => {
+      const response = await apiSetUser(token, userId);
       if (response) {
-        skip.current = response.newSkipId;
-        skipCount.current = response.newSkipCount;
-        const mapUsers = response.data.map((user) => {
-          return {
-            ...user,
-            key: user.id,
-          };
-        });
+        const mapUsers = users.filter((user) => user.id != userId);
         setUsers(mapUsers);
       }
-      return [];
-    }
+    },
+    [token, users]
+  );
 
-    fetchUsers();
-  }, [statusRender, token]);
+  useEffect(() => {
+    console.log("1");
 
-  const handleLoadMore = useCallback(async () => {
+    return console.log("2");
+  }, []);
+
+  const handleLoadMore = async () => {
     const newSkip = skip.current;
-    const newSkipCount = skipCount.current;
-    const response = await apiGetPendingReportUsers(
-      token,
-      2,
-      newSkip,
-      newSkipCount
-    );
-    console.log("response:", response);
+    const response = await apiGetAllStaff(token, 10, newSkip, search);
     if (response) {
       const mapUsers = response.data.map((user) => {
         return {
@@ -60,12 +70,11 @@ const UserReportTable = () => {
           key: user.id,
         };
       });
+      skip.current = response.newSkip;
       setUsers([...users, ...mapUsers]);
-      skip.current = response.newSkipId;
-      skipCount.current = response.newSkipCount;
     }
     return [];
-  }, [token, users]);
+  };
 
   const handleLiftTheBan = async (userId) => {
     const response = await apiLiftTheBan(token, userId);
@@ -100,35 +109,23 @@ const UserReportTable = () => {
     }
   };
 
-  const handleResolveReports = async (id) => {
-    const response = await apiResolveReportedAllUsers(token, id);
-
-    if (response?.success) {
-      const filterUsers = users.filter((user) => user.id != id);
-      setUsers(filterUsers);
-    }
-  };
-
-  const handleShowDrawer = (id) => {
-    setUserReportedId(id);
-    setOpen(true);
-  };
-
-  const ButtonBaned = ({ bannedBy, bannedUntil, banType }) => (
+  const ButtonBaned = ({ bannedBy, banType, bannedUntil }) => (
     <Popover
       content={
         <div>
           <p>
-            <span>Banned by</span> {bannedBy.username}
+            <span>Banned by</span> {bannedBy.username} ({bannedBy.role.name})
           </p>
-          {bannedUntil && (
+          <p>
+            <span>Ban type</span> {banType}
+          </p>
+          {bannedUntil ? (
             <p>
               <span>Ban until</span> {bannedUntil}
             </p>
+          ) : (
+            <p>Permanent ban</p>
           )}
-          <p>
-            <span>Banned type</span> {banType}
-          </p>
         </div>
       }
       placement="bottom"
@@ -138,6 +135,10 @@ const UserReportTable = () => {
       </Tag>
     </Popover>
   );
+
+  const handleChangeSearch = debounce((e) => {
+    setSearch(e.target.value);
+  }, 200);
 
   const ButtonMore = (user) => (
     <Popover
@@ -156,6 +157,15 @@ const UserReportTable = () => {
             >
               <span className="font-medium">Profile</span>
             </NavLink>
+            {userInfo && userInfo.data.role === "admin" && (
+              <button
+                className="block w-full text-left hover:text-blue-400"
+                onClick={() => handleSetUser(user.id)}
+              >
+                Set User
+              </button>
+            )}
+
             {user.status === "normal" && (
               <Popover
                 placement="left"
@@ -209,22 +219,6 @@ const UserReportTable = () => {
                 </button>
               </>
             )}
-            <div>
-              <button
-                className="block w-full py-2 text-left hover:text-blue-400"
-                onClick={() => handleResolveReports(user.id)}
-              >
-                Resolve all reports
-              </button>
-            </div>
-            <div>
-              <button
-                className="block w-full py-2 text-left hover:text-blue-400"
-                onClick={() => handleShowDrawer(user.id)}
-              >
-                Show Reasons
-              </button>
-            </div>
           </div>
         </>
       }
@@ -232,31 +226,35 @@ const UserReportTable = () => {
       <button className="flex items-center justify-center text-blue-400 rounded-md cursor-pointer w-7 h-7">
         {icons.moreIcon}
       </button>
-      <div></div>
     </Popover>
   );
 
   return (
     <div>
+      <div className="my-3  border-blue-400 border rounded-lg max-w-[320px] pl-4 flex py-2">
+        <input
+          className="flex-1 text-sm placeholder:text-sm"
+          type="text"
+          placeholder="Search"
+          onChange={handleChangeSearch}
+        />
+        <div className="mr-4 text-blue-400">{icons.searchIcon}</div>
+      </div>
       <Table dataSource={users} pagination={false} className="overflow-y-auto">
         <Column
           title="Username"
           key="username"
           render={(user) => (
-            <NavLink to={`/profile/${user.username}`} target="_blank">
-              <p className="w-40 font-medium whitespace-nowrap">
-                {user.username}
-              </p>
-            </NavLink>
+            <>
+              <p className="font-medium whitespace-nowrap">{user.username}</p>
+            </>
           )}
         />
-        <Column
-          title="Email"
-          key="email"
-          render={(user) => (
-            <p className="font-medium whitespace-nowrap">{user.email}</p>
-          )}
-        />
+
+        <Column title="Bans" dataIndex="bansCount" key="bansCount" />
+
+        <Column title="Reports" dataIndex="reportsCount" key="reportsCount" />
+
         <Column
           title="Status"
           key="status"
@@ -266,40 +264,55 @@ const UserReportTable = () => {
             ) : (
               <ButtonBaned
                 bannedBy={user.bannedBy}
-                bannedUntil={user.bannedUntil}
                 banType={user.banType}
+                bannedUntil={user.bannedUntil}
               ></ButtonBaned>
             )
           }
         />
-        <Column title="Reports" dataIndex="reportsCount" key="reportsCount" />
+
+        <Column title="Ban type" dataIndex="banType" key="banType" />
+
+        <Column
+          title="Banned until"
+          dataIndex="bannedUntil"
+          key="bannedUntil"
+        />
+
+        <Column
+          title="Banned by"
+          key="bannedBy"
+          render={(user) => {
+            if (user.bannedBy) {
+              return (
+                <div className="flex justify-center gap-2">
+                  <p className="font-semibold text-gray-500">
+                    {user.bannedBy.username}
+                  </p>
+                  <Tag color="red">{user?.bannedBy.role.name}</Tag>
+                </div>
+              );
+            }
+          }}
+        />
+
+        {/* <Column
+          title="Crated time"
+          key="createdAt"
+          render={(user) => (
+            <p className="whitespace-nowrap">{getTimeAgo(user.createdAt)}</p>
+          )}
+        /> */}
 
         <Column title="More" key="More" render={(user) => ButtonMore(user)} />
       </Table>
-      {userReportedId && (
-        <Drawer
-          title="Reports"
-          placement="right"
-          width={450}
-          onClose={() => setOpen(false)}
-          open={open}
-        >
-          <UserModelReportReason
-            id={userReportedId}
-            token={token}
-          ></UserModelReportReason>
-        </Drawer>
-      )}
-
-      {users && users.length > 0 && (
-        <div className="flex justify-center mt-5" onClick={handleLoadMore}>
-          <Button type="button" kind="primary" height="40px">
-            Load more
-          </Button>
-        </div>
-      )}
+      <div className="flex justify-center mt-5" onClick={handleLoadMore}>
+        <Button type="button" kind="primary" height="40px">
+          Load more
+        </Button>
+      </div>
     </div>
   );
 };
 
-export default UserReportTable;
+export default StaffManage;

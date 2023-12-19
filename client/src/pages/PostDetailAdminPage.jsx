@@ -1,18 +1,17 @@
 import { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
 import PostImage from "../modules/post/PostImage";
-import PostMeta from "../modules/post/PostMeta";
 import Avatar from "../modules/user/Avatar";
 import TopicList from "../modules/topic/TopicList";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import PageNotFound from "./PageNotFound";
 import ActionComment from "../action/ActionComment";
 import ActionLike from "../action/ActionLike";
-import { apiGetArticle } from "../api/api";
-import ButtonSaveBlog from "../components/button/ButtonSaveBlog";
-import ButtonActionBlogsAuthor from "../components/button/ButtonActionBlogsAuthor";
+import { apiGetArticleAdminDetail } from "../api/api";
+import useTimeAgo from "../hooks/useTimeAgo";
+import { Tag } from "antd";
 
-const PostDetailPagePageStyle = styled.div`
+const PostDetailAdminPagePageStyle = styled.div`
   padding: 50px 0;
   max-width: 700px;
   width: 100%;
@@ -83,15 +82,16 @@ const PostDetailPagePageStyle = styled.div`
   }
 `;
 
-const PostDetailPage = () => {
-  const { slug } = useParams("slug");
+const PostDetailAdminPage = () => {
+  const { id } = useParams("id");
   const [blog, setBlog] = useState(null);
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
+  const getTimeAgo = useTimeAgo;
 
   const fetchBlog = useCallback(async () => {
     try {
-      const response = await apiGetArticle(token, slug);
+      const response = await apiGetArticleAdminDetail(token, id);
       if (!response) navigate("/*");
 
       setBlog(response.data);
@@ -99,16 +99,16 @@ const PostDetailPage = () => {
       console.log("error:", error);
       navigate("/*");
     }
-  }, [navigate, slug, token]);
+  }, [id, navigate, token]);
 
   useEffect(() => {
     fetchBlog();
   }, [fetchBlog]);
 
-  if (!slug) return <PageNotFound></PageNotFound>;
+  if (!id) return <PageNotFound></PageNotFound>;
 
   return (
-    <PostDetailPagePageStyle>
+    <PostDetailAdminPagePageStyle>
       {blog && (
         <div className="post-header">
           {blog.banner && (
@@ -123,9 +123,26 @@ const PostDetailPage = () => {
               <Link to={`/profile/${blog.author?.userInfo?.username}`}>
                 <Avatar url={blog.author?.avatar} size="medium"></Avatar>
               </Link>
-              <PostMeta blog={blog}></PostMeta>
+              <Link to={`/profile/${blog.author.userInfo.username}`}>
+                <div className="font-medium ">
+                  <p className="post-author">{blog.author.fullname}</p>
+                  <p className="post-author">{blog.author.userInfo.username}</p>
+                </div>
+              </Link>
+              <div>
+                {blog.author.userInfo.role.slug === "user" ? (
+                  <Tag color="green">{blog.author.userInfo.role.name}</Tag>
+                ) : (
+                  <Tag color="red">{blog.author.userInfo.role.name}</Tag>
+                )}
+                <p className="mt-1 text-xs font-medium text-gray-400">
+                  {getTimeAgo(blog.updatedAt)}
+                </p>
+              </div>
             </div>
-            <TopicList data={blog.articleTopics}></TopicList>
+            <div className="">
+              <TopicList data={blog.articleTopics}></TopicList>
+            </div>
             <div className="flex items-center justify-between py-2 mt-5 border-gray-200 action border-y">
               <div className="flex items-center gap-5 communicate">
                 <ActionLike
@@ -136,18 +153,6 @@ const PostDetailPage = () => {
                 ></ActionLike>
                 <ActionComment blogId={blog.id}></ActionComment>
               </div>
-              {!blog.isMyArticle && (
-                <div className="flex items-center gap-3 ">
-                  <ButtonSaveBlog
-                    BlogId={blog.id}
-                    checkMyProfile={blog.isSaved}
-                  ></ButtonSaveBlog>
-                  <ButtonActionBlogsAuthor
-                    setMuteId={() => {}}
-                    blog={blog}
-                  ></ButtonActionBlogsAuthor>
-                </div>
-              )}
             </div>
           </div>
           <div className="post-content">
@@ -161,8 +166,8 @@ const PostDetailPage = () => {
           </div>
         </div>
       )}
-    </PostDetailPagePageStyle>
+    </PostDetailAdminPagePageStyle>
   );
 };
 
-export default PostDetailPage;
+export default PostDetailAdminPage;

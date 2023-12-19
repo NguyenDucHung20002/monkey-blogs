@@ -39,6 +39,7 @@ const WritePage = () => {
   });
 
   const [topics, setTopics] = useState([]);
+  const [topicInput, setTopicInput] = useState("");
   const [content, setContent] = useState("");
   const [preview, setPreview] = useState("");
   const [isSaved, setIsSaved] = useState(false);
@@ -94,7 +95,12 @@ const WritePage = () => {
     //   return;
     // }
     const { preview } = values;
-    const topicNames = topics.map((val) => val.name);
+    const getTopicNames = topics.map((val) => val.name);
+    const topicsSplit = topicInput
+      .trim()
+      .split(/[,\s]+/)
+      .filter(Boolean);
+    const topicNames = [...getTopicNames, ...topicsSplit];
     const idDraft = newDraft?.draftId;
     const data = {
       topicNames,
@@ -157,6 +163,8 @@ const WritePage = () => {
     <WritePageStyle>
       <form onSubmit={handleSubmit(handleAddBlog)} autoComplete="off">
         <WriteHeader
+          topicInput={topicInput}
+          setTopicInput={setTopicInput}
           showIsSaved={showIsSaved}
           isSaved={isSaved}
           image={image?.url}

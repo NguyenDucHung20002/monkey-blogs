@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import styled from "styled-components";
 import useTimeAgo from "../../hooks/useTimeAgo";
 import { apiFollowUser, apiUnFollowUser } from "../../api/api";
@@ -28,7 +28,9 @@ const PostMetaStyles = styled.div`
   }
 `;
 
-const PostMeta = ({ blog, className }) => {
+const PostMeta = ({ blog, isMyBlog, className }) => {
+  console.log("isMyBlog:", isMyBlog);
+  const { isMyArticle } = blog;
   const getTimeAgo = useTimeAgo(blog.updatedAt);
   const token = localStorage.getItem("token");
   const [isFollowed, setIsFollowed] = useState(false);
@@ -36,7 +38,11 @@ const PostMeta = ({ blog, className }) => {
   useEffect(() => {
     if (blog && typeof blog.authorFollowed === "boolean")
       setIsFollowed(blog.authorFollowed);
-  }, [blog]);
+  }, [blog, isMyArticle]);
+
+  useEffect(() => {
+    if (typeof isMyArticle === "boolean") setIsFollowed(blog.authorFollowed);
+  }, [blog, isMyArticle]);
 
   const handleFollow = async () => {
     const res = isFollowed
@@ -52,14 +58,26 @@ const PostMeta = ({ blog, className }) => {
         <span className="post-author">{blog.author.fullname}</span>
       </Link>
       <div className="follow">
-        <span className="post-time">{getTimeAgo}</span>
-        <span className="post-dot"></span>
-        <button
-          className="text-base text-green-600 cursor-pointer hover:text-green-700"
-          onClick={handleFollow}
-        >
-          {isFollowed ? "Following" : "Follow"}
-        </button>
+        <span className="post-time text-gray-400">{getTimeAgo}</span>
+        <span className="post-dot "></span>
+        {!blog.isMyArticle ? (
+          <>
+            <button
+              className="text-base text-green-600 cursor-pointer hover:text-green-700"
+              onClick={handleFollow}
+            >
+              {isFollowed ? "Following" : "Follow"}
+            </button>
+          </>
+        ) : (
+          <>
+            <NavLink to={`/edit-blog/${blog.id}`}>
+              <button className="text-base text-green-600 cursor-pointer hover:text-green-700">
+                Edit
+              </button>
+            </NavLink>
+          </>
+        )}
       </div>
     </PostMetaStyles>
   );

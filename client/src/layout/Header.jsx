@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { Avatar, Space, Popover } from "antd";
 import styled from "styled-components";
@@ -98,7 +98,7 @@ const Header = memo(() => {
         {data.role !== "user" && (
           <NavLink to={`/dashboard`}>
             <div className="flex items-center justify-start my-4">
-              {icons.dashboardIcon} <p className="ml-3">dashboard</p>
+              {icons.dashboardIcon} <p className="ml-3">Dashboard</p>
             </div>
           </NavLink>
         )}

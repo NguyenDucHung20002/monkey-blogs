@@ -20,7 +20,7 @@ const UserReportsContent = ({ reason, description }) => {
         </p>
       )}
 
-      {description.length > 150 && (
+      {description?.length && description?.length > 150 && (
         <button
           onClick={() => setShowMore(!showMore)}
           className="text-green-400 transition-all hover:text-green-600"

@@ -1,8 +1,6 @@
 /* eslint-disable react/prop-types */
-import axios from "axios";
 import { useEffect, useMemo, useRef, useState } from "react";
 import ReactQuill, { Quill } from "react-quill";
-import { imgbbAPI } from "../../config/apiConfig";
 import ImageUploader from "quill-image-uploader";
 import { config } from "../../utils/constants";
 import { apiDeleteImage, apiUploadImage } from "../../api/apiNew";
@@ -12,8 +10,8 @@ Quill.register("modules/imageUploader", ImageUploader);
 const MyEditor = ({ content, setContent }) => {
   const [imageFiles, setImageFiles] = useState([]);
   const quillRef = useRef();
-  const deleteImage =(filename) => {
-     apiDeleteImage(filename)
+  const deleteImage = (filename) => {
+    apiDeleteImage(filename);
   };
 
   useEffect(() => {
@@ -51,15 +49,18 @@ const MyEditor = ({ content, setContent }) => {
       },
       imageUploader: {
         upload: async (file) => {
-          const response = await apiUploadImage(file)
+          const response = await apiUploadImage(file);
           // console.log(response);
           if (response.data.filename) {
-            const filename = response.data.filename
+            const filename = response.data.filename;
             const src = `${config.SERVER_HOST}/file/${filename}`;
             // console.log("src:", src);
             const date = Date.now();
-            setImageFiles((prev) => [...prev, { path: src, id: date, filename }]);
-            return src
+            setImageFiles((prev) => [
+              ...prev,
+              { path: src, id: date, filename },
+            ]);
+            return src;
           }
           return;
         },
