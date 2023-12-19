@@ -11,6 +11,6 @@ const VerifyTokenSchema = new mongoose.Schema(
   }
 );
 
-VerifyTokenSchema.index({ timestamps: 1 }, { expireAfterSeconds: 900 });
+VerifyTokenSchema.index({ updatedAt: 1 }, { expireAfterSeconds: 900 });
 
 export default mongoose.model("Verify-Token", VerifyTokenSchema);
