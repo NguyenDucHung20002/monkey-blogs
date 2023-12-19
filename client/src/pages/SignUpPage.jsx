@@ -1,6 +1,6 @@
 import { useForm } from "react-hook-form";
 import { Button } from "../components/button";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { icons } from "../utils/constants";
@@ -9,9 +9,9 @@ import { Label } from "../components/label";
 import { Field } from "../components/field";
 import { useEffect } from "react";
 import { toast } from "react-toastify";
+import { apiRegister } from "../api/apisHung";
 
 const schema = yup.object({
-  fullname: yup.string().required("Please enter your fullname"),
   email: yup
     .string()
     .email("Please enter valid email address")
@@ -23,7 +23,6 @@ const schema = yup.object({
 });
 
 const SignUpPage = () => {
-  const navigate = useNavigate();
   const {
     control,
     handleSubmit,
@@ -43,27 +42,20 @@ const SignUpPage = () => {
     }
   }, [errors]);
 
-  const handleSignUp = (values) => {
+  const handleSignUp = async (values) => {
     if (!isValid) return;
-    console.log("values:", values);
+    const { email, password } = values;
+    console.log("email, password:", email, password);
+    await apiRegister(email, password);
   };
 
   return (
     <div>
       <form
-        className="max-w-lg w-full mx-auto"
+        className="w-full max-w-lg mx-auto"
         onSubmit={handleSubmit(handleSignUp)}
         autoComplete="off"
       >
-        <Field>
-          <Label htmlFor="fullname">Fullname</Label>
-          <InputAuth
-            type="text"
-            name="fullname"
-            placeholder="Enter your fullname"
-            control={control}
-          />
-        </Field>
         <Field>
           <Label htmlFor="email">Email address</Label>
           <InputAuth
@@ -85,7 +77,7 @@ const SignUpPage = () => {
         <div className="have-account">
           You already have an account? <NavLink to={"/sign-in"}>Login</NavLink>{" "}
         </div>
-        <div className="flex items-center gap-3 mt-5 justify-center">
+        <div className="flex items-center justify-center gap-3 mt-5">
           <Button
             type="submit"
             className="w-full max-w-[300px] mx-auto"

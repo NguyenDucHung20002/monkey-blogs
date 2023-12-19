@@ -23,12 +23,10 @@ const apiGetPendingReportUsers = async (
 
     if (response?.data) return response.data;
   } catch (error) {
-    if (error.response.status == 404) {
-      toast.error("Users empty!", {
-        pauseOnHover: true,
-        delay: 300,
-      });
-    }
+    toast.warning(error.message, {
+      pauseOnHover: false,
+      delay: 200,
+    });
   }
 };
 
@@ -48,12 +46,10 @@ const apiGetReportedUsers = async (token, userId, limit = 10, skip) => {
 
     if (response?.data) return response.data;
   } catch (error) {
-    if (error.response.status == 404) {
-      toast.error("Users empty!", {
-        pauseOnHover: true,
-        delay: 300,
-      });
-    }
+    toast.warning(error.message, {
+      pauseOnHover: false,
+      delay: 200,
+    });
   }
 };
 
@@ -74,12 +70,10 @@ const apiGetUsersResolved = async (token, limit = 10, skip) => {
 
     if (response?.data) return response.data;
   } catch (error) {
-    if (error.response.status == 404) {
-      toast.error("Users empty!", {
-        pauseOnHover: true,
-        delay: 300,
-      });
-    }
+    toast.warning(error.message, {
+      pauseOnHover: false,
+      delay: 200,
+    });
   }
 };
 
@@ -698,7 +692,34 @@ const apiSetUser = async (token, userId) => {
   }
 };
 
+const apiRegister = async (email, password) => {
+  if (!email && !password) return null;
+  try {
+    const response = await axios.post(
+      `${config.SERVER_HOST}/auth/register`,
+      { email, password },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response?.data?.success) {
+      toast.success(response?.data?.message, {
+        pauseOnHover: false,
+        delay: 200,
+      });
+    }
+  } catch (error) {
+    toast.warning(error.response.data.message, {
+      pauseOnHover: false,
+      delay: 200,
+    });
+  }
+};
+
 export {
+  apiRegister,
   apiSetUser,
   apiSetStaff,
   apiGetUserLikedBlogs,

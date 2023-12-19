@@ -281,11 +281,11 @@ const WriteHeader = ({
                       token={token}
                       placeholder="Add a topic"
                     ></SearchAddTopics>
-                    <p className="mt-5 text-sm text-gray-400 ">
+                    <p className="mt-5 text-sm text-gray-500 ">
                       <span className="font-semibold text-gray-600">Note:</span>{" "}
-                      Changes here will affect how your story appears in public
+                      {`Changes here will affect how your story appears in public
                       places like Medium’s homepage and in subscribers’ inboxes
-                      — not the contents of the story itself.
+                      — not the contents of the story itself. Enter your topics if you don't find it we will consider it, separated by "," (live, eat)`}
                     </p>
                     <Button
                       type="submit"

@@ -96,11 +96,9 @@ const WritePage = () => {
     // }
     const { preview } = values;
     const getTopicNames = topics.map((val) => val.name);
-    const topicsSplit = topicInput
-      .trim()
-      .split(/[,\s]+/)
-      .filter(Boolean);
-    const topicNames = [...getTopicNames, ...topicsSplit];
+    const topicsSplit = topicInput.trim().split(/,+/).filter(Boolean);
+    const topicsMap = topicsSplit.map((val) => val.trim());
+    const topicNames = [...getTopicNames, ...topicsMap];
     const idDraft = newDraft?.draftId;
     const data = {
       topicNames,

@@ -132,11 +132,9 @@ const EditBlogPage = () => {
     let response;
     const cutPreview = preview.slice(0, 200);
     const getTopicNames = topics.map((val) => val.name);
-    const topicsSplit = topicInput
-      .trim()
-      .split(/[,\s]+/)
-      .filter(Boolean);
-    const topicNames = [...getTopicNames, ...topicsSplit];
+    const topicsSplit = topicInput.trim().split(/,+/).filter(Boolean);
+    const topicsMap = topicsSplit.map((val) => val.trim());
+    const topicNames = [...getTopicNames, ...topicsMap];
     if (status?.status == "draft") {
       const data = {
         topicNames,
