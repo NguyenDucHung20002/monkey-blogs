@@ -19,14 +19,13 @@ const TopicTable = () => {
   const token = localStorage.getItem("token");
   const { userInfo } = useAuth();
   const [topics, setTopics] = useState([]);
-  console.log("topics:", topics);
   const skip = useRef("");
   const [searchTopic, setSearchTopic] = useState("");
   const [status, setStatus] = useState("");
 
   useEffect(() => {
     async function fetchTopics() {
-      const response = await apiGetTopics(token, 5, searchTopic, status);
+      const response = await apiGetTopics(token, 10, searchTopic, status);
       const mapTopics = response.data.map((topic) => {
         return {
           ...topic,
@@ -49,7 +48,14 @@ const TopicTable = () => {
 
   const handleLoadMore = async () => {
     const newSkip = skip.current;
-    const response = await apiGetTopics(token, 10, searchTopic, newSkip);
+    const response = await apiGetTopics(
+      token,
+      10,
+      searchTopic,
+      status,
+      newSkip
+    );
+    console.log("response:", response);
     if (response) {
       const mapTopics = response.data.map((topic) => {
         return {
@@ -156,16 +162,7 @@ const TopicTable = () => {
                 Remove this Topic
               </button>
             </div>
-            {topic.status === "rejected" ? (
-              <div>
-                <button
-                  className="block w-full py-1 text-left hover:text-blue-400"
-                  onClick={() => handleApproved(topic.id)}
-                >
-                  Set approve
-                </button>
-              </div>
-            ) : (
+            {topic && topic.status === "approved" && (
               <div>
                 <button
                   className="block w-full py-1 text-left hover:text-blue-400"
@@ -174,6 +171,36 @@ const TopicTable = () => {
                   Set reject
                 </button>
               </div>
+            )}
+            {topic && topic.status === "rejected" && (
+              <div>
+                <button
+                  className="block w-full py-1 text-left hover:text-blue-400"
+                  onClick={() => handleApproved(topic.id)}
+                >
+                  Set approve
+                </button>
+              </div>
+            )}
+            {topic && topic.status === "pending" && (
+              <>
+                <div>
+                  <button
+                    className="block w-full py-1 text-left hover:text-blue-400"
+                    onClick={() => handleApproved(topic.id)}
+                  >
+                    Set approve
+                  </button>
+                </div>
+                <div>
+                  <button
+                    className="block w-full py-1 text-left hover:text-blue-400"
+                    onClick={() => handleRejected(topic.id)}
+                  >
+                    Set reject
+                  </button>
+                </div>
+              </>
             )}
           </div>
         </>
@@ -200,11 +227,13 @@ const TopicTable = () => {
             <div className="flex items-center mr-3 ">{icons.searchIcon}</div>
           </div>
           <Select
-            defaultValue="Status"
-            style={{ width: "120px" }}
+            defaultValue="All"
+            style={{ width: "200px" }}
             onChange={handleChange}
             options={[
+              { value: "", label: "All" },
               { value: "approved", label: "Approved" },
+              { value: "pending", label: "Pending" },
               { value: "rejected", label: "Rejected" },
             ]}
           />
@@ -240,13 +269,15 @@ const TopicTable = () => {
         <Column
           title="Status"
           key="status"
-          render={(topic) =>
-            topic.status === "approved" ? (
-              <Tag color="green">APPROVED</Tag>
-            ) : (
-              <Tag color="red">REJECTED</Tag>
-            )
-          }
+          render={(topic) => {
+            if (topic.status === "approved")
+              return <Tag color="green">APPROVED</Tag>;
+
+            if (topic.status === "rejected")
+              return <Tag color="red">REJECTED</Tag>;
+
+            return <Tag color="warning">PENDING</Tag>;
+          }}
         />
 
         <Column

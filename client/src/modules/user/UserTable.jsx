@@ -20,7 +20,7 @@ const UserTable = () => {
   const [users, setUsers] = useState([]);
   const token = localStorage.getItem("token");
   const { userInfo } = useAuth();
-  const { role } = (userInfo && userInfo.role) || "";
+  console.log("userInfo:", userInfo);
   const [statusRender, setStatusRender] = useState(false);
   const [search, setSearch] = useState("");
   const banTypes = ["1week", "1month", "1year", "permanent"];
@@ -152,7 +152,7 @@ const UserTable = () => {
             >
               <span className="font-medium">Profile</span>
             </NavLink>
-            {role && role === "admin" && (
+            {userInfo && userInfo.data.role === "admin" && (
               <button
                 className="block w-full text-left hover:text-blue-400"
                 onClick={() => handleSetStaff(user.id)}

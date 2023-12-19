@@ -8,7 +8,6 @@ import logo from "../assets/logo.png";
 import { Button } from "../components/button";
 import { useAuth } from "../contexts/auth-context";
 import ImageUpload from "../components/image/ImageUpload";
-import InputHook from "../components/input/InputHook";
 import SearchAddTopics from "../components/search/SearchAddTopics";
 
 const icons = {
@@ -115,6 +114,8 @@ const WriteHeader = ({
   token,
   setTopics,
   topics,
+  topicInput,
+  setTopicInput,
 }) => {
   const { userInfo, setUserInfo } = useAuth();
   const { data } = userInfo;
@@ -233,8 +234,8 @@ const WriteHeader = ({
                 borderRadius: 0,
               }}
             >
-              <div className=" m-auto h-screen">
-                <div className=" flex items-center content-center h-full w-8/12 m-auto">
+              <div className="h-screen m-auto ">
+                <div className="flex items-center content-center w-8/12 h-full m-auto ">
                   <button
                     onClick={handleCancel}
                     className="absolute top-[25%] right-[15%] z-[1001] text-xl hover:bg-stone-100"
@@ -261,7 +262,7 @@ const WriteHeader = ({
                     ></ImageUpload>
                   </div>
 
-                  <div className="mt-5  topic">
+                  <div className="mt-5 topic">
                     <h2 className="font-normal text-gray-600 ">
                       Publishing to:{" "}
                       <span className="font-semibold text-gray-700">
@@ -275,6 +276,8 @@ const WriteHeader = ({
                     <SearchAddTopics
                       topics={topics}
                       setTopics={setTopics}
+                      topicInput={topicInput}
+                      setTopicInput={setTopicInput}
                       token={token}
                       placeholder="Add a topic"
                     ></SearchAddTopics>

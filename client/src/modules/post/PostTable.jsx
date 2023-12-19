@@ -158,10 +158,11 @@ const PostTable = () => {
           <div className="flex items-center mr-3 ">{icons.searchIcon}</div>
         </div>
         <Select
-          defaultValue="Status"
+          defaultValue="All"
           style={{ width: "120px" }}
           onChange={handleChange}
           options={[
+            { value: "", label: "All" },
             { value: "approved", label: "Approved" },
             { value: "rejected", label: "Rejected" },
           ]}

@@ -3,11 +3,17 @@ import { debounce } from "lodash";
 import { apiTopicsSearch } from "../../api/apisHung";
 
 /* eslint-disable react/prop-types */
-const SearchAddTopics = ({ topics = [], setTopics, placeholder = "" }) => {
-  const [topicInput, setTopicInput] = useState("");
+const SearchAddTopics = ({
+  topics = [],
+  setTopics,
+  placeholder = "",
+  setTopicsInput,
+  topicInput = "",
+  setTopicInput,
+}) => {
   const [addTopics, setAddTopics] = useState([]);
   const input = useRef(null);
-  const token =  localStorage.getItem("token")
+  const token = localStorage.getItem("token");
   const handleDeleteTopic = (slug) => {
     const topicsClone = [...topics];
     const topicFilters = topicsClone.filter((topic) => topic.slug !== slug);
@@ -15,7 +21,7 @@ const SearchAddTopics = ({ topics = [], setTopics, placeholder = "" }) => {
   };
   useEffect(() => {
     async function fetchTopics() {
-      const response = await apiTopicsSearch(token,topicInput);
+      const response = await apiTopicsSearch(token, topicInput);
       if (response?.data) setAddTopics(response?.data);
     }
     fetchTopics();
@@ -29,14 +35,16 @@ const SearchAddTopics = ({ topics = [], setTopics, placeholder = "" }) => {
       setTopics(addTopicClone);
     }
     input.current.value = "";
-    setAddTopics([])
+    setAddTopics([]);
     setTopicInput("");
   };
 
   const handleOnchange = debounce((e) => {
     setTopicInput(e.target.value);
-    if(e.target.value === ""){
-    setAddTopics([])
+    if (e.target.value === "") {
+      const splitTopic = topicInput.trim().split(/[,\s]+/);
+      setTopicsInput(splitTopic);
+      setAddTopics([]);
     }
   }, 500);
   return (

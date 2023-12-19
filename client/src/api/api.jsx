@@ -477,6 +477,7 @@ const apiGetTopics = async (
   option = "",
   skip = ""
 ) => {
+  console.log('skip = "":', skip);
   try {
     const response = await axios.get(
       `${config.SERVER_HOST}/topic?limit=${limit}&search=${search}&skip=${skip}&option=${option}`,
@@ -837,7 +838,7 @@ const apiApproveTopic = async (token, id) => {
 const apiRejectTopic = async (token, id) => {
   try {
     const data = await axios.patch(
-      `${config.SERVER_HOST}/topic/${id}/rejected`,
+      `${config.SERVER_HOST}/topic/${id}/reject`,
       {},
       {
         headers: {
