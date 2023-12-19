@@ -13,6 +13,7 @@ import Role from "./models/mysql/Role.js";
 import roles from "./constants/roles.js";
 import checkToUnbanUsers from "./scripts/checkToUnbanUsers.js";
 import deleteSocketUsers from "./scripts/deleteSocketUser.js";
+import limiter from "./middlewares/limiter.js";
 import "./models/mysql/Association.js";
 import "./services/passport.js";
 import "./cron.js";
@@ -45,7 +46,7 @@ app.use(cors());
 MongoDB.connect();
 
 sequelize
-  .sync({ force: true, logging: true })
+  .sync({ force: false, logging: true })
   .then(() => {
     console.log("connect to mysql database successfully");
   })
