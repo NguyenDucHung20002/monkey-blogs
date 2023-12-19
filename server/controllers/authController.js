@@ -218,9 +218,7 @@ const loginEmail = asyncMiddleware(async (req, res, next) => {
   ]);
 
   if (!profile) {
-    return res.redirect(
-      `${env.CLIENT_HOST}:${env.CLIENT_PORT}/setup-profile?token=${jsonWebToken}`
-    );
+    return res.json({ success: true, hasProfile: false, token: jsonWebToken });
   }
 
   res.json({ success: true, token: jsonWebToken });
