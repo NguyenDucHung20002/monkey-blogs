@@ -20,13 +20,19 @@ const Comment = sequelize.define(
     articleId: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      references: { model: Article, key: "id" },
+      references: {
+        model: Article,
+        key: "id",
+      },
     },
 
     authorId: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      references: { model: Profile, key: "id" },
+      references: {
+        model: Profile,
+        key: "id",
+      },
     },
 
     parentCommentId: {

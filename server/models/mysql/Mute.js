@@ -14,13 +14,19 @@ const Mute = sequelize.define(
     mutedId: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      references: { model: Profile, key: "id" },
+      references: {
+        model: Profile,
+        key: "id",
+      },
     },
 
     muterId: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      references: { model: Profile, key: "id" },
+      references: {
+        model: Profile,
+        key: "id",
+      },
     },
   },
   {

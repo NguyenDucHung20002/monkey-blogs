@@ -19,13 +19,19 @@ const Follow_Profile = sequelize.define(
     followedId: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      references: { model: Profile, key: "id" },
+      references: {
+        model: Profile,
+        key: "id",
+      },
     },
 
     followerId: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      references: { model: Profile, key: "id" },
+      references: {
+        model: Profile,
+        key: "id",
+      },
     },
   },
   {

@@ -15,13 +15,19 @@ const Report_Article = sequelize.define(
     articleId: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      references: { model: Article, key: "id" },
+      references: {
+        model: Article,
+        key: "id",
+      },
     },
 
     userId: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      references: { model: User, key: "id" },
+      references: {
+        model: User,
+        key: "id",
+      },
     },
 
     reason: {

@@ -9,8 +9,6 @@ import socket from "./socket.js";
 
 const app = express();
 
-import Role from "./models/mysql/Role.js";
-import roles from "./constants/roles.js";
 import checkToUnbanUsers from "./scripts/checkToUnbanUsers.js";
 import deleteSocketUsers from "./scripts/deleteSocketUser.js";
 import "./models/mysql/Association.js";
@@ -40,18 +38,18 @@ import notificationRoute from "./routes/notificationRouter.js";
 
 app.use(express.json());
 app.use(morgan("dev"));
-app.use(cors());
+app.use(
+  cors({
+    origin: `${env.CLIENT_HOST}:${env.CLIENT_PORT}`,
+  })
+);
 
 MongoDB.connect();
 
 sequelize
-  .sync({ force: true, logging: true })
+  .authenticate()
   .then(() => {
     console.log("connect to mysql database successfully");
-  })
-  .then(() => {
-    Role.bulkCreate(roles, { ignoreDuplicates: true });
-    console.log("roles inserted successfully");
   })
   .then(() => {
     deleteSocketUsers();

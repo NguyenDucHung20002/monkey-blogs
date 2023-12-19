@@ -22,7 +22,10 @@ const Article = sequelize.define(
     authorId: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      references: { model: Profile, key: "id" },
+      references: {
+        model: Profile,
+        key: "id",
+      },
     },
 
     banner: {
@@ -78,13 +81,19 @@ const Article = sequelize.define(
     approvedById: {
       type: DataTypes.INTEGER,
       allowNull: true,
-      references: { model: User, key: "id" },
+      references: {
+        model: User,
+        key: "id",
+      },
     },
 
     deletedById: {
       type: DataTypes.INTEGER,
       allowNull: true,
-      references: { model: User, key: "id" },
+      references: {
+        model: User,
+        key: "id",
+      },
     },
 
     status: {

@@ -15,13 +15,19 @@ const Follow_Topic = sequelize.define(
     topicId: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      references: { model: Topic, key: "id" },
+      references: {
+        model: Topic,
+        key: "id",
+      },
     },
 
     profileId: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      references: { model: Profile, key: "id" },
+      references: {
+        model: Profile,
+        key: "id",
+      },
     },
   },
 

@@ -12,7 +12,7 @@ const Profile = sequelize.define(
     },
 
     avatar: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
       allowNull: false,
     },
 

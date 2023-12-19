@@ -58,9 +58,9 @@ const getNotifications = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// ==================== mark as readed ==================== //
+// ==================== mark as read ==================== //
 
-const markAsReaded = asyncMiddleware(async (req, res, next) => {
+const markAsRead = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { id } = req.params;
 
@@ -78,9 +78,9 @@ const markAsReaded = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// ==================== mark all as readed ==================== //
+// ==================== mark all as read ==================== //
 
-const martAllAsReaded = asyncMiddleware(async (req, res, next) => {
+const martAllAsRead = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
 
   await Notification.update(
@@ -94,4 +94,24 @@ const martAllAsReaded = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-export default { getNotifications, markAsReaded, martAllAsReaded };
+// ==================== clear read notifications ==================== //
+
+const clearReadNotifications = asyncMiddleware(async (req, res, next) => {
+  const me = req.me;
+
+  await Notification.destroy({
+    where: { reciverId: me.profileInfo.id, isRead: true },
+  });
+
+  res.json({
+    success: true,
+    message: "Cleared read notifications successfully",
+  });
+});
+
+export default {
+  getNotifications,
+  markAsRead,
+  martAllAsRead,
+  clearReadNotifications,
+};

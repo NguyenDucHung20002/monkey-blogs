@@ -1,12 +1,13 @@
 import { Server } from "socket.io";
 import SocketUser from "./models/mongodb/SocketUser.js";
+import env from "./config/env.js";
 
 let io;
 
 const initializeSocket = (server) => {
   io = new Server(server, {
     cors: {
-      origin: "*",
+      origin: `${env.CLIENT_HOST}:${env.CLIENT_PORT}`,
     },
   });
   io.on("connection", (socket) => {

@@ -1,4 +1,4 @@
-export default [
+const roles = [
   {
     id: 1,
     name: "User",
@@ -15,3 +15,5 @@ export default [
     slug: "admin",
   },
 ];
+
+module.exports = roles;

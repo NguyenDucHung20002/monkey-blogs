@@ -15,19 +15,28 @@ const Notification = sequelize.define(
     senderId: {
       type: DataTypes.INTEGER,
       allowNull: true,
-      references: { model: Profile, key: "id" },
+      references: {
+        model: Profile,
+        key: "id",
+      },
     },
 
     reciverId: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      references: { model: Profile, key: "id" },
+      references: {
+        model: Profile,
+        key: "id",
+      },
     },
 
     articleId: {
       type: DataTypes.INTEGER,
       allowNull: true,
-      references: { model: Article, key: "id" },
+      references: {
+        model: Article,
+        key: "id",
+      },
     },
 
     content: {

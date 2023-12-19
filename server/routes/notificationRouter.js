@@ -14,22 +14,31 @@ router.get(
   notificationController.getNotifications
 );
 
-// -------------------- mark all as readed -------------------- //
+// -------------------- mark all as read -------------------- //
 
 router.patch(
   "/mark-all-as-readed",
   requiredAuth,
   fetchMe,
-  notificationController.martAllAsReaded
+  notificationController.martAllAsRead
 );
 
-// -------------------- mark as readed -------------------- //
+// -------------------- mark as read -------------------- //
 
 router.patch(
   "/mark-as-readed/:id",
   requiredAuth,
   fetchMe,
-  notificationController.markAsReaded
+  notificationController.markAsRead
+);
+
+// -------------------- clear read notifications -------------------- //
+
+router.delete(
+  "/clear",
+  requiredAuth,
+  fetchMe,
+  notificationController.clearReadNotifications
 );
 
 export default router;
