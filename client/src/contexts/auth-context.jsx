@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect } from "react";
 import { config } from "../utils/constants";
 import axios from "axios";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 const { createContext, useContext, useState } = React;
 
@@ -13,6 +13,7 @@ const AuthProvider = React.memo((props) => {
   const value = { userInfo, setUserInfo };
   const [searchParams] = useSearchParams();
   const tokenParams = searchParams.get("token");
+  const navigate = useNavigate();
 
   function getToken() {
     if (tokenParams) {
@@ -27,7 +28,7 @@ const AuthProvider = React.memo((props) => {
   console.log("token:", token);
 
   const fetcher = useCallback(async () => {
-    if (!token) return;
+    if (!token) navigate("/sign-in");
     try {
       const response = await axios.get(
         `${config.SERVER_HOST}/profile/logged-in-profile-information`,
@@ -46,7 +47,7 @@ const AuthProvider = React.memo((props) => {
     } catch (error) {
       console.log("error:", error);
     }
-  }, [token]);
+  }, [navigate, token]);
 
   useEffect(() => {
     fetcher();

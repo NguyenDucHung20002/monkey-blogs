@@ -2,6 +2,7 @@
 import { NavLink, Outlet } from "react-router-dom";
 import styled from "styled-components";
 import logo from "../assets/logo.png";
+import { useEffect } from "react";
 
 const AuthenticationPageStyles = styled.div`
   min-height: 100vh;
@@ -31,6 +32,12 @@ const AuthenticationPageStyles = styled.div`
 `;
 
 const AuthenticationPage = () => {
+  const token = localStorage.getItem("token");
+
+  useEffect(() => {
+    if (token) window.location.replace("/");
+  }, [token]);
+
   return (
     <AuthenticationPageStyles>
       <div className="container">

@@ -91,6 +91,10 @@ function App() {
             path="/verify-setup-password"
             element={<VerifySetupPasswordPage></VerifySetupPasswordPage>}
           ></Route>
+          <Route
+            path="/verify-forgot-password"
+            element={<ForgotPasswordPage></ForgotPasswordPage>}
+          ></Route>
           <Route element={<AuthenticationPage></AuthenticationPage>}>
             <Route path="/sign-in" element={<SignInPage></SignInPage>}></Route>
             <Route path="/sign-up" element={<SignUpPage></SignUpPage>}></Route>
@@ -99,10 +103,6 @@ function App() {
               element={
                 <SendEmailForgotPasswordPage></SendEmailForgotPasswordPage>
               }
-            ></Route>
-            <Route
-              path="/verify-forgot-password"
-              element={<ForgotPasswordPage></ForgotPasswordPage>}
             ></Route>
           </Route>
           <Route element={<ContextWrap></ContextWrap>}>
