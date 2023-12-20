@@ -7,51 +7,61 @@ import MongoDB from "../databases/mongodb/connect.js";
 const checkAvatar = async (req, res, next) => {
   try {
     const filename = req.file?.filename;
-    const size = req.file?.size;
 
-    const FILE_LIMIT = env.AVATAR_FILE_SIZE_LIMIT * 1024 * 1024;
+    if (filename) {
+      const size = req.file?.size;
 
-    if (size && size > FILE_LIMIT) {
-      await fileController.autoRemoveImg(filename);
-      return res.status(400).json({
-        success: false,
-        message: "File too large",
+      const FILE_LIMIT = env.AVATAR_FILE_SIZE_LIMIT * 1024 * 1024;
+
+      if (size && size > FILE_LIMIT) {
+        await fileController.autoRemoveImg(filename);
+        return res.status(400).json({
+          success: false,
+          message: "File too large",
+        });
+      }
+
+      const gfs = MongoDB.gfs;
+
+      const readStream = gfs.openDownloadStreamByName(filename);
+
+      const files = await gfs.find({ filename: imgName }).toArray();
+
+      if (!files || !files.length) {
+        return;
+      }
+
+      let chunks = [];
+
+      readStream.on("data", (chunk) => {
+        chunks.push(chunk);
       });
-    }
 
-    const gfs = MongoDB.gfs;
+      await new Promise((resolve, reject) => {
+        readStream.on("end", () => {
+          const imgData = Buffer.concat(chunks).toString("base64");
 
-    const readStream = gfs.openDownloadStreamByName(filename);
-    let chunks = [];
+          clarifai(imgData, async (err, results) => {
+            if (err) {
+              reject(err);
+              return;
+            }
 
-    readStream.on("data", (chunk) => {
-      chunks.push(chunk);
-    });
+            if (results[0][0].nsfw > 0.55) {
+              await fileController.autoRemoveImg(filename);
 
-    await new Promise((resolve, reject) => {
-      readStream.on("end", () => {
-        const imgData = Buffer.concat(chunks).toString("base64");
+              return res.status(400).json({
+                success: false,
+                message:
+                  "Your image contains explicit content and is not allowed",
+              });
+            }
 
-        clarifai(imgData, async (err, results) => {
-          if (err) {
-            reject(err);
-            return;
-          }
-
-          if (results[0][0].nsfw > 0.55) {
-            await fileController.autoRemoveImg(filename);
-
-            return res.status(400).json({
-              success: false,
-              message:
-                "Your image contains explicit content and is not allowed",
-            });
-          }
-
-          resolve();
+            resolve();
+          });
         });
       });
-    });
+    }
 
     next();
   } catch (error) {

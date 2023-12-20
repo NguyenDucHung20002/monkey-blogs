@@ -100,7 +100,7 @@ const updateMyProfile = asyncMiddleware(async (req, res, next) => {
 
   const filename = req.file?.filename;
 
-  if (filename !== me.profileInfo.avatar) {
+  if (filename && filename !== me.profileInfo.avatar) {
     const oldAvatar = me.profileInfo.avatar.split("/");
     await fileController.autoRemoveImg(oldAvatar[oldAvatar.length - 1]);
   }
