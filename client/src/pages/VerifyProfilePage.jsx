@@ -1,7 +1,6 @@
 import styled from "styled-components";
 import { Image } from "antd";
 import { Button } from "../components/button";
-import { useEffect, useState } from "react";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
@@ -10,6 +9,7 @@ import InputHook from "../components/input/InputHook";
 import logo from "../assets/logo.png";
 import ImageUpload from "../components/image/ImageUpload";
 import { apiVerifyProfile } from "../api/apisHung";
+import { useState } from "react";
 
 const schema = yup.object({
   fullName: yup.string().required("Please fill out your title").min(4),
@@ -52,16 +52,6 @@ const VerifyProfilePage = () => {
   const handleDeleteImage = () => {
     setImage("");
   };
-
-  useEffect(() => {
-    const arrErrs = Object.values(errors);
-    if (arrErrs.length > 0) {
-      toast.error(arrErrs[0]?.message, {
-        pauseOnHover: false,
-        delay: 500,
-      });
-    }
-  }, [errors]);
 
   const handleSubmitProfile = async (values) => {
     if (!isValid) return;
@@ -109,6 +99,7 @@ const VerifyProfilePage = () => {
               name="fullName"
               placeholder="User name"
             ></InputHook>
+            <p className="text-red-500">{errors?.fullName?.message}</p>
             <div className="flex justify-center mt-10">
               <Button
                 type="submit"

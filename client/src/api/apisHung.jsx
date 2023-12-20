@@ -757,6 +757,25 @@ const apiVerifyEmail = async (token) => {
   }
 };
 
+const apiVerifySetupPassword = async (token) => {
+  if (!token) return null;
+  try {
+    const response = await axios.patch(
+      `${config.SERVER_HOST}/auth/verify-setup-password`,
+      { token },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response?.data) return response.data;
+  } catch (error) {
+    console.log("error:", error);
+    return error.response.data;
+  }
+};
+
 const apiVerifyProfile = async (token, formData) => {
   if (!token) return null;
   try {
@@ -829,6 +848,7 @@ const apiChangeForgotPassword = async (
 };
 
 export {
+  apiVerifySetupPassword,
   apiChangeForgotPassword,
   apiForgotPassword,
   apiVerifyProfile,

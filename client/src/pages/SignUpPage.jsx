@@ -7,8 +7,6 @@ import { icons } from "../utils/constants";
 import InputAuth from "../components/input/InputAuth";
 import { Label } from "../components/label";
 import { Field } from "../components/field";
-import { useEffect } from "react";
-import { toast } from "react-toastify";
 import { apiRegister } from "../api/apisHung";
 
 const schema = yup.object({
@@ -32,20 +30,14 @@ const SignUpPage = () => {
     resolver: yupResolver(schema),
   });
 
-  useEffect(() => {
-    const arrError = Object.values(errors);
-    if (arrError.length > 0) {
-      toast.error(arrError[0]?.message, {
-        pauseOnHover: false,
-        delay: 0,
-      });
-    }
-  }, [errors]);
-
   const handleSignUp = async (values) => {
     if (!isValid) return;
     const { email, password } = values;
-    await apiRegister(email, password);
+    try {
+      await apiRegister(email, password);
+    } catch (error) {
+      console.log("error:", error);
+    }
   };
 
   return (
@@ -63,6 +55,7 @@ const SignUpPage = () => {
             placeholder="Enter your email"
             control={control}
           />
+          <p className="text-red-500">{errors?.email?.message}</p>
         </Field>
         <Field>
           <Label htmlFor="password">Password</Label>
@@ -72,6 +65,7 @@ const SignUpPage = () => {
             placeholder="Enter your password"
             control={control}
           />
+          <p className="text-red-500">{errors?.password?.message}</p>
         </Field>
         <div className="have-account">
           You already have an account? <NavLink to={"/sign-in"}>Login</NavLink>{" "}

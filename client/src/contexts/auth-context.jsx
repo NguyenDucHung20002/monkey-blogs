@@ -27,7 +27,6 @@ const AuthProvider = React.memo((props) => {
   const token = getToken();
   console.log("token:", token);
 
-  if (tokenParams);
   const fetcher = useCallback(async () => {
     if (!token) return;
     try {

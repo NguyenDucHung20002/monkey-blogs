@@ -41,7 +41,7 @@ const AuthenticationPage = () => {
         </div>
         <div className="flex justify-center">
           <h1 className="heading bg-gradient-to-r from-[#74B9FF] to-[#0be881] text-transparent bg-clip-text inline-block">
-            Monkey Story Medium
+            Monkey Medium
           </h1>
         </div>
         <Outlet></Outlet>

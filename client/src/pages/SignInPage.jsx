@@ -3,13 +3,14 @@ import { Button } from "../components/button";
 import { NavLink, useNavigate } from "react-router-dom";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { icons } from "../utils/constants";
+import { config, icons } from "../utils/constants";
 import InputAuth from "../components/input/InputAuth";
 import { Label } from "../components/label";
 import { Field } from "../components/field";
-import { useEffect } from "react";
-import { toast } from "react-toastify";
 import { apiLogin } from "../api/apisHung";
+import axios from "axios";
+import { useAuth } from "../contexts/auth-context";
+import { useCallback } from "react";
 
 const schema = yup.object({
   email: yup
@@ -32,32 +33,52 @@ const SignInPage = () => {
     resolver: yupResolver(schema),
   });
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const arrError = Object.values(errors);
-    if (arrError.length > 0) {
-      toast.error(arrError[0]?.message, {
-        pauseOnHover: false,
-        delay: 0,
-      });
-    }
-  }, [errors]);
+  const { userInfo, setUserInfo } = useAuth();
+  console.log("userInfo:", userInfo);
 
   const handleSignIn = async (values) => {
     if (!isValid) return;
     const { email, password } = values;
-    const response = await apiLogin(email, password);
-    if (response.success && !response.hasProfile) {
-      localStorage.setItem("token", response.token);
-      navigate("/verify-profile");
-      return;
-    }
-    if (response.success && response.hasProfile) {
-      localStorage.setItem("token", response.token);
-      navigate("/");
-      return;
+
+    try {
+      const response = await apiLogin(email, password);
+      if (response.success && !response.hasProfile) {
+        localStorage.setItem("token", response.token);
+        if (response.token) navigate("/verify-profile");
+        return;
+      }
+      if (response.success && response.hasProfile) {
+        localStorage.setItem("token", response.token);
+        await fetcher(response.token);
+        navigate("/");
+        return;
+      }
+    } catch (error) {
+      console.log("error:", error);
     }
   };
+
+  const fetcher = useCallback(async (token) => {
+    if (!token) return;
+    try {
+      const response = await axios.get(
+        `${config.SERVER_HOST}/profile/logged-in-profile-information`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response?.data?.success) {
+        setUserInfo(response.data);
+      }
+      return null;
+    } catch (error) {
+      console.log("error:", error);
+    }
+  }, []);
 
   return (
     <div>
@@ -74,6 +95,7 @@ const SignInPage = () => {
             placeholder="Enter your email"
             control={control}
           />
+          <p className="text-red-500">{errors?.email?.message}</p>
         </Field>
         <Field>
           <Label htmlFor="password">Password</Label>
@@ -83,6 +105,7 @@ const SignInPage = () => {
             placeholder="Enter your password"
             control={control}
           />
+          <p className="text-red-500">{errors?.password?.message}</p>
         </Field>
         <div className="flex justify-between have-account">
           <p>

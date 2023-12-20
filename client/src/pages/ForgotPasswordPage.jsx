@@ -5,7 +5,6 @@ import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Label } from "../components/label";
 import { Field } from "../components/field";
-import { useEffect } from "react";
 import { toast } from "react-toastify";
 import InputPasswordToggle from "../components/input/InputPasswordToggle";
 import { apiChangeForgotPassword } from "../api/apisHung";
@@ -32,16 +31,6 @@ const ForgotPasswordPage = () => {
     resolver: yupResolver(schema),
   });
 
-  useEffect(() => {
-    const arrError = Object.values(errors);
-    if (arrError.length > 0) {
-      toast.error(arrError[0]?.message, {
-        pauseOnHover: false,
-        delay: 0,
-      });
-    }
-  }, [errors]);
-
   const handleChangePass = async (values) => {
     if (!isValid) return;
     const { confirmPassword, password } = values;
@@ -53,17 +42,21 @@ const ForgotPasswordPage = () => {
       return;
     }
     const token = localStorage.getItem("token");
-    const response = await apiChangeForgotPassword(
-      token,
-      password,
-      confirmPassword
-    );
-    if (response.success) {
-      toast.success(response.message, {
-        pauseOnHover: false,
-        delay: 200,
-      });
-      reset();
+    try {
+      const response = await apiChangeForgotPassword(
+        token,
+        password,
+        confirmPassword
+      );
+      if (response.success) {
+        toast.success(response.message, {
+          pauseOnHover: false,
+          delay: 200,
+        });
+        reset();
+      }
+    } catch (error) {
+      console.log("error:", error);
     }
   };
 
@@ -84,6 +77,7 @@ const ForgotPasswordPage = () => {
             placeholder="Enter your password"
             control={control}
           />
+          <p className="text-red-500">{errors?.password?.message}</p>
         </Field>
         <Field>
           <Label htmlFor="confirmPassword">Confirm password</Label>
@@ -92,6 +86,7 @@ const ForgotPasswordPage = () => {
             placeholder="Confirm password"
             control={control}
           />
+          <p className="text-red-500">{errors?.confirmPassword?.message}</p>
         </Field>
 
         <div className="have-account">

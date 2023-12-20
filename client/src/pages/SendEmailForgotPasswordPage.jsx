@@ -6,9 +6,8 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import InputAuth from "../components/input/InputAuth";
 import { Label } from "../components/label";
 import { Field } from "../components/field";
-import { useEffect, useState } from "react";
-import { toast } from "react-toastify";
 import { apiForgotPassword } from "../api/apisHung";
+import { useState } from "react";
 
 const schema = yup.object({
   email: yup
@@ -30,23 +29,17 @@ const SendEmailForgotPasswordPage = () => {
 
   const [isMessage, setIsMessage] = useState(false);
 
-  useEffect(() => {
-    const arrError = Object.values(errors);
-    if (arrError.length > 0) {
-      toast.error(arrError[0]?.message, {
-        pauseOnHover: false,
-        delay: 0,
-      });
-    }
-  }, [errors]);
-
   const handleChangePass = async (values) => {
     if (!isValid) return;
     const { email } = values;
-    const response = await apiForgotPassword(email);
-    if (response.success) {
-      setIsMessage(true);
-      reset();
+    try {
+      const response = await apiForgotPassword(email);
+      if (response.success) {
+        setIsMessage(true);
+        reset();
+      }
+    } catch (error) {
+      console.log("error:", error);
     }
   };
 
@@ -69,6 +62,7 @@ const SendEmailForgotPasswordPage = () => {
             placeholder="Enter your email"
             control={control}
           />
+          <p className="text-red-500">{errors?.email?.message}</p>
         </Field>
         {isMessage && (
           <p className="mb-5 font-semibold text-red-600">

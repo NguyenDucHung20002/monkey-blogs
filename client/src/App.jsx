@@ -10,6 +10,7 @@ import VerifyProfilePage from "./pages/VerifyProfilePage";
 import VerifyEmailPage from "./pages/VerifyEmailPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import SendEmailForgotPasswordPage from "./pages/SendEmailForgotPasswordPage";
+import VerifySetupPasswordPage from "./pages/VerifySetupPasswordPagePage";
 const AuthenticationPage = React.lazy(() =>
   import("./pages/AuthenticationPage")
 );
@@ -83,6 +84,10 @@ function App() {
           <Route
             path="/verify-email"
             element={<VerifyEmailPage></VerifyEmailPage>}
+          ></Route>
+          <Route
+            path="/verify-setup-password"
+            element={<VerifySetupPasswordPage></VerifySetupPasswordPage>}
           ></Route>
           <Route element={<AuthenticationPage></AuthenticationPage>}>
             <Route path="/sign-in" element={<SignInPage></SignInPage>}></Route>

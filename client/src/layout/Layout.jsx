@@ -10,6 +10,7 @@ const Layout = () => {
   const navigate = useNavigate();
   const { userInfo } = useAuth();
   const { data } = userInfo;
+  console.log("data:", data);
   useEffect(() => {
     if (!data) navigate("/sign-in");
   }, [navigate, data]);
