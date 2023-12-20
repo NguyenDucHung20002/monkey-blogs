@@ -9,6 +9,8 @@ const validator = (schema, property = "body") => {
     } else {
       if (req.file) await fileController.autoRemoveImg(req.file.filename);
 
+      console.log("ERROR VALIDATING =>", error);
+
       const { details } = error;
 
       let errMessage = details[0].message.split(`"`).join("");

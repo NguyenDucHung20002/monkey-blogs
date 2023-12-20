@@ -1,6 +1,6 @@
 import fileController from "../controllers/fileController.js";
 
-const errorMiddleware = (err, req, res, next) => {
+const errorMiddleware = async (err, req, res, next) => {
   let code = 500;
   let message = "Something went wrong";
 
@@ -22,7 +22,7 @@ const errorMiddleware = (err, req, res, next) => {
     message = err.message;
   }
 
-  // if (req.file) fileController.autoRemoveImg(req.file.filename);
+  if (req.file) await fileController.autoRemoveImg(req.file.filename);
 
   console.log("ERROR MIDDLEWARE =>", err);
 

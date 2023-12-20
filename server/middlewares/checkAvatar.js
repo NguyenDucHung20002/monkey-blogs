@@ -43,7 +43,6 @@ const checkAvatar = async (req, res, next) => {
 
           clarifai(imgData, async (err, results) => {
             if (err) {
-              console.log("hello world");
               reject(err);
               return;
             }
