@@ -1597,7 +1597,7 @@ const getMoreArticleFromProifle = asyncMiddleware(async (req, res, next) => {
       },
     ],
     order: [["likesCount", "DESC"]],
-    limit: Number(limit) ? Number(limit) : null,
+    limit: 4,
   });
 
   if (me) {
