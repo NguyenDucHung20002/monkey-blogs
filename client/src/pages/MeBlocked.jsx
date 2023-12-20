@@ -52,7 +52,7 @@ const MeBlocked = () => {
                 </div>
                 <ButtonBlocked
                   userId={user.id}
-                  initialMuted={true}
+                  initialBlock={true}
                 ></ButtonBlocked>
               </div>
             ))}

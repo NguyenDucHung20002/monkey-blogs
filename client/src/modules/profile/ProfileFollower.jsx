@@ -58,10 +58,10 @@ const ProfileFollower = () => {
         data={user?.isMyProfile ? navMyProfile : navProfile}
         className="flex-1"
       />
-      {followers.length == 0 ? (
+      {followers?.length == 0 ? (
         <h1></h1>
       ) : (
-        followers.map((val, idx) => (
+        followers?.map((val, idx) => (
           <FollowingUserHandle
             key={idx}
             data={val}

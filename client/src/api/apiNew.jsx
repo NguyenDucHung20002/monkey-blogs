@@ -176,7 +176,23 @@ const apiGetReadingHistory = async () => {
     console.log("error: ", error);
   }
 };
-
+const apiGetMoreArticleInDetailPage = async (articleId) => {
+  try {
+    const response = await axios.get(
+      `${config.SERVER_HOST}/article/more-articles-from-profile/${articleId} `,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response.data) return response?.data;
+  } catch (error) {
+    console.log("error: ", error);
+  }
+};
 const apiDeleteReadingHistory = async () => {
   try {
     const response = await axios.delete(
@@ -254,4 +270,5 @@ export {
   apiDeleteArticleHistory,
   apiDeleteAllNotification,
   apiGetMyBlocked,
+  apiGetMoreArticleInDetailPage,
 };

@@ -45,7 +45,7 @@ const ProfilePage = () => {
             token={token}
             user={user}
           />
-          <Outlet context={{ user }}></Outlet>
+          {!user?.isBlocked && <Outlet context={{ user }}></Outlet>}
         </div>
         <div className=" flex-1 max-w-[30%] md:block  ">
           <StickyBox>

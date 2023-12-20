@@ -167,6 +167,7 @@ const ProfileContext = ({ setIsBlocked, user, token }) => {
         <div className="w-full h-20 py-4 flex items-center justify-between">
           <div className="text-[25px] text-black py-3 font-bold">
             {user.fullname}
+            {user?.isBlocked ? "has been blocked" : ""}
           </div>
           <div className="">
             <Popover

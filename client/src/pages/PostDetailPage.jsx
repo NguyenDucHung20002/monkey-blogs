@@ -11,6 +11,9 @@ import ActionLike from "../action/ActionLike";
 import { apiGetArticle } from "../api/api";
 import ButtonSaveBlog from "../components/button/ButtonSaveBlog";
 import ButtonActionBlogsAuthor from "../components/button/ButtonActionBlogsAuthor";
+import { apiGetMoreArticleInDetailPage } from "../api/apiNew";
+import ArticleList from "../modules/article/ArticleList";
+import { Button } from "../components/button";
 
 const PostDetailPagePageStyle = styled.div`
   padding: 50px 0;
@@ -86,9 +89,9 @@ const PostDetailPagePageStyle = styled.div`
 const PostDetailPage = () => {
   const { slug } = useParams("slug");
   const [blog, setBlog] = useState(null);
+  const [moreArticle, setMoreArticle] = useState([]);
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
-
   const fetchBlog = useCallback(async () => {
     try {
       const response = await apiGetArticle(token, slug);
@@ -104,12 +107,22 @@ const PostDetailPage = () => {
   useEffect(() => {
     fetchBlog();
   }, [fetchBlog]);
-
+  useEffect(() => {
+    const fetchMoreArticles = async () => {
+      if (!blog) return;
+      const moreArticlesRes = await apiGetMoreArticleInDetailPage(blog?.id);
+      if (!moreArticlesRes) {
+        return;
+      }
+      setMoreArticle(moreArticlesRes?.data);
+    };
+    fetchMoreArticles();
+  }, [blog, slug]);
   if (!slug) return <PageNotFound></PageNotFound>;
-
+  console.log(blog);
   return (
     <PostDetailPagePageStyle>
-      {blog && (
+      {blog && !blog?.authorBlocked && (
         <div className="post-header">
           {blog.banner && (
             <PostImage
@@ -159,7 +172,30 @@ const PostDetailPage = () => {
               }}
             ></div>
           </div>
+          <div className="h-[1px] w-full bg-gray-200 my-2"></div>
+          <div className="pt-3 pb-7 text-xl font-bold">
+            More from {blog?.author?.fullname}
+          </div>
+          <ArticleList
+            blogs={moreArticle}
+            className="gap-8 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2"
+          />
+          <div className="h-[1px] w-full bg-gray-200 my-6"></div>
+          <Button
+            to={`/profile/${blog?.author?.userInfo?.username}`}
+            className="!m-0"
+            height="30px"
+          >
+            See all {blog?.author?.fullname}{" "}
+          </Button>
         </div>
+      )}
+      {blog?.authorBlocked ? (
+        <div className="text-4xl font-bold">
+          You has been blocked this user, you need unblock fist
+        </div>
+      ) : (
+        ""
       )}
     </PostDetailPagePageStyle>
   );
