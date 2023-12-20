@@ -5,6 +5,7 @@ import ErrorResponse from "../responses/ErrorResponse.js";
 import Role from "../models/mysql/Role.js";
 import hashPassword from "../utils/hashPassword.js";
 import bcrypt from "bcryptjs";
+import Profile from "../models/mysql/Profile.js";
 
 // ==================== ban a user ==================== //
 
@@ -134,6 +135,12 @@ const getAllUsers = asyncMiddleware(async (req, res, next) => {
       model: User,
       as: "bannedBy",
       attributes: ["id", "email", "username"],
+      include: {
+        model: Profile,
+        as: "profileInfo",
+        attributes: [],
+        where: { avatar: { [Op.ne]: null }, fullname: { [Op.ne]: null } },
+      },
       include: { model: Role, as: "role", attributes: ["id", "name", "slug"] },
     },
     limit: Number(limit) ? Number(limit) : 15,

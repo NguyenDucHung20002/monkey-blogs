@@ -376,7 +376,7 @@ const whoToFollow = asyncMiddleware(async (req, res, next) => {
     JOIN profiles p ON recommendedAuthors.authorId = p.id
     JOIN users u ON p.userId = u.id
     JOIN roles r ON u.roleId = r.id
-    WHERE u.status = 'normal' and u.isVerified = 'true'
+    WHERE u.status = 'normal' and u.isVerified = 'true' and p.avatar is not null and p.fullname is not null
     GROUP BY p.id, p.avatar, p.fullname, u.username, r.slug;
     `,
     { type: sequelize.QueryTypes.SELECT }
@@ -393,6 +393,8 @@ const whoToFollow = asyncMiddleware(async (req, res, next) => {
             { [Op.ne]: me.profileInfo.id },
           ],
         },
+        avatar: { [Op.ne]: null },
+        fullname: { [Op.ne]: null },
         "$blocksBlockedBy.blockerId$": null,
         "$blocksBlocked.blockedId$": null,
         "$followeds.followedId$": null,

@@ -1,6 +1,7 @@
 import { Op } from "sequelize";
 import asyncMiddleware from "../middlewares/asyncMiddleware.js";
 import User from "../models/mysql/User.js";
+import Profile from "../models/mysql/Profile.js";
 
 // ==================== make a user staff ==================== //
 
@@ -47,6 +48,12 @@ const getAllStaffs = asyncMiddleware(async (req, res, next) => {
   const staffs = await User.findAll({
     where: whereQuery,
     attributes: { exclude: ["roleId", "bannedById", "isVerified", "password"] },
+    include: {
+      model: Profile,
+      as: "profileInfo",
+      attributes: [],
+      where: { avatar: { [Op.ne]: null }, fullname: { [Op.ne]: null } },
+    },
     limit: Number(limit) ? Number(limit) : 15,
   });
 
