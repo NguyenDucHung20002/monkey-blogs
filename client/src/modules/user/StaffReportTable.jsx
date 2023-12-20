@@ -7,13 +7,13 @@ import Column from "antd/es/table/Column";
 import { apiBanUser, apiLiftTheBan, apiUpdateBan } from "../../api/api";
 import { toast } from "react-toastify";
 import {
-  apiGetPendingReportUsers,
+  apiGetPendingReportStaff,
   apiResolveReportedAllUsers,
 } from "../../api/apisHung";
 import UserModelReportReason from "./UserModelReportReason";
 import { Button } from "../../components/button";
 
-const UserReportTable = () => {
+const StaffReportTable = () => {
   const [users, setUsers] = useState([]);
   const token = localStorage.getItem("token");
   const [statusRender, setStatusRender] = useState(false);
@@ -26,7 +26,7 @@ const UserReportTable = () => {
 
   useEffect(() => {
     async function fetchUsers() {
-      const response = await apiGetPendingReportUsers(token, 10);
+      const response = await apiGetPendingReportStaff(token, 10);
       if (response) {
         skip.current = response.newSkipId;
         skipCount.current = response.newSkipCount;
@@ -47,7 +47,7 @@ const UserReportTable = () => {
   const handleLoadMore = useCallback(async () => {
     const newSkip = skip.current;
     const newSkipCount = skipCount.current;
-    const response = await apiGetPendingReportUsers(
+    const response = await apiGetPendingReportStaff(
       token,
       10,
       newSkip,
@@ -326,4 +326,4 @@ const UserReportTable = () => {
   );
 };
 
-export default UserReportTable;
+export default StaffReportTable;

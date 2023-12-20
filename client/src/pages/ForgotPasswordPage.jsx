@@ -1,6 +1,6 @@
 import { useForm } from "react-hook-form";
 import { Button } from "../components/button";
-import { NavLink } from "react-router-dom";
+import { NavLink, useSearchParams } from "react-router-dom";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Label } from "../components/label";
@@ -8,6 +8,8 @@ import { Field } from "../components/field";
 import { toast } from "react-toastify";
 import InputPasswordToggle from "../components/input/InputPasswordToggle";
 import { apiChangeForgotPassword } from "../api/apisHung";
+import { Image } from "antd";
+import logo from "../assets/logo.png";
 
 const schema = yup.object({
   confirmPassword: yup
@@ -30,6 +32,8 @@ const ForgotPasswordPage = () => {
     mode: "onChange",
     resolver: yupResolver(schema),
   });
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get("token");
 
   const handleChangePass = async (values) => {
     if (!isValid) return;
@@ -41,7 +45,6 @@ const ForgotPasswordPage = () => {
       });
       return;
     }
-    const token = localStorage.getItem("token");
     try {
       const response = await apiChangeForgotPassword(
         token,
@@ -60,8 +63,16 @@ const ForgotPasswordPage = () => {
     }
   };
 
+  if (!token) return;
+
   return (
     <div>
+      <div className="flex flex-col items-center justify-center gap-4 my-10 logo">
+        <Image width={40} preview={false} src={logo} />
+        <h1 className="font-bold text-4xl bg-gradient-to-r from-[#74B9FF] to-[#0be881] text-transparent bg-clip-text inline-block">
+          Monkey Medium
+        </h1>
+      </div>
       <h2 className="flex items-center justify-center mb-10 text-2xl font-bold text-gray-400">
         Set Your Password
       </h2>

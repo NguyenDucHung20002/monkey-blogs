@@ -25,6 +25,7 @@ const UserTable = () => {
   const [search, setSearch] = useState("");
   const banTypes = ["1week", "1month", "1year", "permanent"];
   const skip = useRef("");
+  const [isReload, setIsReload] = useState(false);
 
   const fetchUsers = useCallback(async () => {
     const response = await apiGetAllUser(token, 10, null, search);
@@ -42,7 +43,7 @@ const UserTable = () => {
 
   useEffect(() => {
     fetchUsers();
-  }, [fetchUsers]);
+  }, [fetchUsers, isReload]);
 
   const handleSetStaff = useCallback(
     async (userId) => {
@@ -226,14 +227,39 @@ const UserTable = () => {
 
   return (
     <div>
-      <div className="my-3  border-blue-400 border rounded-lg max-w-[320px] pl-4 flex py-2">
-        <input
-          className="flex-1 text-sm placeholder:text-sm"
-          type="text"
-          placeholder="Search"
-          onChange={handleChangeSearch}
-        />
-        <div className="mr-4 text-blue-400">{icons.searchIcon}</div>
+      <div className="flex items-center justify-between">
+        <div className="my-3 border-gray-300 hover:border-blue-400 text-gray-300 hover:text-blue-400 transition-all border rounded-lg w-full max-w-[320px] pl-4 flex py-1">
+          <input
+            className="flex-1 text-sm text-gray-500 placeholder:text-sm "
+            type="text"
+            placeholder="Search"
+            onChange={handleChangeSearch}
+          />
+          <div className="flex items-center mr-3 ">{icons.searchIcon}</div>
+        </div>
+        <div>
+          <Button
+            type="button"
+            height="30px"
+            onClick={() => setIsReload(!isReload)}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth="1.5"
+              stroke="currentColor"
+              className="w-4 h-4"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5m8.25 3v6.75m0 0l-3-3m3 3l3-3M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z"
+              />
+            </svg>{" "}
+            <p className="ml-1 text-sm">Reload</p>
+          </Button>
+        </div>
       </div>
       <Table dataSource={users} pagination={false} className="overflow-y-auto">
         <Column

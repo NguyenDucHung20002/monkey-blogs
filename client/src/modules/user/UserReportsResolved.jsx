@@ -1,14 +1,15 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useRef, useState } from "react";
-import DashboardHeading from "../dashboard/DashboardHeading";
 import { apiGetUsersResolved } from "../../api/apisHung";
 import { Popover, Table, Tag } from "antd";
 import Column from "antd/es/table/Column";
 import { NavLink } from "react-router-dom";
+import { Button } from "../../components/button";
 
 const UserReportsResolved = () => {
   const token = localStorage.getItem("token");
   const [reports, setReports] = useState([]);
+  const [isReload, setIsReload] = useState(false);
   const skip = useRef("");
   useEffect(() => {
     async function fetchUserResolved() {
@@ -26,7 +27,7 @@ const UserReportsResolved = () => {
     }
 
     fetchUserResolved();
-  }, [token]);
+  }, [token, isReload]);
 
   // const handleLoadMore = async () => {
   //   const newSkip = skip.current;
@@ -74,7 +75,29 @@ const UserReportsResolved = () => {
 
   return (
     <div>
-      <DashboardHeading title="Report Users Resolved"></DashboardHeading>
+      <div className="flex justify-end mb-5">
+        <Button
+          type="button"
+          height="30px"
+          onClick={() => setIsReload(!isReload)}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth="1.5"
+            stroke="currentColor"
+            className="w-4 h-4"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5m8.25 3v6.75m0 0l-3-3m3 3l3-3M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z"
+            />
+          </svg>{" "}
+          <p className="ml-1 text-sm">Reload</p>
+        </Button>
+      </div>
       <Table dataSource={reports} pagination={false}>
         <Column
           title="Reported"

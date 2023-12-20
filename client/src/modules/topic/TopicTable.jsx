@@ -22,6 +22,7 @@ const TopicTable = () => {
   const skip = useRef("");
   const [searchTopic, setSearchTopic] = useState("");
   const [status, setStatus] = useState("");
+  const [isReload, setIsReload] = useState(false);
 
   useEffect(() => {
     async function fetchTopics() {
@@ -36,7 +37,7 @@ const TopicTable = () => {
       skip.current = response.newSkip;
     }
     fetchTopics();
-  }, [token, searchTopic, status]);
+  }, [token, searchTopic, status, isReload]);
 
   const handleChangeSearch = debounce((e) => {
     setSearchTopic(e.target.value);
@@ -238,9 +239,32 @@ const TopicTable = () => {
             ]}
           />
         </div>
-        <Button kind="primary" height="45px" to="/manage/add-topic">
-          Create topic
-        </Button>
+        <div className="flex items-center gap-3">
+          <Button
+            type="button"
+            height="30px"
+            onClick={() => setIsReload(!isReload)}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth="1.5"
+              stroke="currentColor"
+              className="w-4 h-4"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5m8.25 3v6.75m0 0l-3-3m3 3l3-3M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z"
+              />
+            </svg>{" "}
+            <p className="ml-1 text-sm">Reload</p>
+          </Button>
+          <Button kind="primary" height="30px" to="/manage/add-topic">
+            Create topic
+          </Button>
+        </div>
       </div>
       <Table
         dataSource={topics}

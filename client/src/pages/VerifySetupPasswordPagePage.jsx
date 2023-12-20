@@ -1,9 +1,9 @@
 import styled from "styled-components";
-import { Image } from "antd";
 import { useEffect, useState } from "react";
-import logo from "../assets/logo.png";
 import { NavLink, useSearchParams } from "react-router-dom";
 import { apiVerifySetupPassword } from "../api/apisHung";
+import logo from "../assets/logo.png";
+import { Image } from "antd";
 
 const VerifySetupPasswordPageStyle = styled.div`
   max-width: 700px;

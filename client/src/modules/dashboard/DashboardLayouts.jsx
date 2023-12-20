@@ -43,13 +43,15 @@ const DashboardStyles = styled.div`
 const DashboardLayout = () => {
   const navigate = useNavigate();
   const { userInfo } = useAuth();
-  const userData = userInfo?.data;
-  if (userData?.role === "user") navigate("/");
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    if (!userData) navigate("/sign-in");
-  }, [navigate, userData]);
+    if (!userInfo) {
+      navigate("/sign-in");
+      return;
+    }
+    if (userInfo?.data?.role === "user") navigate("/");
+  }, [navigate, userInfo]);
 
   const toggleVisible = debounce(() => {
     const scrolled = document.documentElement.scrollTop;

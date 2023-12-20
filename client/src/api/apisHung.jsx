@@ -23,7 +23,34 @@ const apiGetPendingReportUsers = async (
 
     if (response?.data) return response.data;
   } catch (error) {
-    toast.warning(error.message, {
+    toast.warning(error.response.data.message, {
+      pauseOnHover: false,
+      delay: 200,
+    });
+  }
+};
+const apiGetPendingReportStaff = async (
+  token,
+  limit = 10,
+  skipId = "",
+  skipCount = ""
+) => {
+  console.log('skipId = "", skipCount:', skipId, skipCount);
+  if (!token) return null;
+  try {
+    const response = await axios.get(
+      `${config.SERVER_HOST}/report-user/staff/pending?limit=${limit}&skipId=${skipId}&skipCount=${skipCount}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (response?.data) return response.data;
+  } catch (error) {
+    toast.warning(error.response.data.message, {
       pauseOnHover: false,
       delay: 200,
     });
@@ -46,7 +73,7 @@ const apiGetReportedUsers = async (token, userId, limit = 10, skip) => {
 
     if (response?.data) return response.data;
   } catch (error) {
-    toast.warning(error.message, {
+    toast.warning(error.response.data.message, {
       pauseOnHover: false,
       delay: 200,
     });
@@ -70,7 +97,7 @@ const apiGetUsersResolved = async (token, limit = 10, skip) => {
 
     if (response?.data) return response.data;
   } catch (error) {
-    toast.warning(error.message, {
+    toast.warning(error.response.data.message, {
       pauseOnHover: false,
       delay: 200,
     });
@@ -661,6 +688,7 @@ const apiSetStaff = async (token, userId) => {
     if (response?.data?.success) return true;
     return false;
   } catch (error) {
+    console.log("error:", error);
     toast.warning(error.response.data.message, {
       pauseOnHover: false,
       delay: 200,
@@ -848,6 +876,7 @@ const apiChangeForgotPassword = async (
 };
 
 export {
+  apiGetPendingReportStaff,
   apiVerifySetupPassword,
   apiChangeForgotPassword,
   apiForgotPassword,

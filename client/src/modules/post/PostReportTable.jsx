@@ -118,10 +118,10 @@ const PostReportTable = () => {
           <PostModalReport blogId={blogId} token={token}></PostModalReport>
         )}
       </Drawer>
-      <div className="mb-5">
+      <div className="flex justify-end mb-5">
         <Button
           type="button"
-          height="45px"
+          height="30px"
           onClick={() => setIsReload(!isReload)}
         >
           <svg

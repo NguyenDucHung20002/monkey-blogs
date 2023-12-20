@@ -10,7 +10,6 @@ import logo from "../assets/logo.png";
 import ImageUpload from "../components/image/ImageUpload";
 import { apiVerifyProfile } from "../api/apisHung";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 const schema = yup.object({
   fullName: yup.string().required("Please fill out your title").min(4),
@@ -34,7 +33,6 @@ const VerifyProfilePage = () => {
   });
   const token = localStorage.getItem("token");
   const [image, setImage] = useState("");
-  const navigate = useNavigate();
 
   const handleSelectImage = (e) => {
     const file = e.target.files[0];
@@ -102,7 +100,7 @@ const VerifyProfilePage = () => {
               className="mt-5"
               control={control}
               name="fullName"
-              placeholder="User name"
+              placeholder="Full name"
             ></InputHook>
             <p className="text-red-500">{errors?.fullName?.message}</p>
             <div className="flex justify-center mt-10">
