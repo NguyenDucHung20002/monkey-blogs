@@ -8,6 +8,7 @@ import fetchMe from "../middlewares/fetchMe.js";
 import checkUserBanned from "../middlewares/checkUserBanned.js";
 import fetchUser from "../middlewares/fetchUser.js";
 import checkBlockedByUser from "../middlewares/checBlockedByUser.js";
+import mongoUpload from "../middlewares/mongoUpload.js";
 
 const router = express.Router();
 
@@ -25,6 +26,7 @@ router.get(
 router.post(
   "/setup-profile",
   requiredAuth,
+  mongoUpload.single("avatar"),
   validator(profileSchema.setupProfileSchema),
   profileController.setupProfile
 );

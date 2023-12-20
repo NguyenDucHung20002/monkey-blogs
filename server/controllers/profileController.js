@@ -7,6 +7,7 @@ import fileController from "./fileController.js";
 import User from "../models/mysql/User.js";
 import Profile from "../models/mysql/Profile.js";
 import JsonWebToken from "../models/mongodb/JsonWebToken.js";
+import env from "../config/env.js";
 
 // ==================== get logged in profile information ==================== //
 
@@ -27,7 +28,17 @@ const getLoggedInProfile = asyncMiddleware(async (req, res, next) => {
 
 const setupProfile = asyncMiddleware(async (req, res, next) => {
   const { id: myUserId, iat, exp } = req.jwtPayLoad;
-  const { avatar, fullname } = req.body;
+  const { fullname } = req.body;
+
+  const filename = req.file?.filename;
+
+  const size = req.file?.size;
+
+  const FILE_LIMIT = env.AVATAR_FILE_SIZE_LIMIT * 1024 * 1024;
+
+  if (size && size > FILE_LIMIT) {
+    throw ErrorResponse(400, "File too large");
+  }
 
   const [user, profile, jsonWebToken] = await Promise.all([
     User.findByPk(myUserId),
@@ -39,7 +50,7 @@ const setupProfile = asyncMiddleware(async (req, res, next) => {
 
   if (profile) throw ErrorResponse(409, "Profile already exists");
 
-  await Profile.create({ avatar, fullname, userId: user.id });
+  await Profile.create({ avatar: filename, fullname, userId: user.id });
 
   res.json({ success: true, token: jsonWebToken.token });
 });

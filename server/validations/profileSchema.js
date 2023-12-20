@@ -8,7 +8,6 @@ const updateProfileSchema = Joi.object({
 });
 
 const setupProfileSchema = Joi.object({
-  avatar: Joi.string().required(),
   fullname: Joi.string().min(3).max(75),
 });
 
