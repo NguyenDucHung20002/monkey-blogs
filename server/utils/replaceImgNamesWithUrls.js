@@ -1,4 +1,4 @@
-import addUrlToImg from "../utils/addUrlToImg,js";
+import addUrlToImg from "../utils/addUrlToImg.js";
 
 const replaceImgNamesWithUrls = (content) => {
   const modifiedContent = content.replace(
