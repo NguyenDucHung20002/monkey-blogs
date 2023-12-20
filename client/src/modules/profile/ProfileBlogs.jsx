@@ -86,7 +86,7 @@ const ProfileBlogs = ({ blogs, user, fetchDeleteArticle }) => {
   return (
     <>
       {blogs.map((val) => (
-        <div key={val.id} className="h-64 pt-6 border-b">
+        <div key={val.id} className="h-56 pt-6 border-b">
           <div className="">
             <p className="text-sm">{timeAgo(val?.createdAt)}</p>
           </div>
@@ -94,7 +94,9 @@ const ProfileBlogs = ({ blogs, user, fetchDeleteArticle }) => {
             <div className="flex-1  max-w-[80%]">
               <Link to={`/blog/${val.slug}`}>
                 <h2 className="pb-1 text-xl font-bold">{val.title}</h2>
-                <p className="text-sm line-clamp-3">{val.preview} </p>
+                <p className="text-base text-gray-400 line-clamp-2">
+                  {val.preview}
+                </p>
               </Link>
               <div className="flex items-center justify-between py-7">
                 <TopicList data={[val?.topic]}></TopicList>

@@ -64,7 +64,7 @@ const HomeSide = () => {
     <HomeSideStyle ref={stickyRef}>
       <div className="home-side">
         <div className="pb-4 mb-5 border-b border-gray-200">
-          <h3 className="mb-2 text-lg font-semibold">Staff picks</h3>
+          <h3 className="mb-2 text-lg font-semibold">Admin picks</h3>
           {staffPick && staffPick.length > 0 ? (
             <>
               {staffPick.map((blog) => (

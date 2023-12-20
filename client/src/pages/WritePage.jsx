@@ -95,6 +95,7 @@ const WritePage = () => {
     //   return;
     // }
     const { preview } = values;
+    const cutPreview = preview.slice(0, 200);
     const getTopicNames = topics.map((val) => val.name);
     const topicsSplit = topicInput.trim().split(/,+/).filter(Boolean);
     const topicsMap = topicsSplit.map((val) => val.trim());
@@ -102,7 +103,7 @@ const WritePage = () => {
     const idDraft = newDraft?.draftId;
     const data = {
       topicNames,
-      preview,
+      preview: cutPreview,
       banner: image.filename,
     };
     async function fetchAddBlog() {
