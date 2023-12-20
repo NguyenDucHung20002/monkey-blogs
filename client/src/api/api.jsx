@@ -739,20 +739,18 @@ const apiLiftTheBan = async (token, userId) => {
 
 const apiUpdateProfile = async (token, formData) => {
   try {
-    const res = await axios
-      .patch(`${config.SERVER_HOST}/profile/me/update`, formData, {
+    const res = await axios.patch(
+      `${config.SERVER_HOST}/profile/me/update`,
+      formData,
+      {
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
+          // "Content-Type": "application/json",
+          "Content-Type": "multipart/form-data",
         },
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-    if (!res?.data.success) {
-      return false;
-    }
-    return true;
+      }
+    );
+    return res?.data;
   } catch (error) {
     console.log("error:", error);
   }

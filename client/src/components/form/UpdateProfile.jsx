@@ -7,14 +7,15 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { apiUpdateProfile } from "../../api/api";
-import { apiDeleteImage, apiUploadCheckImage } from "../../api/apiNew";
-import { config } from "../../utils/constants";
 import Avatar from "../../modules/user/Avatar";
+import { useAuth } from "../../contexts/auth-context";
+import addUrlToImg from "../../modules/modulesJs/addUrlToImg";
 
 const UpdateProfile = ({ show, setShow, user }) => {
   const [imageSrc, setImageSrc] = useState(null);
   const [showAnimation, setShowAnimation] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const { setUserInfo } = useAuth();
   const token = localStorage.getItem("token");
   const options = {
     pauseOnHover: false,
@@ -42,17 +43,8 @@ const UpdateProfile = ({ show, setShow, user }) => {
       event.target.value = "";
       return;
     }
-    if (imageSrc?.avatar) {
-      apiDeleteImage(imageSrc?.avatar);
-    }
-    setIsLoading(true);
-    const response = await apiUploadCheckImage(selectedFile);
-    if (response?.data?.success) {
-      setIsLoading(false);
-      const filename = response?.data?.filename;
-      const imageUrl = `${config.SERVER_HOST}/file/${filename}`;
-      setImageSrc({ imageUrl, avatar: filename });
-    }
+    const url = URL.createObjectURL(selectedFile);
+    setImageSrc({ imageUrl: url, avatar: selectedFile });
   };
   //Form Update User
   const schema = yup.object({
@@ -76,22 +68,33 @@ const UpdateProfile = ({ show, setShow, user }) => {
   const bioValue = useWatch({ control, name: "bio" });
 
   const onSubmitHandeler = async (values) => {
-    const { fullname, bio, about } = values;
-    let data = { fullname, bio, about };
-    if (imageSrc?.avatar) {
-      data = { fullname, bio, about, avatar: imageSrc?.avatar };
-    }
-    // formData.set("fullname", values.fullname);
-    // formData.set("bio", values.bio ? values.bio : " ");
-    // formData.set("about", values.about ? values.about : " ");
-    // if (imageSrc.avatar) {
-    //   formData.set("avatar", imageSrc.avatar);
+    setIsLoading(true);
+    // const { fullname, bio, about } = values;
+    // let data = { fullname, bio, about };
+    // if (imageSrc?.avatar) {
+    //   data = { fullname, bio, about, avatar: imageSrc?.avatar };
     // }
-
-    const res = await apiUpdateProfile(token, data);
-    console.log(res);
-    if (res) {
+    const formData = new FormData();
+    formData.set("fullname", values.fullname);
+    formData.set("bio", values.bio ? values.bio : " ");
+    formData.set("about", values.about ? values.about : " ");
+    if (imageSrc.avatar) {
+      formData.set("avatar", imageSrc.avatar);
+    }
+    const res = await apiUpdateProfile(token, formData);
+    if (res?.success) {
+      setUserInfo((prev) => ({
+        ...prev,
+        data: { ...prev.data, avatar: addUrlToImg(imageSrc?.imageUrl) },
+      }));
+      setIsLoading(false);
       setShow(false);
+    } else {
+      setIsLoading(false);
+      toast.error(
+        "Your image contains explicit content and is not allowed",
+        options
+      );
     }
   };
 

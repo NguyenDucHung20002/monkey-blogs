@@ -191,7 +191,22 @@ const apiDeleteReadingHistory = async () => {
     console.log("error: ", error);
   }
 };
-
+const apiDeleteAllNotification = async () => {
+  try {
+    const response = await axios.delete(
+      `${config.SERVER_HOST}/notification/clear `,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response.data) return response?.data;
+  } catch (error) {
+    console.log("error: ", error);
+  }
+};
 const apiDeleteArticleHistory = async (id) => {
   try {
     const response = await axios.delete(
@@ -221,4 +236,5 @@ export {
   apiGetReadingHistory,
   apiDeleteReadingHistory,
   apiDeleteArticleHistory,
+  apiDeleteAllNotification,
 };

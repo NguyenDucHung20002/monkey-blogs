@@ -10,6 +10,7 @@ import {
 import { io } from "socket.io-client";
 import { useAuth } from "./auth-context";
 import { apiGetNotification, apiMarkAsReadNotification } from "../api/api";
+import { apiDeleteAllNotification } from "../api/apiNew";
 
 const SocketContext = createContext();
 // eslint-disable-next-line react-refresh/only-export-components
@@ -40,7 +41,12 @@ export function SocketProvider({ children }) {
     const notificationResponse = await apiGetNotification(token);
     setNotifications(notificationResponse);
   }, [token]);
-
+  const handleClearNotifications = useCallback(async () => {
+    const response = await apiDeleteAllNotification();
+    if (response?.success) {
+      setNotifications([]);
+    }
+  }, [token]);
   const handleReadNotify = useCallback(async () => {
     await apiMarkAsReadNotification();
     fetchNotification(token);
@@ -87,6 +93,7 @@ export function SocketProvider({ children }) {
     notifications,
     countUnRead,
     handleReadNotify,
+    handleClearNotifications,
   };
   return (
     <SocketContext.Provider value={value}>{children}</SocketContext.Provider>

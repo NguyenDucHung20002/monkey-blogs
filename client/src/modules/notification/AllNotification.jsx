@@ -3,13 +3,35 @@ import timeSince from "../modulesJs/timeAgo";
 import Avatar from "../user/Avatar";
 import { useSocket } from "../../contexts/SocketContext";
 import logo from "../../assets/logo.png";
+import ClearAll from "../../components/modalClear/ClearAll";
+import Swal from "sweetalert2";
 
 const AllNotification = () => {
-  const { notifications } = useSocket();
-
+  const { notifications, handleClearNotifications } = useSocket();
+  const handleDelete = () => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        handleClearNotifications();
+        Swal.fire("Deleted!", "Your history has been clear.", "success");
+      }
+    });
+  };
   return (
     <>
       <div className="">
+        <ClearAll
+          title={"You can clear your notifications."}
+          titlebtn={"Clear notification"}
+          handleDelete={handleDelete}
+        />
         {notifications &&
           notifications.length > 0 &&
           notifications?.map((val, idx) => (

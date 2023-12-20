@@ -9,6 +9,7 @@ import { Link } from "react-router-dom";
 import TopicList from "../topic/TopicList";
 import Swal from "sweetalert2";
 import BlogImage from "../blog/BlogImage";
+import ClearAll from "../../components/modalClear/ClearAll";
 
 const ReadingHistory = () => {
   const [history, setHistory] = useState([]);
@@ -55,19 +56,11 @@ const ReadingHistory = () => {
   }, [getHistory]);
   return (
     <div>
-      <div className="rounded-sm text-base flex items-center justify-between w-full py-6 px-4 bg-stone-200">
-        <div className="">
-          <p>You can clear your reading history for a fresh start.</p>
-        </div>
-        <div className="">
-          <button
-            className="bg-red-500 text-white py-1 px-2 rounded-full hover:bg-red-600 "
-            onClick={handleDelete}
-          >
-            Clear history
-          </button>
-        </div>
-      </div>
+      <ClearAll
+        title={"You can clear your reading history for a fresh start."}
+        titlebtn={"Clear history"}
+        handleDelete={handleDelete}
+      />
       {history.map((val) => (
         <div key={val.id} className=" pt-6 border-b">
           <div className="">

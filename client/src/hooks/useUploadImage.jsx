@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { apiDeleteImage, apiUploadImage } from "../api/apiNew";
 import { config } from "../utils/constants";
 
