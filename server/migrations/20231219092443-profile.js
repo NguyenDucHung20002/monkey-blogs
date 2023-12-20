@@ -12,12 +12,12 @@ module.exports = {
 
       avatar: {
         type: Sequelize.TEXT,
-        allowNull: false,
+        allowNull: true,
       },
 
       fullname: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
       },
 
       bio: {

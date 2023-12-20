@@ -18,7 +18,7 @@ import generateUserName from "../utils/generateUserName.js";
 const register = asyncMiddleware(async (req, res, next) => {
   const { email, password } = req.body;
 
-  const user = await User.findOne({ where: { email } });
+  let user = await User.findOne({ where: { email } });
 
   if (user && user.password) throw ErrorResponse(409, "Email already exists");
 
@@ -52,17 +52,19 @@ const register = asyncMiddleware(async (req, res, next) => {
 
   const link = `${env.CLIENT_HOST}:${env.CLIENT_PORT}/verify-email?token=${token}`;
 
+  user = await User.create({
+    username: generateUserName(email),
+    email,
+    password: hashedPassword,
+  });
+
   await Promise.all([
     emailService({
       to: email,
       subject: "Verify email",
       html: `<h3>Click <a href="${link}">here</a> to verify your email.</h3>`,
     }),
-    User.create({
-      username: generateUserName(email),
-      email,
-      password: hashedPassword,
-    }),
+    Profile.create({ userId: user.id }),
     VerifyToken.create({ email, token }),
   ]);
 
@@ -221,7 +223,7 @@ const loginEmail = asyncMiddleware(async (req, res, next) => {
 
   res.json({
     success: true,
-    hasProfile: Boolean(user.profileInfo),
+    hasProfile: Boolean(user.profileInfo.fullname && user.profileInfo.avatar),
     token: jsonWebToken,
   });
 });

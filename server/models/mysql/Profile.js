@@ -13,12 +13,12 @@ const Profile = sequelize.define(
 
     avatar: {
       type: DataTypes.TEXT,
-      allowNull: false,
+      allowNull: true,
     },
 
     fullname: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
     },
 
     bio: {

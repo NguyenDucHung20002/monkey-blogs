@@ -39,9 +39,14 @@ const setupProfile = asyncMiddleware(async (req, res, next) => {
 
   if (!user) throw ErrorResponse(404, "User not found");
 
-  if (profile) throw ErrorResponse(409, "Profile already exists");
+  if (profile.fullname && profile.avatar) {
+    throw ErrorResponse(409, "Profile already exists");
+  }
 
-  await Profile.create({ avatar: filename, fullname, userId: user.id });
+  await Profile.update(
+    { avatar: filename, fullname, userId: user.id },
+    { where: { userId: user.id } }
+  );
 
   res.json({ success: true, token: jsonWebToken.token });
 });
