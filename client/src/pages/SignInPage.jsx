@@ -48,9 +48,8 @@ const SignInPage = () => {
         return;
       }
       if (response.success && response.hasProfile) {
-        localStorage.setItem("token", response.token);
         await fetcher(response.token);
-        navigate("/");
+        navigate(`/?token=${response.token}`);
         return;
       }
     } catch (error) {

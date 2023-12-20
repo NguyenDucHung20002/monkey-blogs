@@ -79,7 +79,6 @@ const apiDeleteImage = async (filename) => {
 };
 
 const apiCreateDarft = async (title, content) => {
-  console.log("cccccccccc token", token);
   try {
     const response = await axios.post(
       `${config.SERVER_HOST}/article/draft/create-draft`,
