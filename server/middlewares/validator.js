@@ -1,13 +1,13 @@
 import fileController from "../controllers/fileController.js";
 
 const validator = (schema, property = "body") => {
-  return (req, res, next) => {
+  return async (req, res, next) => {
     const { error } = schema.validate(req[property]);
 
     if (!error) {
       next();
     } else {
-      if (req.file) fileController.autoRemoveImg(req.file.filename);
+      if (req.file) await fileController.autoRemoveImg(req.file.filename);
 
       const { details } = error;
 

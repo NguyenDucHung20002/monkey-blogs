@@ -23,13 +23,13 @@ const checkAvatar = async (req, res, next) => {
 
       const gfs = MongoDB.gfs;
 
-      const readStream = gfs.openDownloadStreamByName(filename);
-
-      const files = await gfs.find({ filename: imgName }).toArray();
+      const files = await gfs.find({ filename }).toArray();
 
       if (!files || !files.length) {
         return;
       }
+
+      const readStream = gfs.openDownloadStreamByName(filename);
 
       let chunks = [];
 
@@ -43,6 +43,7 @@ const checkAvatar = async (req, res, next) => {
 
           clarifai(imgData, async (err, results) => {
             if (err) {
+              console.log("hello world");
               reject(err);
               return;
             }
@@ -65,6 +66,7 @@ const checkAvatar = async (req, res, next) => {
 
     next();
   } catch (error) {
+    console.log(error);
     const err = getError(error);
     return res.status(err.status).json({
       success: false,

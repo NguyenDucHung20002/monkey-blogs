@@ -1,4 +1,6 @@
-const getError = (err) => {
+import fileController from "../controllers/fileController.js";
+
+const getError = async (err) => {
   let code = 500;
   let message = "Something went wrong";
 
@@ -19,6 +21,8 @@ const getError = (err) => {
         : Number(err.code);
     message = err.message;
   }
+
+  if (req.file) await fileController.autoRemoveImg(req.file.filename);
 
   return { code, message };
 };
