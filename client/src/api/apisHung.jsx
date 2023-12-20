@@ -139,7 +139,6 @@ const apiDeleteMyComment = async (token, commentId) => {
 };
 
 const apiUserSearch = async (token, inputSearch, limit = 10, skip) => {
-  console.log("inputSearch:", inputSearch);
   if (!inputSearch) return null;
   try {
     const response = await axios.get(
@@ -718,7 +717,123 @@ const apiRegister = async (email, password) => {
   }
 };
 
+const apiLogin = async (email, password) => {
+  if (!email && !password) return null;
+  try {
+    const response = await axios.post(
+      `${config.SERVER_HOST}/auth/login-email`,
+      { email, password },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response.data.success) return response.data;
+  } catch (error) {
+    toast.warning(error.response.data.message, {
+      pauseOnHover: false,
+      delay: 200,
+    });
+  }
+};
+
+const apiVerifyEmail = async (token) => {
+  if (!token) return null;
+  try {
+    const response = await axios.patch(
+      `${config.SERVER_HOST}/auth/verify-email`,
+      { token },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response?.data) return response.data;
+  } catch (error) {
+    console.log("error:", error);
+    return error.response.data;
+  }
+};
+
+const apiVerifyProfile = async (token, formData) => {
+  if (!token) return null;
+  try {
+    const response = await axios.post(
+      `${config.SERVER_HOST}/profile/setup-profile`,
+      formData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+    if (response?.data) return response.data;
+  } catch (error) {
+    console.log("error:", error);
+    toast.warning(error.response.data.message, {
+      pauseOnHover: false,
+      delay: 200,
+    });
+  }
+};
+
+const apiForgotPassword = async (email) => {
+  if (!email) return null;
+  try {
+    const response = await axios.post(
+      `${config.SERVER_HOST}/auth/forgot-password`,
+      { email },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response?.data) return response.data;
+  } catch (error) {
+    console.log("error:", error);
+    toast.warning(error.response.data.message, {
+      pauseOnHover: false,
+      delay: 200,
+    });
+  }
+};
+
+const apiChangeForgotPassword = async (
+  token,
+  newPassword = "",
+  confirmPassword = ""
+) => {
+  if (!token && !newPassword && !confirmPassword) return null;
+  try {
+    const response = await axios.patch(
+      `${config.SERVER_HOST}/auth/reset-password/${token}`,
+      { newPassword, confirmPassword },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response?.data) return response.data;
+  } catch (error) {
+    console.log("error:", error);
+    toast.warning(error.response.data.message, {
+      pauseOnHover: false,
+      delay: 200,
+    });
+  }
+};
+
 export {
+  apiChangeForgotPassword,
+  apiForgotPassword,
+  apiVerifyProfile,
+  apiVerifyEmail,
+  apiLogin,
   apiRegister,
   apiSetUser,
   apiSetStaff,

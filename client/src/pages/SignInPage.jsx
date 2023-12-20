@@ -9,6 +9,7 @@ import { Label } from "../components/label";
 import { Field } from "../components/field";
 import { useEffect } from "react";
 import { toast } from "react-toastify";
+import { apiLogin } from "../api/apisHung";
 
 const schema = yup.object({
   email: yup
@@ -22,7 +23,6 @@ const schema = yup.object({
 });
 
 const SignInPage = () => {
-  const navigate = useNavigate();
   const {
     control,
     handleSubmit,
@@ -31,6 +31,7 @@ const SignInPage = () => {
     mode: "onChange",
     resolver: yupResolver(schema),
   });
+  const navigate = useNavigate();
 
   useEffect(() => {
     const arrError = Object.values(errors);
@@ -42,16 +43,27 @@ const SignInPage = () => {
     }
   }, [errors]);
 
-  const handleSignUp = (values) => {
+  const handleSignIn = async (values) => {
     if (!isValid) return;
-    console.log("values:", values);
+    const { email, password } = values;
+    const response = await apiLogin(email, password);
+    if (response.success && !response.hasProfile) {
+      localStorage.setItem("token", response.token);
+      navigate("/verify-profile");
+      return;
+    }
+    if (response.success && response.hasProfile) {
+      localStorage.setItem("token", response.token);
+      navigate("/");
+      return;
+    }
   };
 
   return (
     <div>
       <form
-        className="max-w-lg w-full mx-auto"
-        onSubmit={handleSubmit(handleSignUp)}
+        className="w-full max-w-lg mx-auto"
+        onSubmit={handleSubmit(handleSignIn)}
         autoComplete="off"
       >
         <Field>
@@ -72,11 +84,17 @@ const SignInPage = () => {
             control={control}
           />
         </Field>
-        <div className="have-account">
-          You do not have an account?{" "}
-          <NavLink to={"/sign-up"}>Register</NavLink>{" "}
+        <div className="flex justify-between have-account">
+          <p>
+            You do not have an account?{" "}
+            <NavLink to={"/sign-up"}>Register</NavLink>{" "}
+          </p>
+          <p className="text-sm font-semibold">
+            <NavLink to={"/send-email-password"}>I forgot password</NavLink>
+          </p>
         </div>
-        <div className="flex items-center gap-3 mt-5 justify-center">
+
+        <div className="flex items-center justify-center gap-3 mt-5">
           <Button
             type="submit"
             className="w-full max-w-[300px] mx-auto"

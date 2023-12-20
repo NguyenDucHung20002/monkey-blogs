@@ -6,6 +6,10 @@ import StaffManage from "./modules/user/StaffManage";
 import PostDetailAdminPage from "./pages/PostDetailAdminPage";
 import MeNotificationPage from "./pages/MeNotificationPage";
 import AllNotification from "./modules/notification/AllNotification";
+import VerifyProfilePage from "./pages/VerifyProfilePage";
+import VerifyEmailPage from "./pages/VerifyEmailPage";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import SendEmailForgotPasswordPage from "./pages/SendEmailForgotPasswordPage";
 const AuthenticationPage = React.lazy(() =>
   import("./pages/AuthenticationPage")
 );
@@ -64,7 +68,6 @@ const DashboardPage = React.lazy(() => import("./pages/DashboardPage"));
 const ProfilePage = React.lazy(() => import("./pages/ProfilePage"));
 const Layout = React.lazy(() => import("./layout/Layout"));
 const PageNotFound = React.lazy(() => import("./pages/PageNotFound"));
-const StartedTopicsPage = React.lazy(() => import("./pages/StartedTopicsPage"));
 const HomePage = React.lazy(() => import("./pages/HomePage"));
 const SignInPage = React.lazy(() => import("./pages/SignInPage"));
 
@@ -73,9 +76,27 @@ function App() {
     <div id="main">
       <Suspense>
         <Routes>
+          <Route
+            path="/verify-profile"
+            element={<VerifyProfilePage></VerifyProfilePage>}
+          ></Route>
+          <Route
+            path="/verify-email"
+            element={<VerifyEmailPage></VerifyEmailPage>}
+          ></Route>
           <Route element={<AuthenticationPage></AuthenticationPage>}>
             <Route path="/sign-in" element={<SignInPage></SignInPage>}></Route>
             <Route path="/sign-up" element={<SignUpPage></SignUpPage>}></Route>
+            <Route
+              path="/send-email-password"
+              element={
+                <SendEmailForgotPasswordPage></SendEmailForgotPasswordPage>
+              }
+            ></Route>
+            <Route
+              path="/verify-forgot-password"
+              element={<ForgotPasswordPage></ForgotPasswordPage>}
+            ></Route>
           </Route>
           <Route element={<Layout></Layout>}>
             <Route element={<HomePage></HomePage>}>
@@ -211,10 +232,7 @@ function App() {
               element={<UserReportsResolved></UserReportsResolved>}
             ></Route>
           </Route>
-          <Route
-            path="/get-started/topics"
-            element={<StartedTopicsPage></StartedTopicsPage>}
-          ></Route>
+
           <Route path="/write" element={<WritePage></WritePage>}></Route>
           <Route
             path="/edit-blog/:slug"

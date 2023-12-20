@@ -66,13 +66,13 @@ const Header = memo(() => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const content = useCallback(function (username) {
+  const content = useCallback(function (username, fullname) {
     return (
       <div className="w-[250px] block">
         <h2 className="pb-2 text-sm font-semibold border-b border-gray-300">
-          {username && username?.length > 8
-            ? username.slice(0, 8) + "..."
-            : username}
+          {fullname && fullname?.length > 15
+            ? fullname.slice(0, 15) + "..."
+            : fullname}
         </h2>
         <NavLink to={`/write`} className="md:hidden">
           <div className="flex items-center justify-start my-4">
@@ -194,7 +194,7 @@ const Header = memo(() => {
                 <Space direction="vertical" wrap size={16} className="p-1 ml-5">
                   <Popover
                     placement="bottomRight"
-                    content={() => content(data?.username, data?.username)}
+                    content={() => content(data?.username, data?.fullname)}
                     trigger="click"
                   >
                     <Avatar
