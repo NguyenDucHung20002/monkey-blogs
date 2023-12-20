@@ -9,6 +9,7 @@ import checkUserBanned from "../middlewares/checkUserBanned.js";
 import fetchUser from "../middlewares/fetchUser.js";
 import checkBlockedByUser from "../middlewares/checBlockedByUser.js";
 import mongoUpload from "../middlewares/mongoUpload.js";
+import checkAvatar from "../middlewares/checkAvatar.js";
 
 const router = express.Router();
 
@@ -27,6 +28,7 @@ router.post(
   "/setup-profile",
   requiredAuth,
   mongoUpload.single("avatar"),
+  checkAvatar,
   validator(profileSchema.setupProfileSchema),
   profileController.setupProfile
 );
@@ -37,6 +39,8 @@ router.patch(
   "/me/update",
   requiredAuth,
   fetchMe,
+  mongoUpload.single("avatar"),
+  checkAvatar,
   validator(profileSchema.updateProfileSchema, "body"),
   profileController.updateMyProfile
 );

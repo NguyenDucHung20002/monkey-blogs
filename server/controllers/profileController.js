@@ -32,14 +32,6 @@ const setupProfile = asyncMiddleware(async (req, res, next) => {
 
   const filename = req.file?.filename;
 
-  const size = req.file?.size;
-
-  const FILE_LIMIT = env.AVATAR_FILE_SIZE_LIMIT * 1024 * 1024;
-
-  if (size && size > FILE_LIMIT) {
-    throw ErrorResponse(400, "File too large");
-  }
-
   const [user, profile, jsonWebToken] = await Promise.all([
     User.findByPk(myUserId),
     Profile.findOne({ where: { userId: myUserId } }),
@@ -104,14 +96,16 @@ const getProfile = asyncMiddleware(async (req, res, next) => {
 
 const updateMyProfile = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
-  const { fullname, bio, about, avatar } = req.body;
+  const { fullname, bio, about } = req.body;
 
-  if (avatar !== me.profileInfo.avatar) {
+  const filename = req.file?.filename;
+
+  if (filename !== me.profileInfo.avatar) {
     const oldAvatar = me.profileInfo.avatar.split("/");
     await fileController.autoRemoveImg(oldAvatar[oldAvatar.length - 1]);
   }
 
-  await me.profileInfo.update({ fullname, bio, about, avatar });
+  await me.profileInfo.update({ fullname, bio, about, avatar: filename });
 
   res.json({ success: true, message: "Profile updated successfully" });
 });
