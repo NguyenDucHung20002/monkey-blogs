@@ -214,7 +214,7 @@ const loginEmail = asyncMiddleware(async (req, res, next) => {
 
   const [jsonWebToken, profile] = await Promise.all([
     generateJwt({ id: user.id }),
-    Profile.findByPk(user.id),
+    Profile.findOne({ where: { userId: user.id } }),
   ]);
 
   res.json({
