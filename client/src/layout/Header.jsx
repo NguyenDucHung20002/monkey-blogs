@@ -31,7 +31,6 @@ const HomeStyle = styled.header`
 // eslint-disable-next-line react/display-name
 const Header = memo(() => {
   const { userInfo, setUserInfo } = useAuth();
-  console.log("userInfo:", userInfo);
   const navigate = useNavigate();
   const [inputSearch, setInputSearch] = useState();
   const navigation = useNavigate();

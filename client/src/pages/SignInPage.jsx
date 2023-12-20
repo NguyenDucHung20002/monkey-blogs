@@ -43,8 +43,7 @@ const SignInPage = () => {
         return;
       }
       if (response.success && response.hasProfile) {
-        localStorage.setItem("token", response.token);
-        navigate(`/`);
+        window.location.replace(`/?token=${response.token}`);
         return;
       }
     } catch (error) {

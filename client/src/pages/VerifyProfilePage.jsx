@@ -70,10 +70,7 @@ const VerifyProfilePage = () => {
     formData.append("avatar", values.avatar);
     try {
       const response = await apiVerifyProfile(token, formData);
-      if (response.success) {
-        localStorage.setItem("token", token);
-        navigate(`/`);
-      }
+      if (response.success) window.location.replace(`/?token=${token}`);
     } catch (error) {
       console.log("error:", error);
     }
