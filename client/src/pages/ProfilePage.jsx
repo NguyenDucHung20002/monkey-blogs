@@ -22,6 +22,7 @@ const ProfilePage = () => {
     async function fetchUserInf() {
       const profileUser = await apiGetProfile(token, username);
       setUser({ ...profileUser });
+      setIsBlocked(profileUser?.isBlocked);
     }
     fetchUserInf();
   }, [show, token, username]);
