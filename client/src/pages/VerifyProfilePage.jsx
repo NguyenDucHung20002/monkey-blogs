@@ -10,6 +10,7 @@ import logo from "../assets/logo.png";
 import ImageUpload from "../components/image/ImageUpload";
 import { apiVerifyProfile } from "../api/apisHung";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const schema = yup.object({
   fullName: yup.string().required("Please fill out your title").min(4),
@@ -33,6 +34,7 @@ const VerifyProfilePage = () => {
   });
   const token = localStorage.getItem("token");
   const [image, setImage] = useState("");
+  const navigate = useNavigate();
 
   const handleSelectImage = (e) => {
     const file = e.target.files[0];
@@ -66,9 +68,12 @@ const VerifyProfilePage = () => {
     // Append data to the FormData object
     formData.append("fullname", values.fullName);
     formData.append("avatar", values.avatar);
-
-    const response = await apiVerifyProfile(token, formData);
-    console.log("response:", response);
+    try {
+      const response = await apiVerifyProfile(token, formData);
+      if (response.success) navigate(`/?token=${token}`);
+    } catch (error) {
+      console.log("error:", error);
+    }
   };
 
   return (

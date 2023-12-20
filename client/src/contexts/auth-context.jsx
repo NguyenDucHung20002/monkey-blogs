@@ -11,13 +11,12 @@ const AuthProvider = React.memo((props) => {
   const [userInfo, setUserInfo] = useState({});
   // console.log("userInfo:", userInfo);
   const value = { userInfo, setUserInfo };
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const tokenParams = searchParams.get("token");
 
   function getToken() {
     if (tokenParams) {
       localStorage.setItem("token", tokenParams);
-      setSearchParams("");
       return tokenParams;
     }
     const tokenLocal = localStorage.getItem("token");

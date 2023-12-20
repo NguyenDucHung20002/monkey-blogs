@@ -41,7 +41,7 @@ const VerifySetupPasswordPage = () => {
         {verify && !verify.success && (
           <p className="">please login and try again</p>
         )}
-        <NavLink to="sign-in">
+        <NavLink to="/sign-in">
           <p className="text-blue-400 hover:text-blue-500 ">login</p>
         </NavLink>
       </div>
