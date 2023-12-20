@@ -46,6 +46,8 @@ const AuthProvider = React.memo((props) => {
       return null;
     } catch (error) {
       console.log("error:", error);
+      localStorage.removeItem("token");
+      navigate("/sign-in");
     }
   }, [navigate, token]);
 

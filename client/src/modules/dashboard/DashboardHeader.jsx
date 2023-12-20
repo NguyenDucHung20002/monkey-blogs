@@ -130,6 +130,7 @@ const DashboardHeader = () => {
           "Content-Type": "application/json",
         },
       });
+      console.log("response:", response);
       if (response.data) {
         setUserInfo({});
         localStorage.removeItem("token");

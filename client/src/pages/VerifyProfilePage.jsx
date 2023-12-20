@@ -100,7 +100,7 @@ const VerifyProfilePage = () => {
               className="mt-5"
               control={control}
               name="fullName"
-              placeholder="User name"
+              placeholder="Full name"
             ></InputHook>
             <p className="text-red-500">{errors?.fullName?.message}</p>
             <div className="flex justify-center mt-10">

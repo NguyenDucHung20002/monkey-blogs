@@ -4,6 +4,7 @@ import { apiGetReportsBlogSolved } from "../../api/apisHung";
 import { Table, Tag } from "antd";
 import Column from "antd/es/table/Column";
 import { NavLink } from "react-router-dom";
+import { Button } from "../../components/button";
 // import { Button } from "../../components/button";
 
 const PostResolvedTable = () => {
@@ -11,6 +12,8 @@ const PostResolvedTable = () => {
   console.log("blogReports:", blogReports);
   const token = localStorage.getItem("token");
   const skip = useRef(0);
+  const [isReload, setIsReload] = useState(false);
+
   // const [searchBlogs, setSearchBlogs] = useState("");
   // const [status, setStatus] = useState("");
 
@@ -33,7 +36,7 @@ const PostResolvedTable = () => {
       }
     }
     fetchReports();
-  }, [token]);
+  }, [token, isReload]);
 
   // const handleLoadMore = async () => {
   //   const newSkip = skip.current;
@@ -108,6 +111,29 @@ const PostResolvedTable = () => {
           ]}
         />
       </div> */}
+      <div className="flex justify-end mb-5">
+        <Button
+          type="button"
+          height="30px"
+          onClick={() => setIsReload(!isReload)}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth="1.5"
+            stroke="currentColor"
+            className="w-4 h-4"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5m8.25 3v6.75m0 0l-3-3m3 3l3-3M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z"
+            />
+          </svg>{" "}
+          <p className="ml-1 text-sm">Reload</p>
+        </Button>
+      </div>
       <Table
         dataSource={blogReports}
         pagination={false}

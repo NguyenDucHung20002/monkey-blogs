@@ -13,6 +13,7 @@ import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import SendEmailForgotPasswordPage from "./pages/SendEmailForgotPasswordPage";
 import VerifySetupPasswordPage from "./pages/VerifySetupPasswordPagePage";
 import ContextWrap from "./contexts/ContextWrap";
+import StaffReportTable from "./modules/user/StaffReportTable";
 const AuthenticationPage = React.lazy(() =>
   import("./pages/AuthenticationPage")
 );
@@ -223,6 +224,7 @@ function App() {
                 path="/manage/report-article"
                 element={<PostReportManage></PostReportManage>}
               ></Route>
+
               <Route
                 path="/manage/report-article-resolved"
                 element={<PostResolved></PostResolved>}
@@ -238,6 +240,10 @@ function App() {
               <Route
                 path="/manage/report-user"
                 element={<UserReportManage></UserReportManage>}
+              ></Route>
+              <Route
+                path="/manage/report-staff"
+                element={<StaffReportTable></StaffReportTable>}
               ></Route>
               <Route
                 path="/manage/report-user-resolved"
