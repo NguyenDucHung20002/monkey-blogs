@@ -6,6 +6,7 @@ import StaffManage from "./modules/user/StaffManage";
 import PostDetailAdminPage from "./pages/PostDetailAdminPage";
 import MeNotificationPage from "./pages/MeNotificationPage";
 import AllNotification from "./modules/notification/AllNotification";
+import MeBlocked from "./pages/MeBlocked";
 import VerifyProfilePage from "./pages/VerifyProfilePage";
 import VerifyEmailPage from "./pages/VerifyEmailPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
@@ -117,6 +118,7 @@ function App() {
                 element={<MeFollowingPage></MeFollowingPage>}
               ></Route>
               <Route path="/me/muted" element={<MeMuted></MeMuted>}></Route>
+              <Route path="/me/blocked" element={<MeBlocked />}></Route>
               <Route
                 path="/me/suggestions"
                 element={<MeSuggestionPage></MeSuggestionPage>}

@@ -3,8 +3,10 @@ import { config } from "../utils/constants";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 
-const token = localStorage.getItem("token");
-
+let token;
+setTimeout(() => {
+  token = localStorage.getItem("token");
+}, 100);
 const apiAddTopic = async (token, name) => {
   try {
     const response = await axios.post(

@@ -1,7 +1,9 @@
 import axios from "axios";
 import { config } from "../utils/constants";
-const token = localStorage.getItem("token");
-
+let token;
+setTimeout(() => {
+  token = localStorage.getItem("token");
+}, 100);
 const apiGetUserFollow = async (username, typeFollow = "followers") => {
   try {
     const res = await fetch(
@@ -77,6 +79,7 @@ const apiDeleteImage = async (filename) => {
 };
 
 const apiCreateDarft = async (title, content) => {
+  console.log("cccccccccc token", token);
   try {
     const response = await axios.post(
       `${config.SERVER_HOST}/article/draft/create-draft`,
@@ -223,6 +226,20 @@ const apiDeleteArticleHistory = async (id) => {
     console.log("error: ", error);
   }
 };
+const apiGetMyBlocked = async () => {
+  if (!token) return null;
+  try {
+    const response = await axios.get(`${config.SERVER_HOST}/block/me`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+    if (response?.data) return response.data;
+  } catch (error) {
+    console.log("error:", error);
+  }
+};
 export {
   apiGetUserFollow,
   apiUploadImage,
@@ -237,4 +254,5 @@ export {
   apiDeleteReadingHistory,
   apiDeleteArticleHistory,
   apiDeleteAllNotification,
+  apiGetMyBlocked,
 };
