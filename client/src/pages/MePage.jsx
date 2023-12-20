@@ -18,6 +18,10 @@ const navMe = [
     url: "/me/muted",
   },
   {
+    title: "Blocked",
+    url: "/me/blocked",
+  },
+  {
     title: "Suggestions",
     url: "/me/suggestions",
   },
