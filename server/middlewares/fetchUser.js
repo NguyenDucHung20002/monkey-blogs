@@ -8,29 +8,49 @@ import { Op } from "sequelize";
 
 const fetchUser = async (req, res, next) => {
   try {
-    const userId = req.params && req.params.id ? req.params.id : null;
+    const profileId = req.params && req.params.id ? req.params.id : null;
     const username =
       req.params && req.params.username ? req.params.username : null;
 
-    if (!userId && !username) {
+    if (!profileId && !username) {
       return res.status(400).json({
         success: false,
         message: "Invalid params imput",
       });
     }
 
-    const user = await User.findOne({
-      where: { [Op.or]: [{ id: userId }, { username }], isVerified: true },
-      attributes: ["status", "bannedUntil", "id", "username"],
-      include: [
-        {
-          model: Profile,
-          as: "profileInfo",
-          attributes: { exclude: ["userId", "notificationsCount"] },
-        },
-        { model: Role, as: "role", attributes: ["id", "name", "slug"] },
-      ],
-    });
+    let user;
+
+    if (profileId && !username) {
+      user = await User.findOne({
+        where: { isVerified: true },
+        attributes: ["status", "bannedUntil", "id", "username"],
+        include: [
+          {
+            model: Profile,
+            as: "profileInfo",
+            where: { id: profileId },
+            attributes: { exclude: ["userId", "notificationsCount"] },
+          },
+          { model: Role, as: "role", attributes: ["id", "name", "slug"] },
+        ],
+      });
+    }
+
+    if (!profileId && username) {
+      user = await User.findOne({
+        where: { username, isVerified: true },
+        attributes: ["status", "bannedUntil", "id", "username"],
+        include: [
+          {
+            model: Profile,
+            as: "profileInfo",
+            attributes: { exclude: ["userId", "notificationsCount"] },
+          },
+          { model: Role, as: "role", attributes: ["id", "name", "slug"] },
+        ],
+      });
+    }
 
     if (!user) throw ErrorResponse(404, "User not found");
 
