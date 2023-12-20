@@ -3,18 +3,17 @@ import { Button } from "../components/button";
 import { NavLink } from "react-router-dom";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { icons } from "../utils/constants";
-import InputAuth from "../components/input/InputAuth";
 import { Label } from "../components/label";
 import { Field } from "../components/field";
 import { useEffect } from "react";
 import { toast } from "react-toastify";
-import { apiRegister } from "../api/apisHung";
+import InputPasswordToggle from "../components/input/InputPasswordToggle";
+import { apiChangeForgotPassword } from "../api/apisHung";
 
 const schema = yup.object({
-  email: yup
+  confirmPassword: yup
     .string()
-    .email("Please enter valid email address")
+    .min(8, "Your confirm password must be at least 8 characters or greater")
     .required("Please enter your email address"),
   password: yup
     .string()
@@ -22,8 +21,9 @@ const schema = yup.object({
     .required("Please enter your password"),
 });
 
-const SignUpPage = () => {
+const ForgotPasswordPage = () => {
   const {
+    reset,
     control,
     handleSubmit,
     formState: { errors, isValid, isSubmitting },
@@ -42,39 +42,60 @@ const SignUpPage = () => {
     }
   }, [errors]);
 
-  const handleSignUp = async (values) => {
+  const handleChangePass = async (values) => {
     if (!isValid) return;
-    const { email, password } = values;
-    await apiRegister(email, password);
+    const { confirmPassword, password } = values;
+    if (confirmPassword !== password) {
+      toast.error("Confirm password is not correct", {
+        pauseOnHover: false,
+        delay: 0,
+      });
+      return;
+    }
+    const token = localStorage.getItem("token");
+    const response = await apiChangeForgotPassword(
+      token,
+      password,
+      confirmPassword
+    );
+    if (response.success) {
+      toast.success(response.message, {
+        pauseOnHover: false,
+        delay: 200,
+      });
+      reset();
+    }
   };
 
   return (
     <div>
+      <h2 className="flex items-center justify-center mb-10 text-2xl font-bold text-gray-400">
+        Set Your Password
+      </h2>
       <form
         className="w-full max-w-lg mx-auto"
-        onSubmit={handleSubmit(handleSignUp)}
+        onSubmit={handleSubmit(handleChangePass)}
         autoComplete="off"
       >
         <Field>
-          <Label htmlFor="email">Email address</Label>
-          <InputAuth
-            type="email"
-            name="email"
-            placeholder="Enter your email"
-            control={control}
-          />
-        </Field>
-        <Field>
-          <Label htmlFor="password">Password</Label>
-          <InputAuth
-            type="password"
+          <Label htmlFor="password">New Password</Label>
+          <InputPasswordToggle
             name="password"
             placeholder="Enter your password"
             control={control}
           />
         </Field>
+        <Field>
+          <Label htmlFor="confirmPassword">Confirm password</Label>
+          <InputPasswordToggle
+            name="confirmPassword"
+            placeholder="Confirm password"
+            control={control}
+          />
+        </Field>
+
         <div className="have-account">
-          You already have an account? <NavLink to={"/sign-in"}>Login</NavLink>{" "}
+          Head back to <NavLink to={"/sign-in"}>Login</NavLink>{" "}
         </div>
         <div className="flex items-center justify-center gap-3 mt-5">
           <Button
@@ -85,15 +106,7 @@ const SignUpPage = () => {
             isLoading={isSubmitting}
             disabled={isSubmitting}
           >
-            Sign Up
-          </Button>
-          <p className="text-lg font-semibold text-gray-400">or</p>
-          <Button
-            type="button"
-            height="45px"
-            to={"http://localhost:8080/api/v1/auth/google"}
-          >
-            {icons.googleIcon} <span className="ml-2">Sign up with Google</span>
+            Change password
           </Button>
         </div>
       </form>
@@ -101,4 +114,4 @@ const SignUpPage = () => {
   );
 };
 
-export default SignUpPage;
+export default ForgotPasswordPage;

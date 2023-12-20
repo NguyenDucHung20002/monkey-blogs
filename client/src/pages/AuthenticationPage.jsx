@@ -34,7 +34,7 @@ const AuthenticationPage = () => {
   return (
     <AuthenticationPageStyles>
       <div className="container">
-        <div className="text-center mb-5">
+        <div className="mb-5 text-center">
           <NavLink to="/" className="inline-block w-16 h-16">
             <img srcSet={logo} alt="monkey-blogging" className="logo" />
           </NavLink>
