@@ -1194,7 +1194,7 @@ const getAllArticles = asyncMiddleware(async (req, res, next) => {
   res.json({ success: true, data: articles, newSkip });
 });
 
-// ==================== topic articles ==================== //
+// ==================== get topic articles ==================== //
 
 const getTopicArticles = asyncMiddleware(async (req, res, next) => {
   const { skip, limit = 15 } = req.query;
@@ -1222,7 +1222,7 @@ const getTopicArticles = asyncMiddleware(async (req, res, next) => {
       include: {
         model: Article,
         as: "article",
-        where: { status: "approved" },
+        where: { status: "approved", authorId: { [Op.ne]: me.profileInfo.id } },
         attributes: {
           exclude: [
             "authorId",
@@ -1555,6 +1555,85 @@ const getArticleDetail = asyncMiddleware(async (req, res, next) => {
   res.json({ success: true, data: article });
 });
 
+// ==================== get more articles from profile ==================== //
+
+const getMoreArticleFromProifle = asyncMiddleware(async (req, res, next) => {
+  const { id } = req.params;
+  const me = req.me ? req.me : null;
+
+  const profileArticle = await Article.findByPk(id);
+
+  if (profileArticle) throw ErrorResponse(404, "Article not found");
+
+  let articles = await Article.findAll({
+    where: {
+      status: "approved",
+      id: { [Op.ne]: id },
+      authorId: profileArticle.authorId,
+    },
+    attributes: {
+      exclude: [
+        "authorId",
+        "content",
+        "status",
+        "reportsCount",
+        "rejectsCount",
+        "approvedById",
+        "deletedById",
+        "deletedAt",
+      ],
+    },
+    include: [
+      {
+        model: Profile,
+        as: "author",
+        attributes: ["id", "fullname", "avatar"],
+        include: {
+          model: User,
+          as: "userInfo",
+          attributes: ["username"],
+          include: { model: Role, as: "role", attributes: ["slug"] },
+        },
+      },
+    ],
+    order: [["likesCount", "DESC"]],
+    limit: Number(limit) ? Number(limit) : null,
+  });
+
+  if (me) {
+    articles = await Promise.all(
+      articles.map(async (article) => {
+        article.article.author.avatar = addUrlToImg(
+          article.article.author.avatar
+        );
+        article.article.banner = addUrlToImg(article.article.banner);
+        const [isSaved, isLiked] = await Promise.all([
+          Reading_List.findOne({
+            where: {
+              profileId: me.profileInfo.id,
+              articleId: article.article.id,
+            },
+          }),
+          Like.findOne({
+            where: {
+              profileId: me.profileInfo.id,
+              articleId: article.article.id,
+            },
+          }),
+        ]);
+        return {
+          ...article.article.toJSON(),
+          isSaved: Boolean(isSaved),
+          isLiked: Boolean(isLiked),
+          isMyArticle: me.profileInfo.id === article.article.id,
+        };
+      })
+    );
+  }
+
+  res.json({ success: true, data: articles });
+});
+
 export default {
   createADraft,
   updateADraft,
@@ -1579,4 +1658,5 @@ export default {
   approveArticle,
   restoreArticle,
   getArticleDetail,
+  getMoreArticleFromProifle,
 };
