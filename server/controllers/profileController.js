@@ -7,7 +7,6 @@ import fileController from "./fileController.js";
 import User from "../models/mysql/User.js";
 import Profile from "../models/mysql/Profile.js";
 import JsonWebToken from "../models/mongodb/JsonWebToken.js";
-import env from "../config/env.js";
 
 // ==================== get logged in profile information ==================== //
 

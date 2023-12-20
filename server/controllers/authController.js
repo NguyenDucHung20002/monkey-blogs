@@ -183,7 +183,9 @@ const loginEmail = asyncMiddleware(async (req, res, next) => {
     include: { model: Profile, as: "profileInfo" },
   });
 
-  if (!user) throw ErrorResponse(401, "Email or password is wrong");
+  if (!user || !user.password) {
+    throw ErrorResponse(401, "Email or password is wrong");
+  }
 
   const isMatch = bcrypt.compareSync(password, user.password);
 
