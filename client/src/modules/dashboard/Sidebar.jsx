@@ -31,7 +31,7 @@ const SidebarStyles = styled.div`
 `;
 
 const Sidebar = () => {
-  const { userInfo, setUserInfo } = useAuth();
+  const { userInfo } = useAuth();
   const navigate = useNavigate();
   const sidebarLinks =
     userInfo?.data?.role === "admin"
@@ -236,8 +236,6 @@ const Sidebar = () => {
               </svg>
             ),
             onClick: () => {
-              setUserInfo({});
-              localStorage.removeItem("token");
               navigate("/");
             },
           },
@@ -363,8 +361,6 @@ const Sidebar = () => {
               </svg>
             ),
             onClick: () => {
-              setUserInfo({});
-              localStorage.removeItem("token");
               navigate("/");
             },
           },

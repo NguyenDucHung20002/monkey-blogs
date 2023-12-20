@@ -678,12 +678,7 @@ const apiUpdateBan = async (token, userId, banType) => {
     );
     if (response?.data) return response.data;
   } catch (error) {
-    if (error.response.status == 404) {
-      toast.error("Users empty!", {
-        pauseOnHover: true,
-        delay: 300,
-      });
-    }
+    console.log("error:", error);
   }
 };
 
@@ -704,12 +699,10 @@ const apiBanUser = async (token, userId, banType) => {
     );
     if (response?.data) return response.data;
   } catch (error) {
-    if (error.response.status == 404) {
-      toast.error("Users empty!", {
-        pauseOnHover: true,
-        delay: 300,
-      });
-    }
+    toast.warning(error.message, {
+      pauseOnHover: false,
+      delay: 200,
+    });
   }
 };
 
@@ -728,12 +721,10 @@ const apiLiftTheBan = async (token, userId) => {
     );
     if (response?.data) return response.data;
   } catch (error) {
-    if (error.response.status == 404) {
-      toast.error("Users empty!", {
-        pauseOnHover: true,
-        delay: 300,
-      });
-    }
+    toast.warning(error.message, {
+      pauseOnHover: false,
+      delay: 200,
+    });
   }
 };
 
