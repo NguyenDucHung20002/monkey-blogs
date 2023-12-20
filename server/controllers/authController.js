@@ -229,11 +229,24 @@ const loginEmail = asyncMiddleware(async (req, res, next) => {
 const loginGoogle = asyncMiddleware(async (req, res, next) => {
   const { avatar, fullname, email } = req.user;
 
-  let user = await User.findOne({ where: { email } });
+  let user = await User.findOne({
+    where: { email },
+    include: {
+      model: Profile,
+      as: "profileInfo",
+    },
+  });
 
   if (!user) {
     const username = generateUserName(email);
     user = await User.create({ email, username, isVerified: true });
+  }
+
+  if (!user.isVerified) {
+    await user.update({ isVerified: true });
+  }
+
+  if (!user.profileInfo) {
     await Profile.create({ avatar, fullname, userId: user.id });
   }
 
