@@ -3,14 +3,11 @@ import { Button } from "../components/button";
 import { NavLink, useNavigate } from "react-router-dom";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { config, icons } from "../utils/constants";
+import { icons } from "../utils/constants";
 import InputAuth from "../components/input/InputAuth";
 import { Label } from "../components/label";
 import { Field } from "../components/field";
 import { apiLogin } from "../api/apisHung";
-import axios from "axios";
-import { useAuth } from "../contexts/auth-context";
-import { useCallback } from "react";
 
 const schema = yup.object({
   email: yup
@@ -33,8 +30,6 @@ const SignInPage = () => {
     resolver: yupResolver(schema),
   });
   const navigate = useNavigate();
-  const { userInfo, setUserInfo } = useAuth();
-  console.log("userInfo:", userInfo);
 
   const handleSignIn = async (values) => {
     if (!isValid) return;
@@ -48,36 +43,14 @@ const SignInPage = () => {
         return;
       }
       if (response.success && response.hasProfile) {
-        await fetcher(response.token);
-        navigate(`/?token=${response.token}`);
+        localStorage.setItem("token", response.token);
+        navigate(`/`);
         return;
       }
     } catch (error) {
       console.log("error:", error);
     }
   };
-
-  const fetcher = useCallback(async (token) => {
-    if (!token) return;
-    try {
-      const response = await axios.get(
-        `${config.SERVER_HOST}/profile/logged-in-profile-information`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (response?.data?.success) {
-        setUserInfo(response.data);
-      }
-      return null;
-    } catch (error) {
-      console.log("error:", error);
-    }
-  }, []);
 
   return (
     <div>

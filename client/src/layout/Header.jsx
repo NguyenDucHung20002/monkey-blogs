@@ -31,7 +31,7 @@ const HomeStyle = styled.header`
 // eslint-disable-next-line react/display-name
 const Header = memo(() => {
   const { userInfo, setUserInfo } = useAuth();
-  const { data } = userInfo;
+  console.log("userInfo:", userInfo);
   const navigate = useNavigate();
   const [inputSearch, setInputSearch] = useState();
   const navigation = useNavigate();
@@ -95,7 +95,7 @@ const Header = memo(() => {
             {icons.storyIcon} <p className="ml-3">Stories</p>
           </div>
         </NavLink>
-        {data.role !== "user" && (
+        {userInfo?.data?.role !== "user" && (
           <NavLink to={`/dashboard`}>
             <div className="flex items-center justify-start my-4">
               {icons.dashboardIcon} <p className="ml-3">Dashboard</p>
@@ -194,13 +194,18 @@ const Header = memo(() => {
                 <Space direction="vertical" wrap size={16} className="p-1 ml-5">
                   <Popover
                     placement="bottomRight"
-                    content={() => content(data?.username, data?.fullname)}
+                    content={() =>
+                      content(
+                        userInfo?.data?.username,
+                        userInfo?.data?.fullname
+                      )
+                    }
                     trigger="click"
                   >
                     <Avatar
                       className="cursor-pointer"
                       size="large"
-                      src={<img src={data?.avatar} alt="avatar" />}
+                      src={<img src={userInfo?.data?.avatar} alt="avatar" />}
                     />
                   </Popover>
                 </Space>

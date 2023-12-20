@@ -12,6 +12,7 @@ import VerifyEmailPage from "./pages/VerifyEmailPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import SendEmailForgotPasswordPage from "./pages/SendEmailForgotPasswordPage";
 import VerifySetupPasswordPage from "./pages/VerifySetupPasswordPagePage";
+import ContextWrap from "./contexts/ContextWrap";
 const AuthenticationPage = React.lazy(() =>
   import("./pages/AuthenticationPage")
 );
@@ -104,148 +105,153 @@ function App() {
               element={<ForgotPasswordPage></ForgotPasswordPage>}
             ></Route>
           </Route>
-          <Route element={<Layout></Layout>}>
-            <Route element={<HomePage></HomePage>}>
-              <Route path="/" element={<HomeMain></HomeMain>}></Route>
-              <Route
-                path="/following"
-                element={<FollowingPage></FollowingPage>}
-              ></Route>
-            </Route>
-            <Route element={<MePage></MePage>}>
-              <Route
-                path="/me/following"
-                element={<MeFollowingPage></MeFollowingPage>}
-              ></Route>
-              <Route path="/me/muted" element={<MeMuted></MeMuted>}></Route>
-              <Route path="/me/blocked" element={<MeBlocked />}></Route>
-              <Route
-                path="/me/suggestions"
-                element={<MeSuggestionPage></MeSuggestionPage>}
-              ></Route>
-            </Route>
-            <Route element={<MeLayout />}>
-              <Route element={<MeStoryPage />}>
+          <Route element={<ContextWrap></ContextWrap>}>
+            <Route element={<Layout></Layout>}>
+              <Route element={<HomePage></HomePage>}>
+                <Route path="/" element={<HomeMain></HomeMain>}></Route>
                 <Route
-                  path="/me/stories/drafts"
-                  element={<MyDraft></MyDraft>}
+                  path="/following"
+                  element={<FollowingPage></FollowingPage>}
+                ></Route>
+              </Route>
+              <Route element={<MePage></MePage>}>
+                <Route
+                  path="/me/following"
+                  element={<MeFollowingPage></MeFollowingPage>}
+                ></Route>
+                <Route path="/me/muted" element={<MeMuted></MeMuted>}></Route>
+                <Route path="/me/blocked" element={<MeBlocked />}></Route>
+                <Route
+                  path="/me/suggestions"
+                  element={<MeSuggestionPage></MeSuggestionPage>}
+                ></Route>
+              </Route>
+              <Route element={<MeLayout />}>
+                <Route element={<MeStoryPage />}>
+                  <Route
+                    path="/me/stories/drafts"
+                    element={<MyDraft></MyDraft>}
+                  />
+                </Route>
+                <Route element={<MeLibraryPage />}>
+                  <Route
+                    path="/me/library/reading-history"
+                    element={<ReadingHistory />}
+                  />
+                </Route>
+                <Route element={<MeNotificationPage />}>
+                  <Route
+                    path="/me/notifications"
+                    element={<AllNotification />}
+                  />
+                </Route>
+              </Route>
+              <Route
+                path="/blog/:slug"
+                element={<PostDetailPage></PostDetailPage>}
+              ></Route>
+              <Route
+                path="/blog-detail/:id"
+                element={<PostDetailAdminPage></PostDetailAdminPage>}
+              ></Route>
+              <Route
+                path="/topic/:slug"
+                element={<TopicPage></TopicPage>}
+              ></Route>
+              <Route element={<ProfilePage></ProfilePage>}>
+                <Route path="/profile/:username" element={<ProfileHome />} />
+                <Route
+                  path="/profile/follower/:username"
+                  element={<ProfileFollower />}
+                />
+                <Route
+                  path="/profile/staff-pick/:username"
+                  element={<StaffPickPage />}
+                />
+                <Route
+                  path="/profile/following/:username"
+                  element={<ProfileFollowing />}
+                />
+                <Route
+                  path="/profile/reading-list/:username"
+                  element={<ProfileReadingList></ProfileReadingList>}
                 />
               </Route>
-              <Route element={<MeLibraryPage />}>
+
+              <Route element={<SearchPage></SearchPage>}>
                 <Route
-                  path="/me/library/reading-history"
-                  element={<ReadingHistory />}
-                />
+                  path="/search"
+                  element={<SearchStoriesPage></SearchStoriesPage>}
+                ></Route>
+                <Route
+                  path="/search/topics"
+                  element={<SearchTopicsPage></SearchTopicsPage>}
+                ></Route>
+                <Route
+                  path="/search/people"
+                  element={<SearchUsersPage></SearchUsersPage>}
+                ></Route>
               </Route>
-              <Route element={<MeNotificationPage />}>
-                <Route path="/me/notifications" element={<AllNotification />} />
-              </Route>
             </Route>
-            <Route
-              path="/blog/:slug"
-              element={<PostDetailPage></PostDetailPage>}
-            ></Route>
-            <Route
-              path="/blog-detail/:id"
-              element={<PostDetailAdminPage></PostDetailAdminPage>}
-            ></Route>
-            <Route
-              path="/topic/:slug"
-              element={<TopicPage></TopicPage>}
-            ></Route>
-            <Route element={<ProfilePage></ProfilePage>}>
-              <Route path="/profile/:username" element={<ProfileHome />} />
+            <Route element={<DashboardLayout></DashboardLayout>}>
               <Route
-                path="/profile/follower/:username"
-                element={<ProfileFollower />}
-              />
+                path="/dashboard"
+                element={<DashboardPage></DashboardPage>}
+              ></Route>
               <Route
-                path="/profile/staff-pick/:username"
-                element={<StaffPickPage />}
-              />
+                path="/manage/topic"
+                element={<TopicManage></TopicManage>}
+              ></Route>
+
               <Route
-                path="/profile/following/:username"
-                element={<ProfileFollowing />}
-              />
+                path="/manage/add-topic"
+                element={<TopicAddNew></TopicAddNew>}
+              ></Route>
               <Route
-                path="/profile/reading-list/:username"
-                element={<ProfileReadingList></ProfileReadingList>}
-              />
+                path="/manage/update-topic"
+                element={<TopicUpdate></TopicUpdate>}
+              ></Route>
+              <Route
+                path="/manage/posts"
+                element={<PostManage></PostManage>}
+              ></Route>
+              <Route
+                path="/manage/removed-article"
+                element={<PostRemoved></PostRemoved>}
+              ></Route>
+              <Route
+                path="/manage/report-article"
+                element={<PostReportManage></PostReportManage>}
+              ></Route>
+              <Route
+                path="/manage/report-article-resolved"
+                element={<PostResolved></PostResolved>}
+              ></Route>
+              <Route
+                path="/manage/staff"
+                element={<StaffManage></StaffManage>}
+              ></Route>
+              <Route
+                path="/manage/user"
+                element={<UserManage></UserManage>}
+              ></Route>
+              <Route
+                path="/manage/report-user"
+                element={<UserReportManage></UserReportManage>}
+              ></Route>
+              <Route
+                path="/manage/report-user-resolved"
+                element={<UserReportsResolved></UserReportsResolved>}
+              ></Route>
             </Route>
 
-            <Route element={<SearchPage></SearchPage>}>
-              <Route
-                path="/search"
-                element={<SearchStoriesPage></SearchStoriesPage>}
-              ></Route>
-              <Route
-                path="/search/topics"
-                element={<SearchTopicsPage></SearchTopicsPage>}
-              ></Route>
-              <Route
-                path="/search/people"
-                element={<SearchUsersPage></SearchUsersPage>}
-              ></Route>
-            </Route>
+            <Route path="/write" element={<WritePage></WritePage>}></Route>
+            <Route
+              path="/edit-blog/:slug"
+              element={<EditBlogPage></EditBlogPage>}
+            ></Route>
+            <Route path="*" element={<PageNotFound></PageNotFound>}></Route>
           </Route>
-          <Route element={<DashboardLayout></DashboardLayout>}>
-            <Route
-              path="/dashboard"
-              element={<DashboardPage></DashboardPage>}
-            ></Route>
-            <Route
-              path="/manage/topic"
-              element={<TopicManage></TopicManage>}
-            ></Route>
-
-            <Route
-              path="/manage/add-topic"
-              element={<TopicAddNew></TopicAddNew>}
-            ></Route>
-            <Route
-              path="/manage/update-topic"
-              element={<TopicUpdate></TopicUpdate>}
-            ></Route>
-            <Route
-              path="/manage/posts"
-              element={<PostManage></PostManage>}
-            ></Route>
-            <Route
-              path="/manage/removed-article"
-              element={<PostRemoved></PostRemoved>}
-            ></Route>
-            <Route
-              path="/manage/report-article"
-              element={<PostReportManage></PostReportManage>}
-            ></Route>
-            <Route
-              path="/manage/report-article-resolved"
-              element={<PostResolved></PostResolved>}
-            ></Route>
-            <Route
-              path="/manage/staff"
-              element={<StaffManage></StaffManage>}
-            ></Route>
-            <Route
-              path="/manage/user"
-              element={<UserManage></UserManage>}
-            ></Route>
-            <Route
-              path="/manage/report-user"
-              element={<UserReportManage></UserReportManage>}
-            ></Route>
-            <Route
-              path="/manage/report-user-resolved"
-              element={<UserReportsResolved></UserReportsResolved>}
-            ></Route>
-          </Route>
-
-          <Route path="/write" element={<WritePage></WritePage>}></Route>
-          <Route
-            path="/edit-blog/:slug"
-            element={<EditBlogPage></EditBlogPage>}
-          ></Route>
-          <Route path="*" element={<PageNotFound></PageNotFound>}></Route>
         </Routes>
       </Suspense>
       <ToastContainer></ToastContainer>
