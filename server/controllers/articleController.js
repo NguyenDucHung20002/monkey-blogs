@@ -1563,7 +1563,7 @@ const getMoreArticleFromProifle = asyncMiddleware(async (req, res, next) => {
 
   const profileArticle = await Article.findByPk(id);
 
-  if (profileArticle) throw ErrorResponse(404, "Article not found");
+  if (!profileArticle) throw ErrorResponse(404, "Article not found");
 
   let articles = await Article.findAll({
     where: {
