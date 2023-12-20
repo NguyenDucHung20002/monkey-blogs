@@ -150,15 +150,13 @@ const getAllUsers = asyncMiddleware(async (req, res, next) => {
 const changePassword = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
 
-  if (!me.password) {
-    throw ErrorResponse(400, "You have not setup password for this account");
-  }
-
   const { oldPassword, newPassword, confirmPassword } = req.body;
 
-  const isMatch = bcrypt.compareSync(oldPassword, me.password);
+  if (me.password) {
+    const isMatch = bcrypt.compareSync(oldPassword, me.password);
 
-  if (!isMatch) throw ErrorResponse(401, "Old password is incorrect");
+    if (!isMatch) throw ErrorResponse(401, "Old password is incorrect");
+  }
 
   if (newPassword !== confirmPassword) {
     throw ErrorResponse(400, "Confirm password do not match");
