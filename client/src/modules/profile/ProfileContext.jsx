@@ -60,7 +60,7 @@ const MoreMe = ({ handleCopyToClipboard }) => {
     </>
   );
 };
-const ProfileContext = ({ setIsBlocked, user, token }) => {
+const ProfileContext = ({ setIsBlocked, isBlocked, user, token }) => {
   const [isMuted, setMuted] = useState(false);
   const [isBlock, setBlock] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -167,7 +167,7 @@ const ProfileContext = ({ setIsBlocked, user, token }) => {
         <div className="w-full h-20 py-4 flex items-center justify-between">
           <div className="text-[25px] text-black py-3 font-bold">
             {user.fullname}
-            {user?.isBlocked ? "has been blocked" : ""}
+            {isBlocked ? "has been blocked" : ""}
           </div>
           <div className="">
             <Popover

@@ -41,11 +41,12 @@ const ProfilePage = () => {
       <div className="container max-w-[1336px] mx-auto flex">
         <div className="w-full md:px-14 md:max-w-[70%] ">
           <ProfileContext
+            isBlocked={isBlocked}
             setIsBlocked={setIsBlocked}
             token={token}
             user={user}
           />
-          {!user?.isBlocked && <Outlet context={{ user }}></Outlet>}
+          {!isBlocked && <Outlet context={{ user }}></Outlet>}
         </div>
         <div className=" flex-1 max-w-[30%] md:block  ">
           <StickyBox>

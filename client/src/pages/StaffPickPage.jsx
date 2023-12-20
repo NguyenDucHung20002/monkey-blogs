@@ -68,9 +68,9 @@ const StaffPickPage = () => {
   return (
     <>
       <div className="mb-7 pb-7 ">
-        <h1 className="text-4xl font-bold">Staff Picks</h1>
+        <h1 className="text-4xl font-bold">Admin Picks</h1>
         <p className="text-lg font-semibold text-gray-500 mt-3">
-          Stories from across Medium, hand-selected by our team.
+          Stories from across Medium, hand-selected by admin team.
         </p>
       </div>
       <StaffPicksStyle>
