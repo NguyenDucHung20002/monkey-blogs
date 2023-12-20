@@ -178,7 +178,10 @@ const resetPassword = asyncMiddleware(async (req, res, next) => {
 const loginEmail = asyncMiddleware(async (req, res, next) => {
   const { email, password } = req.body;
 
-  const user = await User.findOne({ where: { email } });
+  const user = await User.findOne({
+    where: { email },
+    include: { model: Profile, as: "profileInfo" },
+  });
 
   if (!user) throw ErrorResponse(401, "Email or password is wrong");
 
@@ -212,14 +215,11 @@ const loginEmail = asyncMiddleware(async (req, res, next) => {
     });
   }
 
-  const [jsonWebToken, profile] = await Promise.all([
-    generateJwt({ id: user.id }),
-    Profile.findOne({ where: { userId: user.id } }),
-  ]);
+  const jsonWebToken = await generateJwt({ id: user.id });
 
   res.json({
     success: true,
-    hasProfile: Boolean(profile),
+    hasProfile: Boolean(user.profileInfo),
     token: jsonWebToken,
   });
 });
