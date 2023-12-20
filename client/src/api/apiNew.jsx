@@ -1,7 +1,9 @@
 import axios from "axios";
 import { config } from "../utils/constants";
-const token = localStorage.getItem("token");
-
+let token;
+setTimeout(() => {
+  token = localStorage.getItem("token");
+}, 100);
 const apiGetUserFollow = async (username, typeFollow = "followers") => {
   try {
     const res = await fetch(
@@ -77,6 +79,7 @@ const apiDeleteImage = async (filename) => {
 };
 
 const apiCreateDarft = async (title, content) => {
+  console.log("cccccccccc token", token);
   try {
     const response = await axios.post(
       `${config.SERVER_HOST}/article/draft/create-draft`,
