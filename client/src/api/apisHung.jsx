@@ -29,6 +29,7 @@ const apiGetPendingReportUsers = async (
     });
   }
 };
+
 const apiGetPendingReportStaff = async (
   token,
   limit = 10,
@@ -531,12 +532,12 @@ const apiMarkAllReportBlog = async (token, BlogId) => {
   }
 };
 
-const apiSetBackToDraft = async (token, BlogId) => {
+const apiSetBackToDraft = async (token, BlogId, reason) => {
   if (!token && !BlogId) return null;
   try {
     const response = await axios.patch(
       `${config.SERVER_HOST}/article/set-article-back-to-draft/${BlogId}`,
-      {},
+      { reason },
       {
         headers: {
           Authorization: `Bearer ${token}`,

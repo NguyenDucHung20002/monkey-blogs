@@ -12,25 +12,24 @@ const BlogGird = ({ blog }) => {
   const { title, preview, banner, slug, author, createdAt } = blog;
 
   return (
-    <div className="flex flex-col items-start justify-between ">
-      <div className="flex-1">
-        {banner ? (
-          <BlogImage
-            kind="gird"
-            url={banner}
-            alt=""
-            to={`/blog/${slug}`}
-          ></BlogImage>
-        ) : (
-          <div>
-            <Skeleton.Image
-              active={true}
-              style={{ maxWidth: "360px", width: "360px", height: "180px" }}
-            />
-          </div>
-        )}
-
-        <div className="my-4">
+    <div className="flex flex-col justify-between">
+      {banner ? (
+        <BlogImage
+          kind="gird"
+          url={banner}
+          alt=""
+          to={`/blog/${slug}`}
+        ></BlogImage>
+      ) : (
+        <div>
+          <Skeleton.Image
+            active={true}
+            style={{ maxWidth: "360px", width: "360px", height: "180px" }}
+          />
+        </div>
+      )}
+      <div className="flex flex-col flex-1">
+        <div className="flex-1 w-full my-4">
           <div className="flex py-2">
             <Link to={`/profile/${author?.username}`}>
               <Avatar

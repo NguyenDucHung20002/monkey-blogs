@@ -5,13 +5,14 @@ import {
   apiMarkAllReportBlog,
   apiSetBackToDraft,
 } from "../../api/apisHung";
-import { Drawer, Popover, Table, Tag } from "antd";
+import { Drawer, Modal, Popover, Select, Table, Tag } from "antd";
 import Column from "antd/es/table/Column";
 import { icons } from "../../utils/constants";
 import PostModalReport from "./PostModalReport";
 import Button from "../../components/button/Button";
 import { toast } from "react-toastify";
 import { NavLink } from "react-router-dom";
+import TextArea from "antd/es/input/TextArea";
 
 const PostReportTable = () => {
   const token = localStorage.getItem("token");
@@ -20,6 +21,19 @@ const PostReportTable = () => {
   const skip = useRef(0);
   const [isReload, setIsReload] = useState(false);
   const [blogReports, setBlogReports] = useState([]);
+  const [openModalReporter, setOpenModalReporter] = useState(false);
+  const [reason, setReason] = useState("");
+
+  const handleOpenModal = (title) => {
+    setOpenModalReporter(true);
+    setReason(`Your story ${title} was set back to draft for reason`);
+  };
+
+  const onReason = (e, title) => {
+    const value = e ?? "";
+    const text = `Your story ${title} was set back to draft for reason ${value}`;
+    setReason(text);
+  };
 
   const handleShowReports = (id) => {
     if (!open) {
@@ -59,50 +73,94 @@ const PostReportTable = () => {
 
   const handleSetBackToDraft = useCallback(
     async (id) => {
-      const response = await apiSetBackToDraft(token, id);
+      const response = await apiSetBackToDraft(token, id, reason);
       if (response) {
+        setOpenModalReporter(false);
         toast.success("Set to draft successfully!", {
           pauseOnHover: false,
           delay: 200,
         });
       }
     },
-    [token]
+    [reason, token]
   );
 
+  const onChangeReason = (e) => {
+    setReason(e.target.value);
+  };
+
   const ButtonMore = (blog) => (
-    <Popover
-      placement="bottomRight"
-      content={
-        <>
-          <div className="w-45">
+    <>
+      <Modal
+        title="Report"
+        centered
+        open={openModalReporter}
+        onOk={() => setOpenModalReporter(false)}
+        onCancel={() => setOpenModalReporter(false)}
+        footer={
+          <div className="text-right">
             <button
-              className="block w-full py-2 text-left hover:text-blue-400"
-              onClick={() => handleShowReports(blog.id)}
-            >
-              Show reports ({blog?.reportsCount})
-            </button>
-            <button
-              className="block w-full py-2 text-left hover:text-blue-400"
-              onClick={() => handleMarkAllThisReport(blog.id)}
-            >
-              Mark all reports as solved
-            </button>
-            <button
-              className="block w-full py-2 text-left hover:text-blue-400 whitespace-nowrap"
+              className="px-2 py-1 mt-5 text-white bg-blue-300 rounded-md hover:bg-blue-400 "
               onClick={() => handleSetBackToDraft(blog.id)}
             >
-              Set back to draft
+              Submit
             </button>
           </div>
-        </>
-      }
-    >
-      <button className="flex items-center justify-center text-blue-400 rounded-md cursor-pointer w-7 h-7">
-        {icons.moreIcon}
-      </button>
-      <div></div>
-    </Popover>
+        }
+      >
+        <div className="flex flex-col gap-5">
+          <Select
+            style={{ width: 120 }}
+            onChange={(e) => onReason(e, blog.title)}
+            allowClear
+            options={[
+              { value: "harassment", label: "Harassment" },
+              { value: "rules violation", label: "Rules Violation" },
+              { value: "spam", label: "Spam" },
+            ]}
+          />
+          <TextArea
+            showCount
+            value={reason}
+            maxLength={100}
+            onChange={onChangeReason}
+            placeholder="can resize"
+          />
+        </div>
+      </Modal>
+      <Popover
+        placement="bottomRight"
+        content={
+          <>
+            <div className="w-45">
+              <button
+                className="block w-full py-2 text-left hover:text-blue-400"
+                onClick={() => handleShowReports(blog.id)}
+              >
+                Show reports ({blog?.reportsCount})
+              </button>
+              <button
+                className="block w-full py-2 text-left hover:text-blue-400"
+                onClick={() => handleMarkAllThisReport(blog.id)}
+              >
+                Mark all reports as solved
+              </button>
+              <button
+                className="block w-full py-2 text-left hover:text-blue-400 whitespace-nowrap"
+                onClick={() => handleOpenModal(blog.title)}
+              >
+                Set back to draft
+              </button>
+            </div>
+          </>
+        }
+      >
+        <button className="flex items-center justify-center text-blue-400 rounded-md cursor-pointer w-7 h-7">
+          {icons.moreIcon}
+        </button>
+        <div></div>
+      </Popover>
+    </>
   );
 
   return (

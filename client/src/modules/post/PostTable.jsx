@@ -5,22 +5,35 @@ import {
   apiSetApproved,
   apiSetBackToDraft,
 } from "../../api/apisHung";
-import { Popover, Select, Table, Tag } from "antd";
+import { Modal, Popover, Select, Table, Tag } from "antd";
 import Column from "antd/es/table/Column";
 import { Button } from "../../components/button";
 import { debounce } from "lodash";
 import { icons } from "../../utils/constants";
 import { apiDeleteAdminArticle } from "../../api/api";
 import { NavLink } from "react-router-dom";
+import TextArea from "antd/es/input/TextArea";
 
 const PostTable = () => {
   const [blogReports, setBlogReports] = useState([]);
-  console.log("blogReports:", blogReports);
   const token = localStorage.getItem("token");
   const [searchBlogs, setSearchBlogs] = useState("");
   const [status, setStatus] = useState("");
   const skip = useRef(0);
   const [isReload, setIsReload] = useState(false);
+  const [openModalReporter, setOpenModalReporter] = useState(false);
+  const [reason, setReason] = useState("");
+
+  const handleOpenModal = (title) => {
+    setOpenModalReporter(true);
+    setReason(`Your story ${title} was set back to draft for reason`);
+  };
+
+  const onReason = (e, title) => {
+    const value = e ?? "";
+    const text = `Your story ${title} was set back to draft for reason ${value}`;
+    setReason(text);
+  };
 
   const handleChangeSearch = debounce((e) => {
     setSearchBlogs(e.target.value);
@@ -76,12 +89,12 @@ const PostTable = () => {
 
   const handleSetBackToDraft = useCallback(
     async (id) => {
-      const response = await apiSetBackToDraft(token, id);
+      const response = await apiSetBackToDraft(token, id, reason);
       if (response) {
         fetchReports();
       }
     },
-    [fetchReports, token]
+    [fetchReports, reason, token]
   );
 
   const handleRemoveArticle = useCallback(
@@ -103,47 +116,90 @@ const PostTable = () => {
     [fetchReports, token]
   );
 
+  const onChangeReason = (e) => {
+    setReason(e.target.value);
+  };
+
   const ButtonMore = (blog) => (
-    <Popover
-      placement="leftTop"
-      content={
-        <>
-          <div>
+    <>
+      <Modal
+        title="Report"
+        centered
+        open={openModalReporter}
+        onOk={() => setOpenModalReporter(false)}
+        onCancel={() => setOpenModalReporter(false)}
+        footer={
+          <div className="text-right">
+            <button
+              className="px-2 py-1 mt-5 text-white bg-blue-300 rounded-md hover:bg-blue-400 "
+              onClick={() => handleSetBackToDraft(blog.id)}
+            >
+              Submit
+            </button>
+          </div>
+        }
+      >
+        <div className="flex flex-col gap-5">
+          <Select
+            style={{ width: 120 }}
+            onChange={(e) => onReason(e, blog.title)}
+            allowClear
+            options={[
+              { value: "harassment", label: "Harassment" },
+              { value: "rules violation", label: "Rules Violation" },
+              { value: "spam", label: "Spam" },
+            ]}
+          />
+          <TextArea
+            showCount
+            value={reason}
+            maxLength={100}
+            onChange={onChangeReason}
+            placeholder="can resize"
+          />
+        </div>
+      </Modal>
+      <Popover
+        placement="leftTop"
+        content={
+          <>
             <div>
-              <button
-                className="block w-full py-1 text-left hover:text-blue-400"
-                onClick={() => handleSetBackToDraft(blog.id)}
-              >
-                Set Back To Draft
-              </button>
-            </div>
-            <div>
-              <button
-                className="block w-full py-1 text-left hover:text-blue-400"
-                onClick={() => handleRemoveArticle(blog.id)}
-              >
-                Remove this Article
-              </button>
-            </div>
-            {blog.status === "rejected" && (
               <div>
                 <button
                   className="block w-full py-1 text-left hover:text-blue-400"
-                  onClick={() => handleSetApproved(blog.id)}
+                  onClick={() => handleOpenModal(blog.title)}
                 >
-                  Set approved
+                  Set Back To Draft
                 </button>
               </div>
-            )}
-          </div>
-        </>
-      }
-    >
-      <button className="flex items-center justify-center text-blue-400 rounded-md cursor-pointer w-7 h-7">
-        {icons.moreIcon}
-      </button>
-      <div></div>
-    </Popover>
+              <div>
+                <button
+                  className="block w-full py-1 text-left hover:text-blue-400"
+                  onClick={() => handleRemoveArticle(blog.id)}
+                >
+                  Remove this Article
+                </button>
+              </div>
+              {blog.status === "rejected" && (
+                <div>
+                  <button
+                    className="block w-full py-1 text-left hover:text-blue-400"
+                    onClick={() => handleSetApproved(blog.id)}
+                  >
+                    Set approved
+                  </button>
+                </div>
+              )}
+            </div>
+          </>
+        }
+      >
+        <button className="flex items-center justify-center text-blue-400 rounded-md cursor-pointer w-7 h-7">
+          {icons.moreIcon}
+        </button>
+        <div></div>
+      </Popover>
+    </>
   );
 
   return (
