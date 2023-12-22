@@ -250,8 +250,8 @@ const loginGoogle = asyncMiddleware(async (req, res, next) => {
     await user.update({ isVerified: true });
   }
 
-  if (!user.profileInfo) {
-    await Profile.create({ avatar, fullname, userId: user.id });
+  if (!user.profileInfo.avatar || !user.profileInfo.fullname) {
+    await user.profileInfo.update({ avatar, fullname, userId: user.id });
   }
 
   const jsonWebToken = await generateJwt({ id: user.id });
