@@ -88,23 +88,6 @@ const Header = () => {
               <p className="ml-3">Write</p>
             </div>
           </NavLink>
-<<<<<<< HEAD
-        )}
-        <div className="w-full border-t border-gray-300 btn-sign-out text-start">
-          <NavLink to={`/me/settings`}>
-            <button className="block px-2 py-2 text-gray-400 hover:text-black">
-              Settings
-            </button>
-          </NavLink>
-        </div>
-        <div className="w-full border-t border-gray-300 btn-sign-out text-start">
-          <button
-            onClick={handleSignOut}
-            className="block px-2 py-2 text-gray-400 hover:text-gray-600"
-          >
-            Sign out
-          </button>
-=======
           <NavLink to={`/profile/${username}`}>
             <div className="flex items-center justify-start my-4">
               {icons.userIcon} <p className="ml-3">Profile</p>
@@ -127,7 +110,13 @@ const Header = () => {
               </div>
             </NavLink>
           )}
-
+          <div className="w-full border-t border-gray-300 btn-sign-out text-start">
+            <NavLink to={`/me/settings`}>
+              <button className="block px-2 py-2 text-gray-400 hover:text-black">
+                Settings
+              </button>
+            </NavLink>
+          </div>
           <div className="w-full border-t border-gray-300 btn-sign-out text-start">
             <button
               onClick={handleSignOut}
@@ -136,7 +125,6 @@ const Header = () => {
               Sign out
             </button>
           </div>
->>>>>>> 145c6492316063668a30a54966188acc3636c955
         </div>
       );
     },
