@@ -1,9 +1,9 @@
 import { Col, Row } from "antd";
-import React from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import HomeSide from "../modules/home/HomeSide";
 
 const MeLayout = () => {
+  const location = useLocation();
   return (
     <>
       <div className="w-full border-t border-gray-300"></div>
@@ -18,7 +18,11 @@ const MeLayout = () => {
           </div>
         </Col>
         <Col xs={0} md={9}>
-          <HomeSide></HomeSide>
+          {!location?.pathname.includes("/settings") ? (
+            <HomeSide></HomeSide>
+          ) : (
+            ""
+          )}
         </Col>
       </Row>
     </>

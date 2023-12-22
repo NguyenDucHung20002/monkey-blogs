@@ -14,6 +14,8 @@ import SendEmailForgotPasswordPage from "./pages/SendEmailForgotPasswordPage";
 import VerifySetupPasswordPage from "./pages/VerifySetupPasswordPagePage";
 import ContextWrap from "./contexts/ContextWrap";
 import StaffReportTable from "./modules/user/StaffReportTable";
+import MeSettingPage from "./pages/MeSettingPage";
+import Account from "./modules/setting/Account";
 const AuthenticationPage = React.lazy(() =>
   import("./pages/AuthenticationPage")
 );
@@ -145,6 +147,9 @@ function App() {
                     path="/me/notifications"
                     element={<AllNotification />}
                   />
+                </Route>
+                <Route element={<MeSettingPage />}>
+                  <Route path="/me/settings" element={<Account />} />
                 </Route>
               </Route>
               <Route
