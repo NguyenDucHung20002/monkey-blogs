@@ -110,7 +110,13 @@ const Header = () => {
               </div>
             </NavLink>
           )}
-
+          <div className="w-full border-t border-gray-300 btn-sign-out text-start">
+            <NavLink to={`/me/settings`}>
+              <button className="block px-2 py-2 text-gray-400 hover:text-black">
+                Settings
+              </button>
+            </NavLink>
+          </div>
           <div className="w-full border-t border-gray-300 btn-sign-out text-start">
             <button
               onClick={handleSignOut}

@@ -255,6 +255,22 @@ const apiGetMyBlocked = async () => {
     console.log("error:", error);
   }
 };
+const apiChangePassword = async (oldPassword, newPassword, confirmPassword) => {
+  try {
+    const response = await axios.patch(
+      `${config.SERVER_HOST}/user/me/change-password`,
+      { oldPassword, newPassword, confirmPassword },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response?.data;
+  } catch (error) {
+    console.log("error:", error);
+  }
+};
 export {
   apiGetUserFollow,
   apiUploadImage,
@@ -271,4 +287,5 @@ export {
   apiDeleteAllNotification,
   apiGetMyBlocked,
   apiGetMoreArticleInDetailPage,
+  apiChangePassword,
 };
