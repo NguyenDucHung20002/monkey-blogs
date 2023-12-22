@@ -4,6 +4,7 @@ import Profile from "../models/mysql/Profile.js";
 import Role from "../models/mysql/Role.js";
 import ErrorResponse from "../responses/ErrorResponse.js";
 import addUrlToImg from "../utils/addUrlToImg.js";
+import { Op } from "sequelize";
 
 const fetchUser = async (req, res, next) => {
   try {
