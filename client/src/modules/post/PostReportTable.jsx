@@ -92,7 +92,7 @@ const PostReportTable = () => {
   const ButtonMore = (blog) => (
     <>
       <Modal
-        title="Report"
+        title="Set to Draft"
         centered
         open={openModalReporter}
         onOk={() => setOpenModalReporter(false)}
@@ -122,7 +122,7 @@ const PostReportTable = () => {
           <TextArea
             showCount
             value={reason}
-            maxLength={100}
+            maxLength={250}
             onChange={onChangeReason}
             placeholder="can resize"
           />

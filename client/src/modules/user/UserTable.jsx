@@ -58,6 +58,7 @@ const UserTable = () => {
 
   const handleLoadMore = async () => {
     const newSkip = skip.current;
+    console.log("newSkip:", newSkip);
     const response = await apiGetAllUser(token, 10, newSkip, search);
     if (response) {
       const mapUsers = response.data.map((user) => {
@@ -69,7 +70,6 @@ const UserTable = () => {
       skip.current = response.newSkip;
       setUsers([...users, ...mapUsers]);
     }
-    return [];
   };
 
   const handleLiftTheBan = async (userId) => {

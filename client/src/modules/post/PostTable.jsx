@@ -23,13 +23,16 @@ const PostTable = () => {
   const [isReload, setIsReload] = useState(false);
   const [openModalReporter, setOpenModalReporter] = useState(false);
   const [reason, setReason] = useState("");
+  const [blog, setBlog] = useState(null);
 
-  const handleOpenModal = (title) => {
+  const handleOpenModal = (blogModal) => {
+    if (blogModal) setBlog(blogModal);
     setOpenModalReporter(true);
-    setReason(`Your story ${title} was set back to draft for reason`);
+    setReason(`Your story ${blogModal.title} was set back to draft for reason`);
   };
 
   const onReason = (e, title) => {
+    console.log("title:", title);
     const value = e ?? "";
     const text = `Your story ${title} was set back to draft for reason ${value}`;
     setReason(text);
@@ -91,6 +94,7 @@ const PostTable = () => {
     async (id) => {
       const response = await apiSetBackToDraft(token, id, reason);
       if (response) {
+        setOpenModalReporter(false);
         fetchReports();
       }
     },
@@ -122,43 +126,6 @@ const PostTable = () => {
 
   const ButtonMore = (blog) => (
     <>
-      <Modal
-        title="Report"
-        centered
-        open={openModalReporter}
-        onOk={() => setOpenModalReporter(false)}
-        onCancel={() => setOpenModalReporter(false)}
-        footer={
-          <div className="text-right">
-            <button
-              className="px-2 py-1 mt-5 text-white bg-blue-300 rounded-md hover:bg-blue-400 "
-              onClick={() => handleSetBackToDraft(blog.id)}
-            >
-              Submit
-            </button>
-          </div>
-        }
-      >
-        <div className="flex flex-col gap-5">
-          <Select
-            style={{ width: 120 }}
-            onChange={(e) => onReason(e, blog.title)}
-            allowClear
-            options={[
-              { value: "harassment", label: "Harassment" },
-              { value: "rules violation", label: "Rules Violation" },
-              { value: "spam", label: "Spam" },
-            ]}
-          />
-          <TextArea
-            showCount
-            value={reason}
-            maxLength={100}
-            onChange={onChangeReason}
-            placeholder="can resize"
-          />
-        </div>
-      </Modal>
       <Popover
         placement="leftTop"
         content={
@@ -167,7 +134,7 @@ const PostTable = () => {
               <div>
                 <button
                   className="block w-full py-1 text-left hover:text-blue-400"
-                  onClick={() => handleOpenModal(blog.title)}
+                  onClick={() => handleOpenModal(blog)}
                 >
                   Set Back To Draft
                 </button>
@@ -204,6 +171,45 @@ const PostTable = () => {
 
   return (
     <>
+      {blog && (
+        <Modal
+          title="Set to Draft"
+          centered
+          open={openModalReporter}
+          onOk={() => setOpenModalReporter(false)}
+          onCancel={() => setOpenModalReporter(false)}
+          footer={
+            <div className="text-right">
+              <button
+                className="px-2 py-1 mt-5 text-white bg-blue-300 rounded-md hover:bg-blue-400 "
+                onClick={() => handleSetBackToDraft(blog.id)}
+              >
+                Submit
+              </button>
+            </div>
+          }
+        >
+          <div className="flex flex-col gap-5">
+            <Select
+              style={{ width: 120 }}
+              onChange={(e) => onReason(e, blog.title)}
+              allowClear
+              options={[
+                { value: "harassment", label: "Harassment" },
+                { value: "rules violation", label: "Rules Violation" },
+                { value: "spam", label: "Spam" },
+              ]}
+            />
+            <TextArea
+              showCount
+              value={reason}
+              maxLength={250}
+              onChange={onChangeReason}
+              placeholder="can resize"
+            />
+          </div>
+        </Modal>
+      )}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-5">
           <div className="my-3 border-gray-300 hover:border-blue-400 text-gray-300 hover:text-blue-400 transition-all border rounded-lg w-full max-w-[320px] pl-4 flex py-1">

@@ -106,6 +106,7 @@ const apiGetUsersResolved = async (token, limit = 10, skip) => {
 };
 
 const apiResolveReportedUsers = async (token, userId) => {
+  console.log("userId:", userId);
   if (!token && !userId) return null;
   try {
     const response = await axios.patch(
