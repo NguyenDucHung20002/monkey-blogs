@@ -214,8 +214,19 @@ const search = asyncMiddleware(async (req, res, next) => {
         where: {
           id: { [Op.gt]: skip },
           [Op.or]: [
-            { fullname: { [Op.substring]: users } },
-            { "$userInfo.username$": { [Op.substring]: users } },
+            {
+              [Op.and]: [
+                { fullname: { [Op.substring]: users } },
+                { avatar: { [Op.ne]: null } },
+              ],
+            },
+            {
+              [Op.and]: [
+                { "$userInfo.username$": { [Op.substring]: users } },
+                { fullname: { [Op.ne]: null } },
+                { avatar: { [Op.ne]: null } },
+              ],
+            },
           ],
         },
         attributes: ["id", "fullname", "avatar", "bio"],
@@ -223,8 +234,8 @@ const search = asyncMiddleware(async (req, res, next) => {
           model: User,
           as: "userInfo",
           attributes: ["username"],
+          where: { isVerified: true },
           include: { model: Role, as: "role", attributes: ["slug"] },
-          isVerified: true,
         },
         limit: Number(limit) ? Number(limit) : 15,
       });
@@ -246,8 +257,19 @@ const search = asyncMiddleware(async (req, res, next) => {
             [Op.and]: [{ [Op.gt]: skip }, { [Op.ne]: me.profileInfo.id }],
           },
           [Op.or]: [
-            { fullname: { [Op.substring]: users } },
-            { "$userInfo.username$": { [Op.substring]: users } },
+            {
+              [Op.and]: [
+                { fullname: { [Op.substring]: users } },
+                { avatar: { [Op.ne]: null } },
+              ],
+            },
+            {
+              [Op.and]: [
+                { "$userInfo.username$": { [Op.substring]: users } },
+                { fullname: { [Op.ne]: null } },
+                { avatar: { [Op.ne]: null } },
+              ],
+            },
           ],
           "$profileBlocker.blockerId$": null,
           "$profileBlocked.blockedId$": null,
@@ -272,8 +294,8 @@ const search = asyncMiddleware(async (req, res, next) => {
             model: User,
             as: "userInfo",
             attributes: ["username"],
+            where: { isVerified: true },
             include: { model: Role, as: "role", attributes: ["slug"] },
-            isVerified: true,
           },
         ],
         limit: Number(limit) ? Number(limit) : 15,

@@ -2,7 +2,6 @@ import getError from "../utils/getError.js";
 import User from "../models/mysql/User.js";
 import Profile from "../models/mysql/Profile.js";
 import Role from "../models/mysql/Role.js";
-import ErrorResponse from "../responses/ErrorResponse.js";
 import addUrlToImg from "../utils/addUrlToImg.js";
 import { Op } from "sequelize";
 
@@ -32,7 +31,12 @@ const fetchUser = async (req, res, next) => {
       ],
     });
 
-    if (!user) throw ErrorResponse(404, "User not found");
+    if (!user || !user.profileInfo.avatar || !user.profileInfo.fullname) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found or has not set up a profile",
+      });
+    }
 
     user.profileInfo.avatar = addUrlToImg(user.profileInfo.avatar);
 
