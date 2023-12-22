@@ -343,7 +343,7 @@ const markAReportAsResolved = asyncMiddleware(async (req, res, next) => {
 
   await Promise.all([
     report.update({ status: "resolved", resolvedById: me.id }),
-    User.increment({ reportsCount: -1 }, { where: { id: report.reporedId } }),
+    User.increment({ reportsCount: -1 }, { where: { id: report.reportedId } }),
   ]);
 
   res.json({
