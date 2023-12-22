@@ -110,6 +110,7 @@ const Article = sequelize.define(
     hooks: {
       afterUpdate: async (article, options) => {
         const me = options.me ? options.me : null;
+        const reason = options.reason ? options.reason : null;
         const io = socket.getIO();
 
         const recivers = await SocketUser.find({ userId: article.authorId });
@@ -154,7 +155,9 @@ const Article = sequelize.define(
               Notification.create({
                 reciverId: article.authorId,
                 articleId: article.id,
-                content: `Your article ${article.title} has been set back to draft by ${me.role.name}`,
+                content: reason
+                  ? reason
+                  : `Your article ${article.title} has been set back to draft by ${me.role.name}`,
               }),
               Profile.increment(
                 { notificationsCount: 1 },

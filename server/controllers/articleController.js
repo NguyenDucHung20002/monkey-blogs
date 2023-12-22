@@ -1363,6 +1363,7 @@ const getTopicArticles = asyncMiddleware(async (req, res, next) => {
 
 const setArticleBackToDraft = asyncMiddleware(async (req, res, next) => {
   const { id } = req.params;
+  const { reason } = req.body;
   const me = req.me;
 
   const article = await Article.findOne({
@@ -1371,7 +1372,7 @@ const setArticleBackToDraft = asyncMiddleware(async (req, res, next) => {
 
   if (!article) throw ErrorResponse(404, "Article not found");
 
-  await article.update({ status: "draft" }, { me: me });
+  await article.update({ status: "draft" }, { me: me, reason: reason });
 
   res.json({ success: true, message: "Set article back to draft" });
 });
