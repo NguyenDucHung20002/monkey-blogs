@@ -10,6 +10,7 @@ import logo from "../assets/logo.png";
 import ImageUpload from "../components/image/ImageUpload";
 import { apiVerifyProfile } from "../api/apisHung";
 import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 
 const schema = yup.object({
   fullName: yup.string().required("Please fill out your title").min(4),
@@ -31,12 +32,12 @@ const VerifyProfilePage = () => {
   } = useForm({
     resolver: yupResolver(schema),
   });
-  const token = localStorage.getItem("token");
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get("token");
   const [image, setImage] = useState("");
 
   const handleSelectImage = (e) => {
     const file = e.target.files[0];
-    console.log("file:", file);
     if (!file) return;
     const allowedExtensions = /(\.jpg|\.jpeg|\.png|\.gif)$/i;
     if (!allowedExtensions.exec(file.name)) {
@@ -68,11 +69,15 @@ const VerifyProfilePage = () => {
     formData.append("avatar", values.avatar);
     try {
       const response = await apiVerifyProfile(token, formData);
-      if (response.success) window.location.replace(`/?token=${token}`);
+      if (response.success) {
+        window.location.replace(`/?token=${token}`);
+      }
     } catch (error) {
       console.log("error:", error);
     }
   };
+
+  if (!token) return;
 
   return (
     <VerifyProfilePageStyle>

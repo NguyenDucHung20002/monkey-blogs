@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { Avatar, Space, Popover } from "antd";
 import styled from "styled-components";
@@ -29,8 +29,10 @@ const HomeStyle = styled.header`
 `;
 
 // eslint-disable-next-line react/display-name
-const Header = memo(() => {
+const Header = () => {
   const { userInfo, setUserInfo } = useAuth();
+  const [role, setRole] = useState("user");
+  console.log("role:", role);
   const navigate = useNavigate();
   const [inputSearch, setInputSearch] = useState();
   const navigation = useNavigate();
@@ -45,6 +47,12 @@ const Header = memo(() => {
     setShow: setShowNotification,
     nodeRef: nodeRefNotification,
   } = useClickOutSide("notify");
+
+  useEffect(() => {
+    if (userInfo && userInfo?.data?.role !== "user") {
+      setRole(userInfo?.data?.role);
+    }
+  }, [userInfo]);
 
   const handleSignOut = useCallback(async () => {
     try {
@@ -65,41 +73,22 @@ const Header = memo(() => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const content = useCallback(function (username, fullname) {
-    return (
-      <div className="w-[250px] block">
-        <h2 className="pb-2 text-sm font-semibold border-b border-gray-300">
-          {fullname && fullname?.length > 15
-            ? fullname.slice(0, 15) + "..."
-            : fullname}
-        </h2>
-        <NavLink to={`/write`} className="md:hidden">
-          <div className="flex items-center justify-start my-4">
-            <span className="w-6 h-6">{icons.writeIcon}</span>{" "}
-            <p className="ml-3">Write</p>
-          </div>
-        </NavLink>
-        <NavLink to={`/profile/${username}`}>
-          <div className="flex items-center justify-start my-4">
-            {icons.userIcon} <p className="ml-3">Profile</p>
-          </div>
-        </NavLink>
-        <NavLink to={`/me/library/reading-history`}>
-          <div className="flex items-center justify-start my-4">
-            {icons.libraryIcon} <p className="ml-3">Library</p>
-          </div>
-        </NavLink>
-        <NavLink to={`me/stories/drafts`}>
-          <div className="flex items-center justify-start my-4">
-            {icons.storyIcon} <p className="ml-3">Stories</p>
-          </div>
-        </NavLink>
-        {userInfo?.data?.role !== "user" && (
-          <NavLink to={`/dashboard`}>
+  const content = useCallback(
+    function (username, fullname) {
+      return (
+        <div className="w-[250px] block">
+          <h2 className="pb-2 text-sm font-semibold border-b border-gray-300">
+            {fullname && fullname?.length > 15
+              ? fullname.slice(0, 15) + "..."
+              : fullname}
+          </h2>
+          <NavLink to={`/write`} className="md:hidden">
             <div className="flex items-center justify-start my-4">
-              {icons.dashboardIcon} <p className="ml-3">Dashboard</p>
+              <span className="w-6 h-6">{icons.writeIcon}</span>{" "}
+              <p className="ml-3">Write</p>
             </div>
           </NavLink>
+<<<<<<< HEAD
         )}
         <div className="w-full border-t border-gray-300 btn-sign-out text-start">
           <NavLink to={`/me/settings`}>
@@ -115,11 +104,44 @@ const Header = memo(() => {
           >
             Sign out
           </button>
+=======
+          <NavLink to={`/profile/${username}`}>
+            <div className="flex items-center justify-start my-4">
+              {icons.userIcon} <p className="ml-3">Profile</p>
+            </div>
+          </NavLink>
+          <NavLink to={`/me/library/reading-history`}>
+            <div className="flex items-center justify-start my-4">
+              {icons.libraryIcon} <p className="ml-3">Library</p>
+            </div>
+          </NavLink>
+          <NavLink to={`me/stories/drafts`}>
+            <div className="flex items-center justify-start my-4">
+              {icons.storyIcon} <p className="ml-3">Stories</p>
+            </div>
+          </NavLink>
+          {role && role !== "user" && (
+            <NavLink to={`/dashboard`}>
+              <div className="flex items-center justify-start my-4">
+                {icons.dashboardIcon} <p className="ml-3">Dashboard</p>
+              </div>
+            </NavLink>
+          )}
+
+          <div className="w-full border-t border-gray-300 btn-sign-out text-start">
+            <button
+              onClick={handleSignOut}
+              className="block px-2 py-2 text-gray-400 hover:text-gray-600"
+            >
+              Sign out
+            </button>
+          </div>
+>>>>>>> 145c6492316063668a30a54966188acc3636c955
         </div>
-      </div>
-    );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+      );
+    },
+    [handleSignOut, role]
+  );
 
   useEffect(() => {
     async function fetchUsers() {
@@ -244,6 +266,6 @@ const Header = memo(() => {
       </HomeStyle>
     </>
   );
-});
+};
 
 export default Header;

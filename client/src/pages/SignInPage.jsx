@@ -38,8 +38,7 @@ const SignInPage = () => {
     try {
       const response = await apiLogin(email, password);
       if (response.success && !response.hasProfile) {
-        localStorage.setItem("token", response.token);
-        if (response.token) navigate("/verify-profile");
+        if (response.token) navigate(`/verify-profile?token=${response.token}`);
         return;
       }
       if (response.success && response.hasProfile) {
