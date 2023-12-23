@@ -84,7 +84,7 @@ const Account = () => {
           onClick={showModal}
           className="flex items-center justify-between cursor-pointer"
         >
-          <p className=" py-3">Change password</p>
+          <p className="py-3 ">Change password</p>
           <p>*********</p>
         </div>
         <Modal
@@ -100,8 +100,8 @@ const Account = () => {
                 oldPassword
               </label>
               <input
-                className="focus:placeholder-transparent w-full py-2 border-b "
-                type="text"
+                className="w-full py-2 border-b focus:placeholder-transparent "
+                type="password"
                 id="input-oldPassword"
                 // placeholder="type your password"
                 {...register("oldPassword")}
@@ -115,8 +115,8 @@ const Account = () => {
                 newPassword
               </label>
               <input
-                className="focus:placeholder-transparent w-full py-2 border-b "
-                type="text"
+                className="w-full py-2 border-b focus:placeholder-transparent "
+                type="password"
                 id="input-newPassword"
                 // placeholder="type your new password"
                 {...register("newPassword")}
@@ -133,8 +133,8 @@ const Account = () => {
                 confirmPassword
               </label>
               <input
-                className="focus:placeholder-transparent w-full py-2 border-b "
-                type="text"
+                className="w-full py-2 border-b focus:placeholder-transparent "
+                type="password"
                 id="input-confirmPassword"
                 // placeholder="repeat your new password"
                 {...register("confirmPassword")}
