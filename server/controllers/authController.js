@@ -241,22 +241,29 @@ const loginGoogle = asyncMiddleware(async (req, res, next) => {
     },
   });
 
+  let operation;
+
   if (!user) {
     const username = generateUserName(email);
     user = await User.create({ email, username, isVerified: true });
   }
 
   if (!user.isVerified) {
-    await user.update({ isVerified: true });
+    operation = user.update({ isVerified: true });
   }
 
   if (!user.profileInfo) {
-    await Profile.create({ userId: user.id });
+    operation = Profile.create({ avatar, fullname, userId: user.id });
   }
 
-  if (!user.profileInfo.avatar || !user.profileInfo.fullname) {
-    await user.profileInfo.update({ avatar, fullname, userId: user.id });
+  if (
+    user.profileInfo &&
+    (!user.profileInfo.avatar || !user.profileInfo.fullname)
+  ) {
+    operation = user.profileInfo.update({ avatar, fullname, userId: user.id });
   }
+
+  await operation;
 
   const jsonWebToken = await generateJwt({ id: user.id });
 
