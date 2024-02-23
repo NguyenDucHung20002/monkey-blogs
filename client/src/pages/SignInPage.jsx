@@ -34,7 +34,7 @@ const SignInPage = () => {
   const handleSignIn = async (values) => {
     if (!isValid) return;
     const { email, password } = values;
-
+    console.log(email, password);
     try {
       const response = await apiLogin(email, password);
       if (response.success && !response.hasProfile) {
