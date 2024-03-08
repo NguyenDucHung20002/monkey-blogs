@@ -27,7 +27,7 @@ const register = asyncMiddleware(async (req, res, next) => {
   const hashedPassword = hashPassword(password);
 
   if (user && user.email.includes("@gmail.com") && !user.password) {
-    const link = `${env.CLIENT_HOST}:${env.CLIENT_PORT}/verify-setup-password?token=${token}`;
+    const link = `${env.CLIENT_DOMAIN}/verify-setup-password?token=${token}`;
 
     const setupToken = await SetupPasswordToken.findOne({ email });
 
@@ -50,7 +50,7 @@ const register = asyncMiddleware(async (req, res, next) => {
     });
   }
 
-  const link = `${env.CLIENT_HOST}:${env.CLIENT_PORT}/verify-email?token=${token}`;
+  const link = `${env.CLIENT_DOMAIN}/verify-email?token=${token}`;
 
   user = await User.create({
     username: generateUserName(email),
@@ -91,7 +91,7 @@ const forgotPassword = asyncMiddleware(async (req, res, next) => {
     ? verifyToken.updateOne({ token })
     : VerifyToken.create({ email, token });
 
-  const link = `${env.CLIENT_HOST}:${env.CLIENT_PORT}/verify-forgot-password?token=${token}`;
+  const link = `${env.CLIENT_DOMAIN}/verify-forgot-password?token=${token}`;
 
   await Promise.all([
     emailService({
@@ -196,7 +196,7 @@ const loginEmail = asyncMiddleware(async (req, res, next) => {
   if (!user.isVerified) {
     const token = randomBytes(32);
 
-    const link = `${env.CLIENT_HOST}:${env.CLIENT_PORT}/verify-email?token=${token}`;
+    const link = `${env.CLIENT_DOMAIN}/verify-email?token=${token}`;
 
     const verifyToken = await VerifyToken.findOne({ email });
 
@@ -267,7 +267,7 @@ const loginGoogle = asyncMiddleware(async (req, res, next) => {
 
   const jsonWebToken = await generateJwt({ id: user.id });
 
-  res.redirect(`${env.CLIENT_HOST}:${env.CLIENT_PORT}?token=${jsonWebToken}`);
+  res.redirect(`${env.CLIENT_DOMAIN}?token=${jsonWebToken}`);
 });
 
 // ==================== logout ==================== //

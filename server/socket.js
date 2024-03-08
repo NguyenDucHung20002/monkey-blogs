@@ -6,7 +6,7 @@ let io;
 
 const initializeSocket = (server) => {
   io = new Server(server, {
-    cors: { origin: `${env.CLIENT_HOST}:${env.CLIENT_PORT}` },
+    cors: { origin: `${env.CLIENT_DOMAIN}` },
   });
   io.on("connection", (socket) => {
     socket.on("new-user", async (data) => {

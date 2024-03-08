@@ -5,8 +5,7 @@ dotenv.config();
 export default {
   NODE_ENV: process.env.NODE_ENV || "development",
 
-  CLIENT_HOST: process.env.CLIENT_HOST || "http://localhost",
-  CLIENT_PORT: process.env.CLIENT_PORT || 3000,
+  CLIENT_HOST: process.env.CLIENT_DOMAIN || "http://localhost:3000",
 
   SERVER_HOST: process.env.SERVER_HOST || "http://localhost",
   SERVER_PORT: process.env.SERVER_PORT || 8080,

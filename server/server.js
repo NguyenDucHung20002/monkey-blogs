@@ -38,7 +38,7 @@ import notificationRoute from "./routes/notificationRouter.js";
 
 app.use(express.json());
 app.use(morgan("dev"));
-app.use(cors({ origin: `${env.CLIENT_HOST}:${env.CLIENT_PORT}` }));
+app.use(cors({ origin: `${env.CLIENT_DOMAIN}` }));
 
 MongoDB.connect();
 
