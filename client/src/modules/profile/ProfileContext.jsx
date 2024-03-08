@@ -20,25 +20,25 @@ const More = ({
       <div className=" text-stone-500">
         <div
           onClick={handleCopyToClipboard}
-          className="cursor-pointer p-1 hover:text-black"
+          className="p-1 cursor-pointer hover:text-black"
         >
           Copy link to profile
         </div>
         <div
           onClick={handleMute}
-          className="cursor-pointer p-1 hover:text-black"
+          className="p-1 cursor-pointer hover:text-black"
         >
           {isMuted ? "UnMute" : "Mute"} this author
         </div>
         <div
           onClick={handleBlock}
-          className="cursor-pointer p-1 hover:text-black"
+          className="p-1 cursor-pointer hover:text-black"
         >
           {isBlock ? "Unblock" : "Block"} this author
         </div>
         <div
           onClick={showModal}
-          className="cursor-pointer p-1 hover:text-black"
+          className="p-1 cursor-pointer hover:text-black"
         >
           Report this author
         </div>
@@ -52,7 +52,7 @@ const MoreMe = ({ handleCopyToClipboard }) => {
       <div className=" text-stone-500">
         <div
           onClick={handleCopyToClipboard}
-          className="cursor-pointer p-1 hover:text-black"
+          className="p-1 cursor-pointer hover:text-black"
         >
           Copy link to profile
         </div>
@@ -72,7 +72,8 @@ const ProfileContext = ({ setIsBlocked, isBlocked, user, token }) => {
   }, [user]);
   const handleCopyToClipboard = async () => {
     try {
-      const currentURL = `${config.CLIENT_HOST}:${config.CLIENT_PORT}/profile/${user?.username}`;
+      const url = window.location.href;
+      const currentURL = `${url}profile/${user?.username}`;
       await navigator.clipboard.writeText(currentURL);
       toast.success("Copy to ClipBoard successfully!", {
         pauseOnHover: false,
@@ -164,7 +165,7 @@ const ProfileContext = ({ setIsBlocked, isBlocked, user, token }) => {
   return (
     <>
       <div className="w-full py-8">
-        <div className="w-full h-20 py-4 flex items-center justify-between">
+        <div className="flex items-center justify-between w-full h-20 py-4">
           <div className="text-[25px] text-black py-3 font-bold">
             {user.fullname}
             {isBlocked ? "has been blocked" : ""}
@@ -211,7 +212,7 @@ const ProfileContext = ({ setIsBlocked, isBlocked, user, token }) => {
             <div className="py-2">
               <label htmlFor="input-reason">Reason*:</label>
               <input
-                className=" border-b border-black w-full"
+                className="w-full border-b border-black "
                 type="text"
                 id="input-reason"
                 {...register("reason")}
@@ -226,7 +227,7 @@ const ProfileContext = ({ setIsBlocked, isBlocked, user, token }) => {
             <div className="py-2">
               <label htmlFor="input-description">Description:</label>
               <input
-                className=" border-b border-black w-full"
+                className="w-full border-b border-black "
                 type="text"
                 id="input-description"
                 {...register("description")}
