@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../contexts/auth-context";
 import { apiGetMyMuted } from "../api/apisHung";
-import ButtonMuted from "../components/buttonMuted";
+import ButtonMuted from "../components/ButtonMuted";
 import { Link } from "react-router-dom";
 import Avatar from "../modules/user/Avatar";
 
