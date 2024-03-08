@@ -54,7 +54,7 @@ export function SocketProvider({ children }) {
 
   useEffect(() => {
     if (!token) return;
-    const newSocket = io("209.97.173.119:8080");
+    const newSocket = io("https://209.97.173.119:8080");
     if (!newSocket) return;
     setSocket(newSocket);
     fetchNotification();
