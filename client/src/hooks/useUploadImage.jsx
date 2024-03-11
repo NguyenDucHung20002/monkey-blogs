@@ -27,6 +27,7 @@ const useUploadImage = () => {
   };
 
   const onDeleteImage = async (filename) => {
+    if (!filename) return;
     apiDeleteImage(filename);
     setImage("");
   };
