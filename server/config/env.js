@@ -8,7 +8,8 @@ export default {
   CLIENT_HOST: process.env.CLIENT_DOMAIN || "http://localhost:3000",
 
   // SERVER_HOST: process.env.SERVER_HOST || "http://localhost",
-  // SERVER_PORT: process.env.SERVER_PORT || 8080,
+
+  SERVER_PORT: process.env.SERVER_PORT || 8080,
 
   API_VERSION: process.env.API_VERSION || "api/v1",
 
