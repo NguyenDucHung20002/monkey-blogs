@@ -11,6 +11,7 @@ import { io } from "socket.io-client";
 import { useAuth } from "./auth-context";
 import { apiGetNotification, apiMarkAsReadNotification } from "../api/api";
 import { apiDeleteAllNotification } from "../api/apiNew";
+import { config } from "../utils/constants";
 
 const SocketContext = createContext();
 // eslint-disable-next-line react-refresh/only-export-components
@@ -54,7 +55,7 @@ export function SocketProvider({ children }) {
 
   useEffect(() => {
     if (!token) return;
-    const newSocket = io("http://209.97.173.119:8080");
+    const newSocket = io(config.SERVER_HOST);
     if (!newSocket) return;
     setSocket(newSocket);
     fetchNotification();

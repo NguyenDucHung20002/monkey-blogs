@@ -18,7 +18,7 @@ export const theme = {
 export const config = {
   CLIENT_PORT: 5173,
   CLIENT_HOST: "http://localhost",
-  SERVER_HOST: "http://209.97.173.119:8080/api/v1",
+  SERVER_HOST: "http://localhost:8080/api/v1",
   SERVER_URl: "http://localhost:8080",
 };
 

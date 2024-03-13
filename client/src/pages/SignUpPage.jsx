@@ -3,7 +3,7 @@ import { Button } from "../components/button";
 import { NavLink } from "react-router-dom";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { icons } from "../utils/constants";
+import { config, icons } from "../utils/constants";
 import InputAuth from "../components/input/InputAuth";
 import { Label } from "../components/label";
 import { Field } from "../components/field";
@@ -85,7 +85,7 @@ const SignUpPage = () => {
           <Button
             type="button"
             height="45px"
-            to={"http://209.97.173.119:8080/api/v1/auth/google"}
+            to={`${config.SERVER_HOST}/auth/google`}
           >
             {icons.googleIcon} <span className="ml-2">Sign up with Google</span>
           </Button>
