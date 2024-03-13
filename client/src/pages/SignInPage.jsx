@@ -102,7 +102,7 @@ const SignInPage = () => {
           <Button
             type="button"
             height="45px"
-            to={"http://209.97.173.119:8080/api/v1/auth/google"}
+            to={"http://178.128.21.84:8080/api/v1/auth/google"}
           >
             {icons.googleIcon} <span className="ml-2">Login with Google</span>
           </Button>
