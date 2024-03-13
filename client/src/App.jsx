@@ -76,7 +76,7 @@ const Layout = React.lazy(() => import("./layout/Layout"));
 const PageNotFound = React.lazy(() => import("./pages/PageNotFound"));
 const HomePage = React.lazy(() => import("./pages/HomePage"));
 const SignInPage = React.lazy(() => import("./pages/SignInPage"));
-
+const DesignPage = React.lazy(() => import("./pages/DesignPage"));
 function App() {
   return (
     <div id="main">
@@ -109,6 +109,7 @@ function App() {
             ></Route>
           </Route>
           <Route element={<ContextWrap></ContextWrap>}>
+            <Route path="/me/design/:username" element={<DesignPage />}></Route>
             <Route element={<Layout></Layout>}>
               <Route element={<HomePage></HomePage>}>
                 <Route path="/" element={<HomeMain></HomeMain>}></Route>

@@ -25,7 +25,6 @@ const AuthProvider = React.memo((props) => {
     return null;
   }
   const token = getToken();
-  console.log("token:", token);
 
   const fetcher = useCallback(async () => {
     if (!token) navigate("/sign-in");

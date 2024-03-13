@@ -7,6 +7,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
 import { config } from "../../utils/constants";
+import { Link } from "react-router-dom";
 const More = ({
   handleMute,
   isMuted,
@@ -46,7 +47,7 @@ const More = ({
     </>
   );
 };
-const MoreMe = ({ handleCopyToClipboard }) => {
+const MoreMe = ({ user, handleCopyToClipboard }) => {
   return (
     <>
       <div className=" text-stone-500">
@@ -55,6 +56,9 @@ const MoreMe = ({ handleCopyToClipboard }) => {
           className="p-1 cursor-pointer hover:text-black"
         >
           Copy link to profile
+        </div>
+        <div className="cursor-pointer p-1 hover:text-black">
+          <Link to={`/me/design/${user.username}`}>Design your profile</Link>
         </div>
       </div>
     </>
@@ -177,7 +181,10 @@ const ProfileContext = ({ setIsBlocked, isBlocked, user, token }) => {
               onOpenChange={handleOpenChange}
               content={
                 user?.isMyProfile ? (
-                  <MoreMe handleCopyToClipboard={handleCopyToClipboard} />
+                  <MoreMe
+                    user={user}
+                    handleCopyToClipboard={handleCopyToClipboard}
+                  />
                 ) : (
                   <More
                     showModal={showModal}

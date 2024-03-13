@@ -83,8 +83,10 @@ const ProfileBlogs = ({ blogs, user, fetchDeleteArticle }) => {
           <div className="flex mt-3">
             <div className="flex-1  max-w-[80%]">
               <Link to={`/blog/${val.slug}`}>
-                <h2 className="pb-1 text-xl font-bold">{val.title}</h2>
-                <p className="text-base text-gray-400 line-clamp-2">
+                <h2 className="pb-1 min-h-[60px] xs:min-h-[30px] text-xl font-bold">
+                  {val.title}
+                </h2>
+                <p className="hidden xs:inline text-base text-gray-400 line-clamp-2">
                   {val.preview}
                 </p>
               </Link>

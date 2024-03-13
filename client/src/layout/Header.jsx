@@ -32,7 +32,6 @@ const HomeStyle = styled.header`
 const Header = () => {
   const { userInfo, setUserInfo } = useAuth();
   const [role, setRole] = useState("user");
-  console.log("role:", role);
   const navigate = useNavigate();
   const [inputSearch, setInputSearch] = useState();
   const navigation = useNavigate();
