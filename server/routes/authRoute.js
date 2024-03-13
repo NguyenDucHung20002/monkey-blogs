@@ -1,5 +1,5 @@
 import express from "express";
-import passport from "passport";
+// import passport from "passport";
 import requiredAuth from "../middlewares/requiredAuth.js";
 import authController from "../controllers/authController.js";
 import validator from "../middlewares/validator.js";
@@ -7,18 +7,18 @@ import authSchema from "../validations/authSchema.js";
 
 const router = express.Router();
 
-router.get(
-  "/google",
-  passport.authenticate("google", { scope: ["profile", "email"] })
-);
+// router.get(
+//   "/google",
+//   passport.authenticate("google", { scope: ["profile", "email"] })
+// );
 
 // -------------------- login with google -------------------- //
 
-router.get(
-  "/google/callback",
-  passport.authenticate("google", { session: false }),
-  authController.loginGoogle
-);
+// router.get(
+//   "/google/callback",
+//   passport.authenticate("google", { session: false }),
+//   authController.loginGoogle
+// );
 
 // -------------------- register -------------------- //
 
@@ -62,11 +62,11 @@ router.patch(
 
 // -------------------- login with email and password -------------------- //
 
-router.post(
-  "/login-email",
-  validator(authSchema.loginSchema),
-  authController.loginEmail
-);
+// router.post(
+//   "/login-email",
+//   validator(authSchema.loginSchema),
+//   authController.loginEmail
+// );
 
 // -------------------- logout -------------------- //
 

@@ -7,8 +7,9 @@ export default {
 
   CLIENT_HOST: process.env.CLIENT_DOMAIN || "http://localhost:3000",
 
-  SERVER_HOST: process.env.SERVER_HOST || "http://localhost",
-  SERVER_PORT: process.env.SERVER_PORT || 8080,
+  // SERVER_HOST: process.env.SERVER_HOST || "http://localhost",
+  // SERVER_PORT: process.env.SERVER_PORT || 8080,
+
   API_VERSION: process.env.API_VERSION || "api/v1",
 
   JWT_SECRET: process.env.JWT_SECRET || "123456789",
@@ -48,11 +49,11 @@ export default {
 
   SOCKET_LISTENING_EVENT: process.env.SOCKET_LISTENING_EVENT || "notification",
 
-  PERSPECTIVE_API_KEY:
-    process.env.PERSPECTIVE_API_KEY || "your perspective api key",
+  // PERSPECTIVE_API_KEY:
+  //   process.env.PERSPECTIVE_API_KEY || "your perspective api key",
 
-  PERSPECTIVE_DISCOVERY_URL:
-    process.env.PERSPECTIVE_DISCOVERY_URL || "perspective url",
+  // PERSPECTIVE_DISCOVERY_URL:
+  //   process.env.PERSPECTIVE_DISCOVERY_URL || "perspective url",
 
   IMAGE_FILE_SIZE_LIMIT: process.env.IMAGE_SIZE_LIMIT || 15,
 
