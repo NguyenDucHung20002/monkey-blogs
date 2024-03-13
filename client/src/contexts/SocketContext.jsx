@@ -55,11 +55,7 @@ export function SocketProvider({ children }) {
 
   useEffect(() => {
     if (!token) return;
-<<<<<<< HEAD
     const newSocket = io(config.SERVER_HOST);
-=======
-    const newSocket = io("http://178.128.21.84:8080");
->>>>>>> 420418f5f6c0ca05a85d021a4f5a6d6adb8ccc61
     if (!newSocket) return;
     setSocket(newSocket);
     fetchNotification();

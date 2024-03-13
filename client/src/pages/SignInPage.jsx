@@ -102,11 +102,7 @@ const SignInPage = () => {
           <Button
             type="button"
             height="45px"
-<<<<<<< HEAD
             to={`${config.SERVER_HOST}/auth/google`}
-=======
-            to={"http://178.128.21.84:8080/api/v1/auth/google"}
->>>>>>> 420418f5f6c0ca05a85d021a4f5a6d6adb8ccc61
           >
             {icons.googleIcon} <span className="ml-2">Login with Google</span>
           </Button>
