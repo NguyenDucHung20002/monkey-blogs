@@ -1,6 +1,6 @@
 import { generateFromEmail } from "unique-username-generator";
 
-const generateName = (email) => {
+const generateUserName = (email) => {
   if (email.includes("@gmail.com")) {
     return `@${email.split("@")[0]}`;
   }
@@ -9,4 +9,4 @@ const generateName = (email) => {
   return `${username.slice(0, -4)}_${username.slice(-4)}`;
 };
 
-export default generateName;
+export default generateUserName;

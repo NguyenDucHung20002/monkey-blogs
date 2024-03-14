@@ -11,7 +11,7 @@ import Profile from "../models/mysql/Profile.js";
 import bcrypt from "bcryptjs";
 import generateJwt from "../utils/generateJwt.js";
 import JsonWebToken from "../models/mongodb/JsonWebToken.js";
-import generateName from "../utils/generateName.js";
+import generateUserName from "../utils/generateUserName.js";
 
 // ==================== register ==================== //
 
@@ -53,7 +53,7 @@ const register = asyncMiddleware(async (req, res, next) => {
   const link = `${env.CLIENT_DOMAIN}/verify-email?token=${token}`;
 
   user = await User.create({
-    username: generateName(email),
+    username: generateUserName(email),
     email,
     password: hashedPassword,
   });
@@ -244,7 +244,7 @@ const loginGoogle = asyncMiddleware(async (req, res, next) => {
   let operation;
 
   if (!user) {
-    const username = generateName(email);
+    const username = generateUserName(email);
     user = await User.create({ email, username, isVerified: true });
   }
 
