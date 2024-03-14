@@ -5,7 +5,7 @@ dotenv.config();
 export default {
   NODE_ENV: process.env.NODE_ENV || "development",
 
-  CLIENT_HOST: process.env.CLIENT_DOMAIN || "http://localhost:3000",
+  CLIENT_DOMAIN: process.env.CLIENT_DOMAIN || "http://localhost:3000",
 
   // SERVER_HOST: process.env.SERVER_HOST || "http://localhost",
 
