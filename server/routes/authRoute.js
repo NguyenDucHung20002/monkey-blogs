@@ -62,11 +62,11 @@ router.patch(
 
 // -------------------- login with email and password -------------------- //
 
-// router.post(
-//   "/login-email",
-//   validator(authSchema.loginSchema),
-//   authController.loginEmail
-// );
+router.post(
+  "/login-email",
+  validator(authSchema.loginSchema),
+  authController.loginEmail
+);
 
 // -------------------- logout -------------------- //
 
