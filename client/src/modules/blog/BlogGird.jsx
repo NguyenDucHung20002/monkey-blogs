@@ -7,6 +7,7 @@ import BlogTitle from "./BlogTitle";
 import ButtonActionBlogsAuthor from "../../components/button/ButtonActionBlogsAuthor";
 import ButtonSaveBlog from "../../components/button/ButtonSaveBlog";
 import ActionLike from "../../action/ActionLike";
+import addUrlToImg from "../modulesJs/addUrlToImg";
 
 const BlogGird = ({ blog }) => {
   const { title, preview, banner, slug, author, createdAt } = blog;
@@ -35,7 +36,7 @@ const BlogGird = ({ blog }) => {
               <Avatar
                 className="cursor-pointer"
                 size="small"
-                src={<img src={author?.avatar} alt="avatar" />}
+                src={<img src={addUrlToImg(author?.avatar)} alt="avatar" />}
               />
             </Link>
             <div className="flex ml-2">
