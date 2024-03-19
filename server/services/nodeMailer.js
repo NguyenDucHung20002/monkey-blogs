@@ -19,7 +19,7 @@ const emailService = async (options) => {
   }
 
   const MailOptions = {
-    from: `Monkey Medium <${env.GOOGLE_EMAIL}>`,
+    from: `Monkey Blogs <${env.GOOGLE_EMAIL}>`,
     to: options.to,
     subject: options.subject,
     text: options.text,

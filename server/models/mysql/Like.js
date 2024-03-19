@@ -44,11 +44,11 @@ const Like = sequelize.define(
         const me = options.me;
         const article = options.article;
 
-        const [recivers, notification] = await Promise.all([
+        const [receivers, notification] = await Promise.all([
           SocketUser.find({ userId: article.authorId }),
           Notification.create({
             senderId: me.profileInfo.id,
-            reciverId: article.authorId,
+            receiverId: article.authorId,
             articleId: article.id,
             content: `${me.profileInfo.fullname} liked your article ${article.title}`,
           }),
@@ -59,7 +59,7 @@ const Like = sequelize.define(
           article.increment({ likesCount: 1 }),
         ]);
 
-        if (recivers && recivers.length > 0) {
+        if (receivers && receivers.length > 0) {
           const message = {
             id: notification.id,
             sender: {
@@ -80,8 +80,8 @@ const Like = sequelize.define(
 
           const io = socket.getIO();
 
-          recivers.forEach((reciver) => {
-            io.to(reciver.socketId).emit(env.SOCKET_LISTENING_EVENT, message);
+          receivers.forEach((receiver) => {
+            io.to(receiver.socketId).emit(env.SOCKET_LISTENING_EVENT, message);
           });
         }
       },

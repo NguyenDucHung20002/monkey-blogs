@@ -14,7 +14,7 @@ const fetchUser = async (req, res, next) => {
     if (!userId && !username) {
       return res.status(400).json({
         success: false,
-        message: "Invalid params imput",
+        message: "Invalid params input",
       });
     }
 

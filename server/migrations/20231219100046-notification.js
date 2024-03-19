@@ -19,7 +19,7 @@ module.exports = {
         // },
       },
 
-      reciverId: {
+      receiverId: {
         type: Sequelize.INTEGER,
         allowNull: false,
         // references: {

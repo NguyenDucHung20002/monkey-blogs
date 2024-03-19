@@ -18,7 +18,7 @@ import fileController from "../controllers/fileController.js";
 import Role from "../models/mysql/Role.js";
 import toUpperCase from "../utils/toUpperCase.js";
 import sequelize from "../databases/mysql/connect.js";
-import extracImg from "../utils/extractImg.js";
+import extractImg from "../utils/extractImg.js";
 import replaceImgUrlsWithNames from "../utils/replaceImgUrlsWithNames.js";
 import replaceImgNamesWithUrls from "../utils/replaceImgNamesWithUrls.js";
 
@@ -79,7 +79,7 @@ const deleteADraft = asyncMiddleware(async (req, res, next) => {
   });
 
   if (draft) {
-    const contentImgs = extracImg(draft.content);
+    const contentImgs = extractImg(draft.content);
 
     await Promise.all([
       contentImgs.forEach(async (img) => {
@@ -278,7 +278,7 @@ const deleteArticle = asyncMiddleware(async (req, res, next) => {
   });
 
   if (article) {
-    const contentImgs = extracImg(article.content);
+    const contentImgs = extractImg(article.content);
 
     await Promise.all([
       contentImgs.forEach(async (img) => {
@@ -1558,7 +1558,7 @@ const getArticleDetail = asyncMiddleware(async (req, res, next) => {
 
 // ==================== get more articles from profile ==================== //
 
-const getMoreArticleFromProifle = asyncMiddleware(async (req, res, next) => {
+const getMoreArticleFromProfile = asyncMiddleware(async (req, res, next) => {
   const { id } = req.params;
   const me = req.me ? req.me : null;
 
@@ -1659,5 +1659,5 @@ export default {
   approveArticle,
   restoreArticle,
   getArticleDetail,
-  getMoreArticleFromProifle,
+  getMoreArticleFromProfile,
 };

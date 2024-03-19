@@ -217,7 +217,7 @@ router.get(
   "/more-articles-from-profile/:id",
   optionalAuth,
   fetchMe,
-  articleController.getMoreArticleFromProifle
+  articleController.getMoreArticleFromProfile
 );
 
 export default router;

@@ -1,4 +1,4 @@
-const extracImg = (content) => {
+const extractImg = (content) => {
   const imgsName = (content.match(/<img[^>]*src="([^"]*)"[^>]*>/g) || []).map(
     (imgTag) =>
       imgTag
@@ -10,4 +10,4 @@ const extracImg = (content) => {
   return imgsName;
 };
 
-export default extracImg;
+export default extractImg;

@@ -42,10 +42,10 @@ const Follow_Profile = sequelize.define(
         const me = options.me;
         const user = options.user;
 
-        const [notification, recivers] = await Promise.all([
+        const [notification, receivers] = await Promise.all([
           Notification.create({
             senderId: follow_profile.followerId,
-            reciverId: follow_profile.followedId,
+            receiverId: follow_profile.followedId,
             content: `${me.profileInfo.fullname} followed you.`,
           }),
           SocketUser.find({ userId: user.profileInfo.id }),
@@ -56,7 +56,7 @@ const Follow_Profile = sequelize.define(
           }),
         ]);
 
-        if (recivers && recivers.length > 0) {
+        if (receivers && receivers.length > 0) {
           const message = {
             id: notification.id,
             sender: {
@@ -73,8 +73,8 @@ const Follow_Profile = sequelize.define(
 
           const io = socket.getIO();
 
-          recivers.forEach((reciver) => {
-            io.to(reciver.socketId).emit(env.SOCKET_LISTENING_EVENT, message);
+          receivers.forEach((receiver) => {
+            io.to(receiver.socketId).emit(env.SOCKET_LISTENING_EVENT, message);
           });
         }
       },

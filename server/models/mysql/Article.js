@@ -113,13 +113,13 @@ const Article = sequelize.define(
         const reason = options.reason ? options.reason : null;
         const io = socket.getIO();
 
-        const recivers = await SocketUser.find({ userId: article.authorId });
+        const receivers = await SocketUser.find({ userId: article.authorId });
 
         if (me) {
           if (article.status === "approved" && article.approvedById === me.id) {
             const [notification] = await Promise.all([
               Notification.create({
-                reciverId: article.authorId,
+                receiverId: article.authorId,
                 articleId: article.id,
                 content: `Your article ${article.title} has been approved by ${me.role.name}. You can now view it`,
               }),
@@ -140,9 +140,9 @@ const Article = sequelize.define(
               createdAt: notification.createdAt,
               updatedAt: notification.updatedAt,
             };
-            if (recivers.length > 0) {
-              recivers.forEach((reciver) => {
-                io.to(reciver.socketId).emit(
+            if (receivers.length > 0) {
+              receivers.forEach((receiver) => {
+                io.to(receiver.socketId).emit(
                   env.SOCKET_LISTENING_EVENT,
                   message
                 );
@@ -153,7 +153,7 @@ const Article = sequelize.define(
           if (article.status === "draft") {
             const [notification] = await Promise.all([
               Notification.create({
-                reciverId: article.authorId,
+                receiverId: article.authorId,
                 articleId: article.id,
                 content: reason
                   ? reason
@@ -171,9 +171,9 @@ const Article = sequelize.define(
               createdAt: notification.createdAt,
               updatedAt: notification.updatedAt,
             };
-            if (recivers.length > 0) {
-              recivers.forEach((reciver) => {
-                io.to(reciver.socketId).emit(
+            if (receivers.length > 0) {
+              receivers.forEach((receiver) => {
+                io.to(receiver.socketId).emit(
                   env.SOCKET_LISTENING_EVENT,
                   message
                 );
@@ -219,7 +219,7 @@ const Article = sequelize.define(
           if (array.length === 0) {
             const [notification] = await Promise.all([
               Notification.create({
-                reciverId: article.authorId,
+                receiverId: article.authorId,
                 articleId: article.id,
                 content: `Your article ${article.title} has been approved. You can now view it`,
               }),
@@ -242,9 +242,9 @@ const Article = sequelize.define(
               updatedAt: notification.updatedAt,
             };
 
-            if (recivers.length > 0) {
-              recivers.forEach((reciver) => {
-                io.to(reciver.socketId).emit(
+            if (receivers.length > 0) {
+              receivers.forEach((receiver) => {
+                io.to(receiver.socketId).emit(
                   env.SOCKET_LISTENING_EVENT,
                   message
                 );
@@ -264,7 +264,7 @@ const Article = sequelize.define(
 
               const [notification] = await Promise.all([
                 Notification.create({
-                  reciverId: article.authorId,
+                  receiverId: article.authorId,
                   articleId: nsfwFound ? null : article.id,
                   content: nsfwFound
                     ? `Explicit content detected in your article ${article.title}. Investigation underway. Thank you for your patience`
@@ -304,9 +304,9 @@ const Article = sequelize.define(
                     updatedAt: notification.updatedAt,
                   };
 
-              if (recivers.length > 0) {
-                recivers.forEach((reciver) => {
-                  io.to(reciver.socketId).emit(
+              if (receivers.length > 0) {
+                receivers.forEach((receiver) => {
+                  io.to(receiver.socketId).emit(
                     env.SOCKET_LISTENING_EVENT,
                     message
                   );
@@ -322,10 +322,10 @@ const Article = sequelize.define(
 
         const io = socket.getIO();
 
-        const [recivers, notification] = await Promise.all([
+        const [receivers, notification] = await Promise.all([
           SocketUser.find({ userId: article.authorId }),
           Notification.create({
-            reciverId: article.authorId,
+            receiverId: article.authorId,
             content: `Your article ${article.title} was removed by ${me.role.name} for violation of the rules`,
           }),
           Profile.increment(
@@ -334,7 +334,7 @@ const Article = sequelize.define(
           ),
         ]);
 
-        if (recivers.length > 0) {
+        if (receivers.length > 0) {
           const message = {
             id: notification.id,
             content: notification.content,
@@ -342,8 +342,8 @@ const Article = sequelize.define(
             updatedAt: notification.updatedAt,
           };
 
-          recivers.forEach((reciver) => {
-            io.to(reciver.socketId).emit(env.SOCKET_LISTENING_EVENT, message);
+          receivers.forEach((receiver) => {
+            io.to(receiver.socketId).emit(env.SOCKET_LISTENING_EVENT, message);
           });
         }
       },
@@ -352,10 +352,10 @@ const Article = sequelize.define(
         const me = options.me;
         const io = socket.getIO();
 
-        const [recivers, notification] = await Promise.all([
+        const [receivers, notification] = await Promise.all([
           SocketUser.find({ userId: article.authorId }),
           Notification.create({
-            reciverId: article.authorId,
+            receiverId: article.authorId,
             content: `Your article ${article.title} has been restored by ${me.role.name}`,
           }),
           Profile.increment(
@@ -364,7 +364,7 @@ const Article = sequelize.define(
           ),
         ]);
 
-        if (recivers.length > 0) {
+        if (receivers.length > 0) {
           const message = {
             id: notification.id,
             article: {
@@ -377,8 +377,8 @@ const Article = sequelize.define(
             updatedAt: notification.updatedAt,
           };
 
-          recivers.forEach((reciver) => {
-            io.to(reciver.socketId).emit(env.SOCKET_LISTENING_EVENT, message);
+          receivers.forEach((receiver) => {
+            io.to(receiver.socketId).emit(env.SOCKET_LISTENING_EVENT, message);
           });
         }
       },

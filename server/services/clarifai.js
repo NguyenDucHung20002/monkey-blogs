@@ -21,18 +21,18 @@ const clarifai = (inputs, callback) => {
     metadata,
     (err, response) => {
       if (err) {
-        console.log("Error: " + err);
+        console.log("error: " + err);
         return callback(err);
       }
 
       if (response.status.code !== 10000) {
         console.log(
-          "Received failed status: " +
+          "received failed status: " +
             response.status.description +
             "\n" +
             response.status.details
         );
-        return callback(new Error("Clarifai failed"));
+        return callback(new Error("clarifai failed"));
       }
 
       let results = [];

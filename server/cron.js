@@ -7,11 +7,11 @@ cron
     try {
       const currentDate = new Date();
 
-      const usersToUnband = await User.findAll({
+      const usersToUnRestrict = await User.findAll({
         where: { bannedUntil: { [Op.lt]: currentDate } },
       });
 
-      for (const user of usersToUnband) {
+      for (const user of usersToUnRestrict) {
         await user.update({
           status: "normal",
           banType: null,
@@ -19,9 +19,9 @@ cron
           bannedUntil: null,
         });
       }
-      console.log("Cron task successfully");
+      console.log("cron task successfully");
     } catch (error) {
-      console.log("Error in cron job =>", error);
+      console.log("error in cron job =>", error);
     }
   })
   .start();

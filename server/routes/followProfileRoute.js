@@ -5,7 +5,7 @@ import followProfileController from "../controllers/followProfileController.js";
 import fetchMe from "../middlewares/fetchMe.js";
 import checkUserBanned from "../middlewares/checkUserBanned.js";
 import fetchUser from "../middlewares/fetchUser.js";
-import checkBlockedByUser from "../middlewares/checBlockedByUser.js";
+import checkBlockedByUser from "../middlewares/checkBlockedByUser.js";
 
 const router = express.Router();
 

@@ -74,7 +74,7 @@ const getAnImg = asyncMiddleware(async (req, res, next) => {
   MongoDB.gfs.openDownloadStreamByName(filename).pipe(res);
 });
 
-// ==================== detete an image ==================== //
+// ==================== delete an image ==================== //
 
 const deleteAnImg = asyncMiddleware(async (req, res, next) => {
   const { filename } = req.params;

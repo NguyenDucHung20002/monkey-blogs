@@ -238,7 +238,7 @@ const recommendedTopics = asyncMiddleware(async (req, res, next) => {
       (
         SELECT at.topicId, COUNT(at.topicId) AS topicCount
         FROM articles_topics AS at
-        INNER JOIN reading_historys AS rh ON at.articleId = rh.articleId
+        INNER JOIN reading_histories AS rh ON at.articleId = rh.articleId
         WHERE rh.profileId = ${me.profileInfo.id}
         GROUP BY at.topicId
       )
