@@ -51,7 +51,7 @@ const reportAUser = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// ==================== get list of peding reported users ==================== //
+// ==================== get list of pending reported users ==================== //
 
 const getPendingReportedUsers = asyncMiddleware(async (req, res, next) => {
   const { skipId, skipCount, limit = 15, search } = req.query;
@@ -132,7 +132,7 @@ const getPendingReportedUsers = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// ==================== get list of peding reported staffs ==================== //
+// ==================== get list of pending reported staffs ==================== //
 
 const getPendingReportedStaffs = asyncMiddleware(async (req, res, next) => {
   const { skipId, skipCount, limit = 15, search } = req.query;

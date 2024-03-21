@@ -31,7 +31,7 @@ const Reading_History = sequelize.define(
     },
   },
   {
-    tableName: "reading_historys",
+    tableName: "reading_histories",
     timestamps: true,
   }
 );

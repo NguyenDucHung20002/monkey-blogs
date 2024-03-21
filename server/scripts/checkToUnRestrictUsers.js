@@ -1,15 +1,15 @@
 import User from "../models/mysql/User.js";
 import { Op } from "sequelize";
 
-const checkToUnbanUsers = async () => {
+const checkToUnRestrictUsers = async () => {
   try {
     const currentDate = new Date();
 
-    const usersToUnband = await User.findAll({
+    const usersToUnRestrict = await User.findAll({
       where: { bannedUntil: { [Op.lt]: currentDate } },
     });
 
-    for (const user of usersToUnband) {
+    for (const user of usersToUnRestrict) {
       await user.update({
         status: "normal",
         banType: null,
@@ -17,10 +17,10 @@ const checkToUnbanUsers = async () => {
         bannedUntil: null,
       });
     }
-    console.log("check to unban users successfully");
+    console.log("check to un restrict users successfully");
   } catch (error) {
-    console.log("error when check to unban users =>", error);
+    console.log("error when check to un restrict users =>", error);
   }
 };
 
-export default checkToUnbanUsers;
+export default checkToUnRestrictUsers;

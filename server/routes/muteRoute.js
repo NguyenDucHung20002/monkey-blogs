@@ -4,7 +4,7 @@ import requiredAuth from "../middlewares/requiredAuth.js";
 import checkUserBanned from "../middlewares/checkUserBanned.js";
 import fetchMe from "../middlewares/fetchMe.js";
 import fetchUser from "../middlewares/fetchUser.js";
-import checkBlockedByUser from "../middlewares/checBlockedByUser.js";
+import checkBlockedByUser from "../middlewares/checkBlockedByUser.js";
 
 const router = express.Router();
 

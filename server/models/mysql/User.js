@@ -46,7 +46,7 @@ const User = sequelize.define(
     },
 
     bannedUntil: {
-      type: DataTypes.DATEONLY,
+      type: DataTypes.DATE,
       allowNull: true,
     },
 

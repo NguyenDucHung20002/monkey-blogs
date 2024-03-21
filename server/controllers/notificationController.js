@@ -13,14 +13,14 @@ const getNotifications = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { skip, limit = 15 } = req.query;
 
-  let whereQuery = { reciverId: me.profileInfo.id };
+  let whereQuery = { receiverId: me.profileInfo.id };
 
   if (skip) whereQuery.id = { [Op.lt]: skip };
 
   const [notifications] = await Promise.all([
     Notification.findAll({
       where: whereQuery,
-      attributes: { exclude: ["senderId", "reciverId", "articleId"] },
+      attributes: { exclude: ["senderId", "receiverId", "articleId"] },
       include: [
         {
           model: Profile,
@@ -74,7 +74,7 @@ const markAsRead = asyncMiddleware(async (req, res, next) => {
 
   res.json({
     success: true,
-    message: "Marked notification as readed successfully",
+    message: "Marked notification as read successfully",
   });
 });
 
@@ -85,12 +85,12 @@ const martAllAsRead = asyncMiddleware(async (req, res, next) => {
 
   await Notification.update(
     { isRead: true },
-    { where: { reciverId: me.profileInfo.id, isRead: false } }
+    { where: { receiverId: me.profileInfo.id, isRead: false } }
   );
 
   res.json({
     success: true,
-    message: "Marked all notifications as readed successfully",
+    message: "Marked all notifications as read successfully",
   });
 });
 
@@ -100,7 +100,7 @@ const clearReadNotifications = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
 
   await Notification.destroy({
-    where: { reciverId: me.profileInfo.id, isRead: true },
+    where: { receiverId: me.profileInfo.id, isRead: true },
   });
 
   res.json({

@@ -46,7 +46,7 @@ const unFollowAProfile = asyncMiddleware(async (req, res, next) => {
   const user = req.user;
 
   if (user.profileInfo.id === me.profileInfo.id) {
-    throw ErrorResponse(400, "Bad Request: Cannot unfollow yourself");
+    throw ErrorResponse(400, "Bad Request: Cannot un follow yourself");
   }
 
   const followProfile = await Follow_Profile.findOne({
@@ -59,7 +59,7 @@ const unFollowAProfile = asyncMiddleware(async (req, res, next) => {
 
   res.json({
     success: true,
-    message: `Successfully unfollowed ${user.profileInfo.fullname}.`,
+    message: `Successfully un followed ${user.profileInfo.fullname}.`,
   });
 });
 
@@ -358,7 +358,7 @@ const whoToFollow = asyncMiddleware(async (req, res, next) => {
     JOIN profiles p ON a.authorId = p.id and p.avatar is not null and p.fullname is not null
     JOIN users u ON p.userId = u.id and u.isVerified = true and u.status = "normal"
     JOIN roles r ON u.roleId = r.id
-    LEFT JOIN reading_historys rh ON rh.articleId = a.id AND rh.profileId = ${me.profileInfo.id}
+    LEFT JOIN reading_histories rh ON rh.articleId = a.id AND rh.profileId = ${me.profileInfo.id}
     LEFT JOIN reading_lists rl ON rl.articleId = a.id AND rl.profileId = ${me.profileInfo.id}
     LEFT JOIN likes l ON l.articleId = a.id AND l.profileId = ${me.profileInfo.id}
     LEFT JOIN articles_topics at ON a.id = at.articleId

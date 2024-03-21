@@ -1,6 +1,6 @@
 import getError from "../utils/getError.js";
 
-const checkBanned = async (req, res, next) => {
+const checkUserBanned = async (req, res, next) => {
   try {
     const user = req.user;
 
@@ -28,4 +28,4 @@ const checkBanned = async (req, res, next) => {
   }
 };
 
-export default checkBanned;
+export default checkUserBanned;

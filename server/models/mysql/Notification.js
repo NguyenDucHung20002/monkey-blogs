@@ -21,7 +21,7 @@ const Notification = sequelize.define(
       },
     },
 
-    reciverId: {
+    receiverId: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {

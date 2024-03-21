@@ -16,7 +16,7 @@ const reportAnArticle = asyncMiddleware(async (req, res, next) => {
 
   const article = await Article.findOne({
     where: { id, status: "approved" },
-    attributes: ["id", "authorid"],
+    attributes: ["id", "authorId"],
     include: {
       model: Profile,
       as: "author",
@@ -62,7 +62,7 @@ const reportAnArticle = asyncMiddleware(async (req, res, next) => {
   res.status(201).json({ success: true, message: `Article has been reported` });
 });
 
-// ==================== get list of peding reported articles ==================== //
+// ==================== get list of pending reported articles ==================== //
 
 const getPendingReportedArticles = asyncMiddleware(async (req, res, next) => {
   const { skipId, skipCount, limit = 15 } = req.query;

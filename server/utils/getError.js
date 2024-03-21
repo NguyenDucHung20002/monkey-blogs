@@ -24,7 +24,7 @@ const getError = async (err) => {
 
   // if (req.file) await fileController.autoRemoveImg(req.file.filename);
 
-  console.log("ERROR =>", err);
+  console.log("error =>", err);
 
   return { code, message };
 };

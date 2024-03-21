@@ -59,7 +59,7 @@ const unBlockAProfile = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// ==================== get list of blockd profiles ==================== //
+// ==================== get list of blocked profiles ==================== //
 
 const getBlockedProfiles = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
@@ -77,7 +77,7 @@ const getBlockedProfiles = asyncMiddleware(async (req, res, next) => {
     limit: Number(limit) ? Number(limit) : 15,
   });
 
-  const blockeds = blockedProfiles.map((blockedProfile) => {
+  const blockedProfilesInfo = blockedProfiles.map((blockedProfile) => {
     return {
       id: blockedProfile.blocked.id,
       fullname: blockedProfile.blocked.fullname,
@@ -92,7 +92,7 @@ const getBlockedProfiles = asyncMiddleware(async (req, res, next) => {
       ? blockedProfiles[blockedProfiles.length - 1].id
       : null;
 
-  res.json({ success: true, data: blockeds, newSkip });
+  res.json({ success: true, data: blockedProfilesInfo, newSkip });
 });
 
 export default { blockAProfile, unBlockAProfile, getBlockedProfiles };

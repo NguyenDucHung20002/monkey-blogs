@@ -89,7 +89,7 @@ const Comment = sequelize.define(
         ) {
           notificationData = {
             senderId: me.profileInfo.id,
-            reciverId: parentComment.authorId,
+            receiverId: parentComment.authorId,
             articleId: article.id,
             content: `${me.profileInfo.fullname} reply to you on ${article.title}`,
           };
@@ -98,22 +98,22 @@ const Comment = sequelize.define(
         if (!isAuthor && !parentComment) {
           notificationData = {
             senderId: me.profileInfo.id,
-            reciverId: article.authorId,
+            receiverId: article.authorId,
             articleId: article.id,
             content: `${me.profileInfo.fullname} comment on your article ${article.title}`,
           };
         }
 
-        const [notification, recivers] = await Promise.all([
+        const [notification, receivers] = await Promise.all([
           Notification.create(notificationData),
-          SocketUser.find({ userId: notificationData.reciverId }),
+          SocketUser.find({ userId: notificationData.receiverId }),
           Profile.increment(
             { notificationsCount: 1 },
-            { where: { id: notificationData.reciverId } }
+            { where: { id: notificationData.receiverId } }
           ),
         ]);
 
-        if (recivers && recivers.length > 0) {
+        if (receivers && receivers.length > 0) {
           const io = socket.getIO();
 
           const message = {
@@ -135,8 +135,8 @@ const Comment = sequelize.define(
             updatedAt: notification.updatedAt,
           };
 
-          recivers.forEach((reciver) => {
-            io.to(reciver.socketId).emit(env.SOCKET_LISTENING_EVENT, message);
+          receivers.forEach((receiver) => {
+            io.to(receiver.socketId).emit(env.SOCKET_LISTENING_EVENT, message);
           });
         }
       },

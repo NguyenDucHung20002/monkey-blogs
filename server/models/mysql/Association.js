@@ -105,11 +105,11 @@ Profile.belongsToMany(Profile, {
   foreignKey: "followedId",
   as: "followers",
 });
-Profile.belongsToMany(Profile, {
-  through: Follow_Profile,
-  foreignKey: "followerId",
-  as: "follweds",
-});
+// Profile.belongsToMany(Profile, {
+//   through: Follow_Profile,
+//   foreignKey: "followerId",
+//   as: "follweds",
+// });
 
 // Follow_Profile - Profile
 Follow_Profile.belongsTo(Profile, {
@@ -292,18 +292,18 @@ Reading_List.belongsTo(Profile, {
 // Profile.belongsToMany(Profile, {
 //   through: Notification,
 //   foreignKey: "senderId",
-//   as: "recivers",
+//   as: "receivers",
 // });
 // Profile.belongsToMany(Profile, {
 //   through: Notification,
-//   foreignKey: "reciverId",
+//   foreignKey: "receiverId",
 //   as: "senders",
 // });
 
 // Notification - Profile
 Notification.belongsTo(Profile, {
-  foreignKey: "reciverId",
-  as: "reciver",
+  foreignKey: "receiverId",
+  as: "receiver",
 });
 Notification.belongsTo(Profile, {
   foreignKey: "senderId",
@@ -318,7 +318,7 @@ Notification.belongsTo(Article, {
 
 // ==================== Comment ==================== //
 
-// Commnet - Profile
+// Comment - Profile
 Profile.hasMany(Comment, {
   foreignKey: "authorId",
 });
