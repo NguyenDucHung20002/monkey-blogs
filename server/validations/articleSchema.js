@@ -39,7 +39,6 @@ const createArticleSchema = Joi.object({
 const updateArticleSchema = Joi.object({
   banner: Joi.string(),
   title: Joi.string().max(250),
-  preview: Joi.string().max(200),
   content: Joi.string(),
   topicNames: Joi.array().max(5).items(Joi.string()),
 });
@@ -47,7 +46,6 @@ const updateArticleSchema = Joi.object({
 const setDraftSchema = Joi.object({
   reason: Joi.string().min(4).max(150).allow("").allow(null),
 });
-
 
 export default {
   createDraftSchema,
