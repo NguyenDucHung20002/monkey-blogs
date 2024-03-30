@@ -25,21 +25,25 @@ export default {
   MONGODB_PORT: process.env.MONGODB_PORT || 27017,
   MONGODB_BUCKET: process.env.MONGODB_BUCKET || "uploads",
 
-  OAUTH_GOOGLE_CLIENT_ID:
-    process.env.OAUTH_GOOGLE_CLIENT_ID || "your google client id",
-  OAUTH_GOOGLE_CLIENT_SECRET:
-    process.env.OAUTH_GOOGLE_CLIENT_SECRET || "your google client secret",
+  // OAUTH_GOOGLE_CLIENT_ID:
+  //   process.env.OAUTH_GOOGLE_CLIENT_ID || "your google client id",
+  // OAUTH_GOOGLE_CLIENT_SECRET:
+  //   process.env.OAUTH_GOOGLE_CLIENT_SECRET || "your google client secret",
 
-  NODEMAILER_GOOGLE_CLIENT_ID:
-    process.env.NODEMAILER_GOOGLE_CLIENT_ID || "your google client id",
+  // NODEMAILER_GOOGLE_CLIENT_ID:
+  //   process.env.NODEMAILER_GOOGLE_CLIENT_ID || "your google client id",
 
-  NODEMAILER_GOOGLE_CLIENT_SECRET:
-    process.env.NODEMAILER_GOOGLE_CLIENT_SECRET || "your google client secret",
+  // NODEMAILER_GOOGLE_CLIENT_SECRET:
+  //   process.env.NODEMAILER_GOOGLE_CLIENT_SECRET || "your google client secret",
 
-  NODEMAILER_GOOGLE_REFRESH_TOKEN:
-    process.env.NODEMAILER_GOOGLE_REFRESH_TOKEN || "your refresh token",
+  // NODEMAILER_GOOGLE_REFRESH_TOKEN:
+  //   process.env.NODEMAILER_GOOGLE_REFRESH_TOKEN || "your refresh token",
+
   NODEMAILER_GOOGLE_EMAIL:
     process.env.NODEMAILER_GOOGLE_EMAIL || "your google email",
+
+  NODEMAILER_APP_PASSWORD:
+    process.env.NODEMAILER_APP_PASSWORD || "your google app password",
 
   CLARIFAI_API_KEY: process.env.CLARIFAI_API_KEY || "your clarifai api key",
   CLARIFAI_MODEL_ID: process.env.CLARIFAI_MODEL_ID || "your clarifai model id",

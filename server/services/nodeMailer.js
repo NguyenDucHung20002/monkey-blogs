@@ -1,22 +1,23 @@
-import generateOAuthAccessToken from "../utils/generateOAuthAccessToken.js";
+// import generateOAuthAccessToken from "../utils/generateOAuthAccessToken.js";
 import nodemailer from "nodemailer";
 import env from "../config/env.js";
 
 const emailService = async (options) => {
   const transport = nodemailer.createTransport({
     service: "gmail",
+    host: "smtp.gmail.com",
+    secure: false,
     auth: {
-      type: "OAuth2",
-      clientId: env.NODEMAILER_GOOGLE_CLIENT_ID,
-      clientSecret: env.NODEMAILER_GOOGLE_CLIENT_SECRET,
+      user: env.NODEMAILER_GOOGLE_EMAIL,
+      pass: env.NODEMAILER_APP_PASSWORD,
     },
   });
 
-  const { token } = await generateOAuthAccessToken();
+  // const { token } = await generateOAuthAccessToken();
 
-  if (!token) {
-    throw new Error("Unable to generate OAuth token");
-  }
+  // if (!token) {
+  //   throw new Error("Unable to generate OAuth token");
+  // }
 
   const MailOptions = {
     from: `Monkey Blogs <${env.GOOGLE_EMAIL}>`,
@@ -24,11 +25,6 @@ const emailService = async (options) => {
     subject: options.subject,
     text: options.text,
     html: options.html,
-    auth: {
-      user: env.NODEMAILER_GOOGLE_EMAIL,
-      refreshToken: env.NODEMAILER_GOOGLE_REFRESH_TOKEN,
-      accessToken: token,
-    },
   };
 
   transport.sendMail(MailOptions);
