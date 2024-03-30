@@ -97,7 +97,7 @@ const Account = () => {
           <form onSubmit={handleSubmit(handleOk)} action="">
             <div className="">
               <label className="block font-bold" htmlFor="input-oldPassword">
-                oldPassword
+                Old password
               </label>
               <input
                 className="w-full py-2 border-b focus:placeholder-transparent "
@@ -107,12 +107,17 @@ const Account = () => {
                 {...register("oldPassword")}
               />
               <p className={errors.oldPassword ? "text-red-400" : ""}>
-                {errors.oldPassword ? errors.oldPassword?.message : ""}
+                {errors.oldPassword
+                  ? `old password ${errors.oldPassword.message
+                      .split(" ")
+                      .slice(1)
+                      .join(" ")}`
+                  : ""}
               </p>
             </div>
             <div>
               <label className="block font-bold" htmlFor="input-newPassword">
-                newPassword
+                New password
               </label>
               <input
                 className="w-full py-2 border-b focus:placeholder-transparent "
@@ -122,7 +127,12 @@ const Account = () => {
                 {...register("newPassword")}
               />
               <p className={errors.newPassword ? "text-red-400" : ""}>
-                {errors.newPassword ? errors.newPassword?.message : ""}
+                {errors.newPassword
+                  ? `new password ${errors.newPassword.message
+                      .split(" ")
+                      .slice(1)
+                      .join(" ")}`
+                  : ""}
               </p>
             </div>
             <div>
@@ -130,7 +140,7 @@ const Account = () => {
                 className="block font-bold"
                 htmlFor="input-confirmPassword"
               >
-                confirmPassword
+                Confirm password
               </label>
               <input
                 className="w-full py-2 border-b focus:placeholder-transparent "
@@ -140,7 +150,12 @@ const Account = () => {
                 {...register("confirmPassword")}
               />
               <p className={errors.confirmPassword ? "text-red-400" : ""}>
-                {errors.confirmPassword ? errors.confirmPassword?.message : ""}
+                {errors.confirmPassword
+                  ? `confirm password ${errors.confirmPassword.message
+                      .split(" ")
+                      .slice(1)
+                      .join(" ")}`
+                  : ""}
               </p>
             </div>
           </form>

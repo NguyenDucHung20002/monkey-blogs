@@ -16,10 +16,8 @@ export const theme = {
 };
 
 export const config = {
-  CLIENT_PORT: 5173,
-  CLIENT_HOST: "http://localhost",
   SERVER_HOST: "http://143.198.219.247:8080/api/v1",
-  SERVER_URl: "http://localhost:8080",
+  SOCKET_HOST: "http://143.198.219.247:8080",
 };
 
 export const icons = {

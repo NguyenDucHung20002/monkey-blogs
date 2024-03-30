@@ -1,6 +1,6 @@
 import { Fragment } from "react";
 import { AuthProvider } from "./auth-context";
-import { SocketProvider } from "./SocketContext";
+import SocketProvider from "./SocketContext";
 import { Outlet } from "react-router-dom";
 
 const ContextWrap = () => {

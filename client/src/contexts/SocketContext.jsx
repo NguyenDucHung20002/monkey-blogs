@@ -11,6 +11,7 @@ import { io } from "socket.io-client";
 import { useAuth } from "./auth-context";
 import { apiGetNotification, apiMarkAsReadNotification } from "../api/api";
 import { apiDeleteAllNotification } from "../api/apiNew";
+import { config } from "../utils/constants";
 
 const SocketContext = createContext();
 // eslint-disable-next-line react-refresh/only-export-components
@@ -18,7 +19,7 @@ export function useSocket() {
   return useContext(SocketContext);
 }
 
-export function SocketProvider({ children }) {
+const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
   const [error, setError] = useState(null);
   const [notifications, setNotifications] = useState([]);
@@ -47,6 +48,7 @@ export function SocketProvider({ children }) {
       setNotifications([]);
     }
   }, [token]);
+
   const handleReadNotify = useCallback(async () => {
     await apiMarkAsReadNotification();
     fetchNotification(token);
@@ -54,7 +56,7 @@ export function SocketProvider({ children }) {
 
   useEffect(() => {
     if (!token) return;
-    const newSocket = io("http://143.198.219.247:8080");
+    const newSocket = io(config.SOCKET_HOST);
     if (!newSocket) return;
     setSocket(newSocket);
     fetchNotification();
@@ -95,7 +97,10 @@ export function SocketProvider({ children }) {
     handleReadNotify,
     handleClearNotifications,
   };
+
   return (
     <SocketContext.Provider value={value}>{children}</SocketContext.Provider>
   );
-}
+};
+
+export default SocketProvider;

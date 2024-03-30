@@ -82,7 +82,7 @@ const ForgotPasswordPage = () => {
         autoComplete="off"
       >
         <Field>
-          <Label htmlFor="password">New Password</Label>
+          <Label htmlFor="password">New password</Label>
           <InputPasswordToggle
             name="password"
             placeholder="Enter your password"
