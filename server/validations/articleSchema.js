@@ -39,6 +39,7 @@ const createArticleSchema = Joi.object({
 const updateArticleSchema = Joi.object({
   banner: Joi.string(),
   title: Joi.string().max(250),
+  preview: Joi.string(),
   content: Joi.string(),
   topicNames: Joi.array().max(5).items(Joi.string()),
 });
