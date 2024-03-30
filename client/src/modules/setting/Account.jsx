@@ -97,7 +97,7 @@ const Account = () => {
           <form onSubmit={handleSubmit(handleOk)} action="">
             <div className="">
               <label className="block font-bold" htmlFor="input-oldPassword">
-                oldPassword
+                Old Password
               </label>
               <input
                 className="w-full py-2 border-b focus:placeholder-transparent "
@@ -112,7 +112,7 @@ const Account = () => {
             </div>
             <div>
               <label className="block font-bold" htmlFor="input-newPassword">
-                newPassword
+                New Password
               </label>
               <input
                 className="w-full py-2 border-b focus:placeholder-transparent "
@@ -130,7 +130,7 @@ const Account = () => {
                 className="block font-bold"
                 htmlFor="input-confirmPassword"
               >
-                confirmPassword
+                Confirm Password
               </label>
               <input
                 className="w-full py-2 border-b focus:placeholder-transparent "
