@@ -1,3 +1,4 @@
+
 // import generateOAuthAccessToken from "../utils/generateOAuthAccessToken.js";
 import nodemailer from "nodemailer";
 import env from "../config/env.js";
@@ -18,6 +19,7 @@ const emailService = async (options) => {
   // if (!token) {
   //   throw new Error("Unable to generate OAuth token");
   // }
+
 
   const MailOptions = {
     from: `Monkey Blogs <${env.GOOGLE_EMAIL}>`,
