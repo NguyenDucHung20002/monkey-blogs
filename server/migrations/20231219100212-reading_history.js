@@ -41,6 +41,6 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("reading_historys");
+    await queryInterface.dropTable("reading_histories");
   },
 };
