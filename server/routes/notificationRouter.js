@@ -17,7 +17,7 @@ router.get(
 // -------------------- mark all as read -------------------- //
 
 router.patch(
-  "/mark-all-as-readed",
+  "/mark-all-as-read",
   requiredAuth,
   fetchMe,
   notificationController.martAllAsRead
@@ -26,7 +26,7 @@ router.patch(
 // -------------------- mark as read -------------------- //
 
 router.patch(
-  "/mark-as-readed/:id",
+  "/mark-as-read/:id",
   requiredAuth,
   fetchMe,
   notificationController.markAsRead
