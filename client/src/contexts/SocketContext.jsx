@@ -42,6 +42,7 @@ const SocketProvider = ({ children }) => {
     const notificationResponse = await apiGetNotification(token);
     setNotifications(notificationResponse);
   }, [token]);
+
   const handleClearNotifications = useCallback(async () => {
     const response = await apiDeleteAllNotification();
     if (response?.success) {

@@ -94,7 +94,11 @@ const Account = () => {
           onCancel={handleCancel}
           confirmLoading={confirmLoading}
         >
-          <form onSubmit={handleSubmit(handleOk)} action="">
+          <form
+            onSubmit={handleSubmit(handleOk)}
+            action=""
+            style={{ paddingTop: "15px", paddingBottom: "15px" }}
+          >
             <div className="">
               <label className="block font-bold" htmlFor="input-oldPassword">
                 Old password

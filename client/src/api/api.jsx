@@ -414,7 +414,7 @@ const apiGetNotification = async (token) => {
 const apiMarkAsReadNotification = async () => {
   try {
     const res = await axios.patch(
-      `${config.SERVER_HOST}/notification/mark-all-as-readed`,
+      `${config.SERVER_HOST}/notification/mark-all-as-read`,
       {},
       {
         headers: {

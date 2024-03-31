@@ -24,7 +24,7 @@ const MeMuted = () => {
     <div>
       <div className="user-following max-w-[700px] w-full mx-auto">
         <div className="pb-4 mt-6 ">
-          <h3 className="mb-3 text-base font-bold">Users Muted</h3>
+          <h3 className="mb-3 text-base font-bold">Muted authors</h3>
           {users &&
             users.length > 0 &&
             users.map((user) => (

@@ -24,7 +24,7 @@ const MeBlocked = () => {
     <div>
       <div className="user-following max-w-[700px] w-full mx-auto">
         <div className="pb-4 mt-6 ">
-          <h3 className="mb-3 text-base font-bold">Users Blocked</h3>
+          <h3 className="mb-3 text-base font-bold">Blocked authors</h3>
           {users &&
             users.length > 0 &&
             users.map((user) => (
