@@ -1274,6 +1274,8 @@ const getTopicArticles = asyncMiddleware(async (req, res, next) => {
       limit: Number(limit) ? Number(limit) : null,
     });
 
+    console.log(topicArticles);
+
     articles = await Promise.all(
       topicArticles.map(async (article) => {
         article.article.author.avatar = addUrlToImg(

@@ -109,6 +109,7 @@ const PostDetailPage = () => {
   }, [fetchBlog]);
   useEffect(() => {
     const fetchMoreArticles = async () => {
+      window.scrollTo(0, 0);
       if (!blog) return;
       const moreArticlesRes = await apiGetMoreArticleInDetailPage(blog?.id);
       if (!moreArticlesRes) {

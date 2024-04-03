@@ -78,7 +78,7 @@ const apiDeleteImage = async (filename) => {
   }
 };
 
-const apiCreateDarft = async (title, content) => {
+const apiCreateDraft = async (title, content) => {
   try {
     const response = await axios.post(
       `${config.SERVER_HOST}/article/draft/create-draft`,
@@ -95,7 +95,7 @@ const apiCreateDarft = async (title, content) => {
   }
 };
 
-const apiUpdateDarft = async (id, title, content) => {
+const apiUpdateDraft = async (id, title, content) => {
   try {
     const response = await axios.patch(
       `${config.SERVER_HOST}/article/draft/update-draft/${id}`,
@@ -112,7 +112,7 @@ const apiUpdateDarft = async (id, title, content) => {
   }
 };
 
-const apiDeleteDarft = async (id) => {
+const apiDeleteDraft = async (id) => {
   try {
     const response = await axios({
       method: "delete",
@@ -275,9 +275,9 @@ export {
   apiGetUserFollow,
   apiUploadImage,
   apiDeleteImage,
-  apiCreateDarft,
-  apiUpdateDarft,
-  apiDeleteDarft,
+  apiCreateDraft,
+  apiUpdateDraft,
+  apiDeleteDraft,
   apiAddBlog,
   apiUploadCheckImage,
   apiGetMyDraft,

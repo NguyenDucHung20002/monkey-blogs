@@ -9,10 +9,13 @@ const Notify = React.forwardRef((props, ref) => {
   const { notifications, handleReadNotify } = props;
   const isMounted = useRef(false);
   const limitNotifications = 10;
+  console.log("isMounted.current", isMounted.current);
+
   useEffect(() => {
     return () => {
+      handleReadNotify();
       if (isMounted.current) {
-        handleReadNotify();
+        console.log("tron tron vn");
       }
       isMounted.current = true;
     };

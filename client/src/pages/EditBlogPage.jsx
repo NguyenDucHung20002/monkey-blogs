@@ -13,7 +13,7 @@ import MyEditor from "../components/input/MyEditor";
 import { apiGetArticleOrDraft, apiUpdateArticle } from "../api/api";
 import useUploadImage from "../hooks/useUploadImage";
 import { config } from "../utils/constants";
-import { apiAddBlog, apiUpdateDarft } from "../api/apiNew";
+import { apiAddBlog, apiUpdateDraft } from "../api/apiNew";
 import { debounce } from "lodash";
 
 const EditBlogPageStyle = styled.div`
@@ -147,7 +147,7 @@ const EditBlogPage = () => {
         title,
         content,
         topicNames,
-        preview,
+        preview: cutPreview,
         banner: image.filename,
       };
       response = await apiUpdateArticle(token, status?.id, formData);
@@ -158,7 +158,7 @@ const EditBlogPage = () => {
   };
   const watchedTitle = useWatch({ control, name: "title", defaultValue: "" });
   const UpdateDraft = debounce(async () => {
-    const res = await apiUpdateDarft(status?.id, watchedTitle, content);
+    const res = await apiUpdateDraft(status?.id, watchedTitle, content);
     if (res?.success) {
       setIsSaved(true);
     }

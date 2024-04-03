@@ -13,6 +13,6 @@ const JsonWebTokenSchema = new mongoose.Schema(
   }
 );
 
-JsonWebTokenSchema.index({ timestamps: 1 }, { expireAfterSeconds: 259200 });
+JsonWebTokenSchema.index({ timestamps: 1 }, { expireAfterSeconds: 604800 });
 
 export default mongoose.model("json-web-token", JsonWebTokenSchema);

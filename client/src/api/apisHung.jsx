@@ -759,7 +759,14 @@ const apiLogin = async (email, password) => {
         },
       }
     );
-    if (response.data.success) return response.data;
+    if (response?.data?.success && response?.data?.message) {
+      toast.success(response?.data?.message, {
+        pauseOnHover: false,
+        delay: 200,
+      });
+    } else if (response.data.success) {
+      return response.data;
+    }
   } catch (error) {
     toast.warning(error.response.data.message, {
       pauseOnHover: false,

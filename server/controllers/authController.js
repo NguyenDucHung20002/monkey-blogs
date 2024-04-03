@@ -39,8 +39,9 @@ const register = asyncMiddleware(async (req, res, next) => {
       operation,
       emailService({
         to: email,
-        subject: "Setup password",
-        html: `<h3>Click <a href="${link}">here</a> to verify your password setup request.</h3>`,
+        subject: "Complete Your Sign Up",
+        template: "verify-email",
+        context: { email: user.email, link },
       }),
     ]);
 
@@ -61,8 +62,9 @@ const register = asyncMiddleware(async (req, res, next) => {
   await Promise.all([
     emailService({
       to: email,
-      subject: "Verify email",
-      html: `<h3>Click <a href="${link}">here</a> to verify your email.</h3>`,
+      subject: "Complete Your Sign Up",
+      template: "verify-email",
+      context: { email: user.email, link },
     }),
     Profile.create({ userId: user.id }),
     VerifyToken.create({ email, token }),
@@ -96,8 +98,9 @@ const forgotPassword = asyncMiddleware(async (req, res, next) => {
   await Promise.all([
     emailService({
       to: email,
-      subject: "Forgot password",
-      html: `<h3>Click <a href="${link}">here</a> to reset your password.</h3>`,
+      subject: "Reset Your Password",
+      template: "forgot-password",
+      context: { email: user.email, link },
     }),
     operation,
   ]);
@@ -175,7 +178,7 @@ const resetPassword = asyncMiddleware(async (req, res, next) => {
   res.json({ success: true, message: "Password reset successfully" });
 });
 
-// ==================== login with email and password ==================== //
+// ==================== login ==================== //
 
 const loginEmail = asyncMiddleware(async (req, res, next) => {
   const { email, password } = req.body;
@@ -208,8 +211,9 @@ const loginEmail = asyncMiddleware(async (req, res, next) => {
       operation,
       emailService({
         to: email,
-        subject: "Verify email",
-        html: `<h3>Click <a href="${link}">here</a> to verify your email</h3>`,
+        subject: "Complete Your Sign Up",
+        template: "verify-email",
+        context: { email: user.email, link },
       }),
     ]);
 

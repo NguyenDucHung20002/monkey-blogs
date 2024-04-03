@@ -10,7 +10,7 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 import MyEditor from "../components/input/MyEditor";
-import { apiAddBlog, apiCreateDarft, apiUpdateDarft } from "../api/apiNew";
+import { apiAddBlog, apiCreateDraft, apiUpdateDraft } from "../api/apiNew";
 import { debounce } from "lodash";
 import useUploadImage from "../hooks/useUploadImage";
 
@@ -121,7 +121,7 @@ const WritePage = () => {
 
   const watchedTitle = useWatch({ control, name: "title", defaultValue: "" });
   const createDraft = async () => {
-    const res = await apiCreateDarft(watchedTitle, content);
+    const res = await apiCreateDraft(watchedTitle, content);
     if (res?.success) {
       setNewDraft(res);
       setIsSaved(true);
@@ -130,7 +130,7 @@ const WritePage = () => {
   };
   const UpdateDraft = debounce(async () => {
     const idDraft = newDraft?.draftId;
-    const res = await apiUpdateDarft(idDraft, watchedTitle, content);
+    const res = await apiUpdateDraft(idDraft, watchedTitle, content);
     if (res?.success) {
       setIsSaved(true);
     }
