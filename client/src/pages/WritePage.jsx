@@ -46,6 +46,7 @@ const WritePage = () => {
   const [showIsSaved, setShowIsSaved] = useState(false);
   const [newDraft, setNewDraft] = useState({});
   const [hasRunOnce, setHasRunOnce] = useState(false);
+  const [isCreatingDraft, setIsCreatingDraft] = useState(false);
   const navigate = useNavigate();
   const { image, onSelectImage, onDeleteImage } = useUploadImage();
   useEffect(() => {
@@ -115,11 +116,13 @@ const WritePage = () => {
     }
     fetchAddBlog();
   };
+
   const handleClickPublish = () => {
     handleSubmit(handleAddBlog)();
   };
 
   const watchedTitle = useWatch({ control, name: "title", defaultValue: "" });
+
   const createDraft = async () => {
     const res = await apiCreateDraft(watchedTitle, content);
     if (res?.success) {
@@ -128,6 +131,7 @@ const WritePage = () => {
       setHasRunOnce(true);
     }
   };
+
   const UpdateDraft = debounce(async () => {
     const idDraft = newDraft?.draftId;
     const res = await apiUpdateDraft(idDraft, watchedTitle, content);
@@ -137,8 +141,6 @@ const WritePage = () => {
   }, 1000);
 
   useEffect(() => {
-    // console.log("title",watchedTitle);
-    // console.log("content",content);
     const check = content !== "" && watchedTitle !== "";
     setIsSaved(false);
     const encoder = new TextEncoder();
@@ -146,15 +148,14 @@ const WritePage = () => {
     if (byteSize >= 30000) {
       return;
     }
-    if (check && !hasRunOnce) {
+    if (check && !hasRunOnce && !isCreatingDraft) {
       setShowIsSaved(true);
+      setIsCreatingDraft(true);
       createDraft();
     }
     if (newDraft?.draftId) {
       UpdateDraft();
     }
-    // console.log("newDraft",newDraft);
-    // console.log("changeDraft",changeDraft);
   }, [watchedTitle, content]);
 
   if (!token) return null;
