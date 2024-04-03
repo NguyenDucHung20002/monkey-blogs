@@ -35,6 +35,7 @@ import searchRoute from "./routes/searchRoute.js";
 import fileRoute from "./routes/fileRoute.js";
 import readingListRoute from "./routes/readingListRoute.js";
 import notificationRoute from "./routes/notificationRouter.js";
+import limiter from "./middlewares/limiter.js";
 
 app.use(express.json());
 app.use(morgan("dev"));
@@ -56,7 +57,7 @@ sequelize
     console.log("ERROR =>", error);
   });
 
-app.use(`/api/v1/auth`, authRoute);
+app.use(`/api/v1/auth`, limiter({ max: 50 }), authRoute);
 app.use(`/api/v1/mute`, muteRoute);
 app.use(`/api/v1/block`, blockRoute);
 app.use(`/api/v1/user`, userRoute);
