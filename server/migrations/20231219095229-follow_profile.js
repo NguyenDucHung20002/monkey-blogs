@@ -13,19 +13,23 @@ module.exports = {
       followedId: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        // references: {
-        //   model: Profile,
-        //   key: "id",
-        // },
+        references: {
+          model: {
+            tableName: "profiles",
+          },
+          key: "id",
+        },
       },
 
       followerId: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        // references: {
-        //   model: Profile,
-        //   key: "id",
-        // },
+        references: {
+          model: {
+            tableName: "profiles",
+          },
+          key: "id",
+        },
       },
 
       createdAt: {

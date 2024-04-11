@@ -59,7 +59,15 @@ const getAllStaffs = asyncMiddleware(async (req, res, next) => {
 
   const newSkip = staffs.length > 0 ? staffs[staffs.length - 1].id : null;
 
-  res.json({ success: true, data: staffs, newSkip });
+  res.json({
+    success: true,
+    data: staffs,
+    newSkip,
+  });
 });
 
-export default { makeUserStaff, makeUserUser, getAllStaffs };
+export default {
+  makeUserStaff,
+  makeUserUser,
+  getAllStaffs,
+};

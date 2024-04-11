@@ -13,19 +13,23 @@ module.exports = {
       mutedId: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        // references: {
-        //   model: Profile,
-        //   key: "id",
-        // },
+        references: {
+          model: {
+            tableName: "profiles",
+          },
+          key: "id",
+        },
       },
 
       muterId: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        // references: {
-        //   model: Profile,
-        //   key: "id",
-        // },
+        references: {
+          model: {
+            tableName: "profiles",
+          },
+          key: "id",
+        },
       },
 
       createdAt: {

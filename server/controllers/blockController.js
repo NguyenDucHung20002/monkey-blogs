@@ -78,13 +78,9 @@ const getBlockedProfiles = asyncMiddleware(async (req, res, next) => {
   });
 
   const blockedProfilesInfo = blockedProfiles.map((blockedProfile) => {
-    return {
-      id: blockedProfile.blocked.id,
-      fullname: blockedProfile.blocked.fullname,
-      avatar: addUrlToImg(blockedProfile.blocked.avatar),
-      bio: blockedProfile.blocked.bio,
-      username: blockedProfile.blocked.userInfo.username,
-    };
+    blockedProfile.blocked.avatar = addUrlToImg(blockedProfile.blocked.avatar);
+
+    return blockedProfile.blocked;
   });
 
   const newSkip =

@@ -1,4 +1,4 @@
-import JsonWebToken from "../models/mongodb/JsonWebToken.js";
+import RefreshToken from "../models/mongodb/RefreshToken.js";
 import jwt from "jsonwebtoken";
 import env from "../config/env.js";
 
@@ -19,16 +19,8 @@ const requiredAuth = async (req, res, next) => {
     });
   }
 
-  const tokenDoc = await JsonWebToken.findOne({ token });
-  if (!tokenDoc) {
-    return res.status(401).json({
-      success: false,
-      message: "Unauthorized",
-    });
-  }
-
   try {
-    const jwtPayLoad = jwt.verify(tokenDoc.token, env.JWT_SECRET);
+    const jwtPayLoad = jwt.verify(token, env.JWT_ACCESS_SECRET);
     req.jwtPayLoad = jwtPayLoad;
     next();
   } catch (error) {

@@ -1,6 +1,5 @@
 import express from "express";
 // import passport from "passport";
-import requiredAuth from "../middlewares/requiredAuth.js";
 import authController from "../controllers/authController.js";
 import validator from "../middlewares/validator.js";
 import authSchema from "../validations/authSchema.js";
@@ -68,8 +67,12 @@ router.post(
   authController.loginEmail
 );
 
+// -------------------- get access token -------------------- //
+
+router.get("/access-token", authController.getAccessToken);
+
 // -------------------- logout -------------------- //
 
-router.delete("/logout", requiredAuth, authController.logout);
+router.delete("/logout", authController.logout);
 
 export default router;

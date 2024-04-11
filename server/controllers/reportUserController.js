@@ -29,10 +29,7 @@ const reportAUser = asyncMiddleware(async (req, res, next) => {
   });
 
   if (reportUser) {
-    throw ErrorResponse(
-      400,
-      `You have already reported this user, and the report is still pending`
-    );
+    throw ErrorResponse(400, `You have already reported this user`);
   }
 
   await Promise.all([
@@ -104,21 +101,12 @@ const getPendingReportedUsers = asyncMiddleware(async (req, res, next) => {
   });
 
   const reportedUsers = reports.map((report) => {
-    return {
-      id: report.reported.id,
-      username: report.reported.username,
-      email: report.reported.email,
-      reportsCount: report.reported.reportsCount,
-      bannedsCount: report.reported.bannedsCount,
-      banType: report.reported.banType,
-      bannedUntil: report.reported.bannedUntil,
-      status: report.reported.status,
-      bannedBy: report.reported ? report.reported.bannedBy : null,
-    };
+    return report.reported;
   });
 
   const newSkipId =
     reports.length > 0 ? reports[reports.length - 1].reportedId : null;
+
   const newSkipCount =
     reports.length > 0
       ? reports[reports.length - 1].reported.reportsCount
@@ -185,21 +173,12 @@ const getPendingReportedStaffs = asyncMiddleware(async (req, res, next) => {
   });
 
   const reportedStaffs = reports.map((report) => {
-    return {
-      id: report.reported.id,
-      username: report.reported.username,
-      email: report.reported.email,
-      reportsCount: report.reported.reportsCount,
-      bannedsCount: report.reported.bannedsCount,
-      banType: report.reported.banType,
-      bannedUntil: report.reported.bannedUntil,
-      status: report.reported.status,
-      bannedBy: report.reported ? report.reported.bannedBy : null,
-    };
+    return report.reported;
   });
 
   const newSkipId =
     reports.length > 0 ? reports[reports.length - 1].reportedId : null;
+
   const newSkipCount =
     reports.length > 0
       ? reports[reports.length - 1].reported.reportsCount
@@ -255,7 +234,11 @@ const getPendingReportsOfUser = asyncMiddleware(async (req, res, next) => {
 
   const newSkip = reports.length > 0 ? reports[reports.length - 1].id : null;
 
-  res.json({ success: true, data: reports, newSkip });
+  res.json({
+    success: true,
+    data: reports,
+    newSkip,
+  });
 });
 
 // ==================== Get resolved reports ==================== //
@@ -308,7 +291,11 @@ const getResolvedReports = asyncMiddleware(async (req, res, next) => {
 
   const newSkip = reports.length > 0 ? reports[reports.length - 1].id : null;
 
-  res.json({ success: true, data: reports, newSkip });
+  res.json({
+    success: true,
+    data: reports,
+    newSkip,
+  });
 });
 
 // ==================== Mark all reports of the user as resolved ==================== //

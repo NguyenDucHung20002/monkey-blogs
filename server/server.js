@@ -7,6 +7,7 @@ import sequelize from "./databases/mysql/connect.js";
 import errorMiddleware from "./middlewares/errorMiddleware.js";
 import socket from "./socket.js";
 import http from "http";
+import cookieParser from "cookie-parser";
 
 const app = express();
 
@@ -35,11 +36,16 @@ import searchRoute from "./routes/searchRoute.js";
 import fileRoute from "./routes/fileRoute.js";
 import readingListRoute from "./routes/readingListRoute.js";
 import notificationRoute from "./routes/notificationRouter.js";
-import limiter from "./middlewares/limiter.js";
 
 app.use(express.json());
+app.use(cookieParser());
 app.use(morgan("dev"));
-app.use(cors("*"));
+app.use(
+  cors({
+    origin: true,
+    credentials: true,
+  })
+);
 
 MongoDB.connect();
 
@@ -57,7 +63,7 @@ sequelize
     console.log("ERROR =>", error);
   });
 
-app.use(`/api/v1/auth`, limiter({ max: 50 }), authRoute);
+app.use(`/api/v1/auth`, authRoute);
 app.use(`/api/v1/mute`, muteRoute);
 app.use(`/api/v1/block`, blockRoute);
 app.use(`/api/v1/user`, userRoute);

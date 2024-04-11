@@ -93,6 +93,6 @@ router.patch(
 
 // -------------------- get a topic -------------------- //
 
-router.get("/:slug", optionalAuth, fetchMe, topicController.getATopic);
+router.get("/:slug", requiredAuth, fetchMe, topicController.getATopic);
 
 export default router;

@@ -9,9 +9,13 @@ import VerifyToken from "../models/mongodb/VerifyToken.js";
 import SetupPasswordToken from "../models/mongodb/SetupPasswordToken.js";
 import Profile from "../models/mysql/Profile.js";
 import bcrypt from "bcryptjs";
-import generateJwt from "../utils/generateJwt.js";
-import JsonWebToken from "../models/mongodb/JsonWebToken.js";
+import generateJwt from "../utils/generateRefreshToken.js";
 import generateUserName from "../utils/generateUserName.js";
+import generateRefreshToken from "../utils/generateRefreshToken.js";
+import ms from "ms";
+import jwt from "jsonwebtoken";
+import generateAccessToken from "../utils/generateAccessToken.js";
+import RefreshToken from "../models/mongodb/RefreshToken.js";
 
 // ==================== register ==================== //
 
@@ -223,12 +227,41 @@ const loginEmail = asyncMiddleware(async (req, res, next) => {
     });
   }
 
-  const jsonWebToken = await generateJwt({ id: user.id });
+  const refreshToken = await generateRefreshToken({ id: user.id });
+
+  const accessToken = jwt.sign({ id: user.id }, env.JWT_ACCESS_SECRET, {
+    expiresIn: env.JWT_ACCESS_EXPIRE_TIME,
+  });
+
+  console.log(env.JWT_ACCESS_EXPIRE_TIME);
+
+  res.clearCookie("refresh_token");
+
+  res.cookie("refresh_token", refreshToken, {
+    httpOnly: true,
+    maxAge: ms(env.JWT_REFRESH_EXPIRE_TIME),
+  });
 
   res.json({
     success: true,
     hasProfile: Boolean(user.profileInfo.fullname && user.profileInfo.avatar),
-    token: jsonWebToken,
+    access_token: accessToken,
+  });
+});
+
+// ==================== get access token ==================== //
+
+const getAccessToken = asyncMiddleware(async (req, res, next) => {
+  const refreshToken = req.cookies["refresh_token"];
+
+  const accessToken = await generateAccessToken(refreshToken);
+  if (!accessToken) {
+    throw ErrorResponse(401, "Invalid refresh token");
+  }
+
+  res.json({
+    success: true,
+    access_token: accessToken,
   });
 });
 
@@ -277,9 +310,17 @@ const loginGoogle = asyncMiddleware(async (req, res, next) => {
 // ==================== logout ==================== //
 
 const logout = asyncMiddleware(async (req, res, next) => {
-  const { id: myUserId, iat, exp } = req.jwtPayLoad;
+  const refreshToken = req.cookies["refresh_token"];
 
-  await JsonWebToken.deleteOne({ userId: myUserId, iat, exp });
+  const payload = jwt.verify(refreshToken, env.JWT_REFRESH_SECRET);
+
+  await RefreshToken.deleteOne({
+    userId: payload.id,
+    iat: payload.iat,
+    exp: payload.exp,
+  });
+
+  res.clearCookie("refresh_token");
 
   res.json({ success: true, message: "Successfully logout" });
 });
@@ -293,4 +334,5 @@ export default {
   loginGoogle,
   loginEmail,
   logout,
+  getAccessToken,
 };

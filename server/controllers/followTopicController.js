@@ -51,7 +51,7 @@ const unFollowATopic = asyncMiddleware(async (req, res, next) => {
 
   res.json({
     success: true,
-    message: `Successfully unfollowed topic ${topic.name}`,
+    message: `Successfully unfollow topic ${topic.name}`,
   });
 });
 
@@ -73,19 +73,21 @@ const getMyFollowedTopics = asyncMiddleware(async (req, res, next) => {
   });
 
   const followedTopics = followTopics.map((followTopic) => {
-    return {
-      id: followTopic.topicFollower.id,
-      name: followTopic.topicFollower.name,
-      followersCount: followTopic.topicFollower.followersCount,
-      articlesCount: followTopic.topicFollower.articlesCount,
-      slug: followTopic.topicFollower.slug,
-    };
+    return followTopic.topicFollower;
   });
 
   const newSkip =
     followTopics.length > 0 ? followTopics[followTopics.length - 1].id : null;
 
-  res.json({ success: true, data: followedTopics, newSkip });
+  res.json({
+    success: true,
+    data: followedTopics,
+    newSkip,
+  });
 });
 
-export default { followATopic, unFollowATopic, getMyFollowedTopics };
+export default {
+  followATopic,
+  unFollowATopic,
+  getMyFollowedTopics,
+};

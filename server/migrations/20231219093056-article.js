@@ -13,10 +13,12 @@ module.exports = {
       authorId: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        // references: {
-        //   model: Profile,
-        //   key: "id",
-        // },
+        references: {
+          model: {
+            tableName: "profiles",
+          },
+          key: "id",
+        },
       },
 
       banner: {
@@ -72,19 +74,23 @@ module.exports = {
       approvedById: {
         type: Sequelize.INTEGER,
         allowNull: true,
-        // references: {
-        //   model: User,
-        //   key: "id",
-        // },
+        references: {
+          model: {
+            tableName: "users",
+          },
+          key: "id",
+        },
       },
 
       deletedById: {
         type: Sequelize.INTEGER,
         allowNull: true,
-        // references: {
-        //   model: User,
-        //   key: "id",
-        // },
+        references: {
+          model: {
+            tableName: "users",
+          },
+          key: "id",
+        },
       },
 
       status: {

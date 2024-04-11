@@ -45,7 +45,7 @@ module.exports = {
       },
 
       bannedUntil: {
-        type: Sequelize.DATEONLY,
+        type: Sequelize.DATE,
         allowNull: true,
       },
 
@@ -57,10 +57,12 @@ module.exports = {
       roleId: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        // references: {
-        //   model: Role,
-        //   key: "id",
-        // },
+        references: {
+          model: {
+            tableName: "roles",
+          },
+          key: "id",
+        },
         defaultValue: 1,
       },
 

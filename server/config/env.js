@@ -9,8 +9,11 @@ export default {
   SERVER_HOST: process.env.SERVER_HOST || "http://localhost",
   SERVER_PORT: process.env.SERVER_PORT || 8080,
 
-  JWT_SECRET: process.env.JWT_SECRET || "123456",
-  JWT_EXPIRE_TIME: process.env.JWT_EXPIRE_TIME || "7d",
+  JWT_ACCESS_SECRET: process.env.JWT_ACCESS_SECRET || "123456",
+  JWT_ACCESS_EXPIRE_TIME: process.env.JWT_ACCESS_EXPIRE_TIME || "60s",
+
+  JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET || "123456",
+  JWT_REFRESH_EXPIRE_TIME: process.env.JWT_REFRESH_EXPIRE_TIME || "7d",
 
   MYSQL_USERNAME: process.env.MYSQL_USERNAME || "root",
   MYSQL_PASSWORD: process.env.MYSQL_PASSWORD || "root",
@@ -24,20 +27,6 @@ export default {
   MONGODB_HOST: process.env.MONGODB_HOST || "localhost",
   MONGODB_PORT: process.env.MONGODB_PORT || 27017,
   MONGODB_BUCKET: process.env.MONGODB_BUCKET || "uploads",
-
-  // OAUTH_GOOGLE_CLIENT_ID:
-  //   process.env.OAUTH_GOOGLE_CLIENT_ID || "your google client id",
-  // OAUTH_GOOGLE_CLIENT_SECRET:
-  //   process.env.OAUTH_GOOGLE_CLIENT_SECRET || "your google client secret",
-
-  // NODEMAILER_GOOGLE_CLIENT_ID:
-  //   process.env.NODEMAILER_GOOGLE_CLIENT_ID || "your google client id",
-
-  // NODEMAILER_GOOGLE_CLIENT_SECRET:
-  //   process.env.NODEMAILER_GOOGLE_CLIENT_SECRET || "your google client secret",
-
-  // NODEMAILER_GOOGLE_REFRESH_TOKEN:
-  //   process.env.NODEMAILER_GOOGLE_REFRESH_TOKEN || "your refresh token",
 
   NODEMAILER_GOOGLE_EMAIL:
     process.env.NODEMAILER_GOOGLE_EMAIL || "your google email",

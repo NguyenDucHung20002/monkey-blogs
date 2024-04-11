@@ -73,17 +73,15 @@ const getMyReadingList = asyncMiddleware(async (req, res, next) => {
     include: {
       model: Article,
       as: "readArticle",
-      attributes: {
-        exclude: [
-          "authorId",
-          "content",
-          "likesCount",
-          "commentsCount",
-          "approvedById",
-          "status",
-          "reportsCount",
-        ],
-      },
+      attributes: [
+        "id",
+        "banner",
+        "title",
+        "preview",
+        "slug",
+        "createdAt",
+        "updatedAt",
+      ],
       include: {
         model: Profile,
         as: "author",
@@ -102,24 +100,7 @@ const getMyReadingList = asyncMiddleware(async (req, res, next) => {
 
   const articles = await Promise.all(
     readingList.map(async (readingList) => {
-      const article = {
-        id: readingList.readArticle.id,
-        banner: readingList.readArticle.banner
-          ? addUrlToImg(readingList.readArticle.banner)
-          : null,
-        title: readingList.readArticle.title,
-        preview: readingList.readArticle.preview,
-        slug: readingList.readArticle.slug,
-        author: {
-          id: readingList.readArticle.author.id,
-          fullname: readingList.readArticle.author.fullname,
-          avatar: addUrlToImg(readingList.readArticle.author.avatar),
-          userInfo: readingList.readArticle.author.userInfo,
-        },
-        createdAt: readingList.readArticle.createdAt,
-        updatedAt: readingList.readArticle.createdAt,
-      };
-      const topic = await Article_Topic.findOne({
+      const dataTopic = await Article_Topic.findOne({
         attributes: [],
         where: { articleId: readingList.readArticle.id },
         include: {
@@ -130,78 +111,34 @@ const getMyReadingList = asyncMiddleware(async (req, res, next) => {
         },
         order: [["id", "ASC"]],
       });
-      if (topic) {
-        return {
-          ...article,
-          topic: {
-            id: topic.topic.id,
-            name: topic.topic.name,
-            slug: topic.topic.slug,
-          },
-        };
-      }
-      return { ...article, topic: null };
+
+      readingList.readArticle.banner = readingList.readArticle.banner
+        ? addUrlToImg(readingList.readArticle.banner)
+        : null;
+
+      readingList.readArticle.author = addUrlToImg(
+        readingList.readArticle.author.avatar
+      );
+
+      return {
+        ...readingList.readArticle.toJSON(),
+        topic: dataTopic?.topic,
+      };
     })
   );
 
   const newSkip =
     readingList.length > 0 ? readingList[readingList.length - 1].id : null;
 
-  res.json({ success: true, data: articles, newSkip });
-});
-
-// ==================== get my recently saved ==================== //
-
-const getMyRecentlySaved = asyncMiddleware(async (req, res, next) => {
-  const me = req.me;
-
-  const readingList = await Reading_List.findAll({
-    where: { profileId: me.profileInfo.id },
-    attributes: ["id"],
-    include: {
-      model: Article,
-      as: "readArticle",
-      attributes: ["id", "title", "slug", "createdAt", "updatedAt"],
-      include: {
-        model: Profile,
-        as: "author",
-        attributes: ["id", "fullname", "avatar"],
-        include: {
-          model: User,
-          as: "userInfo",
-          attributes: ["username"],
-          include: { model: Role, as: "role", attributes: ["slug"] },
-        },
-      },
-    },
-    order: [["id", "DESC"]],
-    limit: 4,
+  res.json({
+    success: true,
+    data: articles,
+    newSkip,
   });
-
-  const articles = await Promise.all(
-    readingList.map(async (readingList) => {
-      return {
-        id: readingList.readArticle.id,
-        title: readingList.readArticle.title,
-        slug: readingList.readArticle.slug,
-        author: {
-          id: readingList.readArticle.author.id,
-          fullname: readingList.readArticle.author.fullname,
-          avatar: addUrlToImg(readingList.readArticle.author.avatar),
-          userInfo: readingList.readArticle.author.userInfo,
-        },
-        createdAt: readingList.readArticle.createdAt,
-        updatedAt: readingList.readArticle.createdAt,
-      };
-    })
-  );
-
-  res.json({ success: true, data: articles });
 });
 
 export default {
   addToReadingList,
   removeFromReadingList,
   getMyReadingList,
-  getMyRecentlySaved,
 };

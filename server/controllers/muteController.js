@@ -83,13 +83,8 @@ const getMutedProfiles = asyncMiddleware(async (req, res, next) => {
   });
 
   const muteds = mutedProfiles.map((mutedProfile) => {
-    return {
-      id: mutedProfile.muted.id,
-      fullname: mutedProfile.muted.fullname,
-      avatar: addUrlToImg(mutedProfile.muted.avatar),
-      bio: mutedProfile.muted.bio,
-      username: mutedProfile.muted.userInfo.username,
-    };
+    mutedProfile.muted.avatar = addUrlToImg(mutedProfile.muted.avatar);
+    return mutedProfile.muted;
   });
 
   const newSkip =
@@ -97,7 +92,11 @@ const getMutedProfiles = asyncMiddleware(async (req, res, next) => {
       ? mutedProfiles[mutedProfiles.length - 1].id
       : null;
 
-  res.json({ success: true, data: muteds, newSkip });
+  res.json({
+    success: true,
+    data: muteds,
+    newSkip,
+  });
 });
 
 export default { muteAProfile, unMuteAProfile, getMutedProfiles };

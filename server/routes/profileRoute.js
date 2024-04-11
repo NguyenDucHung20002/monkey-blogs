@@ -1,7 +1,7 @@
 import express from "express";
-import optionalAuth from "../middlewares/optionalAuth.js";
-import profileController from "../controllers/profileController.js";
 import requiredAuth from "../middlewares/requiredAuth.js";
+import profileController from "../controllers/profileController.js";
+import optionalAuth from "../middlewares/optionalAuth.js";
 import validator from "../middlewares/validator.js";
 import profileSchema from "../validations/profileSchema.js";
 import fetchMe from "../middlewares/fetchMe.js";
@@ -49,7 +49,7 @@ router.patch(
 
 router.get(
   "/:username",
-  optionalAuth,
+  requiredAuth,
   fetchMe,
   fetchUser,
   checkUserBanned,

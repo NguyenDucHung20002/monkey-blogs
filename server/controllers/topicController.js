@@ -60,7 +60,10 @@ const updateTopic = asyncMiddleware(async (req, res, next) => {
 
   await existingTopic.update({ name: upperCaseName, slug: updatedSlug });
 
-  res.json({ success: true, message: "Topic updated successfully" });
+  res.json({
+    success: true,
+    message: "Topic updated successfully",
+  });
 });
 
 // ==================== delete topic ==================== //
@@ -70,13 +73,16 @@ const deleteTopic = asyncMiddleware(async (req, res, next) => {
 
   await Topic.destroy({ where: { id } });
 
-  res.json({ success: true, message: "Topic deleted successfully" });
+  res.json({
+    success: true,
+    message: "Topic deleted successfully",
+  });
 });
 
-// ==================== get a topic ==================== //
+// ==================== get a topic ============= ======= //
 
 const getATopic = asyncMiddleware(async (req, res, next) => {
-  const me = req.me ? req.me : null;
+  const me = req.me;
   const { slug } = req.params;
 
   let topic = await Topic.findOne({
@@ -86,16 +92,19 @@ const getATopic = asyncMiddleware(async (req, res, next) => {
 
   if (!topic) throw ErrorResponse(404, "Topic not found");
 
-  if (me) {
-    topic = {
-      ...topic.toJSON(),
-      isFollowed: !!(await Follow_Topic.findOne({
-        where: { topicId: topic.id, profileId: me.profileInfo.id },
-      })),
-    };
-  }
+  const isFollowed = !!(await Follow_Topic.findOne({
+    where: { topicId: topic.id, profileId: me.profileInfo.id },
+  }));
 
-  res.json({ success: true, data: topic });
+  topic = {
+    ...topic.toJSON(),
+    isFollowed,
+  };
+
+  res.json({
+    success: true,
+    data: topic,
+  });
 });
 
 // ==================== get all topics ==================== //
@@ -134,7 +143,11 @@ const getAllTopics = asyncMiddleware(async (req, res, next) => {
 
   const newSkip = topics.length > 0 ? topics[topics.length - 1].id : null;
 
-  res.json({ success: true, data: topics, newSkip });
+  res.json({
+    success: true,
+    data: topics,
+    newSkip,
+  });
 });
 
 // ==================== mark topic as approved ==================== //
@@ -194,8 +207,8 @@ const searchTopicsCreateArticle = asyncMiddleware(async (req, res, next) => {
         id: { [Op.gt]: skip },
         status: "approved",
         [Op.or]: [
-          { name: { [Op.substring]: search } },
-          { slug: { [Op.substring]: search } },
+          { name: { [Op.substring]: trimmedSearch } },
+          { slug: { [Op.substring]: trimmedSearch } },
         ],
       },
       attributes: ["id", "name", "slug", "articlesCount"],
@@ -205,7 +218,11 @@ const searchTopicsCreateArticle = asyncMiddleware(async (req, res, next) => {
 
   const newSkip = topics.length > 0 ? topics[topics.length - 1].id : null;
 
-  res.json({ success: true, data: topics, newSkip });
+  res.json({
+    success: true,
+    data: topics,
+    newSkip,
+  });
 });
 
 // ==================== explore all topics ==================== //
@@ -221,7 +238,11 @@ const exploreAllTopics = asyncMiddleware(async (req, res, next) => {
 
   const newSkip = topics.length > 0 ? topics[topics.length - 1].id : null;
 
-  res.json({ success: true, data: topics, newSkip });
+  res.json({
+    success: true,
+    data: topics,
+    newSkip,
+  });
 });
 
 // ==================== recommended topics ==================== //
@@ -270,6 +291,7 @@ const recommendedTopics = asyncMiddleware(async (req, res, next) => {
 
   if (recommendedTopics.length < max) {
     const recommendedTopicsId = recommendedTopics.map((topic) => topic.id);
+
     const random = await Topic.findAll({
       where: {
         id: { [Op.notIn]: recommendedTopicsId },
@@ -293,7 +315,10 @@ const recommendedTopics = asyncMiddleware(async (req, res, next) => {
     recommendedTopics.push(...random);
   }
 
-  res.json({ success: true, data: recommendedTopics });
+  res.json({
+    success: true,
+    data: recommendedTopics,
+  });
 });
 
 export default {

@@ -37,19 +37,11 @@ module.exports = {
       approvedById: {
         type: Sequelize.INTEGER,
         allowNull: true,
-        // references: {
-        //   model: User,
-        //   key: "id",
-        // },
       },
 
       rejectedById: {
         type: Sequelize.INTEGER,
         allowNull: true,
-        // references: {
-        //   model: User,
-        //   key: "id",
-        // },
       },
 
       status: {

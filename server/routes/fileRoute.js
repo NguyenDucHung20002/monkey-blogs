@@ -12,6 +12,7 @@ const router = express.Router();
 
 router.post(
   "/img",
+  requiredAuth,
   mongoUpload.single("img"),
   checkFileLimit(env.IMAGE_FILE_SIZE_LIMIT),
   fileController.upLoadAnImg
@@ -21,6 +22,7 @@ router.post(
 
 router.post(
   "/avatar",
+  requiredAuth,
   mongoUpload.single("avatar"),
   checkFileLimit(env.AVATAR_FILE_SIZE_LIMIT),
   fileController.upLoadAnAvatar

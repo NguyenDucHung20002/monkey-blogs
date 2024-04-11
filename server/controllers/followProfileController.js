@@ -66,44 +66,13 @@ const unFollowAProfile = asyncMiddleware(async (req, res, next) => {
 // ==================== get list of followed profiles ==================== //
 
 const getFolloweds = asyncMiddleware(async (req, res, next) => {
-  const me = req.me ? req.me : null;
+  const me = req.me;
   const user = req.user;
   const { skip = 0, limit = 15 } = req.query;
 
   let followProfiles;
 
-  let followeds;
-
-  if (!me) {
-    followProfiles = await Follow_Profile.findAll({
-      where: { followerId: user.profileInfo.id, id: { [Op.gt]: skip } },
-      attributes: ["id"],
-      include: {
-        model: Profile,
-        as: "followed",
-        attributes: ["id", "fullname", "avatar", "bio"],
-        include: {
-          model: User,
-          as: "userInfo",
-          attributes: ["username"],
-          include: { model: Role, as: "role", attributes: ["slug"] },
-        },
-      },
-      limit: Number(limit) ? Number(limit) : null,
-    });
-    followeds = followProfiles.map((followProfile) => {
-      return {
-        id: followProfile.followed.id,
-        fullname: followProfile.followed.fullname,
-        avatar: addUrlToImg(followProfile.followed.avatar),
-        bio: followProfile.followed.bio,
-        username: followProfile.followed.userInfo.username,
-        role: followProfile.followed.userInfo.role.slug,
-      };
-    });
-  }
-
-  if (me && me.profileInfo.id === user.profileInfo.id) {
+  if (me.profileInfo.id === user.profileInfo.id) {
     followProfiles = await Follow_Profile.findAll({
       where: { followerId: user.profileInfo.id, id: { [Op.gt]: skip } },
       attributes: ["id"],
@@ -121,14 +90,14 @@ const getFolloweds = asyncMiddleware(async (req, res, next) => {
 
       limit: Number(limit) ? Number(limit) : null,
     });
-    followeds = followProfiles.map((followProfile) => {
+
+    followProfiles = followProfiles.map((followProfile) => {
+      followProfile.followed.avatar = addUrlToImg(
+        followProfile.followed.avatar
+      );
+
       return {
-        id: followProfile.followed.id,
-        fullname: followProfile.followed.fullname,
-        avatar: addUrlToImg(followProfile.followed.avatar),
-        bio: followProfile.followed.bio,
-        username: followProfile.followed.userInfo.username,
-        role: followProfile.followed.userInfo.role.slug,
+        ...followProfile.followed.toJSON(),
         isFollowed: true,
       };
     });
@@ -173,21 +142,22 @@ const getFolloweds = asyncMiddleware(async (req, res, next) => {
       ],
       limit: Number(limit) ? Number(limit) : null,
     });
-    followeds = await Promise.all(
+
+    followProfiles = await Promise.all(
       followProfiles.map(async (followProfile) => {
+        const isFollowed = !!(await Follow_Profile.findOne({
+          where: {
+            followedId: followProfile.followed.id,
+            followerId: me.profileInfo.id,
+          },
+        }));
+        followProfile.followed.avatar = addUrlToImg(
+          followProfile.followed.avatar
+        );
+
         return {
-          id: followProfile.followed.id,
-          fullname: followProfile.followed.fullname,
-          avatar: addUrlToImg(followProfile.followed.avatar),
-          bio: followProfile.followed.bio,
-          username: followProfile.followed.userInfo.username,
-          role: followProfile.followed.userInfo.role.slug,
-          isFollowed: !!(await Follow_Profile.findOne({
-            where: {
-              followedId: followProfile.followed.id,
-              followerId: me.profileInfo.id,
-            },
-          })),
+          ...followProfile.followed.toJSON(),
+          isFollowed,
         };
       })
     );
@@ -198,21 +168,23 @@ const getFolloweds = asyncMiddleware(async (req, res, next) => {
       ? followProfiles[followProfiles.length - 1].id
       : null;
 
-  res.json({ success: true, data: followeds, newSkip });
+  res.json({
+    success: true,
+    data: followProfiles,
+    newSkip,
+  });
 });
 
 // ==================== get list of follower profiles ==================== //
 
 const getFollowers = asyncMiddleware(async (req, res, next) => {
-  const me = req.me ? req.me : null;
+  const me = req.me;
   const user = req.user;
   const { skip = 0, limit = 15 } = req.query;
 
   let followerProfiles;
 
-  let followers;
-
-  if (!me) {
+  if (me.profileInfo.id === user.profileInfo.id) {
     followerProfiles = await Follow_Profile.findAll({
       where: { followedId: user.profileInfo.id, id: { [Op.gt]: skip } },
       attributes: ["id"],
@@ -229,56 +201,29 @@ const getFollowers = asyncMiddleware(async (req, res, next) => {
       },
       limit: Number(limit) ? Number(limit) : null,
     });
-    followers = followerProfiles.map((followerProfile) => {
-      return {
-        id: followerProfile.follower.id,
-        fullname: followerProfile.follower.fullname,
-        avatar: addUrlToImg(followerProfile.follower.avatar),
-        bio: followerProfile.follower.bio,
-        username: followerProfile.follower.userInfo.username,
-        role: followerProfile.follower.userInfo.role.slug,
-      };
-    });
-  }
 
-  if (me && me.profileInfo.id === user.profileInfo.id) {
-    followerProfiles = await Follow_Profile.findAll({
-      where: { followedId: user.profileInfo.id, id: { [Op.gt]: skip } },
-      attributes: ["id"],
-      include: {
-        model: Profile,
-        as: "follower",
-        attributes: ["id", "fullname", "avatar", "bio"],
-        include: {
-          model: User,
-          as: "userInfo",
-          attributes: ["username"],
-          include: { model: Role, as: "role", attributes: ["slug"] },
-        },
-      },
-      limit: Number(limit) ? Number(limit) : null,
-    });
-    followers = await Promise.all(
+    followerProfiles = await Promise.all(
       followerProfiles.map(async (followerProfile) => {
+        const isFollowed = !!(await Follow_Profile.findOne({
+          where: {
+            followedId: followerProfile.follower.id,
+            followerId: me.profileInfo.id,
+          },
+        }));
+
+        followerProfile.follower.avatar = addUrlToImg(
+          followerProfile.follower.avatar
+        );
+
         return {
-          id: followerProfile.follower.id,
-          fullname: followerProfile.follower.fullname,
-          avatar: addUrlToImg(followerProfile.follower.avatar),
-          bio: followerProfile.follower.bio,
-          username: followerProfile.follower.userInfo.username,
-          role: followerProfile.follower.userInfo.role.slug,
-          isFollowed: !!(await Follow_Profile.findOne({
-            where: {
-              followedId: followerProfile.follower.id,
-              followerId: me.profileInfo.id,
-            },
-          })),
+          ...followerProfile.follower.toJSON(),
+          isFollowed,
         };
       })
     );
   }
 
-  if (me && me.profileInfo.id !== user.profileInfo.id) {
+  if (me.profileInfo.id !== user.profileInfo.id) {
     followerProfiles = await Follow_Profile.findAll({
       where: {
         followedId: user.profileInfo.id,
@@ -317,21 +262,22 @@ const getFollowers = asyncMiddleware(async (req, res, next) => {
       ],
       limit: Number(limit) ? Number(limit) : null,
     });
-    followers = await Promise.all(
+
+    followerProfiles = await Promise.all(
       followerProfiles.map(async (followerProfile) => {
+        const isFollowed = !!(await Follow_Profile.findOne({
+          where: {
+            followedId: followerProfile.follower.id,
+            followerId: me.profileInfo.id,
+          },
+        }));
+
+        followerProfile.follower.avatar = addUrlToImg(
+          followerProfile.follower.avatar
+        );
         return {
-          id: followerProfile.follower.id,
-          fullname: followerProfile.follower.fullname,
-          avatar: addUrlToImg(followerProfile.follower.avatar),
-          bio: followerProfile.follower.bio,
-          username: followerProfile.follower.userInfo.username,
-          role: followerProfile.follower.userInfo.role.slug,
-          isFollowed: !!(await Follow_Profile.findOne({
-            where: {
-              followedId: followerProfile.follower.id,
-              followerId: me.profileInfo.id,
-            },
-          })),
+          ...followerProfile.follower.toJSON(),
+          isFollowed,
         };
       })
     );
@@ -342,7 +288,11 @@ const getFollowers = asyncMiddleware(async (req, res, next) => {
       ? followerProfiles[followerProfiles.length - 1].id
       : null;
 
-  res.json({ success: true, data: followers, newSkip });
+  res.json({
+    success: true,
+    data: followerProfiles,
+    newSkip,
+  });
 });
 
 // ==================== who to follow ==================== //
@@ -365,15 +315,15 @@ const whoToFollow = asyncMiddleware(async (req, res, next) => {
     LEFT JOIN topics t ON at.topicId = t.id
     LEFT JOIN follow_topics ft ON ft.topicId = t.id AND ft.profileId = ${me.profileInfo.id}
     where (
-	    rh.profileId is not null
-	    or rl.profileId is not null
-	    or l.profileId is not null
-	    or ft.profileId is not null 
+      rh.profileId is not null
+      or rl.profileId is not null
+      or l.profileId is not null
+      or ft.profileId is not null
     )
     AND p.id NOT IN (
-	    SELECT followedId
-	    FROM follow_profiles
-	    WHERE followerId = ${me.profileInfo.id}
+      SELECT followedId
+      FROM follow_profiles
+      WHERE followerId = ${me.profileInfo.id}
     )
     GROUP BY p.id, p.avatar, p.fullname, u.username, r.slug
     ORDER BY COUNT(DISTINCT a.id) DESC
@@ -381,6 +331,20 @@ const whoToFollow = asyncMiddleware(async (req, res, next) => {
     `,
     { type: sequelize.QueryTypes.SELECT }
   );
+
+  whoToFollow = whoToFollow.map((whoToFollow) => {
+    return {
+      id: whoToFollow.id,
+      avatar: whoToFollow.avatar,
+      fullname: whoToFollow.fullname,
+      userInfo: {
+        username: whoToFollow.username,
+        role: {
+          slug: whoToFollow.role,
+        },
+      },
+    };
+  });
 
   if (whoToFollow.length < max) {
     const whoToFollowIds = whoToFollow.map((whoToFollow) => whoToFollow.id);
@@ -435,13 +399,7 @@ const whoToFollow = asyncMiddleware(async (req, res, next) => {
     });
 
     random = random.map((random) => {
-      return {
-        id: random.id,
-        fullname: random.fullname,
-        avatar: random.avatar,
-        username: random.userInfo.username,
-        role: random.userInfo.role.slug,
-      };
+      return random;
     });
 
     whoToFollow.push(...random);
@@ -449,7 +407,10 @@ const whoToFollow = asyncMiddleware(async (req, res, next) => {
 
   whoToFollow.forEach((whoToFollow) => addUrlToImg(whoToFollow.avatar));
 
-  res.json({ success: true, data: whoToFollow });
+  res.json({
+    success: true,
+    data: whoToFollow,
+  });
 });
 
 export default {

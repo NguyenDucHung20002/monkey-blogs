@@ -45,27 +45,27 @@ const createComment = asyncMiddleware(async (req, res, next) => {
     {
       me: me,
       article: article,
-      isAuthor: isAuthor,
+      isAuthor,
       parentComment: parentComment,
     }
   );
 
-  return res.status(201).json({
+  res.status(201).json({
     success: true,
     data: {
-      id: newComment.id,
-      repliesCount: newComment.repliesCount,
-      content: newComment.content,
-      depth: newComment.depth,
+      ...newComment.toJSON(),
       author: {
+        id: me.profileInfo.id,
         fullname: me.profileInfo.fullname,
-        username: me.username,
         avatar: me.profileInfo.avatar,
-        role: me.role.slug,
-        isAuthor,
+        userInfo: {
+          username: me.username,
+          role: {
+            slug: me.role.slug,
+          },
+        },
       },
-      createdAt: newComment.createdAt,
-      updatedAt: newComment.updatedAt,
+      isAuthor,
       isMyComment: true,
     },
   });
@@ -86,7 +86,10 @@ const updateComment = asyncMiddleware(async (req, res, next) => {
 
   await comment.update({ content });
 
-  res.json({ success: true, message: "Comment updated successfully" });
+  res.json({
+    success: true,
+    message: "Comment updated successfully",
+  });
 });
 
 // ==================== delete comment ==================== //
@@ -131,7 +134,10 @@ const deleteComment = asyncMiddleware(async (req, res, next) => {
     ]);
   }
 
-  res.json({ success: true, message: "Comment deleted successfully" });
+  res.json({
+    success: true,
+    message: "Comment deleted successfully",
+  });
 });
 
 // ==================== get article main comments ==================== //
@@ -149,117 +155,63 @@ const getMainComments = asyncMiddleware(async (req, res, next) => {
 
   if (skip) whereQuery.id = { [Op.lt]: skip };
 
-  let comments;
+  whereQuery["$authorBlocker.blockerId$"] = null;
+  whereQuery["$authorBlocked.blockedId$"] = null;
 
-  if (me) {
-    whereQuery["$authorBlocker.blockerId$"] = null;
-    whereQuery["$authorBlocked.blockedId$"] = null;
-    comments = await Comment.findAll({
-      where: whereQuery,
-      attributes: { exclude: ["articleId"] },
-      include: [
-        {
-          model: Profile,
-          as: "author",
-          attributes: ["id", "fullname", "avatar"],
-          include: {
-            model: User,
-            as: "userInfo",
-            attributes: ["username"],
-            include: { model: Role, as: "role", attributes: ["slug"] },
-          },
+  let comments = await Comment.findAll({
+    where: whereQuery,
+    attributes: { exclude: ["articleId"] },
+    include: [
+      {
+        model: Profile,
+        as: "author",
+        attributes: ["id", "fullname", "avatar"],
+        include: {
+          model: User,
+          as: "userInfo",
+          attributes: ["username"],
+          include: { model: Role, as: "role", attributes: ["slug"] },
         },
-        {
-          model: Block,
-          as: "authorBlocker",
-          where: { blockedId: me.profileInfo.id },
-          attributes: [],
-          required: false,
-        },
-        {
-          model: Block,
-          as: "authorBlocked",
-          where: { blockerId: me.profileInfo.id },
-          attributes: [],
-          required: false,
-        },
-      ],
-      order: [["id", "DESC"]],
-      limit: Number(limit) ? Number(limit) : null,
-    });
+      },
+      {
+        model: Block,
+        as: "authorBlocker",
+        where: { blockedId: me.profileInfo.id },
+        attributes: [],
+        required: false,
+      },
+      {
+        model: Block,
+        as: "authorBlocked",
+        where: { blockerId: me.profileInfo.id },
+        attributes: [],
+        required: false,
+      },
+    ],
+    order: [["id", "DESC"]],
+    limit: Number(limit) ? Number(limit) : null,
+  });
 
-    comments = comments.map((comment) => {
-      const isAuthor = comment.authorId === article.authorId;
-      const isMyComment = me.profileInfo.id === comment.authorId;
-      return {
-        id: comment.id,
-        parentCommentId: comment.parentCommentId
-          ? comment.parentCommentId
-          : null,
-        repliesCount: comment.repliesCount,
-        depth: comment.depth,
-        author: {
-          id: comment.author.id,
-          fullname: comment.author.fullname,
-          avatar: addUrlToImg(comment.author.avatar),
-          username: comment.author.userInfo.username,
-          role: comment.author.userInfo.role.slug,
-          isAuthor,
-        },
-        content: comment.content,
-        createdAt: comment.createdAt,
-        updatedAt: comment.updatedAt,
-        isMyComment,
-      };
-    });
-  } else {
-    comments = await Comment.findAll({
-      where: whereQuery,
-      attributes: { exclude: ["articleId"] },
-      include: [
-        {
-          model: Profile,
-          as: "author",
-          attributes: ["id", "fullname", "avatar"],
-          include: {
-            model: User,
-            as: "userInfo",
-            attributes: ["username"],
-            include: { model: Role, as: "role", attributes: ["slug"] },
-          },
-        },
-      ],
-      order: [["id", "DESC"]],
-      limit: Number(limit) ? Number(limit) : null,
-    });
+  comments = comments.map((comment) => {
+    const isAuthor = comment.authorId === article.authorId;
+    const isMyComment = me.profileInfo.id === comment.authorId;
 
-    comments = comments.map((comment) => {
-      const isAuthor = comment.authorId === article.authorId;
-      return {
-        id: comment.id,
-        parentCommentId: comment.parentCommentId
-          ? comment.parentCommentId
-          : null,
-        repliesCount: comment.repliesCount,
-        depth: comment.depth,
-        author: {
-          id: comment.author.id,
-          fullname: comment.author.fullname,
-          avatar: addUrlToImg(comment.author.avatar),
-          username: comment.author.userInfo.username,
-          role: comment.author.userInfo.role.slug,
-          isAuthor,
-        },
-        content: comment.content,
-        createdAt: comment.createdAt,
-        updatedAt: comment.updatedAt,
-      };
-    });
-  }
+    comment.author.avatar = addUrlToImg(comment.author.avatar);
+
+    return {
+      ...comment.toJSON(),
+      isAuthor,
+      isMyComment,
+    };
+  });
 
   const newSkip = comments.length > 0 ? comments[comments.length - 1].id : null;
 
-  res.json({ success: true, data: comments, newSkip });
+  res.json({
+    success: true,
+    data: comments,
+    newSkip,
+  });
 });
 
 // ==================== get article nested comments of main comment ==================== //
@@ -281,120 +233,66 @@ const getNestedComments = asyncMiddleware(async (req, res, next) => {
 
   if (skip) whereQuery.id = { [Op.lt]: skip };
 
-  let replyComments;
+  whereQuery["$authorBlocker.blockerId$"] = null;
+  whereQuery["$authorBlocked.blockedId$"] = null;
 
-  if (me) {
-    whereQuery["$authorBlocker.blockerId$"] = null;
-    whereQuery["$authorBlocked.blockedId$"] = null;
-    replyComments = await Comment.findAll({
-      where: whereQuery,
-      attributes: { exclude: ["articleId"] },
-      include: [
-        {
-          model: Profile,
-          as: "author",
-          attributes: ["id", "fullname", "avatar"],
-          include: {
-            model: User,
-            as: "userInfo",
-            attributes: ["username"],
-            include: { model: Role, as: "role", attributes: ["slug"] },
-          },
+  let replyComments = await Comment.findAll({
+    where: whereQuery,
+    attributes: { exclude: ["articleId"] },
+    include: [
+      {
+        model: Profile,
+        as: "author",
+        attributes: ["id", "fullname", "avatar"],
+        include: {
+          model: User,
+          as: "userInfo",
+          attributes: ["username"],
+          include: { model: Role, as: "role", attributes: ["slug"] },
         },
-        {
-          model: Block,
-          as: "authorBlocker",
-          where: { blockedId: me.profileInfo.id },
-          attributes: [],
-          required: false,
-        },
-        {
-          model: Block,
-          as: "authorBlocked",
-          where: { blockerId: me.profileInfo.id },
-          attributes: [],
-          required: false,
-        },
-      ],
-      order: [["id", "DESC"]],
-      limit: Number(limit) ? Number(limit) : null,
-    });
+      },
+      {
+        model: Block,
+        as: "authorBlocker",
+        where: { blockedId: me.profileInfo.id },
+        attributes: [],
+        required: false,
+      },
+      {
+        model: Block,
+        as: "authorBlocked",
+        where: { blockerId: me.profileInfo.id },
+        attributes: [],
+        required: false,
+      },
+    ],
+    order: [["id", "DESC"]],
+    limit: Number(limit) ? Number(limit) : null,
+  });
 
-    replyComments = replyComments.map((replyComment) => {
-      const isAuthor = replyComment.authorId === article.authorId;
-      const isMyComment = me.profileInfo.id === replyComment.authorId;
-      return {
-        id: replyComment.id,
-        parentCommentId: replyComment.parentCommentId
-          ? replyComment.parentCommentId
-          : null,
-        repliesCount: replyComment.repliesCount,
-        depth: replyComment.depth,
-        author: {
-          id: replyComment.author.id,
-          fullname: replyComment.author.fullname,
-          avatar: addUrlToImg(replyComment.author.avatar),
-          username: replyComment.author.userInfo.username,
-          role: replyComment.author.userInfo.role.slug,
-          isAuthor,
-        },
-        content: replyComment.content,
-        createdAt: replyComment.createdAt,
-        updatedAt: replyComment.updatedAt,
-        isMyComment,
-      };
-    });
-  } else {
-    replyComments = await Comment.findAll({
-      where: whereQuery,
-      attributes: { exclude: ["articleId"] },
-      include: [
-        {
-          model: Profile,
-          as: "author",
-          attributes: ["id", "fullname", "avatar"],
-          include: {
-            model: User,
-            as: "userInfo",
-            attributes: ["username"],
-            include: { model: Role, as: "role", attributes: ["slug"] },
-          },
-        },
-      ],
-      order: [["id", "DESC"]],
-      limit: Number(limit) ? Number(limit) : null,
-    });
-    replyComments = replyComments.map((replyComment) => {
-      replyComment.author.avatar = addUrlToImg(replyComment.author.avatar);
-      const isAuthor = replyComment.authorId === article.authorId;
-      return {
-        id: replyComment.id,
-        parentCommentId: replyComment.parentCommentId
-          ? replyComment.parentCommentId
-          : null,
-        repliesCount: replyComment.repliesCount,
-        depth: replyComment.depth,
-        author: {
-          id: replyComment.author.id,
-          fullname: replyComment.author.fullname,
-          avatar: replyComment.author.avatar,
-          username: replyComment.author.userInfo.username,
-          role: replyComment.author.userInfo.role.slug,
-          isAuthor,
-        },
-        content: replyComment.content,
-        createdAt: replyComment.createdAt,
-        updatedAt: replyComment.updatedAt,
-      };
-    });
-  }
+  replyComments = replyComments.map((replyComment) => {
+    const isAuthor = replyComment.authorId === article.authorId;
+    const isMyComment = me.profileInfo.id === replyComment.authorId;
+
+    replyComment.author.avatar = addUrlToImg(replyComment.author.avatar);
+
+    return {
+      ...replyComment.toJSON(),
+      isAuthor,
+      isMyComment,
+    };
+  });
 
   const newSkip =
     replyComments.length > 0
       ? replyComments[replyComments.length - 1].id
       : null;
 
-  res.json({ success: true, data: replyComments, newSkip });
+  res.json({
+    success: true,
+    data: replyComments,
+    newSkip,
+  });
 });
 
 export default {

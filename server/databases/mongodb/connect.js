@@ -12,12 +12,6 @@ class MongoDB {
       this.gfs = new mongoose.mongo.GridFSBucket(conn.db, {
         bucketName: env.MONGODB_BUCKET,
       });
-      conn.db
-        .collection(env.MONGODB_BUCKET + ".files")
-        .createIndex({ filename: 1 });
-      conn.db
-        .collection(env.MONGODB_BUCKET + ".chunks")
-        .createIndex({ files_id: 1 });
     });
   }
 }
