@@ -10,10 +10,6 @@ import { toast } from "react-toastify";
 const Account = () => {
   const [open, setOpen] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
-  const options = {
-    pauseOnHover: false,
-    delay: 300,
-  };
   const schema = yup.object({
     oldPassword: yup.string().required().min(8),
     newPassword: yup.string().min(8),
@@ -39,18 +35,17 @@ const Account = () => {
   const handleOk = async (values) => {
     setConfirmLoading(true);
     const { oldPassword, newPassword, confirmPassword } = values;
-    console.log(values);
+
     const response = await apiChangePassword(
       oldPassword,
       newPassword,
       confirmPassword
     );
-    console.log(response);
-    if (!response?.success) {
-      toast.error(response?.message, options);
-      return;
-    }
-    toast.success(response?.message, options);
+
+    toast.success(response.message, {
+      pauseOnHover: false,
+      delay: 150,
+    });
     setConfirmLoading(false);
     setOpen(false);
     reset();
@@ -61,6 +56,7 @@ const Account = () => {
     setOpen(false);
     reset();
   };
+
   const footer = () => {
     return (
       <div className="flex items-center justify-end">
@@ -77,6 +73,7 @@ const Account = () => {
       </div>
     );
   };
+
   return (
     <>
       <div className="">

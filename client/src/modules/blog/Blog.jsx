@@ -32,6 +32,7 @@ const Blog = ({ blog, isMyProfile, mute = {} }) => {
     author,
     createdAt,
     isSaved,
+    isMyArticle,
   } = blog;
 
   const checkMyProfile = isMyProfile ? isMyProfile : isSaved;
@@ -69,11 +70,15 @@ const Blog = ({ blog, isMyProfile, mute = {} }) => {
             <ButtonSaveBlog
               BlogId={id}
               checkMyProfile={checkMyProfile}
+              isMyArticle={isMyArticle}
             ></ButtonSaveBlog>
-            <ButtonActionBlogsAuthor
-              setMuteId={setMuteId}
-              blog={blog}
-            ></ButtonActionBlogsAuthor>
+            {!isMyArticle && (
+              <ButtonActionBlogsAuthor
+                setMuteId={setMuteId}
+                blog={blog}
+                isMyArticle={isMyArticle}
+              ></ButtonActionBlogsAuthor>
+            )}
           </div>
         </div>
       </div>

@@ -21,7 +21,7 @@ const DropdownSearchMain = React.forwardRef((props, ref) => {
             <div className="py-3">
               {users.map((user) => (
                 <NavLink
-                  to={`/profile/${user.username}`}
+                  to={`/profile/${user.userInfo.username}`}
                   key={user.id}
                   className="flex items-center gap-3 mb-2"
                 >

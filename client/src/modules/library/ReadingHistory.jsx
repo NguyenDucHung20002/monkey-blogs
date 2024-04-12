@@ -10,16 +10,18 @@ import TopicList from "../topic/TopicList";
 import Swal from "sweetalert2";
 import BlogImage from "../blog/BlogImage";
 import ClearAll from "../../components/modalClear/ClearAll";
+import { toast } from "react-toastify";
 
 const ReadingHistory = () => {
   const [history, setHistory] = useState([]);
-  console.log("history:", history);
+
   const fetchApiClearHistory = async () => {
     const response = await apiDeleteReadingHistory();
-    if (response?.success) {
+    if (response) {
       setHistory([]);
     }
   };
+
   const handleDelete = () => {
     Swal.fire({
       title: "Are you sure?",
@@ -36,24 +38,32 @@ const ReadingHistory = () => {
       }
     });
   };
+
   const getHistory = useCallback(async () => {
     const response = await apiGetReadingHistory();
     if (response?.success) {
       setHistory(response.data);
     }
   }, []);
+
   const handleDeleteAnArticle = useCallback(
     async (id) => {
       const response = await apiDeleteArticleHistory(id);
-      if (response?.success) {
+      if (response) {
         getHistory();
+        toast.success(response.message, {
+          pauseOnHover: false,
+          delay: 150,
+        });
       }
     },
     [getHistory]
   );
+
   useEffect(() => {
     getHistory();
   }, [getHistory]);
+
   return (
     <div>
       <ClearAll

@@ -1,4 +1,4 @@
-import React, { Suspense } from "react";
+import React, { Suspense, useEffect } from "react";
 import { Route, Routes } from "react-router";
 import { ToastContainer } from "react-toastify";
 import PostRemoved from "./modules/post/PostRemoved";
@@ -16,6 +16,9 @@ import ContextWrap from "./contexts/ContextWrap";
 import StaffReportTable from "./modules/user/StaffReportTable";
 import MeSettingPage from "./pages/MeSettingPage";
 import Account from "./modules/setting/Account";
+import { AxiosInterceptorsSetup } from "./config/axios-customize";
+import { useNavigate } from "react-router-dom";
+
 const AuthenticationPage = React.lazy(() =>
   import("./pages/AuthenticationPage")
 );
@@ -77,10 +80,20 @@ const PageNotFound = React.lazy(() => import("./pages/PageNotFound"));
 const HomePage = React.lazy(() => import("./pages/HomePage"));
 const SignInPage = React.lazy(() => import("./pages/SignInPage"));
 const DesignPage = React.lazy(() => import("./pages/DesignPage"));
+
+const AxiosInterceptorNavigate = () => {
+  let navigate = useNavigate();
+  useEffect(() => {
+    AxiosInterceptorsSetup(navigate);
+  }, [navigate]);
+  return <></>;
+};
+
 function App() {
   return (
     <div id="main">
       <Suspense>
+        {<AxiosInterceptorNavigate></AxiosInterceptorNavigate>}
         <Routes>
           <Route
             path="/verify-profile"
@@ -131,6 +144,7 @@ function App() {
                 ></Route>
               </Route>
               <Route element={<MeLayout />}>
+                <Route path="/staff-pick" element={<StaffPickPage />} />
                 <Route element={<MeStoryPage />}>
                   <Route
                     path="/me/stories/drafts"
@@ -171,10 +185,7 @@ function App() {
                   path="/profile/follower/:username"
                   element={<ProfileFollower />}
                 />
-                <Route
-                  path="/profile/staff-pick/:username"
-                  element={<StaffPickPage />}
-                />
+                <Route path="/staff-pick" element={<StaffPickPage />} />
                 <Route
                   path="/profile/following/:username"
                   element={<ProfileFollowing />}

@@ -29,7 +29,17 @@ const ButtonActionBlogsAuthor = ({ setMuteId, blog }) => {
 
   const handleMuteAuthor = async () => {
     const response = await apiMuteUser("post", token, author?.id);
-    if (setMuteId && response) setMuteId(author?.id);
+    if (setMuteId && response) {
+      setMuteId(author?.id);
+      toast.success(response.message, {
+        pauseOnHover: false,
+        delay: 150,
+      });
+      toast.success("You will no longer see their stories", {
+        pauseOnHover: false,
+        delay: 250,
+      });
+    }
   };
 
   const onCheckbox = (e) => {
@@ -46,17 +56,26 @@ const ButtonActionBlogsAuthor = ({ setMuteId, blog }) => {
       });
       return;
     }
-    const response = await apiReportBlog(token, id, reason);
+
     if (blockAuthor) {
-      const res = await apiBlockUser("post", token, author?.id);
-      if (res) setMuteId(author?.id);
+      const response = await apiBlockUser("post", token, author?.id);
+      if (response) {
+        setMuteId(author?.id);
+        toast.success(response.message, {
+          pauseOnHover: false,
+          delay: 150,
+        });
+      }
     }
-    if (response.success) {
+
+    const response = await apiReportBlog(token, id, reason);
+    if (response) {
       toast.success(response.message, {
         pauseOnHover: false,
-        delay: 200,
+        delay: 150,
       });
     }
+
     setOpenModalReporter(false);
   };
 

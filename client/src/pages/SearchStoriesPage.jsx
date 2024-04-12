@@ -35,7 +35,7 @@ const SearchStoriesPage = () => {
   useEffect(() => {
     async function fetchBlog() {
       const response = await apiBlogSearch(token, search, 5);
-      console.log("response:", response);
+
       if (response?.success) {
         setBlogs(response.data);
         skip.current = response.newSkip;
@@ -54,7 +54,7 @@ const SearchStoriesPage = () => {
         skip.current
       ) {
         const response = await apiBlogSearch(token, search, 5, skip.current);
-        console.log("response:", response);
+
         if (response?.success) {
           const blogsClone = [...blogs, ...response.data];
           setBlogs([...blogsClone]);

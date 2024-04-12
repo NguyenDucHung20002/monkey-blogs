@@ -13,13 +13,14 @@ const MeBlocked = () => {
   useEffect(() => {
     async function fetchUser() {
       const response = await apiGetMyBlocked();
-      console.log("response:", response);
+
       if (response?.data) setUsers(response.data);
     }
     fetchUser();
   }, [token]);
 
   if (!userInfo) return;
+
   return (
     <div>
       <div className="user-following max-w-[700px] w-full mx-auto">
@@ -30,7 +31,7 @@ const MeBlocked = () => {
             users.map((user) => (
               <div key={user.id} className="flex items-center justify-between">
                 <div className="flex items-center ">
-                  <Link to={`/profile/${user.username}`}>
+                  <Link to={`/profile/${user.userInfo.username}`}>
                     <Avatar
                       className="cursor-pointer"
                       size="small"
@@ -38,7 +39,7 @@ const MeBlocked = () => {
                     />
                   </Link>
                   <div className="py-3 pr-5 ml-2 ">
-                    <Link to={`/profile/${user.username}`}>
+                    <Link to={`/profile/${user.userInfo.username}`}>
                       <h3 className="text-base font-semibold text-gray-400 transition-all hover:text-gray-600">
                         {user.fullname}
                       </h3>

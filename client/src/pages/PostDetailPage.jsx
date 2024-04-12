@@ -99,7 +99,6 @@ const PostDetailPage = () => {
 
       setBlog(response.data);
     } catch (error) {
-      console.log("error:", error);
       navigate("/*");
     }
   }, [navigate, slug, token]);
@@ -120,7 +119,7 @@ const PostDetailPage = () => {
     fetchMoreArticles();
   }, [blog, slug]);
   if (!slug) return <PageNotFound></PageNotFound>;
-  console.log(blog);
+
   return (
     <PostDetailPagePageStyle>
       {blog && !blog?.authorBlocked && (
@@ -167,7 +166,6 @@ const PostDetailPage = () => {
           <div className="post-content">
             <div
               className="entry-content"
-              // Prevent XSS Attack recommen from React Docs
               dangerouslySetInnerHTML={{
                 __html: blog.content || "",
               }}

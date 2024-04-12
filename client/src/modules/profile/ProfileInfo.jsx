@@ -3,7 +3,7 @@ import ButtonFollowingUser from "../../components/button/ButtonFollowingUser";
 import Avatar from "../user/Avatar";
 
 // eslint-disable-next-line react/prop-types
-const ProfileInfor = ({ isBlocked, setShow, user }) => {
+const ProfileInfo = ({ isBlocked, setShow, user }) => {
   return (
     <>
       <div className="mb-8">
@@ -54,4 +54,4 @@ const ProfileInfor = ({ isBlocked, setShow, user }) => {
   );
 };
 
-export default ProfileInfor;
+export default ProfileInfo;

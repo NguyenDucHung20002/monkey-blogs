@@ -58,9 +58,7 @@ const ForgotPasswordPage = () => {
         });
         reset();
       }
-    } catch (error) {
-      console.log("error:", error);
-    }
+    } catch (error) {}
   };
 
   if (!token) return;

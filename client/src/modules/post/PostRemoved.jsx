@@ -7,10 +7,11 @@ import { Button } from "../../components/button";
 import { icons } from "../../utils/constants";
 import useTimeAgo from "../../hooks/useTimeAgo";
 import { NavLink } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const PostRemoved = () => {
   const [blogReports, setBlogReports] = useState([]);
-  console.log("blogReports:", blogReports);
+
   const token = localStorage.getItem("token");
   const skip = useRef(0);
   const getTimeAgo = useTimeAgo;
@@ -36,7 +37,7 @@ const PostRemoved = () => {
   const handleLoadMore = async () => {
     const newSkip = skip.current;
     const response = await apiGetRemovedArticles(token, 10, newSkip);
-    console.log("response:", response);
+
     if (response) {
       const mapBlogs = response.data.map((user) => {
         return {
@@ -55,6 +56,10 @@ const PostRemoved = () => {
       const response = await apiRestoreArticle(token, id);
       if (response) {
         fetchReports();
+        toast.success(response.message, {
+          pauseOnHover: false,
+          delay: 150,
+        });
       }
     },
     [fetchReports, token]

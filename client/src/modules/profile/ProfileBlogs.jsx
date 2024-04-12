@@ -9,7 +9,6 @@ import Avatar from "../user/Avatar";
 import ButtonActionBlogsAuthor from "../../components/button/ButtonActionBlogsAuthor";
 
 const ProfileBlogs = ({ blogs, user, fetchDeleteArticle }) => {
-  // console.log("blogs:", blogs);
   const handleDelete = (slug) => {
     Swal.fire({
       title: "Are you sure?",

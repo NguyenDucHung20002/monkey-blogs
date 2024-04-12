@@ -54,7 +54,7 @@ const TopicPage = () => {
           className="gap-8 p-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3"
         />
         {blogs?.length >= 9 && newSkip.current && (
-          <div className="mb-11 px-5">
+          <div className="mb-10 px-5 flex justify-center mt-2">
             <button
               className="border border-black py-1 px-3 rounded-2xl font-semibold hover:bg-black hover:text-white transition-all"
               onClick={handleLoadMore}

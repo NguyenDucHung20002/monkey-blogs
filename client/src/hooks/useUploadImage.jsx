@@ -7,8 +7,8 @@ const useUploadImage = () => {
 
   const onUploadImage = async (file) => {
     const response = await apiUploadImage(file);
-    if (response?.data?.filename) {
-      const filename = response?.data?.filename;
+    if (response?.filename) {
+      const filename = response?.filename;
       const url = `${config.SERVER_HOST}/file/${filename}`;
       setImage({ url, filename });
     }
@@ -16,10 +16,13 @@ const useUploadImage = () => {
 
   const onSelectImage = (e) => {
     const file = e.target.files[0];
-    if (!file) return;
+    if (!file) {
+      return;
+    }
+
     const allowedExtensions = /(\.jpg|\.jpeg|\.png|\.gif)$/i;
     if (!allowedExtensions.exec(file.name)) {
-      alert("Choose inly .jpeg .jpg .png .gif");
+      alert("Choose only .jpeg .jpg .png .gif");
       e.target.value = "";
       return;
     }
@@ -27,10 +30,13 @@ const useUploadImage = () => {
   };
 
   const onDeleteImage = async (filename) => {
-    if (!filename) return;
+    if (!filename) {
+      return;
+    }
     apiDeleteImage(filename);
     setImage("");
   };
+
   return {
     image,
     setImage,

@@ -5,6 +5,8 @@ import { apiGetMyDraft } from "../../api/apiNew";
 import timeAgo from "../modulesJs/timeAgo";
 import { Link } from "react-router-dom";
 import { apiDeleteDraft } from "../../api/api";
+import { toast } from "react-toastify";
+
 const PopoverContent = ({ id, handleDeleteDraft }) => {
   return (
     <div className="">
@@ -20,21 +22,34 @@ const PopoverContent = ({ id, handleDeleteDraft }) => {
     </div>
   );
 };
+
 const MyDraft = () => {
   const [draft, setDrafts] = useState([]);
-  async function fetchDrafts() {
-    const response = await apiGetMyDraft(localStorage.getItem("token"));
-    if (response?.success) setDrafts(response?.data);
-  }
-  const handleDeleteDraft = async (id) => {
-    const response = await apiDeleteDraft(id);
+
+  const token = localStorage.getItem("token");
+
+  const fetchDrafts = async () => {
+    const response = await apiGetMyDraft(token);
     if (response?.success) {
-      fetchDrafts();
+      setDrafts(response?.data);
     }
   };
+
+  const handleDeleteDraft = async (id) => {
+    const response = await apiDeleteDraft(id);
+    if (response) {
+      fetchDrafts();
+      toast.success(response.message, {
+        pauseOnHover: false,
+        delay: 150,
+      });
+    }
+  };
+
   useEffect(() => {
     fetchDrafts();
   }, []);
+
   return (
     <>
       {draft?.map((val) => (

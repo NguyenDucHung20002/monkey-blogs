@@ -34,20 +34,18 @@ const SignInPage = () => {
   const handleSignIn = async (values) => {
     if (!isValid) return;
     const { email, password } = values;
-    console.log(email, password);
     try {
       const response = await apiLogin(email, password);
       if (response.success && !response.hasProfile) {
-        if (response.token) navigate(`/verify-profile?token=${response.token}`);
+        if (response.access_token)
+          navigate(`/verify-profile?token=${response.access_token}`);
         return;
       }
       if (response.success && response.hasProfile) {
-        window.location.replace(`/?token=${response.token}`);
+        window.location.replace(`/?token=${response.access_token}`);
         return;
       }
-    } catch (error) {
-      console.log("error:", error);
-    }
+    } catch (error) {}
   };
 
   return (
@@ -93,7 +91,7 @@ const SignInPage = () => {
             className="w-full max-w-[300px] mx-auto"
             width="150px"
             height="45px"
-            isLoading={isSubmitting}
+            isloading={isSubmitting}
             disabled={isSubmitting}
           >
             Sign In

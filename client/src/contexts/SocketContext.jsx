@@ -40,7 +40,7 @@ const SocketProvider = ({ children }) => {
 
   const fetchNotification = useCallback(async () => {
     const notificationResponse = await apiGetNotification(token);
-    setNotifications(notificationResponse);
+    setNotifications(notificationResponse.data);
   }, [token]);
 
   const handleClearNotifications = useCallback(async () => {
@@ -87,7 +87,6 @@ const SocketProvider = ({ children }) => {
 
   useEffect(() => {
     if (error) {
-      console.log("Error Socket:", error);
     }
   }, [error]);
 

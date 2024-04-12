@@ -10,11 +10,11 @@ import useTimeAgo from "../../hooks/useTimeAgo";
 import UserReportsContent from "./UserReportsContent";
 import Button from "../../components/button/Button";
 import { Tag } from "antd";
+import { toast } from "react-toastify";
 
 const UserModelReportReason = ({ id, token }) => {
-  console.log("id:", id);
   const [users, setUsers] = useState([]);
-  console.log("users:", users);
+
   const getTimeAgo = useTimeAgo;
   const skip = useRef("");
   useEffect(() => {
@@ -31,9 +31,13 @@ const UserModelReportReason = ({ id, token }) => {
   const handleResolve = async (id) => {
     const response = await apiResolveReportedUsers(token, id);
 
-    if (response?.success) {
+    if (response) {
       const filterUsers = users.filter((user) => user.id != id);
       setUsers(filterUsers);
+      toast.success(response.message, {
+        pauseOnHover: false,
+        delay: 150,
+      });
     }
   };
 

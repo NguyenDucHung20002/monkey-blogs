@@ -18,15 +18,15 @@ const CommentUser = ({
 }) => {
   const { id, content, author, createdAt, depth, isMyComment, repliesCount } =
     data;
+
   const token = localStorage.getItem("token");
   const [commentBlog, setCommentBlog] = useState([]);
-  console.log("commentBlog:", commentBlog);
+
   const {
     commentBlog: commentBlogParent,
     setCommentBlog: setCommentBlogParent,
   } = commentValueParent;
   const [replyCount, setReplyCount] = useState(repliesCount || 0);
-  console.log("replyCount:", replyCount, repliesCount);
 
   const commentValue = { commentBlog, setCommentBlog };
   const [showMore, setShowMore] = useState(false);
@@ -82,7 +82,7 @@ const CommentUser = ({
       className={`pt-6 ${type === "parent" && "border-b border-gray-200 pb-6"}`}
     >
       <div className="flex items-center justify-between">
-        <Link to={`/profile/${author.username}`}>
+        <Link to={`/profile/${author.userInfo.username}`}>
           <div className="flex items-center gap-3 info">
             <Avatar url={author.avatar} size="small"></Avatar>
             <div className="content-info">
@@ -153,7 +153,7 @@ const CommentUser = ({
             className="flex items-center gap-2 p-1 transition-all hover:text-black"
             onClick={() => setShowReply(!showReply)}
           >
-            {showReply ? "Hide reply" : "Show reply"}
+            {showReply ? "Cancel" : "Reply"}
           </button>
         </div>
       )}

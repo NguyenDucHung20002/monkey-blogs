@@ -30,7 +30,6 @@ const FollowingPage = () => {
 
   useEffect(() => {
     const handleScroll = async () => {
-      console.log("Scroll");
       windowHeight.current = window.innerHeight;
       scrollY.current = window.scrollY;
       documentHeight.current = document.documentElement.scrollHeight;

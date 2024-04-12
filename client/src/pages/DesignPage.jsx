@@ -13,50 +13,39 @@ import { useParams } from "react-router-dom";
 const { Header, Sider, Content } = Layout;
 
 export const DesignContext = createContext();
+
 const DesignProvider = (props) => {
   const [imageDisplay, setImageDisplay] = useState({
     display: "object-none",
     position: "object-top",
   });
-  const [showFollRecmt, setShowFollRecmt] = useState({
+
+  const [showFollowRecommend, setShowFollowRecommend] = useState({
     following: 1,
-    recomment: 0,
+    recommend: 0,
   });
+
   const [user, setUser] = useState({});
   const { username } = useParams();
   const token = localStorage.getItem("token");
-  // const designSettings = JSON.parse(localStorage.getItem("designSettings"));
 
   useEffect(() => {
     async function fetchUserInf() {
       const profileUser = await apiGetProfile(token, username);
       setUser({ ...profileUser });
     }
-    // const curentSettings = () => {
-    //   if (!designSettings) return;
-    //   const dataShow = {
-    //     following: designSettings?.show?.following,
-    //     recomment: designSettings?.show?.recomment,
-    //   };
-    //   const styleImage = designSettings.style.split(" ");
-    //   console.log("styleImage: ", styleImage);
-    //   const dataImage = {
-    //     display: styleImage[0],
-    //     position: styleImage[2],
-    //   };
-    //   setImageDisplay(dataImage);
-    //   setShowFollRecmt(dataShow);
-    // };
-    // curentSettings();
+
     fetchUserInf();
   }, [token, username]);
+
   const value = {
     imageDisplay,
     setImageDisplay,
-    showFollRecmt,
-    setShowFollRecmt,
+    showFollowRecommend,
+    setShowFollowRecommend,
     user,
   };
+
   return <DesignContext.Provider value={value} {...props} />;
 };
 
@@ -87,6 +76,7 @@ const DesignPage = () => {
       </button>
     </div>
   );
+
   const getItem = (label, key = null, icon = "", children = null) => ({
     label,
     key,
@@ -131,18 +121,13 @@ const DesignPage = () => {
             >
               <Menu
                 selectable={false}
-                // onClick={onClick}
                 style={{
                   height: 1000,
                   padding: 0,
                 }}
                 mode="inline"
                 items={items}
-              >
-                {/* <SubMenu title="haha" className="">
-                <Image />
-              </SubMenu> */}
-              </Menu>
+              ></Menu>
             </Sider>
             <Layout className="">
               <Content
@@ -177,7 +162,6 @@ const DesignPage = () => {
           </Layout>
         </Layout>
         <Modal
-          // title="Basic Modal"
           open={isModalOpen}
           onOk={handleOk}
           onCancel={handleCancel}

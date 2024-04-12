@@ -8,8 +8,8 @@ import { Link } from "react-router-dom";
 const Following = ({ data = [], token, user }) => {
   const [userFollow, setUserFollow] = useState({});
   async function fetchUserInf(username) {
-    const data = await apiGetProfile(token, username);
-    setUserFollow({ ...data });
+    const profile = await apiGetProfile(token, username);
+    setUserFollow({ ...profile.data });
   }
   const SmallInf = () => {
     return (
@@ -34,7 +34,7 @@ const Following = ({ data = [], token, user }) => {
           <div className="h-[1px] my-3 bg-stone-400"></div>
           <div className="flex items-center justify-between">
             <div className="">
-              <p>{userFollow?.followingCount} Followers</p>
+              <p>{userFollow?.followersCount} Followers</p>
             </div>
             <ButtonFollowingUser
               userId={userFollow?.id}
@@ -45,10 +45,13 @@ const Following = ({ data = [], token, user }) => {
       </>
     );
   };
+
   const handleChange = (username) => {
     fetchUserInf(username);
   };
+
   if (data?.length === 0) return null;
+
   return (
     <>
       <div className="w-full">
@@ -61,7 +64,7 @@ const Following = ({ data = [], token, user }) => {
             >
               <div className="flex max-w-[90%]">
                 <div className="w-6 h-6 overflow-hidden rounded-1/2 ">
-                  <Link to={`/profile/${val.username}`}>
+                  <Link to={`/profile/${val.userInfo.username}`}>
                     <img
                       className="object-cover w-full h-full"
                       src={val.avatar}
@@ -70,7 +73,7 @@ const Following = ({ data = [], token, user }) => {
                   </Link>
                 </div>
                 <div className="max-w-[80%] ">
-                  <Link to={`/profile/${val.username}`}>
+                  <Link to={`/profile/${val.userInfo.username}`}>
                     <p className="py-1 text-[12px] ml-2 overflow-hidden overflow-ellipsis whitespace-nowrap">
                       {val.fullname}
                     </p>
@@ -80,7 +83,7 @@ const Following = ({ data = [], token, user }) => {
               <Popover
                 content={<SmallInf username={val.username} />}
                 trigger={"click"}
-                onOpenChange={() => handleChange(val.username)}
+                onOpenChange={() => handleChange(val.userInfo.username)}
               >
                 <button className="">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none">

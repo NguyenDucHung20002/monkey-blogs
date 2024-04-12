@@ -387,7 +387,7 @@ const Sidebar = () => {
         ];
 
   return (
-    <SidebarStyles className="sidebar">
+    <SidebarStyles className="sidebar" style={{}}>
       {sidebarLinks.map((link) => {
         if (link.onClick)
           return (

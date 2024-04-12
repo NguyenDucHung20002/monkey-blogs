@@ -9,10 +9,6 @@ import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useEffect } from "react";
 import { toast } from "react-toastify";
-import { useAuth } from "../../contexts/auth-context";
-import { config } from "../../utils/constants";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import { apiAddTopic } from "../../api/api";
 
 const schema = yup.object({
@@ -21,12 +17,11 @@ const schema = yup.object({
 
 const TopicAddNew = () => {
   const token = localStorage.getItem("token");
-  const navigate = useNavigate();
   const {
     control,
     reset,
     handleSubmit,
-    formState: { errors, isSubmitting, isValid },
+    formState: { errors, isValid },
   } = useForm({
     mode: "onChange",
     resolver: yupResolver(schema),
@@ -44,12 +39,22 @@ const TopicAddNew = () => {
 
   const handleAddTopic = ({ name }) => {
     if (!isValid) return;
+
     async function fetchAddTopic() {
       if (!token) return;
+
       const nameTopic = name.charAt(0).toUpperCase() + name.slice(1);
+
       const response = await apiAddTopic(token, nameTopic);
-      if (response) reset();
+      if (response) {
+        reset();
+        toast.success(response.message, {
+          pauseOnHover: false,
+          delay: 150,
+        });
+      }
     }
+
     fetchAddTopic();
   };
 

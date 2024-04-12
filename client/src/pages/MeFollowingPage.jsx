@@ -18,19 +18,21 @@ const MeFollowingPage = () => {
     }
     fetchTopic();
   }, [token]);
+
   useEffect(() => {
     async function fetchUser() {
       const response = await apiGetMyUserFollowings(
         token,
         userInfo?.data?.username
       );
-      console.log("response:", response);
+
       if (response?.data) setUsers(response.data);
     }
     fetchUser();
   }, [token, userInfo?.data?.username]);
 
   if (!userInfo) return;
+
   return (
     <div>
       <div className="user-following max-w-[700px] w-full mx-auto">

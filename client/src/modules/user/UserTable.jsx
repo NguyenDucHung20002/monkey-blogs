@@ -20,7 +20,7 @@ const UserTable = () => {
   const [users, setUsers] = useState([]);
   const token = localStorage.getItem("token");
   const { userInfo } = useAuth();
-  console.log("userInfo:", userInfo);
+
   const [statusRender, setStatusRender] = useState(false);
   const [search, setSearch] = useState("");
   const banTypes = ["1week", "1month", "1year", "permanent"];
@@ -51,6 +51,10 @@ const UserTable = () => {
       if (response) {
         const mapUsers = users.filter((user) => user.id != userId);
         setUsers(mapUsers);
+        toast.success(response.message, {
+          pauseOnHover: false,
+          delay: 150,
+        });
       }
     },
     [token, users]
@@ -58,7 +62,7 @@ const UserTable = () => {
 
   const handleLoadMore = async () => {
     const newSkip = skip.current;
-    console.log("newSkip:", newSkip);
+
     const response = await apiGetAllUser(token, 10, newSkip, search);
     if (response) {
       const mapUsers = response.data.map((user) => {
@@ -74,34 +78,34 @@ const UserTable = () => {
 
   const handleLiftTheBan = async (userId) => {
     const response = await apiLiftTheBan(token, userId);
-    if (response?.success) {
-      toast.success(response.message, {
-        pauseOnHover: true,
-        delay: 200,
-      });
+    if (response) {
       setStatusRender(!statusRender);
+      toast.success(response.message, {
+        pauseOnHover: false,
+        delay: 150,
+      });
     }
   };
 
   const handleUpdateBan = async (type, userId) => {
     const response = await apiUpdateBan(token, userId, type);
-    if (response?.success) {
-      toast.success(response.message, {
-        pauseOnHover: true,
-        delay: 200,
-      });
+    if (response) {
       setStatusRender(!statusRender);
+      toast.success(response.message, {
+        pauseOnHover: false,
+        delay: 150,
+      });
     }
   };
 
   const handleBanUser = async (type, userId) => {
     const response = await apiBanUser(token, userId, type);
-    if (response?.success) {
-      toast.success(response.message, {
-        pauseOnHover: true,
-        delay: 200,
-      });
+    if (response) {
       setStatusRender(!statusRender);
+      toast.success(response.message, {
+        pauseOnHover: false,
+        delay: 150,
+      });
     }
   };
 

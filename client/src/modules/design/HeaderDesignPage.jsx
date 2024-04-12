@@ -10,6 +10,10 @@ import Avatar from "../user/Avatar";
 import { Modal } from "antd";
 import { useContext, useState } from "react";
 import { DesignContext } from "../../pages/DesignPage";
+import { updateProfileDesign } from "../../api/apiHa";
+
+const token = localStorage.getItem("token");
+
 const HeaderDesignPage = ({
   selectedDevice,
   setSelectedDevice,
@@ -20,28 +24,33 @@ const HeaderDesignPage = ({
   const [isModalOpen2, setIsModalOpen2] = useState(false);
   const {
     imageDisplay,
-    showFollRecmt,
-    setShowFollRecmt,
+    showFollowRecommend,
+    setShowFollowRecommend,
     setImageDisplay,
     user,
   } = useContext(DesignContext);
   const handleDeviceClick = (device) => {
     setSelectedDevice(device === selectedDevice ? selectedDevice : device);
   };
-  const handlePublished = () => {
+
+  const handlePublished = async () => {
     const data = {
       image,
       style: `${imageDisplay.display}  ${imageDisplay.position}`,
-      show: showFollRecmt,
+      show: showFollowRecommend,
     };
-    console.log(data);
-    localStorage.setItem("designSettings", JSON.stringify(data));
-    window.location.replace(`/profile/${user?.username}`);
+
+    const design = JSON.stringify(data);
+
+    await updateProfileDesign(token, design);
+
+    // window.location.replace(`/profile/${user?.data?.username}`);
   };
+
   const handleCancelPublish = () => {
-    setShowFollRecmt({
+    setShowFollowRecommend({
       following: 1,
-      recomment: 0,
+      recommend: 0,
     });
     setImageDisplay({
       display: "object-none",

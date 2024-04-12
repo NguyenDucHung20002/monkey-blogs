@@ -6,8 +6,8 @@ import { toast } from "react-toastify";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
-import { config } from "../../utils/constants";
 import { Link } from "react-router-dom";
+
 const More = ({
   handleMute,
   isMuted,
@@ -29,7 +29,7 @@ const More = ({
           onClick={handleMute}
           className="p-1 cursor-pointer hover:text-black"
         >
-          {isMuted ? "UnMute" : "Mute"} this author
+          {isMuted ? "Unmute" : "Mute"} this author
         </div>
         <div
           onClick={handleBlock}
@@ -47,6 +47,7 @@ const More = ({
     </>
   );
 };
+
 const MoreMe = ({ user, handleCopyToClipboard }) => {
   return (
     <>
@@ -64,16 +65,19 @@ const MoreMe = ({ user, handleCopyToClipboard }) => {
     </>
   );
 };
+
 const ProfileContext = ({ setIsBlocked, isBlocked, user, token }) => {
   const [isMuted, setMuted] = useState(false);
   const [isBlock, setBlock] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [openPopover, setOpenPopover] = useState(false);
   const [loading, setLoading] = useState(false);
+
   useEffect(() => {
     setMuted(user?.isMuted);
     setBlock(user?.isBlocked);
   }, [user]);
+
   const handleCopyToClipboard = async () => {
     try {
       const url = window.location.href;
@@ -87,33 +91,44 @@ const ProfileContext = ({ setIsBlocked, isBlocked, user, token }) => {
       console.error("error when add clipboard:");
     }
   };
+
   const handleMute = async () => {
     const type = isMuted ? "delete" : "post";
     const toastContent = !isMuted
-      ? "You will no longer see their stories on your homepage "
-      : `${user.fullname} has been unmuted`;
-    const res = await apiMuteUser(type, token, user.id);
-    if (res) {
+      ? "You will no longer see their stories"
+      : "You will see their stories";
+    const response = await apiMuteUser(type, token, user.id);
+    if (response) {
       setMuted(!isMuted);
-      toast.success(toastContent, { pauseOnHover: false, delay: 500 });
+      toast.success(response.message, {
+        pauseOnHover: false,
+        delay: 150,
+      });
+      toast.success(toastContent, {
+        pauseOnHover: false,
+        delay: 250,
+      });
     }
   };
+
   const handleBlock = async () => {
     const type = isBlock ? "delete" : "post";
-    const toastContent = !isBlock
-      ? "Successfully blocked user"
-      : "Successfully Unblocked user";
-    const res = await apiBlockUser(type, token, user.id);
-    if (res) {
+    const response = await apiBlockUser(type, token, user.id);
+    if (response) {
       setBlock(!isBlock);
       setIsBlocked(!isBlock);
-      toast.success(toastContent, { pauseOnHover: false, delay: 500 });
+      toast.success(response.message, {
+        pauseOnHover: false,
+        delay: 150,
+      });
     }
   };
+
   const schema = yup.object({
     reason: yup.string().required().max(80).min(3),
     description: yup.string().max(250),
   });
+
   const {
     register,
     handleSubmit,
@@ -123,6 +138,7 @@ const ProfileContext = ({ setIsBlocked, isBlocked, user, token }) => {
     mode: "onChange",
     resolver: yupResolver(schema),
   });
+
   const handleOpenChange = (newOpen) => {
     setOpenPopover(newOpen);
   };
@@ -136,11 +152,12 @@ const ProfileContext = ({ setIsBlocked, isBlocked, user, token }) => {
     setLoading(true);
     const reason = values.reason;
     const description = values.description;
-    const res = await apiReportUser(token, user.id, reason, description);
-    if (res?.success) {
-      toast.success(res.message, { pauseOnHover: false, delay: 500 });
-    } else {
-      toast.error(res.message, { pauseOnHover: false, delay: 500 });
+    const response = await apiReportUser(token, user.id, reason, description);
+    if (response) {
+      toast.success(response.message, {
+        pauseOnHover: false,
+        delay: 150,
+      });
     }
     setValue("reason", "");
     setValue("description", "");
@@ -166,13 +183,14 @@ const ProfileContext = ({ setIsBlocked, isBlocked, user, token }) => {
       Report
     </Button>,
   ];
+
   return (
     <>
       <div className="w-full py-8">
         <div className="flex items-center justify-between w-full h-20 py-4">
           <div className="text-[25px] text-black py-3 font-bold">
             {user.fullname}
-            {isBlocked ? "has been blocked" : ""}
+            {isBlocked ? " has been blocked" : ""}
           </div>
           <div className="">
             <Popover
@@ -228,7 +246,6 @@ const ProfileContext = ({ setIsBlocked, isBlocked, user, token }) => {
                 <p className={errors.reason ? "text-red-500" : ""}>
                   {errors.reason ? errors.reason?.message : ""}
                 </p>
-                {/* <p className={usernameValue?.length>50 ?"warning":""}><span>{usernameValue ? usernameValue.length :"0"}</span>/50</p> */}
               </div>
             </div>
             <div className="py-2">
@@ -245,14 +262,10 @@ const ProfileContext = ({ setIsBlocked, isBlocked, user, token }) => {
                     ? errors.description?.message
                     : "can be empty, max 250 characters"}
                 </p>
-                {/* <p className={usernameValue?.length>50 ?"warning":""}><span>{usernameValue ? usernameValue.length :"0"}</span>/50</p> */}
               </div>
             </div>
           </Modal>
         </div>
-        {/* <div className="px-[1px] text-sm border-b border-stone-300 border-collapse box-border h-[53px]">
-                <div className="inline-block py-4 border-b border-stone-800 ">Home</div>
-            </div> */}
       </div>
     </>
   );

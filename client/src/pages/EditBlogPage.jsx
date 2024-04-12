@@ -40,6 +40,7 @@ const EditBlogPage = () => {
   } = useForm({
     resolver: yupResolver(schema),
   });
+
   const { slug } = useParams("slug");
   const [topicInput, setTopicInput] = useState("");
   const [topics, setTopics] = useState([]);
@@ -52,7 +53,6 @@ const EditBlogPage = () => {
 
   const navigate = useNavigate();
   function resetForm(data) {
-    console.log("data:", data);
     if (!data) return;
     if (data.length === 0) return;
     const title = data?.title;
@@ -74,10 +74,7 @@ const EditBlogPage = () => {
       try {
         const response = await apiGetArticleOrDraft(slug);
         if (response) resetForm(response.data);
-      } catch (error) {
-        // navigate("/*");
-        console.log("error", error);
-      }
+      } catch (error) {}
     }
     fetchBlog();
   }, [slug]);
@@ -91,12 +88,6 @@ const EditBlogPage = () => {
       });
     }
   }, [errors]);
-
-  // useEffect(() => {
-  //   const topicsId = topics?.map((topic) => topic._id);
-  //   console.log("topicsId", topicsId);
-  //   setValue("topics", topicsId);
-  // }, [setValue, topics]);
 
   useEffect(() => {
     setValue("content", content);
@@ -126,15 +117,26 @@ const EditBlogPage = () => {
   };
 
   const handleEditBlog = async (values) => {
-    if (!isValid) return;
-    if (!token) return null;
+    if (!isValid) {
+      return;
+    }
+
+    if (!token) {
+      return null;
+    }
+
     const { title, content, preview } = values;
+
+    console.log(values);
+
     let response;
+
     const cutPreview = preview.slice(0, 200);
     const getTopicNames = topics.map((val) => val.name);
     const topicsSplit = topicInput.trim().split(/,+/).filter(Boolean);
     const topicsMap = topicsSplit.map((val) => val.trim());
     const topicNames = [...getTopicNames, ...topicsMap];
+
     if (status?.status == "draft") {
       const data = {
         topicNames,
@@ -152,11 +154,14 @@ const EditBlogPage = () => {
       };
       response = await apiUpdateArticle(token, status?.id, formData);
     }
+
     if (response) {
       navigate(`/`);
     }
   };
+
   const watchedTitle = useWatch({ control, name: "title", defaultValue: "" });
+
   const UpdateDraft = debounce(async () => {
     const res = await apiUpdateDraft(status?.id, watchedTitle, content);
     if (res?.success) {
@@ -165,23 +170,26 @@ const EditBlogPage = () => {
   }, 1000);
 
   useEffect(() => {
-    // console.log("title",watchedTitle);
-    // console.log("content",content);
     const check = content !== "" && watchedTitle !== "";
-    if (!check) return;
+    if (!check) {
+      return;
+    }
+
     setIsSaved(false);
+
     const encoder = new TextEncoder();
+
     const byteSize = encoder.encode(content).length;
     if (byteSize >= 30000) {
       return;
     }
+
     if (status.status == "draft") {
       setShowIsSaved(true);
       UpdateDraft();
     }
-    // console.log("newDraft",newDraft);
-    // console.log("changeDraft",changeDraft);
   }, [watchedTitle, content]);
+
   return (
     <EditBlogPageStyle>
       <form onSubmit={handleSubmit(handleEditBlog)} autoComplete="off">

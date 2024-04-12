@@ -38,9 +38,7 @@ const SendEmailForgotPasswordPage = () => {
         setIsMessage(true);
         reset();
       }
-    } catch (error) {
-      console.log("error:", error);
-    }
+    } catch (error) {}
   };
 
   return (

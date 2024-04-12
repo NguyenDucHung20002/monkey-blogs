@@ -130,15 +130,13 @@ const DashboardHeader = () => {
           "Content-Type": "application/json",
         },
       });
-      console.log("response:", response);
+
       if (response.data) {
         setUserInfo({});
         localStorage.removeItem("token");
         navigate("/sign-in");
       }
-    } catch (error) {
-      console.log("error:", error);
-    }
+    } catch (error) {}
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

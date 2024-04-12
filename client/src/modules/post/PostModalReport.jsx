@@ -6,6 +6,7 @@ import {
 import useTimeAgo from "../../hooks/useTimeAgo";
 import { Popover, Tag } from "antd";
 import { icons } from "../../utils/constants";
+import { toast } from "react-toastify";
 
 // eslint-disable-next-line react/prop-types
 const PostModalReport = ({ blogId, token }) => {
@@ -31,6 +32,11 @@ const PostModalReport = ({ blogId, token }) => {
         if (reasonsFilter.length === 0) {
           setReasons(reasonsFilter);
         }
+
+        toast.success(response.message, {
+          pauseOnHover: false,
+          delay: 150,
+        });
       }
     },
     [reasons, token]

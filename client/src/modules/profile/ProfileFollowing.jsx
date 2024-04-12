@@ -45,7 +45,6 @@ const ProfileFollowing = () => {
   async function fetchUserFollow() {
     const dataFollow = await apiGetUserFollow(username, "following");
     if (!dataFollow?.success) {
-      console.log("error api:", dataFollow?.message);
     }
     setFollowings(dataFollow?.data);
   }

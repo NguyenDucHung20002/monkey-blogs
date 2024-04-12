@@ -8,6 +8,7 @@ import InputAuth from "../components/input/InputAuth";
 import { Label } from "../components/label";
 import { Field } from "../components/field";
 import { apiRegister } from "../api/apisHung";
+import { toast } from "react-toastify";
 
 const schema = yup.object({
   email: yup
@@ -33,10 +34,13 @@ const SignUpPage = () => {
   const handleSignUp = async (values) => {
     if (!isValid) return;
     const { email, password } = values;
-    try {
-      await apiRegister(email, password);
-    } catch (error) {
-      console.log("error:", error);
+
+    const response = await apiRegister(email, password);
+    if (response) {
+      toast.success(response.message, {
+        pauseOnHover: false,
+        delay: 150,
+      });
     }
   };
 

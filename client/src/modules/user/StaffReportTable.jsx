@@ -53,7 +53,7 @@ const StaffReportTable = () => {
       newSkip,
       newSkipCount
     );
-    console.log("response:", response);
+
     if (response) {
       const mapUsers = response.data.map((user) => {
         return {
@@ -70,43 +70,47 @@ const StaffReportTable = () => {
 
   const handleLiftTheBan = async (userId) => {
     const response = await apiLiftTheBan(token, userId);
-    if (response?.success) {
-      toast.success(response.message, {
-        pauseOnHover: true,
-        delay: 200,
-      });
+    if (response) {
       setStatusRender(!statusRender);
+      toast.success(response.message, {
+        pauseOnHover: false,
+        delay: 150,
+      });
     }
   };
 
   const handleUpdateBan = async (type, userId) => {
     const response = await apiUpdateBan(token, userId, type);
-    if (response?.success) {
-      toast.success(response.message, {
-        pauseOnHover: true,
-        delay: 200,
-      });
+    if (response) {
       setStatusRender(!statusRender);
+      toast.success(response.message, {
+        pauseOnHover: false,
+        delay: 150,
+      });
     }
   };
 
   const handleBanUser = async (type, userId) => {
     const response = await apiBanUser(token, userId, type);
-    if (response?.success) {
-      toast.success(response.message, {
-        pauseOnHover: true,
-        delay: 200,
-      });
+    if (response) {
       setStatusRender(!statusRender);
+      toast.success(response.message, {
+        pauseOnHover: false,
+        delay: 150,
+      });
     }
   };
 
   const handleResolveReports = async (id) => {
     const response = await apiResolveReportedAllUsers(token, id);
 
-    if (response?.success) {
+    if (response) {
       const filterUsers = users.filter((user) => user.id != id);
       setUsers(filterUsers);
+      toast.success(response.message, {
+        pauseOnHover: false,
+        delay: 150,
+      });
     }
   };
 

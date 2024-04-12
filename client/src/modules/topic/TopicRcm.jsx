@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import TopicList from "./TopicList";
 
-const TopicRcmm = ({ data = [] }) => {
+const RecommendTopic = ({ data = [] }) => {
   if (!data) return;
   return (
     <>
@@ -16,4 +16,4 @@ const TopicRcmm = ({ data = [] }) => {
   );
 };
 
-export default TopicRcmm;
+export default RecommendTopic;

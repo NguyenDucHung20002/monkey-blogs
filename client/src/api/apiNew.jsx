@@ -1,28 +1,34 @@
-import axios from "axios";
 import { config } from "../utils/constants";
-let token;
-setTimeout(() => {
-  token = localStorage.getItem("token");
-}, 100);
+import { toast } from "react-toastify";
+import { customAxios } from "../config/axios-customize";
+
+const token = localStorage.getItem("token");
+
 const apiGetUserFollow = async (username, typeFollow = "followers") => {
   try {
-    const res = await fetch(
+    const response = await customAxios.get(
       `${config.SERVER_HOST}/follow-profile/${username}/${typeFollow}`,
       {
-        method: "get",
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
       }
-    )
-      .then((response) => response.json())
-      .catch((err) => {
-        console.log(err);
-      });
-    return res;
+    );
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    console.log("error:", error);
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
@@ -30,139 +36,239 @@ const apiUploadCheckImage = async (file) => {
   try {
     const bodyFormData = new FormData();
     bodyFormData.append("avatar", file);
-    const response = await axios({
-      method: "post",
-      url: `${config.SERVER_HOST}/file/avatar`,
-      data: bodyFormData,
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "multipart/form-data",
-      },
-    });
-    return response;
+
+    const response = await customAxios.post(
+      `${config.SERVER_HOST}/file/avatar`,
+      bodyFormData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    console.log("error:", error);
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
+
 const apiUploadImage = async (file) => {
   try {
     const bodyFormData = new FormData();
     bodyFormData.append("img", file);
-    const response = await axios({
-      method: "post",
-      url: `${config.SERVER_HOST}/file/img`,
-      data: bodyFormData,
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "multipart/form-data",
-      },
-    });
-    return response;
+
+    const response = await customAxios.post(
+      `${config.SERVER_HOST}/file/img`,
+      bodyFormData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    console.log("error:", error);
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
 const apiDeleteImage = async (filename) => {
   try {
-    const response = await axios({
-      method: "delete",
-      url: `${config.SERVER_HOST}/file/${filename}`,
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return response?.data;
+    const response = await customAxios.delete(
+      `${config.SERVER_HOST}/file/${filename}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    console.log("error:", error);
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
 const apiCreateDraft = async (title, content) => {
   try {
-    const response = await axios.post(
+    const response = await customAxios.post(
       `${config.SERVER_HOST}/article/draft/create-draft`,
       { title, content },
       {
         headers: {
           Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
       }
     );
-    return response?.data;
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    console.log("error:", error);
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
 const apiUpdateDraft = async (id, title, content) => {
   try {
-    const response = await axios.patch(
+    const response = await customAxios.patch(
       `${config.SERVER_HOST}/article/draft/update-draft/${id}`,
       { title, content },
       {
         headers: {
           Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
       }
     );
-    return response?.data;
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    console.log("error:", error);
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
 const apiDeleteDraft = async (id) => {
   try {
-    const response = await axios({
-      method: "delete",
-      url: `${config.SERVER_HOST}/article/draft/delete-draft/${id}`,
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return response?.data;
+    const response = await customAxios.delete(
+      `${config.SERVER_HOST}/article/draft/delete-draft/${id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    console.log("error:", error);
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
-const apiAddBlog = async (aricleId, formData) => {
+const apiAddBlog = async (articleId, formData) => {
   try {
-    const response = await axios.patch(
-      `${config.SERVER_HOST}/article/${aricleId}`,
+    const response = await customAxios.patch(
+      `${config.SERVER_HOST}/article/${articleId}`,
       formData,
       {
         headers: {
           Authorization: `Bearer ${token}`,
-          // "Content-Type": "multipart/form-data",
+          "Content-Type": "multipart/form-data",
         },
       }
     );
-    return response?.data;
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    console.log(error);
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
 const apiGetMyDraft = async () => {
   try {
-    const res = await fetch(`${config.SERVER_HOST}/article/draft/me`, {
-      method: "get",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    }).then((response) => response.json());
-    return res;
+    const response = await customAxios.get(
+      `${config.SERVER_HOST}/article/draft/me`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    console.log("error:", error);
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
 const apiGetReadingHistory = async () => {
   try {
-    const response = await axios.get(
+    const response = await customAxios.get(
       `${config.SERVER_HOST}/reading-history/me `,
       {
         headers: {
@@ -171,16 +277,27 @@ const apiGetReadingHistory = async () => {
         },
       }
     );
-    if (response.data) return response?.data;
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    console.log("error: ", error);
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
+
 const apiGetMoreArticleInDetailPage = async (articleId) => {
   try {
-    const response = await axios.get(
+    const response = await customAxios.get(
       `${config.SERVER_HOST}/article/more-articles-from-profile/${articleId} `,
-      {},
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -188,14 +305,26 @@ const apiGetMoreArticleInDetailPage = async (articleId) => {
         },
       }
     );
-    if (response.data) return response?.data;
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    console.log("error: ", error);
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
+
 const apiDeleteReadingHistory = async () => {
   try {
-    const response = await axios.delete(
+    const response = await customAxios.delete(
       `${config.SERVER_HOST}/reading-history/me/clear `,
       {
         headers: {
@@ -204,14 +333,26 @@ const apiDeleteReadingHistory = async () => {
         },
       }
     );
-    if (response.data) return response?.data;
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    console.log("error: ", error);
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
+
 const apiDeleteAllNotification = async () => {
   try {
-    const response = await axios.delete(
+    const response = await customAxios.delete(
       `${config.SERVER_HOST}/notification/clear `,
       {
         headers: {
@@ -220,14 +361,26 @@ const apiDeleteAllNotification = async () => {
         },
       }
     );
-    if (response.data) return response?.data;
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    console.log("error: ", error);
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
+
 const apiDeleteArticleHistory = async (id) => {
   try {
-    const response = await axios.delete(
+    const response = await customAxios.delete(
       `${config.SERVER_HOST}/reading-history/${id} `,
       {
         headers: {
@@ -236,28 +389,51 @@ const apiDeleteArticleHistory = async (id) => {
         },
       }
     );
-    if (response.data) return response?.data;
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    console.log("error: ", error);
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
+
 const apiGetMyBlocked = async () => {
-  if (!token) return null;
   try {
-    const response = await axios.get(`${config.SERVER_HOST}/block/me`, {
+    const response = await customAxios.get(`${config.SERVER_HOST}/block/me`, {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
     });
-    if (response?.data) return response.data;
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    console.log("error:", error);
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
+
 const apiChangePassword = async (oldPassword, newPassword, confirmPassword) => {
   try {
-    const response = await axios.patch(
+    const response = await customAxios.patch(
       `${config.SERVER_HOST}/user/me/change-password`,
       { oldPassword, newPassword, confirmPassword },
       {
@@ -266,11 +442,23 @@ const apiChangePassword = async (oldPassword, newPassword, confirmPassword) => {
         },
       }
     );
-    return response?.data;
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    console.log("error:", error);
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
+
 export {
   apiGetUserFollow,
   apiUploadImage,

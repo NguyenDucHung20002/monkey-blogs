@@ -13,6 +13,7 @@ import { icons } from "../../utils/constants";
 import { apiDeleteAdminArticle } from "../../api/api";
 import { NavLink } from "react-router-dom";
 import TextArea from "antd/es/input/TextArea";
+import { toast } from "react-toastify";
 
 const PostTable = () => {
   const [blogReports, setBlogReports] = useState([]);
@@ -32,7 +33,6 @@ const PostTable = () => {
   };
 
   const onReason = (e, title) => {
-    console.log("title:", title);
     const value = e ?? "";
     const text = `Your story ${title} was set back to draft for reason ${value}`;
     setReason(text);
@@ -106,15 +106,24 @@ const PostTable = () => {
       const response = await apiDeleteAdminArticle(token, id);
       if (response) {
         fetchReports();
+        toast.success(response.message, {
+          pauseOnHover: false,
+          delay: 150,
+        });
       }
     },
     [fetchReports, token]
   );
+
   const handleSetApproved = useCallback(
     async (id) => {
       const response = await apiSetApproved(token, id);
       if (response) {
         fetchReports();
+        toast.success(response.message, {
+          pauseOnHover: false,
+          delay: 150,
+        });
       }
     },
     [fetchReports, token]

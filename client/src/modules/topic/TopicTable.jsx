@@ -14,6 +14,7 @@ import { icons } from "../../utils/constants";
 import { debounce } from "lodash";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../../contexts/auth-context";
+import { toast } from "react-toastify";
 
 const TopicTable = () => {
   const token = localStorage.getItem("token");
@@ -56,7 +57,7 @@ const TopicTable = () => {
       status,
       newSkip
     );
-    console.log("response:", response);
+
     if (response) {
       const mapTopics = response.data.map((topic) => {
         return {
@@ -67,6 +68,7 @@ const TopicTable = () => {
       skip.current = response.newSkip;
       setTopics([...topics, ...mapTopics]);
     }
+
     return [];
   };
 
@@ -94,12 +96,16 @@ const TopicTable = () => {
           }
           return topic;
         });
-
+        toast.success(response.message, {
+          pauseOnHover: false,
+          delay: 150,
+        });
         setTopics(newTopics);
       }
     },
     [token, topics, userInfo]
   );
+
   const handleRejected = useCallback(
     async (id) => {
       const response = await apiRejectTopic(token, id);
@@ -126,6 +132,10 @@ const TopicTable = () => {
         });
 
         setTopics(newTopics);
+        toast.success(response.message, {
+          pauseOnHover: false,
+          delay: 150,
+        });
       }
     },
     [token, topics, userInfo]
@@ -134,8 +144,16 @@ const TopicTable = () => {
   const handleDeleteTopic = useCallback(
     async (id) => {
       const response = await apiDeleteTopic(token, id);
+
       const filterTopics = topics.filter((topic) => topic.id != id);
-      if (response) setTopics([...filterTopics]);
+
+      if (response) {
+        setTopics([...filterTopics]);
+        toast.success(response.message, {
+          pauseOnHover: false,
+          delay: 150,
+        });
+      }
     },
     [token, topics]
   );

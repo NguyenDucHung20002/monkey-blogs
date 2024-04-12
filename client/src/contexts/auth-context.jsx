@@ -2,14 +2,14 @@ import React, { useCallback, useEffect } from "react";
 import { config } from "../utils/constants";
 import axios from "axios";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { customAxios } from "../config/axios-customize";
 
 const { createContext, useContext, useState } = React;
 
 const AuthContext = createContext();
-// eslint-disable-next-line react/display-name
+
 const AuthProvider = React.memo((props) => {
   const [userInfo, setUserInfo] = useState({});
-  // console.log("userInfo:", userInfo);
   const value = { userInfo, setUserInfo };
   const [searchParams] = useSearchParams();
   const tokenParams = searchParams.get("token");
@@ -24,12 +24,12 @@ const AuthProvider = React.memo((props) => {
     if (tokenLocal) return tokenLocal;
     return null;
   }
+
   const token = getToken();
 
-  const fetcher = useCallback(async () => {
-    if (!token) navigate("/sign-in");
+  const fetcher = async () => {
     try {
-      const response = await axios.get(
+      const response = await customAxios.get(
         `${config.SERVER_HOST}/profile/logged-in-profile-information`,
         {
           headers: {
@@ -43,19 +43,16 @@ const AuthProvider = React.memo((props) => {
         setUserInfo(response.data);
       }
       return null;
-    } catch (error) {
-      console.log("error:", error);
-      localStorage.removeItem("token");
-      navigate("/sign-in");
-    }
-  }, [navigate, token]);
+    } catch (error) {}
+  };
 
   useEffect(() => {
     fetcher();
-  }, [fetcher]);
+  }, []);
 
   return <AuthContext.Provider value={value} {...props}></AuthContext.Provider>;
 });
+
 function useAuth() {
   const context = useContext(AuthContext);
   if (typeof context === "undefined")
@@ -63,5 +60,4 @@ function useAuth() {
   return context;
 }
 
-// eslint-disable-next-line react-refresh/only-export-components
 export { AuthProvider, useAuth };

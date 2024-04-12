@@ -66,6 +66,10 @@ const PostReportTable = () => {
       if (response) {
         const filterBlogs = blogReports.filter((blog) => blog.id != id);
         setBlogReports(filterBlogs);
+        toast.success(response.message, {
+          pauseOnHover: false,
+          delay: 150,
+        });
       }
     },
     [blogReports, token]
@@ -76,9 +80,9 @@ const PostReportTable = () => {
       const response = await apiSetBackToDraft(token, id, reason);
       if (response) {
         setOpenModalReporter(false);
-        toast.success("Set to draft successfully!", {
+        toast.success(response.message, {
           pauseOnHover: false,
-          delay: 200,
+          delay: 150,
         });
       }
     },

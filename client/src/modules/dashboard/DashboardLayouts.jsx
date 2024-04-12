@@ -8,6 +8,7 @@ import Button from "../../components/button/Button";
 import { icons } from "../../utils/constants";
 import { useEffect, useState } from "react";
 import { debounce } from "lodash";
+
 const DashboardStyles = styled.div`
   max-width: 1600px;
   margin: 0 auto;
@@ -40,6 +41,7 @@ const DashboardStyles = styled.div`
     }
   }
 `;
+
 const DashboardLayout = () => {
   const navigate = useNavigate();
   const { userInfo } = useAuth();

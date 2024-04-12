@@ -9,7 +9,7 @@ import { Button } from "../../components/button";
 
 const PostResolvedTable = () => {
   const [blogReports, setBlogReports] = useState([]);
-  console.log("blogReports:", blogReports);
+
   const token = localStorage.getItem("token");
   const skip = useRef(0);
   const [isReload, setIsReload] = useState(false);

@@ -20,7 +20,6 @@ const TopicUpdate = () => {
   const token = localStorage.getItem("token");
   const {
     control,
-    setValue,
     reset,
     handleSubmit,
     formState: { errors, isValid },
@@ -54,10 +53,17 @@ const TopicUpdate = () => {
   const handleUpdateTopic = async ({ name }) => {
     if (!isValid) return;
     const nameTopic = name.charAt(0).toUpperCase() + name.slice(1);
-    console.log("nameTopic:", nameTopic);
+
     async function fetchAddTopic() {
       if (!token) return;
-      await apiUpdateTopic(token, id, nameTopic);
+
+      const response = await apiUpdateTopic(token, id, nameTopic);
+      if (response) {
+        toast.success(response.message, {
+          pauseOnHover: false,
+          delay: 150,
+        });
+      }
     }
     fetchAddTopic();
   };

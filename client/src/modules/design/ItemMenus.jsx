@@ -97,12 +97,19 @@ export const ImageItem = ({ showModal, image }) => {
 };
 
 export const NavigationItem = () => {
-  const { showFollRecmt, setShowFollRecmt } = useContext(DesignContext);
+  const { showFollowRecommend, setShowFollowRecommend } =
+    useContext(DesignContext);
   const handleChangeFollowing = (e) => {
-    setShowFollRecmt({ ...showFollRecmt, ["following"]: e.target.value });
+    setShowFollowRecommend({
+      ...showFollowRecommend,
+      ["following"]: e.target.value,
+    });
   };
   const handleChangeRecmt = (e) => {
-    setShowFollRecmt({ ...showFollRecmt, ["recomment"]: e.target.value });
+    setShowFollowRecommend({
+      ...showFollowRecommend,
+      ["recommend"]: e.target.value,
+    });
   };
   return (
     <>

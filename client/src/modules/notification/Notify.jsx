@@ -9,13 +9,11 @@ const Notify = React.forwardRef((props, ref) => {
   const { notifications, handleReadNotify } = props;
   const isMounted = useRef(false);
   const limitNotifications = 10;
-  console.log("isMounted.current", isMounted.current);
 
   useEffect(() => {
     return () => {
       handleReadNotify();
       if (isMounted.current) {
-        console.log("tron tron vn");
       }
       isMounted.current = true;
     };
@@ -61,7 +59,7 @@ const Notify = React.forwardRef((props, ref) => {
                         {val?.content}{" "}
                       </p>
                       <div className="text-xs text-gray-400">
-                        {timeSince(val?.createdAt) || "now"}
+                        {timeSince(val?.updatedAt) || "now"}
                       </div>
                     </div>
                     {/* <div className="relative bg-lime-400 w-3 h-3 rounded-1/2"></div> */}

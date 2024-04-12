@@ -72,9 +72,7 @@ const VerifyProfilePage = () => {
       if (response.success) {
         window.location.replace(`/?token=${token}`);
       }
-    } catch (error) {
-      console.log("error:", error);
-    }
+    } catch (error) {}
   };
 
   if (!token) return;

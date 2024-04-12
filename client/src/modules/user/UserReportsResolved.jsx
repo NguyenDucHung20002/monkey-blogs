@@ -29,22 +29,6 @@ const UserReportsResolved = () => {
     fetchUserResolved();
   }, [token, isReload]);
 
-  // const handleLoadMore = async () => {
-  //   const newSkip = skip.current;
-  //   const response = await apiGetUsersResolved(token, 1, newSkip);
-  //   if (response) {
-  //     console.log("response:", response);
-  //     const mapReports = response.data.map((report) => {
-  //       return {
-  //         ...report,
-  //         key: report.id,
-  //       };
-  //     });
-  //     setReports([...reports, ...mapReports]);
-  //     skip.current = response.newSkipId;
-  //   }
-  // };
-
   const ButtonBaned = ({ resolvedBy, reason, description }) => (
     <div>
       <Popover

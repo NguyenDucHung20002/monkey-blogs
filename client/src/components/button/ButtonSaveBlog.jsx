@@ -2,9 +2,10 @@ import { Popover } from "antd";
 import { icons } from "../../utils/constants";
 import { apiAddReadingList, apiDeleteReadingList } from "../../api/apisHung";
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
 // eslint-disable-next-line react/prop-types
-const ButtonSaveBlog = ({ BlogId, checkMyProfile }) => {
+const ButtonSaveBlog = ({ BlogId, isMyArticle, checkMyProfile }) => {
   const [isSaveList, setIsSaveList] = useState(false);
   const token = localStorage.getItem("token");
 
@@ -14,23 +15,32 @@ const ButtonSaveBlog = ({ BlogId, checkMyProfile }) => {
 
   const handleSaveList = async () => {
     let response;
+
     if (!isSaveList) {
       response = await apiAddReadingList(token, BlogId);
     } else {
       response = await apiDeleteReadingList(token, BlogId);
     }
-    if (response?.success) setIsSaveList(!isSaveList);
+    if (response) {
+      setIsSaveList(!isSaveList);
+      toast.success(response.message, {
+        pauseOnHover: false,
+        delay: 150,
+      });
+    }
   };
 
   return (
     <>
       <Popover placement="leftTop" content={<p>Save to List</p>}>
-        <button
-          className="flex items-center text-gray-400 hover:text-gray-600"
-          onClick={handleSaveList}
-        >
-          {isSaveList ? icons.savedIcon : icons.saveIcon}
-        </button>
+        {!isMyArticle && (
+          <button
+            className="flex items-center text-gray-400 hover:text-gray-600"
+            onClick={handleSaveList}
+          >
+            {isSaveList ? icons.savedIcon : icons.saveIcon}
+          </button>
+        )}
       </Popover>
     </>
   );
