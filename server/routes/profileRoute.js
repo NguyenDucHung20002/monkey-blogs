@@ -57,4 +57,14 @@ router.get(
   profileController.getProfile
 );
 
+// -------------------- update profile design -------------------- //
+
+router.patch(
+  "/me/update/design",
+  requiredAuth,
+  fetchMe,
+  validator(profileSchema.updateProfileDesignSchema, "body"),
+  profileController.updateMyProfileDesign
+);
+
 export default router;

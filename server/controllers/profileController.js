@@ -120,9 +120,43 @@ const updateMyProfile = asyncMiddleware(async (req, res, next) => {
   });
 });
 
+// ==================== update my profile design ==================== //
+
+const updateMyProfileDesign = asyncMiddleware(async (req, res, next) => {
+  const me = req.me;
+  const { design } = req.body;
+
+  const operations = [];
+
+  const myDesignObj = JSON.parse(me.profileInfo.profileDesign);
+  const newDesignObj = JSON.parse(design);
+
+  if (
+    myDesignObj &&
+    myDesignObj.image &&
+    myDesignObj.image.filename &&
+    newDesignObj.image.filename !== myDesignObj.image.filename
+  ) {
+    operations.push(
+      fileController.autoRemoveImg(myDesignObj.image.filename),
+      me.profileInfo.update({ profileDesign: design })
+    );
+  }
+
+  operations.push(me.profileInfo.update({ profileDesign: design }));
+
+  await Promise.all(operations);
+
+  res.json({
+    success: true,
+    message: "Profile design updated successfully",
+  });
+});
+
 export default {
   getProfile,
   setupProfile,
   updateMyProfile,
   getLoggedInProfile,
+  updateMyProfileDesign,
 };

@@ -48,6 +48,11 @@ module.exports = {
         defaultValue: 0,
       },
 
+      profileDesign: {
+        type:Sequelize.STRING,
+        allowNull: true
+      },
+
       userId: {
         type: Sequelize.INTEGER,
         allowNull: false,
