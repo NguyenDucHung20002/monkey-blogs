@@ -4,13 +4,17 @@ import { AddBookMarkIcon, EllipsisIcon } from "../../assets/icon";
 import TopicList from "../topic/TopicList";
 import timeSince from "../modulesJs/timeAgo";
 import BlogImage from "../blog/BlogImage";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import ProfileInfo from "../profile/ProfileInfo";
 import { DesignContext } from "../../pages/DesignPage";
 import { dataDemoBlogs, dataDemoFollowing, dataDemoTopic } from "./dataDemo";
 
-const ProfileDemo = ({ selectedDevice, image }) => {
-  const { imageDisplay, showFollowRecommend, user } = useContext(DesignContext);
+const ProfileDemo = ({ selectedDevice, image, setImage }) => {
+  const { imageDisplay, showFollowRecommend, user, design } =
+    useContext(DesignContext);
+  useEffect(() => {
+    setImage(design.image);
+  }, [design]);
   const setShow = () => {};
 
   return (

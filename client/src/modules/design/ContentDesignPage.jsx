@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useState } from "react";
 import ProfileDemo from "./ProfileDemo";
-const ContentDesignPage = ({ collapsed, selectedDevice, image }) => {
+const ContentDesignPage = ({ collapsed, selectedDevice, image, setImage }) => {
   const [size, setSize] = useState({ width: "", height: "" });
   //430x900 1024x 1366
   useEffect(() => {
@@ -25,7 +25,11 @@ const ContentDesignPage = ({ collapsed, selectedDevice, image }) => {
           className={`${size.width} ${size.height} border shadow-xl overflow-auto m-auto `}
         >
           <div className="">
-            <ProfileDemo selectedDevice={selectedDevice} image={image} />
+            <ProfileDemo
+              selectedDevice={selectedDevice}
+              image={image}
+              setImage={setImage}
+            />
           </div>
         </div>
       </div>

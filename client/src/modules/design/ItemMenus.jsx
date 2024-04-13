@@ -74,6 +74,7 @@ export const ImageItem = ({ showModal, image }) => {
             <Select
               className="flex-1"
               defaultValue="Auto"
+              value={imageDisplay?.display}
               placeholder="Select"
               onChange={handleChange}
               options={optionDisplays}
@@ -84,6 +85,7 @@ export const ImageItem = ({ showModal, image }) => {
             <Select
               className=" ml-2 flex-1"
               defaultValue={"Top"}
+              value={imageDisplay?.position}
               options={optionRadios}
               onChange={handleChangePosition}
             />
@@ -115,12 +117,20 @@ export const NavigationItem = () => {
     <>
       <div className="">
         <h4 className="text-base text-black">Follow</h4>
-        <Radio.Group onChange={handleChangeFollowing} defaultValue={1}>
+        <Radio.Group
+          onChange={handleChangeFollowing}
+          defaultValue={1}
+          value={showFollowRecommend.following}
+        >
           <Radio value={0}>Off</Radio>
           <Radio value={1}>On</Radio>
         </Radio.Group>
         <h4 className="text-base text-black">Topic</h4>
-        <Radio.Group onChange={handleChangeRecmt} defaultValue={0}>
+        <Radio.Group
+          onChange={handleChangeRecmt}
+          defaultValue={0}
+          value={showFollowRecommend.recommend}
+        >
           <Radio value={0}>Off</Radio>
           <Radio value={1}>On</Radio>
         </Radio.Group>

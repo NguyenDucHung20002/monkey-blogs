@@ -44,7 +44,7 @@ const HeaderDesignPage = ({
 
     await updateProfileDesign(token, design);
 
-    // window.location.replace(`/profile/${user?.data?.username}`);
+    window.location.replace(`/profile/${user?.data?.username}`);
   };
 
   const handleCancelPublish = () => {
