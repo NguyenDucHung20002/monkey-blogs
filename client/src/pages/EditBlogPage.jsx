@@ -66,6 +66,7 @@ const EditBlogPage = () => {
       });
     }
     setContent(data?.content);
+
     setTopics(data?.topicNames);
   }
 
@@ -126,8 +127,6 @@ const EditBlogPage = () => {
     }
 
     const { title, content, preview } = values;
-
-    console.log(values);
 
     let response;
 

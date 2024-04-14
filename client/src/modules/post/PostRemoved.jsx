@@ -126,9 +126,13 @@ const PostRemoved = () => {
           render={(blog) => (
             <div className="flex items-center gap-2">
               {blog?.author?.userInfo?.role.slug === "user" ? (
-                <Tag color="green">{blog?.author?.userInfo?.role.slug}</Tag>
+                <Tag color="green">
+                  {blog?.author?.userInfo?.role.slug.toUpperCase()}
+                </Tag>
               ) : (
-                <Tag color="red">{blog?.author?.userInfo?.role.slug}</Tag>
+                <Tag color="red">
+                  {blog?.author?.userInfo?.role.slug.toUpperCase()}
+                </Tag>
               )}
               <p className="font-semibold text-gray-500">
                 {blog?.author?.userInfo?.username}
@@ -174,10 +178,10 @@ const PostRemoved = () => {
           title="Status"
           key="status"
           render={(blog) =>
-            blog.status === "approved" ? (
+            !blog.deletedAt ? (
               <Tag color="green">APPROVED</Tag>
             ) : (
-              <Tag color="red">REJECTED</Tag>
+              <Tag color="red">REMOVED</Tag>
             )
           }
         />

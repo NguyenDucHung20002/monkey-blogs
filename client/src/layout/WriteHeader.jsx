@@ -138,7 +138,9 @@ const WriteHeader = ({
     localStorage.removeItem("token");
     navigate("/sign-in");
   };
+
   const witchScreen = window.innerWidth;
+
   const content = useCallback(function (username, fullname) {
     return (
       <div className="w-[250px] block">
@@ -196,11 +198,9 @@ const WriteHeader = ({
               type="button"
               kind="primary"
               height="25px"
-              // notification={"1"}
               className=""
               onClick={showModal}
             >
-              {/* {icons.notificationIcon} */}
               Publish
             </Button>
             <Space direction="vertical" wrap size={16} className="p-1 ml-5">
@@ -302,11 +302,6 @@ const WriteHeader = ({
                 </div>
               </div>
             </Modal>
-
-            {/* {isModalOpen && (            
-            <div className="w-screen h-screen bg-white fixed top-0 left-0 bottom-0 z-[9999]">
-
-            </div>)} */}
           </div>
         </div>
       </HomeStyle>

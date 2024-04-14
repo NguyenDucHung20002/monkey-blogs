@@ -152,7 +152,10 @@ const verifySetUpPassword = asyncMiddleware(async (req, res, next) => {
     tokenToVerify.deleteOne(),
   ]);
 
-  res.json({ success: true, message: "Setup password successfully" });
+  res.json({
+    success: true,
+    message: "Setup password successfully",
+  });
 });
 
 // ==================== reset password ==================== //
@@ -232,8 +235,6 @@ const loginEmail = asyncMiddleware(async (req, res, next) => {
   const accessToken = jwt.sign({ id: user.id }, env.JWT_ACCESS_SECRET, {
     expiresIn: env.JWT_ACCESS_EXPIRE_TIME,
   });
-
-  console.log(env.JWT_ACCESS_EXPIRE_TIME);
 
   res.clearCookie("refresh_token");
 

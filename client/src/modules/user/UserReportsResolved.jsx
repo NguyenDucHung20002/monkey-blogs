@@ -93,7 +93,7 @@ const UserReportsResolved = () => {
                   {report.reported.username}
                 </p>
               </NavLink>
-              <Tag color="red">{report?.reported.role.name}</Tag>
+              <Tag color="red">{report?.reported.role.name.toUpperCase()}</Tag>
             </div>
           )}
         />
@@ -107,7 +107,7 @@ const UserReportsResolved = () => {
                   {report.reporter.username}
                 </p>
               </NavLink>
-              <Tag color="red">{report?.reported.role.name}</Tag>
+              <Tag color="red">{report?.reported.role.name.toUpperCase()}</Tag>
             </div>
           )}
         />
@@ -134,7 +134,9 @@ const UserReportsResolved = () => {
                   {report.resolvedBy.username}
                 </p>
               </NavLink>
-              <Tag color="red">{report?.resolvedBy.role.name}</Tag>
+              <Tag color="red">
+                {report?.resolvedBy.role.name.toUpperCase()}
+              </Tag>
             </div>
           )}
         />

@@ -11,15 +11,17 @@ const AuthContext = createContext();
 const AuthProvider = React.memo((props) => {
   const [userInfo, setUserInfo] = useState({});
   const value = { userInfo, setUserInfo };
-  const [searchParams] = useSearchParams();
-  const tokenParams = searchParams.get("token");
-  const navigate = useNavigate();
 
   function getToken() {
-    if (tokenParams) {
-      localStorage.setItem("token", tokenParams);
-      return tokenParams;
+    const urlParams = new URLSearchParams(window.location.search);
+    const tokenFromUrl = urlParams.get("token");
+
+    if (tokenFromUrl) {
+      localStorage.setItem("token", tokenFromUrl);
+      window.history.replaceState({}, document.title, window.location.pathname);
+      return tokenFromUrl;
     }
+
     const tokenLocal = localStorage.getItem("token");
     if (tokenLocal) return tokenLocal;
     return null;

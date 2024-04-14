@@ -40,6 +40,7 @@ const ProfileBlogs = ({ blogs, user, fetchDeleteArticle }) => {
       </div>
     );
   };
+
   const save = (
     <div>
       <div className="my-2 ">Reading list</div>
@@ -72,6 +73,7 @@ const ProfileBlogs = ({ blogs, user, fetchDeleteArticle }) => {
       </div>
     );
   }
+
   return (
     <>
       {blogs.map((val) => (

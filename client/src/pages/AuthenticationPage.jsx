@@ -42,13 +42,13 @@ const AuthenticationPage = () => {
     <AuthenticationPageStyles>
       <div className="container">
         <div className="mb-5 text-center">
-          <NavLink to="/" className="inline-block w-16 h-16">
+          <div className="inline-block w-16 h-16">
             <img srcSet={logo} alt="monkey-blogging" className="logo" />
-          </NavLink>
+          </div>
         </div>
         <div className="flex justify-center">
           <h1 className="heading bg-gradient-to-r from-[#74B9FF] to-[#0be881] text-transparent bg-clip-text inline-block">
-            Monkey Medium
+            Monkey Blogs
           </h1>
         </div>
         <Outlet></Outlet>

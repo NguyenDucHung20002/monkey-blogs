@@ -3,7 +3,8 @@ import styled from "styled-components";
 import { useAuth } from "../../contexts/auth-context";
 
 const SidebarStyles = styled.div`
-  width: 300px;
+  height: 100vh;
+  width: 260px;
   background: #ffffff;
   box-shadow: 10px 10px 20px rgba(218, 213, 213, 0.15);
   border-radius: 12px;
@@ -14,14 +15,14 @@ const SidebarStyles = styled.div`
     display: flex;
     align-items: center;
     gap: 20px;
-    padding: 14px 20px;
+    padding: 8px 0px;
     font-weight: 500;
     color: ${(props) => props.theme.gray80};
-    margin-bottom: 20px;
+    margin-top: 6px;
+    margin-bottom: 18px;
     cursor: pointer;
     &.active,
     &:hover {
-      background: #f1fbf7;
       color: ${(props) => props.theme.primary};
     }
   }
@@ -37,7 +38,7 @@ const Sidebar = () => {
     userInfo?.data?.role === "admin"
       ? [
           {
-            title: "Article",
+            title: "Articles",
             url: "/manage/posts",
             icon: (
               <svg
@@ -137,7 +138,7 @@ const Sidebar = () => {
             ),
           },
           {
-            title: "Report staffs",
+            title: "Report Staffs",
             url: "/manage/report-staff",
             icon: (
               <svg
@@ -262,7 +263,7 @@ const Sidebar = () => {
         ]
       : [
           {
-            title: "Article",
+            title: "Articles",
             url: "/manage/posts",
             icon: (
               <svg

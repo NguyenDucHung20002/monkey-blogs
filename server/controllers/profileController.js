@@ -37,7 +37,7 @@ const setupProfile = asyncMiddleware(async (req, res, next) => {
 
   if (!user) throw ErrorResponse(404, "User not found");
 
-  if (profile.fullname && profile.avatar) {
+  if (profile && profile.fullname && profile.avatar) {
     throw ErrorResponse(409, "Profile already exists");
   }
 

@@ -27,7 +27,6 @@ const DashboardStyles = styled.div`
       display: grid;
       grid-template-columns: 300px minmax(0, 1fr);
       padding: 20px 20px;
-      gap: 0 40px;
       align-items: start;
     }
     @media screen and (max-width: 1023.98px) {

@@ -1,7 +1,6 @@
 import express from "express";
 import topicController from "../controllers/topicController.js";
 import requiredAuth from "../middlewares/requiredAuth.js";
-import optionalAuth from "../middlewares/optionalAuth.js";
 import authorize from "../middlewares/authorize.js";
 import validator from "../middlewares/validator.js";
 import topicSchema from "../validations/topicSchema.js";

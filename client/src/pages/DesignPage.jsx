@@ -19,7 +19,6 @@ const DesignProvider = (props) => {
     display: "object-none",
     position: "object-top",
   });
-
   const [showFollowRecommend, setShowFollowRecommend] = useState({
     following: 1,
     recommend: 0,
@@ -28,6 +27,7 @@ const DesignProvider = (props) => {
   const [design, setDesign] = useState({});
   const { username } = useParams();
   const token = localStorage.getItem("token");
+
   useEffect(() => {
     async function fetchUserInf() {
       const profileUser = await apiGetProfile(token, username);

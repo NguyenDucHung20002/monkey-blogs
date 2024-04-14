@@ -209,15 +209,15 @@ const apiDeleteDraft = async (id) => {
   }
 };
 
-const apiAddBlog = async (articleId, formData) => {
+const apiAddBlog = async (articleId, data) => {
   try {
     const response = await customAxios.patch(
       `${config.SERVER_HOST}/article/${articleId}`,
-      formData,
+      data,
       {
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
+          // "Content-Type": "multipart/form-data",
         },
       }
     );

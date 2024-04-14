@@ -59,19 +59,24 @@ const HeaderDesignPage = ({
     onDeleteImage(image?.filename);
     goback();
   };
+
   const goback = () => {
     window.history.back();
   };
+
   const showModal = () => {
     setIsModalOpen(true);
   };
+
   const showModal2 = () => {
     setIsModalOpen2(true);
   };
+
   const handleOk = () => {
     setIsModalOpen(false);
     setIsModalOpen2(false);
   };
+
   const handleCancel = () => {
     setIsModalOpen(false);
     setIsModalOpen2(false);
@@ -120,7 +125,6 @@ const HeaderDesignPage = ({
           </button>
         </div>
         <Modal
-          // title="Basic Modal"
           open={isModalOpen}
           onOk={handleOk}
           onCancel={handleCancel}
@@ -148,7 +152,6 @@ const HeaderDesignPage = ({
           </div>
         </Modal>
         <Modal
-          // title="Basic Modal"
           open={isModalOpen2}
           onOk={handleOk}
           onCancel={handleCancel}

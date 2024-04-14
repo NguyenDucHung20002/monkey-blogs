@@ -107,6 +107,7 @@ const WritePage = () => {
       preview: cutPreview,
       banner: image.filename,
     };
+
     async function fetchAddBlog() {
       if (!token) return;
       const response = await apiAddBlog(idDraft, data);

@@ -1135,6 +1135,8 @@ const setArticleBackToDraft = asyncMiddleware(async (req, res, next) => {
     where: { id, status: { [Op.notIn]: ["draft", "pending"] } },
   });
 
+  console.log(id);
+
   if (!article) throw ErrorResponse(404, "Article not found");
 
   await article.update({ status: "draft" }, { me: me, reason: reason });

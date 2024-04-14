@@ -72,7 +72,7 @@ const SignUpPage = () => {
           <p className="text-red-500">{errors?.password?.message}</p>
         </Field>
         <div className="have-account">
-          You already have an account? <NavLink to={"/sign-in"}>Login</NavLink>{" "}
+          You already have an account ? <NavLink to={"/sign-in"}>Login</NavLink>{" "}
         </div>
         <div className="flex items-center justify-center gap-3 mt-5">
           <Button

@@ -116,7 +116,7 @@ const getAllTopics = asyncMiddleware(async (req, res, next) => {
 
   if (skip) whereQuery.id = { [Op.lt]: skip };
 
-  if (search) whereQuery.slug = { [Op.substring]: search };
+  if (search) whereQuery.name = { [Op.substring]: search };
 
   if (option) {
     whereQuery.status = { [Op.eq]: option };
@@ -207,8 +207,8 @@ const searchTopicsCreateArticle = asyncMiddleware(async (req, res, next) => {
         id: { [Op.gt]: skip },
         status: "approved",
         [Op.or]: [
-          { name: { [Op.substring]: trimmedSearch } },
-          { slug: { [Op.substring]: trimmedSearch } },
+          { name: { [Op.substring]: search } },
+          { slug: { [Op.substring]: search } },
         ],
       },
       attributes: ["id", "name", "slug", "articlesCount"],

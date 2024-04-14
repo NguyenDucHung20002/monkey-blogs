@@ -13,6 +13,7 @@ const app = express();
 
 import checkToUnRestrictUsers from "./scripts/checkToUnRestrictUsers.js";
 import deleteSocketUsers from "./scripts/deleteSocketUser.js";
+import createAdminAccount from "./scripts/createAdminAccount.js";
 import "./models/mysql/Association.js";
 import "./services/passport.js";
 import "./cron.js";
@@ -56,6 +57,7 @@ sequelize
   })
   .then(() => {
     deleteSocketUsers();
+    createAdminAccount();
     checkToUnRestrictUsers();
   })
   .catch((error) => {

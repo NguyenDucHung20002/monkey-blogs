@@ -30,7 +30,7 @@ const VerifyEmailPage = () => {
       <div className="flex items-center justify-center gap-4 mt-5 logo">
         <Image width={40} preview={false} src={logo} />
         <h1 className="font-serif font-semibold text-3xl bg-gradient-to-r from-[#74B9FF] to-[#0be881] text-transparent bg-clip-text inline-block">
-          Monkey Medium
+          Monkey Blogs
         </h1>
       </div>
       <h2 className="mt-20 font-serif text-4xl text-center">

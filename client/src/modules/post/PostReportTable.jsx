@@ -217,7 +217,9 @@ const PostReportTable = () => {
                 <p className="font-semibold text-gray-500">
                   {blog?.author?.userInfo?.username}
                 </p>
-                <Tag color="red">{blog?.author.userInfo.role.name}</Tag>
+                <Tag color="red">
+                  {blog?.author.userInfo.role.name.toUpperCase()}
+                </Tag>
               </div>
             </>
           )}
@@ -240,7 +242,7 @@ const PostReportTable = () => {
             blog.status === "approved" ? (
               <Tag color="green">APPROVED</Tag>
             ) : (
-              <Tag color="red">REJECTED</Tag>
+              <Tag color="red">{blog.status.toUpperCase()}</Tag>
             )
           }
         />

@@ -17,16 +17,11 @@ const AxiosInterceptorsSetup = (navigate) => {
       const originalRequest = error.config;
       if (error.response.status === 401 && !originalRequest._retry) {
         originalRequest._retry = true;
-
         try {
           const newAccessToken = await fetchAccessToken();
-
           localStorage.setItem("token", newAccessToken);
-
           accessToken = newAccessToken;
-
           originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
-
           return customAxios(originalRequest);
         } catch (refreshTokenError) {
           localStorage.removeItem("token");

@@ -95,6 +95,10 @@ const PostTable = () => {
       const response = await apiSetBackToDraft(token, id, reason);
       if (response) {
         setOpenModalReporter(false);
+        toast.success(response.message, {
+          pauseOnHover: false,
+          delay: 150,
+        });
         fetchReports();
       }
     },
@@ -276,9 +280,13 @@ const PostTable = () => {
           render={(blog) => (
             <div className="flex items-center gap-1">
               {blog?.author?.userInfo?.role.slug === "user" ? (
-                <Tag color="green">{blog?.author?.userInfo?.role.slug}</Tag>
+                <Tag color="green">
+                  {blog?.author?.userInfo?.role.slug.toUpperCase()}
+                </Tag>
               ) : (
-                <Tag color="red">{blog?.author?.userInfo?.role.slug}</Tag>
+                <Tag color="red">
+                  {blog?.author?.userInfo?.role.slug.toUpperCase()}
+                </Tag>
               )}
               <p className="font-semibold text-gray-500">
                 {blog?.author?.userInfo?.username}
@@ -304,7 +312,7 @@ const PostTable = () => {
             blog.status === "approved" ? (
               <Tag color="green">APPROVED</Tag>
             ) : (
-              <Tag color="red">REJECTED</Tag>
+              <Tag color="red">{blog.status.toUpperCase()}</Tag>
             )
           }
         />

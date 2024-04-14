@@ -104,7 +104,7 @@ const Header = () => {
             </div>
           </NavLink>
           {role && role !== "user" && (
-            <NavLink to={`/dashboard`}>
+            <NavLink to={`/manage/posts`}>
               <div className="flex items-center justify-start my-4">
                 {icons.dashboardIcon} <p className="ml-3">Dashboard</p>
               </div>

@@ -12,6 +12,7 @@ export const ImageItem = ({ showModal, image }) => {
   const handleChangePosition = (value) => {
     setImageDisplay({ ...imageDisplay, ["position"]: value });
   };
+
   const optionDisplays = [
     {
       value: "object-none",
@@ -30,6 +31,7 @@ export const ImageItem = ({ showModal, image }) => {
       label: "Cover",
     },
   ];
+
   const optionRadios = [
     {
       label: "Top",
@@ -44,6 +46,7 @@ export const ImageItem = ({ showModal, image }) => {
       value: "object-bottom",
     },
   ];
+
   return (
     <div className="">
       <h4 className="text-base mb-3 text-black">Image</h4>

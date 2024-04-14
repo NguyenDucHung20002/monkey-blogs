@@ -34,6 +34,8 @@ export default {
   NODEMAILER_APP_PASSWORD:
     process.env.NODEMAILER_APP_PASSWORD || "your google app password",
 
+  ADMIN_PASSWORD: process.env.ADMIN_PASSWORD || "123456789",
+
   CLARIFAI_API_KEY: process.env.CLARIFAI_API_KEY || "your clarifai api key",
   CLARIFAI_MODEL_ID: process.env.CLARIFAI_MODEL_ID || "your clarifai model id",
 

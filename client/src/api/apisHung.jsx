@@ -227,15 +227,15 @@ const apiUserSearch = async (token, inputSearch, limit = 10, skip = "") => {
     }
   } catch (error) {
     console.log("Error:", error);
-    toast.error(
-      error?.response?.data?.message
-        ? error?.response?.data?.message
-        : "Something went wrong",
-      {
-        pauseOnHover: false,
-        delay: 250,
-      }
-    );
+    // toast.error(
+    //   error?.response?.data?.message
+    //     ? error?.response?.data?.message
+    //     : "Something went wrong",
+    //   {
+    //     pauseOnHover: false,
+    //     delay: 250,
+    //   }
+    // );
   }
 };
 
@@ -255,15 +255,15 @@ const apiBlogSearch = async (token, inputSearch, limit = 10, skip = "") => {
     }
   } catch (error) {
     console.log("Error:", error);
-    toast.error(
-      error?.response?.data?.message
-        ? error?.response?.data?.message
-        : "Something went wrong",
-      {
-        pauseOnHover: false,
-        delay: 250,
-      }
-    );
+    // toast.error(
+    //   error?.response?.data?.message
+    //     ? error?.response?.data?.message
+    //     : "Something went wrong",
+    //   {
+    //     pauseOnHover: false,
+    //     delay: 250,
+    //   }
+    // );
   }
 };
 
@@ -288,15 +288,15 @@ const apiTopicsSearch = async (
     }
   } catch (error) {
     console.log("Error:", error);
-    toast.error(
-      error?.response?.data?.message
-        ? error?.response?.data?.message
-        : "Something went wrong",
-      {
-        pauseOnHover: false,
-        delay: 250,
-      }
-    );
+    // toast.error(
+    //   error?.response?.data?.message
+    //     ? error?.response?.data?.message
+    //     : "Something went wrong",
+    //   {
+    //     pauseOnHover: false,
+    //     delay: 250,
+    //   }
+    // );
   }
 };
 
@@ -316,15 +316,15 @@ const apiGetReadingList = async (token, limit) => {
     }
   } catch (error) {
     console.log("Error:", error);
-    toast.error(
-      error?.response?.data?.message
-        ? error?.response?.data?.message
-        : "Something went wrong",
-      {
-        pauseOnHover: false,
-        delay: 250,
-      }
-    );
+    // toast.error(
+    //   error?.response?.data?.message
+    //     ? error?.response?.data?.message
+    //     : "Something went wrong",
+    //   {
+    //     pauseOnHover: false,
+    //     delay: 250,
+    //   }
+    // );
   }
 };
 
@@ -430,15 +430,15 @@ const apiGetExploreBlogs = async (token, limit, skip = "") => {
     }
   } catch (error) {
     console.log("Error:", error);
-    toast.error(
-      error?.response?.data?.message
-        ? error?.response?.data?.message
-        : "Something went wrong",
-      {
-        pauseOnHover: false,
-        delay: 250,
-      }
-    );
+    // toast.error(
+    //   error?.response?.data?.message
+    //     ? error?.response?.data?.message
+    //     : "Something went wrong",
+    //   {
+    //     pauseOnHover: false,
+    //     delay: 250,
+    //   }
+    // );
   }
 };
 
@@ -458,15 +458,15 @@ const apiGetStaffPick = async (token, limit = 3, skip = "") => {
     }
   } catch (error) {
     console.log("Error:", error);
-    toast.error(
-      error?.response?.data?.message
-        ? error?.response?.data?.message
-        : "Something went wrong",
-      {
-        pauseOnHover: false,
-        delay: 250,
-      }
-    );
+    // toast.error(
+    //   error?.response?.data?.message
+    //     ? error?.response?.data?.message
+    //     : "Something went wrong",
+    //   {
+    //     pauseOnHover: false,
+    //     delay: 250,
+    //   }
+    // );
   }
 };
 
@@ -779,7 +779,7 @@ const apiSetBackToDraft = async (token, BlogId, reason) => {
       }
     );
     if (response?.data?.success) {
-      return reason.data;
+      return response.data;
     }
   } catch (error) {
     console.log("Error:", error);
