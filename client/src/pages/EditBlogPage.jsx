@@ -40,7 +40,6 @@ const EditBlogPage = () => {
   } = useForm({
     resolver: yupResolver(schema),
   });
-
   const { slug } = useParams("slug");
   const [topicInput, setTopicInput] = useState("");
   const [topics, setTopics] = useState([]);
@@ -50,8 +49,8 @@ const EditBlogPage = () => {
   const [status, setStatus] = useState();
   const [preview, setPreview] = useState("");
   const { image, setImage, onSelectImage, onDeleteImage } = useUploadImage();
-
   const navigate = useNavigate();
+
   function resetForm(data) {
     if (!data) return;
     if (data.length === 0) return;
@@ -73,7 +72,7 @@ const EditBlogPage = () => {
   useEffect(() => {
     async function fetchBlog() {
       try {
-        const response = await apiGetArticleOrDraft(slug);
+        const response = await apiGetArticleOrDraft(token, slug);
         if (response) resetForm(response.data);
       } catch (error) {}
     }
@@ -142,7 +141,7 @@ const EditBlogPage = () => {
         preview: cutPreview,
         banner: image.filename,
       };
-      response = await apiAddBlog(status?.id, data);
+      response = await apiAddBlog(token, status?.id, data);
     } else {
       const formData = {
         title,
@@ -162,8 +161,13 @@ const EditBlogPage = () => {
   const watchedTitle = useWatch({ control, name: "title", defaultValue: "" });
 
   const UpdateDraft = debounce(async () => {
-    const res = await apiUpdateDraft(status?.id, watchedTitle, content);
-    if (res?.success) {
+    const response = await apiUpdateDraft(
+      token,
+      status?.id,
+      watchedTitle,
+      content
+    );
+    if (response) {
       setIsSaved(true);
     }
   }, 1000);

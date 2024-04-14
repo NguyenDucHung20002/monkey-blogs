@@ -37,7 +37,6 @@ const WritePage = () => {
   } = useForm({
     resolver: yupResolver(schema),
   });
-
   const [topics, setTopics] = useState([]);
   const [topicInput, setTopicInput] = useState("");
   const [content, setContent] = useState("");
@@ -49,6 +48,7 @@ const WritePage = () => {
   const [isCreatingDraft, setIsCreatingDraft] = useState(false);
   const navigate = useNavigate();
   const { image, onSelectImage, onDeleteImage } = useUploadImage();
+
   useEffect(() => {
     const arrErrs = Object.values(errors);
     if (arrErrs.length > 0) {
@@ -88,13 +88,6 @@ const WritePage = () => {
 
   const handleAddBlog = (values) => {
     if (!isValid) return;
-    // if (!image) {
-    //   toast.error("Please fill out your image title!", {
-    //     pauseOnHover: false,
-    //     delay: 500,
-    //   });
-    //   return;
-    // }
     const { preview } = values;
     const cutPreview = preview.slice(0, 200);
     const getTopicNames = topics.map((val) => val.name);
@@ -110,7 +103,7 @@ const WritePage = () => {
 
     async function fetchAddBlog() {
       if (!token) return;
-      const response = await apiAddBlog(idDraft, data);
+      const response = await apiAddBlog(token, idDraft, data);
       if (response?.success) {
         navigate("/");
       }
@@ -125,9 +118,9 @@ const WritePage = () => {
   const watchedTitle = useWatch({ control, name: "title", defaultValue: "" });
 
   const createDraft = async () => {
-    const res = await apiCreateDraft(watchedTitle, content);
-    if (res?.success) {
-      setNewDraft(res);
+    const response = await apiCreateDraft(token, watchedTitle, content);
+    if (response) {
+      setNewDraft(response);
       setIsSaved(true);
       setHasRunOnce(true);
     }
@@ -135,8 +128,13 @@ const WritePage = () => {
 
   const UpdateDraft = debounce(async () => {
     const idDraft = newDraft?.draftId;
-    const res = await apiUpdateDraft(idDraft, watchedTitle, content);
-    if (res?.success) {
+    const response = await apiUpdateDraft(
+      token,
+      idDraft,
+      watchedTitle,
+      content
+    );
+    if (response) {
       setIsSaved(true);
     }
   }, 1000);

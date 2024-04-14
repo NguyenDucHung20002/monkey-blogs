@@ -2,9 +2,7 @@ import { config } from "../utils/constants";
 import { toast } from "react-toastify";
 import { customAxios } from "../config/axios-customize";
 
-const token = localStorage.getItem("token");
-
-const apiGetUserFollow = async (username, typeFollow = "followers") => {
+const apiGetUserFollow = async (token, username, typeFollow = "followers") => {
   try {
     const response = await customAxios.get(
       `${config.SERVER_HOST}/follow-profile/${username}/${typeFollow}`,
@@ -23,7 +21,7 @@ const apiGetUserFollow = async (username, typeFollow = "followers") => {
     toast.error(
       error?.response?.data?.message
         ? error?.response?.data?.message
-        : "Something went wrong",
+        : "Something went wrong 1",
       {
         pauseOnHover: false,
         delay: 250,
@@ -32,7 +30,7 @@ const apiGetUserFollow = async (username, typeFollow = "followers") => {
   }
 };
 
-const apiUploadCheckImage = async (file) => {
+const apiUploadCheckImage = async (token, file) => {
   try {
     const bodyFormData = new FormData();
     bodyFormData.append("avatar", file);
@@ -64,7 +62,7 @@ const apiUploadCheckImage = async (file) => {
   }
 };
 
-const apiUploadImage = async (file) => {
+const apiUploadImage = async (token, file) => {
   try {
     const bodyFormData = new FormData();
     bodyFormData.append("img", file);
@@ -96,7 +94,7 @@ const apiUploadImage = async (file) => {
   }
 };
 
-const apiDeleteImage = async (filename) => {
+const apiDeleteImage = async (token, filename) => {
   try {
     const response = await customAxios.delete(
       `${config.SERVER_HOST}/file/${filename}`,
@@ -123,7 +121,7 @@ const apiDeleteImage = async (filename) => {
   }
 };
 
-const apiCreateDraft = async (title, content) => {
+const apiCreateDraft = async (token, title, content) => {
   try {
     const response = await customAxios.post(
       `${config.SERVER_HOST}/article/draft/create-draft`,
@@ -152,7 +150,7 @@ const apiCreateDraft = async (title, content) => {
   }
 };
 
-const apiUpdateDraft = async (id, title, content) => {
+const apiUpdateDraft = async (token, id, title, content) => {
   try {
     const response = await customAxios.patch(
       `${config.SERVER_HOST}/article/draft/update-draft/${id}`,
@@ -181,7 +179,7 @@ const apiUpdateDraft = async (id, title, content) => {
   }
 };
 
-const apiDeleteDraft = async (id) => {
+const apiDeleteDraft = async (token, id) => {
   try {
     const response = await customAxios.delete(
       `${config.SERVER_HOST}/article/draft/delete-draft/${id}`,
@@ -209,7 +207,7 @@ const apiDeleteDraft = async (id) => {
   }
 };
 
-const apiAddBlog = async (articleId, data) => {
+const apiAddBlog = async (token, articleId, data) => {
   try {
     const response = await customAxios.patch(
       `${config.SERVER_HOST}/article/${articleId}`,
@@ -238,7 +236,7 @@ const apiAddBlog = async (articleId, data) => {
   }
 };
 
-const apiGetMyDraft = async () => {
+const apiGetMyDraft = async (token) => {
   try {
     const response = await customAxios.get(
       `${config.SERVER_HOST}/article/draft/me`,
@@ -266,7 +264,7 @@ const apiGetMyDraft = async () => {
   }
 };
 
-const apiGetReadingHistory = async () => {
+const apiGetReadingHistory = async (token) => {
   try {
     const response = await customAxios.get(
       `${config.SERVER_HOST}/reading-history/me `,
@@ -294,7 +292,7 @@ const apiGetReadingHistory = async () => {
   }
 };
 
-const apiGetMoreArticleInDetailPage = async (articleId) => {
+const apiGetMoreArticleInDetailPage = async (token, articleId) => {
   try {
     const response = await customAxios.get(
       `${config.SERVER_HOST}/article/more-articles-from-profile/${articleId} `,
@@ -322,7 +320,7 @@ const apiGetMoreArticleInDetailPage = async (articleId) => {
   }
 };
 
-const apiDeleteReadingHistory = async () => {
+const apiDeleteReadingHistory = async (token) => {
   try {
     const response = await customAxios.delete(
       `${config.SERVER_HOST}/reading-history/me/clear `,
@@ -350,7 +348,7 @@ const apiDeleteReadingHistory = async () => {
   }
 };
 
-const apiDeleteAllNotification = async () => {
+const apiDeleteAllNotification = async (token) => {
   try {
     const response = await customAxios.delete(
       `${config.SERVER_HOST}/notification/clear `,
@@ -378,7 +376,7 @@ const apiDeleteAllNotification = async () => {
   }
 };
 
-const apiDeleteArticleHistory = async (id) => {
+const apiDeleteArticleHistory = async (token, id) => {
   try {
     const response = await customAxios.delete(
       `${config.SERVER_HOST}/reading-history/${id} `,
@@ -406,7 +404,7 @@ const apiDeleteArticleHistory = async (id) => {
   }
 };
 
-const apiGetMyBlocked = async () => {
+const apiGetMyBlocked = async (token) => {
   try {
     const response = await customAxios.get(`${config.SERVER_HOST}/block/me`, {
       headers: {
@@ -431,7 +429,12 @@ const apiGetMyBlocked = async () => {
   }
 };
 
-const apiChangePassword = async (oldPassword, newPassword, confirmPassword) => {
+const apiChangePassword = async (
+  token,
+  oldPassword,
+  newPassword,
+  confirmPassword
+) => {
   try {
     const response = await customAxios.patch(
       `${config.SERVER_HOST}/user/me/change-password`,

@@ -14,9 +14,10 @@ import { toast } from "react-toastify";
 
 const ReadingHistory = () => {
   const [history, setHistory] = useState([]);
+  const token = localStorage.getItem("token");
 
   const fetchApiClearHistory = async () => {
-    const response = await apiDeleteReadingHistory();
+    const response = await apiDeleteReadingHistory(token);
     if (response) {
       setHistory([]);
     }
@@ -40,7 +41,7 @@ const ReadingHistory = () => {
   };
 
   const getHistory = useCallback(async () => {
-    const response = await apiGetReadingHistory();
+    const response = await apiGetReadingHistory(token);
     if (response?.success) {
       setHistory(response.data);
     }
@@ -48,7 +49,7 @@ const ReadingHistory = () => {
 
   const handleDeleteAnArticle = useCallback(
     async (id) => {
-      const response = await apiDeleteArticleHistory(id);
+      const response = await apiDeleteArticleHistory(token, id);
       if (response) {
         getHistory();
         toast.success(response.message, {

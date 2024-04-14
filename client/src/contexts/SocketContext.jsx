@@ -44,14 +44,14 @@ const SocketProvider = ({ children }) => {
   }, [token]);
 
   const handleClearNotifications = useCallback(async () => {
-    const response = await apiDeleteAllNotification();
-    if (response?.success) {
+    const response = await apiDeleteAllNotification(token);
+    if (response) {
       setNotifications([]);
     }
   }, [token]);
 
   const handleReadNotify = useCallback(async () => {
-    await apiMarkAsReadNotification();
+    await apiMarkAsReadNotification(token);
     fetchNotification(token);
   }, []);
 

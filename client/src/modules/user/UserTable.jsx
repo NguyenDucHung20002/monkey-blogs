@@ -20,7 +20,6 @@ const UserTable = () => {
   const [users, setUsers] = useState([]);
   const token = localStorage.getItem("token");
   const { userInfo } = useAuth();
-
   const [statusRender, setStatusRender] = useState(false);
   const [search, setSearch] = useState("");
   const banTypes = ["1week", "1month", "1year", "permanent"];

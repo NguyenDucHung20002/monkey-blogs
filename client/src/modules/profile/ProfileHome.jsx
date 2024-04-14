@@ -6,8 +6,8 @@ import ProfileBlogs from "./ProfileBlogs";
 import { NavbarHome } from "../../components/navbar";
 
 const ProfileHome = () => {
+  const token = localStorage.getItem("token");
   const [blogs, setBlogs] = useState([]);
-
   const { username } = useParams();
   const { user } = useOutletContext();
 
@@ -46,13 +46,12 @@ const ProfileHome = () => {
   ];
 
   async function fetchUserBlog() {
-    const dataBlogs = await apiGetUserBlogs(username);
-
+    const dataBlogs = await apiGetUserBlogs(token, username);
     setBlogs([...dataBlogs.articles]);
   }
 
   async function fetchDeleteArticle(slug) {
-    const delArticle = await apiDeleteArticle(slug);
+    const delArticle = await apiDeleteArticle(token, slug);
     if (delArticle) {
       fetchUserBlog();
     }

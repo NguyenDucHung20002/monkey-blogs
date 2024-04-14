@@ -43,7 +43,7 @@ const ProfilePage = () => {
 
   useEffect(() => {
     async function fetchUserFollowing() {
-      const dataFollowings = await apiGetUserFollowings(username);
+      const dataFollowings = await apiGetUserFollowings(token, username);
       setFollowing([...dataFollowings.data]);
     }
     fetchUserFollowing();

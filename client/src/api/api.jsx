@@ -2,8 +2,6 @@ import { config } from "../utils/constants";
 import { toast } from "react-toastify";
 import { customAxios } from "../config/axios-customize";
 
-const token = localStorage.getItem("token");
-
 const apiAddTopic = async (token, name) => {
   try {
     const response = await customAxios.post(
@@ -33,7 +31,7 @@ const apiAddTopic = async (token, name) => {
   }
 };
 
-const apiDeleteArticle = async (blogId) => {
+const apiDeleteArticle = async (token, blogId) => {
   try {
     const response = await customAxios.delete(
       `${config.SERVER_HOST}/article/${blogId}`,
@@ -315,7 +313,7 @@ const apiGetArticleAdminDetail = async (token, blogId) => {
   }
 };
 
-const apiGetArticleOrDraft = async (slug) => {
+const apiGetArticleOrDraft = async (token, slug) => {
   try {
     const response = await customAxios.get(
       `${config.SERVER_HOST}/article/get/${slug} `,
@@ -343,7 +341,7 @@ const apiGetArticleOrDraft = async (slug) => {
   }
 };
 
-const apiDeleteDraft = async (id) => {
+const apiDeleteDraft = async (token, id) => {
   try {
     const response = await customAxios.delete(
       `${config.SERVER_HOST}/article/draft/delete-draft/${id} `,
@@ -543,7 +541,7 @@ const apiGetNotification = async (token) => {
   }
 };
 
-const apiMarkAsReadNotification = async () => {
+const apiMarkAsReadNotification = async (token) => {
   try {
     const response = await customAxios.patch(
       `${config.SERVER_HOST}/notification/mark-all-as-read`,
@@ -654,7 +652,7 @@ const apiGetTopics = async (
   }
 };
 
-const apiGetUserBlogs = async (username) => {
+const apiGetUserBlogs = async (token, username) => {
   try {
     const response = await customAxios.get(
       `${config.SERVER_HOST}/article/${username}/all`,
@@ -682,7 +680,7 @@ const apiGetUserBlogs = async (username) => {
   }
 };
 
-const apiGetUserFollowings = async (username) => {
+const apiGetUserFollowings = async (token, username) => {
   try {
     const response = await customAxios.get(
       `${config.SERVER_HOST}/follow-profile/${username}/following`,

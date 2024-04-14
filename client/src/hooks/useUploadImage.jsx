@@ -3,10 +3,11 @@ import { apiDeleteImage, apiUploadImage } from "../api/apiNew";
 import { config } from "../utils/constants";
 
 const useUploadImage = () => {
+  const token = localStorage.getItem("token");
   const [image, setImage] = useState("");
 
   const onUploadImage = async (file) => {
-    const response = await apiUploadImage(file);
+    const response = await apiUploadImage(token, file);
     if (response?.filename) {
       const filename = response?.filename;
       const url = `${config.SERVER_HOST}/file/${filename}`;
@@ -33,7 +34,7 @@ const useUploadImage = () => {
     if (!filename) {
       return;
     }
-    apiDeleteImage(filename);
+    apiDeleteImage(token, filename);
     setImage("");
   };
 

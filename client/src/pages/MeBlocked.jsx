@@ -12,9 +12,8 @@ const MeBlocked = () => {
 
   useEffect(() => {
     async function fetchUser() {
-      const response = await apiGetMyBlocked();
-
-      if (response?.data) setUsers(response.data);
+      const response = await apiGetMyBlocked(token);
+      if (response) setUsers(response.data);
     }
     fetchUser();
   }, [token]);

@@ -8,9 +8,9 @@ import { apiGetComment } from "../api/api";
 const ActionComment = ({ blogId = "" }) => {
   const token = localStorage.getItem("token");
   const [open, setOpen] = useState(false);
-
   const [commentBlog, setCommentBlog] = useState([]);
   const commentValue = { commentBlog, setCommentBlog };
+
   useEffect(() => {
     async function fetchCommentBlog() {
       const response = await apiGetComment(blogId, token);

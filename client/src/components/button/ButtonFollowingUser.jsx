@@ -7,10 +7,10 @@ const ButtonFollowingUser = ({ userId, initialFollowing = false }) => {
   const token = localStorage.getItem("token");
 
   const handleFollow = async () => {
-    const res = followed
+    const response = followed
       ? await apiUnFollowUser(userId, token)
       : await apiFollowUser(userId, token);
-    if (res) {
+    if (response) {
       setFollowed(!followed);
     }
   };

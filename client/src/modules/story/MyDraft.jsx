@@ -25,7 +25,6 @@ const PopoverContent = ({ id, handleDeleteDraft }) => {
 
 const MyDraft = () => {
   const [draft, setDrafts] = useState([]);
-
   const token = localStorage.getItem("token");
 
   const fetchDrafts = async () => {
@@ -36,7 +35,7 @@ const MyDraft = () => {
   };
 
   const handleDeleteDraft = async (id) => {
-    const response = await apiDeleteDraft(id);
+    const response = await apiDeleteDraft(token, id);
     if (response) {
       fetchDrafts();
       toast.success(response.message, {
