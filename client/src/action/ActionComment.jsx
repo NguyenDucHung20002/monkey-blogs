@@ -54,7 +54,7 @@ const ActionComment = ({ blogId = "" }) => {
         </span>
       </button>
       <Drawer
-        title={`Responses (20)`}
+        // title={`Comments: ${commentsCount}`}
         placement="right"
         width={400}
         onClose={onClose}
