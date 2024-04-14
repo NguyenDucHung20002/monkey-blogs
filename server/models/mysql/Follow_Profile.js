@@ -74,7 +74,7 @@ const Follow_Profile = sequelize.define(
           const io = socket.getIO();
 
           receivers.forEach((receiver) => {
-            io.to(receiver.socketId).emit(env.SOCKET_LISTENING_EVENT, message);
+            io.to(receiver.socketId).emit("notification", message);
           });
         }
       },

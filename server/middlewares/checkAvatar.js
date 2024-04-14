@@ -17,7 +17,7 @@ const checkAvatar = async (req, res, next) => {
         await fileController.autoRemoveImg(filename);
         return res.status(400).json({
           success: false,
-          message: "File too large",
+          message: `File too large. The maximum allowed size is ${FILE_LIMIT}MB`,
         });
       }
 
