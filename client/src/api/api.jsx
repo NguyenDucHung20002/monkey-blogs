@@ -583,20 +583,12 @@ const apiGetProfile = async (token, username) => {
         },
       }
     );
-    if (response?.data?.success) {
-      return response.data;
+    if (!response?.data?.success) {
+      return;
     }
+    return response.data;
   } catch (error) {
-    console.log("Error:", error);
-    toast.error(
-      error?.response?.data?.message
-        ? error?.response?.data?.message
-        : "Something went wrong",
-      {
-        pauseOnHover: false,
-        delay: 250,
-      }
-    );
+    return;
   }
 };
 

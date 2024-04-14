@@ -7,7 +7,7 @@ import BlogImage from "../blog/BlogImage";
 import timeAgo from "../modulesJs/timeAgo";
 import Avatar from "../user/Avatar";
 import ButtonActionBlogsAuthor from "../../components/button/ButtonActionBlogsAuthor";
-
+import ButtonSaveBlog from "../../components/button/ButtonSaveBlog";
 const ProfileBlogs = ({ blogs, user, fetchDeleteArticle }) => {
   const handleDelete = (slug) => {
     Swal.fire({
@@ -41,14 +41,22 @@ const ProfileBlogs = ({ blogs, user, fetchDeleteArticle }) => {
     );
   };
 
-  const save = (
-    <div>
-      <div className="my-2 ">Reading list</div>
-      <div className="my-2 ">List 1</div>
-      <div className="my-2 bg-stone-400 h-[1px]"></div>
-      <div className="my-2 ">Create new list</div>
-    </div>
-  );
+  const Save = ({ blog }) => {
+    return (
+      <div>
+        {/* <div className="my-2 ">Reading list</div>
+        <div className="my-2 ">List 1</div>
+        <div className="my-2 bg-stone-400 h-[1px]"></div>
+        <div className="my-2 ">Create new list</div> */}
+        <ButtonSaveBlog
+          BlogId={blog.id}
+          checkMyProfile={true}
+          isMyArticle={false}
+        />
+      </div>
+    );
+  };
+
   if (blogs.length == 0) {
     return (
       <div className="flex overflow-hidden border rounded-lg bg-neutral-50 mt-11 border-neutral-50">
@@ -94,7 +102,11 @@ const ProfileBlogs = ({ blogs, user, fetchDeleteArticle }) => {
               <div className="flex items-center justify-between py-4">
                 <TopicList data={[val?.topic]}></TopicList>
                 <div className="flex items-center">
-                  <Popover placement="bottom" content={save} trigger={"click"}>
+                  <Popover
+                    placement="bottom"
+                    content={<Save blog={val} />}
+                    trigger={"click"}
+                  >
                     <button className="mx-5">
                       <svg
                         className=""
