@@ -18,16 +18,13 @@ const CommentUser = ({
 }) => {
   const { id, content, author, createdAt, depth, isMyComment, repliesCount } =
     data;
-
   const token = localStorage.getItem("token");
   const [commentBlog, setCommentBlog] = useState([]);
-
   const {
     commentBlog: commentBlogParent,
     setCommentBlog: setCommentBlogParent,
   } = commentValueParent;
   const [replyCount, setReplyCount] = useState(repliesCount || 0);
-
   const commentValue = { commentBlog, setCommentBlog };
   const [showMore, setShowMore] = useState(false);
   const [hideReplies, setHideReplies] = useState(false);

@@ -7,15 +7,15 @@ const ButtonFollowingTopic = ({ initialFollowing = false, topicId = "" }) => {
   const token = localStorage.getItem("token");
 
   const handleFollow = async () => {
-    const res = await apiFollowTopic(token, topicId);
-    if (res) {
+    const response = await apiFollowTopic(token, topicId);
+    if (response) {
       setFollowed(!followed);
     }
   };
 
   const handleUnFollow = async () => {
-    const res = await apiUnFollowTopic(token, topicId);
-    if (res) {
+    const response = await apiUnFollowTopic(token, topicId);
+    if (response) {
       setFollowed(!followed);
     }
   };

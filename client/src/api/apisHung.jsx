@@ -796,9 +796,6 @@ const apiSetBackToDraft = async (token, BlogId, reason) => {
 };
 
 const apiGetReportsBlogSolved = async (token) => {
-  if (!token) {
-    return null;
-  }
   try {
     const response = await customAxios.get(
       `${config.SERVER_HOST}/report-article/resolved`,

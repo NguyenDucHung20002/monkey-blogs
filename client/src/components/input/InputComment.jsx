@@ -5,12 +5,15 @@ import { useEffect } from "react";
 import { apiAddComment } from "../../api/api";
 
 const { TextArea } = Input;
+
 const InputComment = ({ blogId = "", parentCommentId, commentValue }) => {
   const { commentBlog, setCommentBlog } = commentValue;
   const [content, setContent] = useState("");
   const [isSubmit, setIsSubmit] = useState(false);
   const token = localStorage.getItem("token");
+
   if (!parentCommentId) parentCommentId = null;
+
   const handleCancel = () => {
     setContent("");
   };

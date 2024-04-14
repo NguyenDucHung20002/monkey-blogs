@@ -10,8 +10,10 @@ Quill.register("modules/imageUploader", ImageUploader);
 const MyEditor = ({ content, setContent }) => {
   const [imageFiles, setImageFiles] = useState([]);
   const quillRef = useRef();
+  const token = localStorage.getItem("token");
+
   const deleteImage = (filename) => {
-    apiDeleteImage(filename);
+    apiDeleteImage(token, filename);
   };
 
   useEffect(() => {
@@ -50,7 +52,7 @@ const MyEditor = ({ content, setContent }) => {
 
       imageUploader: {
         upload: async (file) => {
-          const response = await apiUploadImage(file);
+          const response = await apiUploadImage(token, file);
 
           if (response.filename) {
             const filename = response.filename;

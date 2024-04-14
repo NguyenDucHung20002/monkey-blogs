@@ -5,6 +5,7 @@ import { useOutletContext, useParams } from "react-router-dom";
 import { NavbarHome } from "../../components/navbar";
 
 const ProfileFollower = () => {
+  const token = localStorage.getItem("token");
   const [followers, setFollower] = useState([]);
   const { username } = useParams();
   const { user } = useOutletContext();
@@ -44,13 +45,14 @@ const ProfileFollower = () => {
 
   useEffect(() => {
     async function fetchUserFollow() {
-      const dataFollow = await apiGetUserFollow(username, "followers");
-      if (!dataFollow?.success) {
+      const response = await apiGetUserFollow(token, username, "followers");
+      if (response) {
+        setFollower(response?.data);
       }
-      setFollower(dataFollow?.data);
     }
     fetchUserFollow();
   }, [username]);
+
   return (
     <>
       <NavbarHome
