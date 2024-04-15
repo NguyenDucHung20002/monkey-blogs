@@ -87,7 +87,6 @@ const ProfilePage = () => {
               ) : (
                 ""
               )}
-              {/* {design?.show?.recommend ? <RecommendTopic data={topics} /> : ""} */}
             </div>
           </StickyBox>
         </div>

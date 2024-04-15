@@ -5,7 +5,7 @@ import BlogImage from "./BlogImage";
 import BlogMeta from "./BlogMeta";
 import BlogTitle from "./BlogTitle";
 import styled from "styled-components";
-import { Avatar } from "antd";
+import { Avatar, Skeleton } from "antd";
 import { Link } from "react-router-dom";
 import Topic from "../topic/Topic";
 import useTimeAgo from "../../hooks/useTimeAgo";
@@ -82,13 +82,21 @@ const Blog = ({ blog, isMyProfile, mute = {} }) => {
           </div>
         </div>
       </div>
-      {banner && (
+      {banner ? (
         <BlogImage
           className="flex-shrink-0"
           url={banner}
           alt=""
           to={`/blog/${slug}`}
         ></BlogImage>
+      ) : (
+        <Skeleton.Image
+          active={false}
+          style={{
+            width: "120px",
+            height: "120px",
+          }}
+        />
       )}
     </BlogStyle>
   );

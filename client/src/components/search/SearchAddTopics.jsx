@@ -101,7 +101,7 @@ const SearchAddTopics = ({
                 className="p-1 text-sm text-black transition-all cursor-pointer hover:bg-black hover:text-white "
                 onClick={() => handleAddTopic(topic)}
               >
-                {topic?.name} ({topic.articlesCount})
+                {topic?.name}
               </li>
             ))}
           </ul>

@@ -116,7 +116,7 @@ const getMyReadingList = asyncMiddleware(async (req, res, next) => {
         ? addUrlToImg(readingList.readArticle.banner)
         : null;
 
-      readingList.readArticle.author = addUrlToImg(
+      readingList.readArticle.author.avatar = addUrlToImg(
         readingList.readArticle.author.avatar
       );
 

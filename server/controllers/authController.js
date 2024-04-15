@@ -132,7 +132,10 @@ const verifyEmail = asyncMiddleware(async (req, res, next) => {
     ),
   ]);
 
-  res.json({ success: true, message: "Email verified successfully" });
+  res.json({
+    success: true,
+    message: "Email verified successfully",
+  });
 });
 
 // ==================== verify setup password ==================== //
@@ -182,7 +185,10 @@ const resetPassword = asyncMiddleware(async (req, res, next) => {
     tokenToVerify.deleteOne(),
   ]);
 
-  res.json({ success: true, message: "Password reset successfully" });
+  res.json({
+    success: true,
+    message: "Password reset successfully",
+  });
 });
 
 // ==================== login ==================== //
@@ -323,7 +329,10 @@ const logout = asyncMiddleware(async (req, res, next) => {
 
   res.clearCookie("refresh_token");
 
-  res.json({ success: true, message: "Successfully logout" });
+  res.json({
+    success: true,
+    message: "Successfully logout",
+  });
 });
 
 export default {

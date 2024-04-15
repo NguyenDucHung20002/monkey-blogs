@@ -254,13 +254,12 @@ const updateArticle = asyncMiddleware(async (req, res, next) => {
       })
     );
 
-    await Promise.all([
-      Article_Topic.destroy({
-        where: { articleId: article.id },
-        oldTopics: article.articleTopics,
-      }),
-      Article_Topic.bulkCreate(newTopics),
-    ]);
+    await Article_Topic.destroy({
+      where: { articleId: article.id },
+      oldTopics: article.articleTopics,
+    });
+
+    await Article_Topic.bulkCreate(newTopics);
   }
 
   res.json({
@@ -354,12 +353,14 @@ const getProfileArticles = asyncMiddleware(async (req, res, next) => {
         },
       };
 
-      if (me.profileInfo.id === user.profileInfo.id) {
+      if (me.profileInfo.id !== user.profileInfo.id) {
         const isSaved = !!(await Reading_List.findOne({
           where: { profileId: me.profileInfo.id, articleId: article.id },
         }));
 
         processedArticle.isSaved = isSaved;
+        processedArticle.isMyArticle = false;
+      } else {
         processedArticle.isMyArticle = true;
       }
 
@@ -1134,8 +1135,6 @@ const setArticleBackToDraft = asyncMiddleware(async (req, res, next) => {
   const article = await Article.findOne({
     where: { id, status: { [Op.notIn]: ["draft", "pending"] } },
   });
-
-  console.log(id);
 
   if (!article) throw ErrorResponse(404, "Article not found");
 

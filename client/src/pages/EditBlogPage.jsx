@@ -36,6 +36,7 @@ const EditBlogPage = () => {
     handleSubmit,
     setValue,
     reset,
+    getValues,
     formState: { errors, isValid, isSubmitting },
   } = useForm({
     resolver: yupResolver(schema),
@@ -51,31 +52,31 @@ const EditBlogPage = () => {
   const { image, setImage, onSelectImage, onDeleteImage } = useUploadImage();
   const navigate = useNavigate();
 
-  function resetForm(data) {
-    if (!data) return;
-    if (data.length === 0) return;
+  const resetForm = (data) => {
     const title = data?.title;
     const preview = data?.preview;
-    reset({ title, preview });
+    const content = data?.content;
+
+    reset({ title, preview, content });
     setStatus({ id: data.id, status: data.status });
+
     if (data.banner) {
       setImage({
         url: `${config.SERVER_HOST}/file/${data?.banner}`,
         filename: data?.banner,
       });
     }
-    setContent(data?.content);
 
-    setTopics(data?.topicNames);
-  }
+    setContent(data?.content);
+    setTopics(data?.articleTopics);
+  };
+
+  const fetchBlog = async () => {
+    const response = await apiGetArticleOrDraft(token, slug);
+    if (response) resetForm(response.data);
+  };
 
   useEffect(() => {
-    async function fetchBlog() {
-      try {
-        const response = await apiGetArticleOrDraft(token, slug);
-        if (response) resetForm(response.data);
-      } catch (error) {}
-    }
     fetchBlog();
   }, [slug]);
 
@@ -116,20 +117,16 @@ const EditBlogPage = () => {
     handleSubmit(handleEditBlog)();
   };
 
-  const handleEditBlog = async (values) => {
-    if (!isValid) {
-      return;
-    }
+  const handleEditBlog = async () => {
+    const content = getValues("content");
+    const preview = getValues("preview");
+    const title = getValues("title");
 
-    if (!token) {
-      return null;
-    }
-
-    const { title, content, preview } = values;
+    if (!isValid) return;
 
     let response;
 
-    const cutPreview = preview.slice(0, 200);
+    const cutPreview = preview.slice(0, 150);
     const getTopicNames = topics.map((val) => val.name);
     const topicsSplit = topicInput.trim().split(/,+/).filter(Boolean);
     const topicsMap = topicsSplit.map((val) => val.trim());
@@ -143,19 +140,17 @@ const EditBlogPage = () => {
       };
       response = await apiAddBlog(token, status?.id, data);
     } else {
-      const formData = {
+      const data = {
         title,
         content,
         topicNames,
         preview: cutPreview,
         banner: image.filename,
       };
-      response = await apiUpdateArticle(token, status?.id, formData);
+      response = await apiUpdateArticle(token, status?.id, data);
     }
 
-    if (response) {
-      navigate(`/`);
-    }
+    if (response) navigate(`/`);
   };
 
   const watchedTitle = useWatch({ control, name: "title", defaultValue: "" });
@@ -167,25 +162,20 @@ const EditBlogPage = () => {
       watchedTitle,
       content
     );
-    if (response) {
-      setIsSaved(true);
-    }
+
+    if (response) setIsSaved(true);
   }, 1000);
 
   useEffect(() => {
     const check = content !== "" && watchedTitle !== "";
-    if (!check) {
-      return;
-    }
+    if (!check) return;
 
     setIsSaved(false);
 
     const encoder = new TextEncoder();
 
     const byteSize = encoder.encode(content).length;
-    if (byteSize >= 30000) {
-      return;
-    }
+    if (byteSize >= 30000) return;
 
     if (status.status == "draft") {
       setShowIsSaved(true);

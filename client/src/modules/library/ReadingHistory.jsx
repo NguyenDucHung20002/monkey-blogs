@@ -11,6 +11,7 @@ import Swal from "sweetalert2";
 import BlogImage from "../blog/BlogImage";
 import ClearAll from "../../components/modalClear/ClearAll";
 import { toast } from "react-toastify";
+import { Skeleton } from "antd";
 
 const ReadingHistory = () => {
   const [history, setHistory] = useState([]);
@@ -95,7 +96,7 @@ const ReadingHistory = () => {
                 </div>
               </div>
             </div>
-            {val?.banner && (
+            {val?.banner ? (
               <div className="ml-14">
                 <BlogImage
                   className="flex-shrink-0"
@@ -103,6 +104,16 @@ const ReadingHistory = () => {
                   alt=""
                   to={`/blog/${val.slug}`}
                 ></BlogImage>
+              </div>
+            ) : (
+              <div className="ml-14">
+                <Skeleton.Image
+                  active={false}
+                  style={{
+                    width: "120px",
+                    height: "120px",
+                  }}
+                />
               </div>
             )}
           </div>
