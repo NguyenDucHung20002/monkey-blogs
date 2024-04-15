@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import UpdateProfile from "../components/form/UpdateProfile";
 import ProfileInfo from "../modules/profile/ProfileInfo";
 import ProfileContext from "../modules/profile/ProfileContext";
-import { Outlet, useParams } from "react-router-dom";
+import { Navigate, Outlet, useParams } from "react-router-dom";
 import Following from "../components/follow/Following";
 import {
   apiGetProfile,
@@ -25,6 +25,7 @@ const ProfilePage = () => {
   useEffect(() => {
     async function fetchUserInf() {
       const profileUser = await apiGetProfile(token, username);
+      if (!profileUser) return window.location.replace("/*");
       setUser({ ...profileUser.data });
       setIsBlocked(profileUser?.isBlocked);
       const design = JSON.parse(profileUser.data.profileDesign);
@@ -36,8 +37,8 @@ const ProfilePage = () => {
       if (response) setTopics(response.data);
     }
 
-    fetchSuggestionTopics();
     fetchUserInf();
+    fetchSuggestionTopics();
   }, [show, token, username]);
 
   useEffect(() => {
