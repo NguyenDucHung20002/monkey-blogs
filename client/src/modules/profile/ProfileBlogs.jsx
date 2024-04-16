@@ -11,7 +11,7 @@ import ButtonSaveBlog from "../../components/button/ButtonSaveBlog";
 import { icons } from "../../utils/constants";
 
 const ProfileBlogs = ({ blogs, user, fetchDeleteArticle }) => {
-  const handleDelete = (slug) => {
+  const handleDelete = (id) => {
     Swal.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
@@ -22,20 +22,20 @@ const ProfileBlogs = ({ blogs, user, fetchDeleteArticle }) => {
       confirmButtonText: "Yes, delete it!",
     }).then(async (result) => {
       if (result.isConfirmed) {
-        fetchDeleteArticle(slug);
+        fetchDeleteArticle(id);
         Swal.fire("Deleted!", "Your post has been deleted.", "success");
       }
     });
   };
 
-  const MoreUser = ({ slug }) => {
+  const MoreUser = ({ id }) => {
     return (
       <div>
-        <NavLink to={`/edit-blog/${slug}`}>
+        <NavLink to={`/edit-blog/${id}`}>
           <div className="my-2 ">Edit story</div>
         </NavLink>
         <div
-          onClick={() => handleDelete(slug)}
+          onClick={() => handleDelete(id)}
           className="my-2 text-red-500 cursor-pointer"
         >
           Delete story
@@ -54,9 +54,9 @@ const ProfileBlogs = ({ blogs, user, fetchDeleteArticle }) => {
               {user?.fullname}
             </div>
           </div>
-          <h1 className="py-5 text-xl font-bold">Reading Story</h1>
+          <h1 className="py-5 text-xl font-bold">Articles</h1>
           <div className="flex justify-between">
-            <p className="">No Story</p>
+            <p className="">Noting now</p>
             <button className="text-lg">...</button>
           </div>
         </div>
@@ -100,7 +100,7 @@ const ProfileBlogs = ({ blogs, user, fetchDeleteArticle }) => {
                   {user?.isMyProfile ? (
                     <Popover
                       placement="bottom"
-                      content={<MoreUser slug={val.id} />}
+                      content={<MoreUser id={val.id} />}
                       trigger={"click"}
                     >
                       <button className="flex items-center text-gray-400 hover:text-gray-500">
