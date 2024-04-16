@@ -13,19 +13,23 @@ module.exports = {
       blockedId: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        // references: {
-        //   model: Profile,
-        //   key: "id",
-        // },
+        references: {
+          model: {
+            tableName: "profiles",
+          },
+          key: "id",
+        },
       },
 
       blockerId: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        // references: {
-        //   model: Profile,
-        //   key: "id",
-        // },
+        references: {
+          model: {
+            tableName: "profiles",
+          },
+          key: "id",
+        },
       },
 
       createdAt: {

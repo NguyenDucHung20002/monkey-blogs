@@ -13,19 +13,24 @@ module.exports = {
       articleId: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        // references: {
-        //   model: Article,
-        //   key: "id",
-        // },
+        references: {
+          model: {
+            tableName: "articles",
+          },
+          key: "id",
+        },
+        onDelete: "CASCADE",
       },
 
       profileId: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        // references: {
-        //   model: Profile,
-        //   key: "id",
-        // },
+        references: {
+          model: {
+            tableName: "profiles",
+          },
+          key: "id",
+        },
       },
 
       createdAt: {

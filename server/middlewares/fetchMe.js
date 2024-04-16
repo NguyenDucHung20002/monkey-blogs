@@ -20,7 +20,13 @@ const fetchMe = async (req, res, next) => {
         {
           model: Profile,
           as: "profileInfo",
-          attributes: ["id", "fullname", "avatar", "notificationsCount"],
+          attributes: [
+            "id",
+            "fullname",
+            "avatar",
+            "notificationsCount",
+            "profileDesign",
+          ],
         },
         { model: Role, as: "role", attributes: ["id", "name", "slug"] },
       ],

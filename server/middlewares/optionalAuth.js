@@ -1,4 +1,3 @@
-import JsonWebToken from "../models/mongodb/JsonWebToken.js";
 import jwt from "jsonwebtoken";
 import env from "../config/env.js";
 
@@ -17,15 +16,8 @@ const optionalAuth = async (req, res, next) => {
     return;
   }
 
-  const tokenDoc = await JsonWebToken.findOne({ token });
-  if (!tokenDoc) {
-    req.jwtPayLoad = null;
-    next();
-    return;
-  }
-
   try {
-    const jwtPayLoad = jwt.verify(tokenDoc.token, env.JWT_SECRET);
+    const jwtPayLoad = jwt.verify(token, env.JWT_ACCESS_SECRET);
     req.jwtPayLoad = jwtPayLoad;
     next();
   } catch (error) {

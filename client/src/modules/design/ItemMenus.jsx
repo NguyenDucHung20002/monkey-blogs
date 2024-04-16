@@ -12,6 +12,7 @@ export const ImageItem = ({ showModal, image }) => {
   const handleChangePosition = (value) => {
     setImageDisplay({ ...imageDisplay, ["position"]: value });
   };
+
   const optionDisplays = [
     {
       value: "object-none",
@@ -30,6 +31,7 @@ export const ImageItem = ({ showModal, image }) => {
       label: "Cover",
     },
   ];
+
   const optionRadios = [
     {
       label: "Top",
@@ -44,6 +46,7 @@ export const ImageItem = ({ showModal, image }) => {
       value: "object-bottom",
     },
   ];
+
   return (
     <div className="">
       <h4 className="text-base mb-3 text-black">Image</h4>
@@ -74,6 +77,7 @@ export const ImageItem = ({ showModal, image }) => {
             <Select
               className="flex-1"
               defaultValue="Auto"
+              value={imageDisplay?.display}
               placeholder="Select"
               onChange={handleChange}
               options={optionDisplays}
@@ -84,6 +88,7 @@ export const ImageItem = ({ showModal, image }) => {
             <Select
               className=" ml-2 flex-1"
               defaultValue={"Top"}
+              value={imageDisplay?.position}
               options={optionRadios}
               onChange={handleChangePosition}
             />
@@ -97,23 +102,38 @@ export const ImageItem = ({ showModal, image }) => {
 };
 
 export const NavigationItem = () => {
-  const { showFollRecmt, setShowFollRecmt } = useContext(DesignContext);
+  const { showFollowRecommend, setShowFollowRecommend } =
+    useContext(DesignContext);
   const handleChangeFollowing = (e) => {
-    setShowFollRecmt({ ...showFollRecmt, ["following"]: e.target.value });
+    setShowFollowRecommend({
+      ...showFollowRecommend,
+      ["following"]: e.target.value,
+    });
   };
   const handleChangeRecmt = (e) => {
-    setShowFollRecmt({ ...showFollRecmt, ["recomment"]: e.target.value });
+    setShowFollowRecommend({
+      ...showFollowRecommend,
+      ["recommend"]: e.target.value,
+    });
   };
   return (
     <>
       <div className="">
         <h4 className="text-base text-black">Follow</h4>
-        <Radio.Group onChange={handleChangeFollowing} defaultValue={1}>
+        <Radio.Group
+          onChange={handleChangeFollowing}
+          defaultValue={1}
+          value={showFollowRecommend.following}
+        >
           <Radio value={0}>Off</Radio>
           <Radio value={1}>On</Radio>
         </Radio.Group>
         <h4 className="text-base text-black">Topic</h4>
-        <Radio.Group onChange={handleChangeRecmt} defaultValue={0}>
+        <Radio.Group
+          onChange={handleChangeRecmt}
+          defaultValue={0}
+          value={showFollowRecommend.recommend}
+        >
           <Radio value={0}>Off</Radio>
           <Radio value={1}>On</Radio>
         </Radio.Group>

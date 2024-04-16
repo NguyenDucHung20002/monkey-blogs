@@ -7,10 +7,11 @@ import { Button } from "../../components/button";
 import { icons } from "../../utils/constants";
 import useTimeAgo from "../../hooks/useTimeAgo";
 import { NavLink } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const PostRemoved = () => {
   const [blogReports, setBlogReports] = useState([]);
-  console.log("blogReports:", blogReports);
+
   const token = localStorage.getItem("token");
   const skip = useRef(0);
   const getTimeAgo = useTimeAgo;
@@ -36,7 +37,7 @@ const PostRemoved = () => {
   const handleLoadMore = async () => {
     const newSkip = skip.current;
     const response = await apiGetRemovedArticles(token, 10, newSkip);
-    console.log("response:", response);
+
     if (response) {
       const mapBlogs = response.data.map((user) => {
         return {
@@ -55,6 +56,10 @@ const PostRemoved = () => {
       const response = await apiRestoreArticle(token, id);
       if (response) {
         fetchReports();
+        toast.success(response.message, {
+          pauseOnHover: false,
+          delay: 150,
+        });
       }
     },
     [fetchReports, token]
@@ -121,9 +126,13 @@ const PostRemoved = () => {
           render={(blog) => (
             <div className="flex items-center gap-2">
               {blog?.author?.userInfo?.role.slug === "user" ? (
-                <Tag color="green">{blog?.author?.userInfo?.role.slug}</Tag>
+                <Tag color="green">
+                  {blog?.author?.userInfo?.role.slug.toUpperCase()}
+                </Tag>
               ) : (
-                <Tag color="red">{blog?.author?.userInfo?.role.slug}</Tag>
+                <Tag color="red">
+                  {blog?.author?.userInfo?.role.slug.toUpperCase()}
+                </Tag>
               )}
               <p className="font-semibold text-gray-500">
                 {blog?.author?.userInfo?.username}
@@ -169,10 +178,10 @@ const PostRemoved = () => {
           title="Status"
           key="status"
           render={(blog) =>
-            blog.status === "approved" ? (
+            !blog.deletedAt ? (
               <Tag color="green">APPROVED</Tag>
             ) : (
-              <Tag color="red">REJECTED</Tag>
+              <Tag color="red">REMOVED</Tag>
             )
           }
         />

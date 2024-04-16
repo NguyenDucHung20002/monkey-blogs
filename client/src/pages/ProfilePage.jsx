@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import UpdateProfile from "../components/form/UpdateProfile";
-import ProfileInfor from "../modules/profile/ProfileInfor";
+import ProfileInfo from "../modules/profile/ProfileInfo";
 import ProfileContext from "../modules/profile/ProfileContext";
-import { Outlet, useParams } from "react-router-dom";
+import { Navigate, Outlet, useParams } from "react-router-dom";
 import Following from "../components/follow/Following";
 import {
   apiGetProfile,
@@ -10,7 +10,7 @@ import {
   apiSuggestionTopics,
 } from "../api/api";
 import StickyBox from "react-sticky-box";
-import TopicRcmm from "../modules/topic/TopicRcm";
+import RecommendTopic from "../modules/topic/TopicRcm";
 
 const ProfilePage = () => {
   const [show, setShow] = useState(false);
@@ -20,31 +20,35 @@ const ProfilePage = () => {
   const [topics, setTopics] = useState([]);
   const { username } = useParams();
   const token = localStorage.getItem("token");
-  const designSettings = JSON.parse(localStorage.getItem("designSettings"));
-  //fetch information user
-
-  //fetch list user following
+  const [design, setDesign] = useState({});
 
   useEffect(() => {
     async function fetchUserInf() {
       const profileUser = await apiGetProfile(token, username);
-      setUser({ ...profileUser });
+      if (!profileUser) return window.location.replace("/*");
+      setUser({ ...profileUser.data });
       setIsBlocked(profileUser?.isBlocked);
+      const design = JSON.parse(profileUser.data.profileDesign);
+      setDesign({ ...design });
     }
+
     async function fetchSuggestionTopics() {
       const response = await apiSuggestionTopics(token);
       if (response) setTopics(response.data);
     }
-    fetchSuggestionTopics();
+
     fetchUserInf();
+    fetchSuggestionTopics();
   }, [show, token, username]);
+
   useEffect(() => {
     async function fetchUserFollowing() {
-      const dataFollowings = await apiGetUserFollowings(username);
-      setFollowing([...dataFollowings]);
+      const dataFollowings = await apiGetUserFollowings(token, username);
+      setFollowing([...dataFollowings.data]);
     }
     fetchUserFollowing();
   }, [username]);
+
   return (
     <>
       <div className="w-full border-t border-gray-300"></div>
@@ -54,15 +58,11 @@ const ProfilePage = () => {
       <div className="container max-w-[1336px] mx-auto flex">
         <div className="w-full md:px-14 md:max-w-[70%] ">
           <div className="">
-            {designSettings?.image ? (
-              <img
-                className={`max-h-32 w-full ${designSettings?.style} `}
-                src={designSettings?.image?.url}
-                alt=""
-              />
-            ) : (
-              ""
-            )}
+            <img
+              className={`max-h-32 w-full ${design?.style} `}
+              src={design?.image?.url}
+              alt=""
+            />
           </div>
           <ProfileContext
             isBlocked={isBlocked}
@@ -76,28 +76,22 @@ const ProfilePage = () => {
           <StickyBox>
             <div className="w-full h-screen p-8 text-gray-500 border-l border-l-gray-300 ">
               {user.id && (
-                <ProfileInfor
+                <ProfileInfo
                   show={show}
                   setShow={setShow}
                   user={user}
                   isBlocked={isBlocked}
                 />
               )}
-              {designSettings?.show?.following ? (
+              {design?.show?.following ? (
                 <Following data={following} token={token} user={user} />
               ) : (
                 ""
               )}
-              {designSettings?.show?.recomment ? (
-                <TopicRcmm data={topics} />
-              ) : (
-                ""
-              )}
-              {/* <TopicRcm /> */}
             </div>
           </StickyBox>
         </div>
-      </div>
+      </div>{" "}
     </>
   );
 };

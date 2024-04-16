@@ -8,7 +8,7 @@ const SearchUsersPage = () => {
   const [searchParams] = useSearchParams();
   const search = searchParams.get("q");
   const [users, setUsers] = useState([]);
-  console.log("users:", users);
+
   const token = localStorage.getItem("token");
   const windowHeight = useRef(window.innerHeight);
   const scrollY = useRef(window.scrollY);
@@ -18,14 +18,12 @@ const SearchUsersPage = () => {
     async function fetchTopics() {
       try {
         const response = await apiUserSearch(token, search, 15);
-        console.log("response:", response);
+
         if (response?.success) {
           skip.current = response.newSkip;
           setUsers(response.data);
         }
-      } catch (error) {
-        console.log("error:", error);
-      }
+      } catch (error) {}
     }
     fetchTopics();
   }, [search, token]);

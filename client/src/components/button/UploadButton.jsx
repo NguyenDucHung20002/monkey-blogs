@@ -8,9 +8,7 @@ const SwitchStyled = styled(Switch)`
   background-color: #333;
 `;
 
-const onChange = (checked) => {
-  console.log(`switch to ${checked}`);
-};
+const onChange = (checked) => {};
 const getBase64 = (file) =>
   new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -35,7 +33,6 @@ const UploadButton = () => {
     );
   };
   const handleChange = ({ fileList: newFileList }) => {
-    console.log("newFileList:", newFileList);
     setFileList(newFileList);
   };
   const uploadButton = (

@@ -13,6 +13,7 @@ import { icons } from "../../utils/constants";
 import { apiDeleteAdminArticle } from "../../api/api";
 import { NavLink } from "react-router-dom";
 import TextArea from "antd/es/input/TextArea";
+import { toast } from "react-toastify";
 
 const PostTable = () => {
   const [blogReports, setBlogReports] = useState([]);
@@ -32,7 +33,6 @@ const PostTable = () => {
   };
 
   const onReason = (e, title) => {
-    console.log("title:", title);
     const value = e ?? "";
     const text = `Your story ${title} was set back to draft for reason ${value}`;
     setReason(text);
@@ -95,6 +95,10 @@ const PostTable = () => {
       const response = await apiSetBackToDraft(token, id, reason);
       if (response) {
         setOpenModalReporter(false);
+        toast.success(response.message, {
+          pauseOnHover: false,
+          delay: 150,
+        });
         fetchReports();
       }
     },
@@ -106,15 +110,24 @@ const PostTable = () => {
       const response = await apiDeleteAdminArticle(token, id);
       if (response) {
         fetchReports();
+        toast.success(response.message, {
+          pauseOnHover: false,
+          delay: 150,
+        });
       }
     },
     [fetchReports, token]
   );
+
   const handleSetApproved = useCallback(
     async (id) => {
       const response = await apiSetApproved(token, id);
       if (response) {
         fetchReports();
+        toast.success(response.message, {
+          pauseOnHover: false,
+          delay: 150,
+        });
       }
     },
     [fetchReports, token]
@@ -267,9 +280,13 @@ const PostTable = () => {
           render={(blog) => (
             <div className="flex items-center gap-1">
               {blog?.author?.userInfo?.role.slug === "user" ? (
-                <Tag color="green">{blog?.author?.userInfo?.role.slug}</Tag>
+                <Tag color="green">
+                  {blog?.author?.userInfo?.role.slug.toUpperCase()}
+                </Tag>
               ) : (
-                <Tag color="red">{blog?.author?.userInfo?.role.slug}</Tag>
+                <Tag color="red">
+                  {blog?.author?.userInfo?.role.slug.toUpperCase()}
+                </Tag>
               )}
               <p className="font-semibold text-gray-500">
                 {blog?.author?.userInfo?.username}
@@ -295,7 +312,7 @@ const PostTable = () => {
             blog.status === "approved" ? (
               <Tag color="green">APPROVED</Tag>
             ) : (
-              <Tag color="red">REJECTED</Tag>
+              <Tag color="red">{blog.status.toUpperCase()}</Tag>
             )
           }
         />

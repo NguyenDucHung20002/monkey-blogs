@@ -13,7 +13,7 @@ const MeMuted = () => {
   useEffect(() => {
     async function fetchUser() {
       const response = await apiGetMyMuted(token);
-      console.log("response:", response);
+
       if (response?.data) setUsers(response.data);
     }
     fetchUser();
@@ -30,7 +30,7 @@ const MeMuted = () => {
             users.map((user) => (
               <div key={user.id} className="flex items-center justify-between">
                 <div className="flex items-center ">
-                  <Link to={`/profile/${user.username}`}>
+                  <Link to={`/profile/${user.userInfo.username}`}>
                     <Avatar
                       className="cursor-pointer"
                       size="small"
@@ -38,7 +38,7 @@ const MeMuted = () => {
                     />
                   </Link>
                   <div className="py-3 pr-5 ml-2 ">
-                    <Link to={`/profile/${user.username}`}>
+                    <Link to={`/profile/${user.userInfo.username}`}>
                       <h3 className="text-base font-semibold text-gray-400 transition-all hover:text-gray-600">
                         {user.fullname}
                       </h3>

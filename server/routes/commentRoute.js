@@ -2,7 +2,7 @@ import express from "express";
 import requiredAuth from "../middlewares/requiredAuth.js";
 import fetchMe from "../middlewares/fetchMe.js";
 import commentController from "../controllers/commentController.js";
-import optinalAuth from "../middlewares/optionalAuth.js";
+import optionalAuth from "../middlewares/optionalAuth.js";
 import validator from "../middlewares/validator.js";
 import commentSchema from "../validations/commentSchema.js";
 
@@ -34,13 +34,13 @@ router.delete("/:id", requiredAuth, fetchMe, commentController.deleteComment);
 
 // -------------------- get main comments -------------------- //
 
-router.get("/:id", optinalAuth, fetchMe, commentController.getMainComments);
+router.get("/:id", requiredAuth, fetchMe, commentController.getMainComments);
 
 // -------------------- get replies comments -------------------- //
 
 router.get(
   "/:id/replies",
-  optinalAuth,
+  requiredAuth,
   fetchMe,
   commentController.getNestedComments
 );

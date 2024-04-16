@@ -1,6 +1,7 @@
-import axios from "axios";
 import { config } from "../utils/constants";
 import { toast } from "react-toastify";
+import { customAxios } from "../config/axios-customize";
+import axios from "axios";
 
 const apiGetPendingReportUsers = async (
   token,
@@ -8,10 +9,8 @@ const apiGetPendingReportUsers = async (
   skipId = "",
   skipCount = ""
 ) => {
-  console.log('skipId = "", skipCount:', skipId, skipCount);
-  if (!token) return null;
   try {
-    const response = await axios.get(
+    const response = await customAxios.get(
       `${config.SERVER_HOST}/report-user/user/pending?limit=${limit}&skipId=${skipId}&skipCount=${skipCount}`,
       {
         headers: {
@@ -20,13 +19,20 @@ const apiGetPendingReportUsers = async (
         },
       }
     );
-
-    if (response?.data) return response.data;
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    toast.warning(error.response.data.message, {
-      pauseOnHover: false,
-      delay: 200,
-    });
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
@@ -36,10 +42,8 @@ const apiGetPendingReportStaff = async (
   skipId = "",
   skipCount = ""
 ) => {
-  console.log('skipId = "", skipCount:', skipId, skipCount);
-  if (!token) return null;
   try {
-    const response = await axios.get(
+    const response = await customAxios.get(
       `${config.SERVER_HOST}/report-user/staff/pending?limit=${limit}&skipId=${skipId}&skipCount=${skipCount}`,
       {
         headers: {
@@ -48,22 +52,27 @@ const apiGetPendingReportStaff = async (
         },
       }
     );
-
-    if (response?.data) return response.data;
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    toast.warning(error.response.data.message, {
-      pauseOnHover: false,
-      delay: 200,
-    });
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
-const apiGetReportedUsers = async (token, userId, limit = 10, skip) => {
-  if (!token && !userId) return null;
-  if (!skip) skip = "";
+const apiGetReportedUsers = async (token, userId, limit = 10, skip = "") => {
   try {
-    const response = await axios.get(
-      `${config.SERVER_HOST}/report-user/${userId}/pending?limit=${limit}&skip=${skip}`,
+    const response = await customAxios.get(
+      `${config.SERVER_HOST}/report-user/${userId}/pending?limit=${limit}&skip =${skip}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -71,23 +80,27 @@ const apiGetReportedUsers = async (token, userId, limit = 10, skip) => {
         },
       }
     );
-
-    if (response?.data) return response.data;
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    toast.warning(error.response.data.message, {
-      pauseOnHover: false,
-      delay: 200,
-    });
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
-const apiGetUsersResolved = async (token, limit = 10, skip) => {
-  if (!token) return null;
-  if (!skip) skip = "";
-  console.log("skip:", skip);
+const apiGetUsersResolved = async (token, limit = 10, skip = "") => {
   try {
-    const response = await axios.get(
-      `${config.SERVER_HOST}/report-user/resolved?limit=${limit}&skip=${skip}`,
+    const response = await customAxios.get(
+      `${config.SERVER_HOST}/report-user/resolved?limit=${limit}&skip =${skip}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -95,21 +108,26 @@ const apiGetUsersResolved = async (token, limit = 10, skip) => {
         },
       }
     );
-
-    if (response?.data) return response.data;
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    toast.warning(error.response.data.message, {
-      pauseOnHover: false,
-      delay: 200,
-    });
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
 const apiResolveReportedUsers = async (token, userId) => {
-  console.log("userId:", userId);
-  if (!token && !userId) return null;
   try {
-    const response = await axios.patch(
+    const response = await customAxios.patch(
       `${config.SERVER_HOST}/report-user/report/${userId}/resolve`,
       {},
       {
@@ -119,17 +137,26 @@ const apiResolveReportedUsers = async (token, userId) => {
         },
       }
     );
-
-    if (response?.data) return response.data;
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    console.log("error:", error);
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
 const apiResolveReportedAllUsers = async (token, userId) => {
-  if (!token && !userId) return null;
   try {
-    const response = await axios.patch(
+    const response = await customAxios.patch(
       `${config.SERVER_HOST}/report-user/${userId}`,
       {},
       {
@@ -139,17 +166,26 @@ const apiResolveReportedAllUsers = async (token, userId) => {
         },
       }
     );
-
-    if (response?.data) return response.data;
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    console.log("error:", error);
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
 const apiDeleteMyComment = async (token, commentId) => {
-  if (!commentId && !token) return null;
   try {
-    const response = await axios.delete(
+    const response = await customAxios.delete(
       `${config.SERVER_HOST}/comment/${commentId}`,
       {
         headers: {
@@ -158,20 +194,27 @@ const apiDeleteMyComment = async (token, commentId) => {
         },
       }
     );
-
-    if (response.data) {
+    if (response?.data?.success) {
       return response.data;
     }
   } catch (error) {
-    console.log("error:", error);
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
-const apiUserSearch = async (token, inputSearch, limit = 10, skip) => {
-  if (!inputSearch) return null;
+const apiUserSearch = async (token, inputSearch, limit = 10, skip = "") => {
   try {
-    const response = await axios.get(
-      `${config.SERVER_HOST}/search?users=${inputSearch}&limit=${limit}&skip=${skip}`,
+    const response = await customAxios.get(
+      `${config.SERVER_HOST}/search?users=${inputSearch}&limit=${limit}&skip =${skip}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -179,16 +222,26 @@ const apiUserSearch = async (token, inputSearch, limit = 10, skip) => {
         },
       }
     );
-    if (response?.data) return response.data;
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    console.log("error:", error);
+    console.log("Error:", error);
+    // toast.error(
+    //   error?.response?.data?.message
+    //     ? error?.response?.data?.message
+    //     : "Something went wrong",
+    //   {
+    //     pauseOnHover: false,
+    //     delay: 250,
+    //   }
+    // );
   }
 };
 
 const apiBlogSearch = async (token, inputSearch, limit = 10, skip = "") => {
-  if (!inputSearch) return null;
   try {
-    const response = await axios.get(
+    const response = await customAxios.get(
       `${config.SERVER_HOST}/search?post=${inputSearch}&limit=${limit}&skip=${skip}`,
       {
         headers: {
@@ -197,17 +250,32 @@ const apiBlogSearch = async (token, inputSearch, limit = 10, skip = "") => {
         },
       }
     );
-    if (response?.data) return response.data;
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    console.log("error:", error);
+    console.log("Error:", error);
+    // toast.error(
+    //   error?.response?.data?.message
+    //     ? error?.response?.data?.message
+    //     : "Something went wrong",
+    //   {
+    //     pauseOnHover: false,
+    //     delay: 250,
+    //   }
+    // );
   }
 };
 
-const apiTopicsSearch = async (token, inputSearch = "", limit = 10, skip) => {
-  if (!inputSearch) return null;
+const apiTopicsSearch = async (
+  token,
+  inputSearch = "",
+  limit = 10,
+  skip = ""
+) => {
   try {
-    const response = await axios.get(
-      `${config.SERVER_HOST}/search?tag=${inputSearch}&limit=${limit}&skip=${skip}`,
+    const response = await customAxios.get(
+      `${config.SERVER_HOST}/search?tag=${inputSearch}&limit=${limit}&skip =${skip}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -215,16 +283,26 @@ const apiTopicsSearch = async (token, inputSearch = "", limit = 10, skip) => {
         },
       }
     );
-    if (response?.data) return response.data;
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    console.log("error:", error);
+    console.log("Error:", error);
+    // toast.error(
+    //   error?.response?.data?.message
+    //     ? error?.response?.data?.message
+    //     : "Something went wrong",
+    //   {
+    //     pauseOnHover: false,
+    //     delay: 250,
+    //   }
+    // );
   }
 };
 
 const apiGetReadingList = async (token, limit) => {
-  if (!token) return null;
   try {
-    const response = await axios.get(
+    const response = await customAxios.get(
       `${config.SERVER_HOST}/reading-list/me?limit=${limit}`,
       {
         headers: {
@@ -233,16 +311,26 @@ const apiGetReadingList = async (token, limit) => {
         },
       }
     );
-    if (response?.data) return response.data;
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    console.log("error:", error);
+    console.log("Error:", error);
+    // toast.error(
+    //   error?.response?.data?.message
+    //     ? error?.response?.data?.message
+    //     : "Something went wrong",
+    //   {
+    //     pauseOnHover: false,
+    //     delay: 250,
+    //   }
+    // );
   }
 };
 
 const apiAddReadingList = async (token, postId) => {
-  if (!token) return null;
   try {
-    const response = await axios.post(
+    const response = await customAxios.post(
       `${config.SERVER_HOST}/reading-list/${postId}`,
       {},
       {
@@ -252,16 +340,26 @@ const apiAddReadingList = async (token, postId) => {
         },
       }
     );
-    if (response?.data) return response.data;
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    console.log("error:", error);
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
 const apiDeleteReadingList = async (token, postId) => {
-  if (!token) return null;
   try {
-    const response = await axios.delete(
+    const response = await customAxios.delete(
       `${config.SERVER_HOST}/reading-list/${postId}`,
       {
         headers: {
@@ -270,21 +368,28 @@ const apiDeleteReadingList = async (token, postId) => {
         },
       }
     );
-    if (response?.data) return response.data;
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    console.log("error:", error);
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
 const apiReportBlog = async (token, postId, reason) => {
-  console.log("postId, reason:", postId, reason);
-  if (!token) return null;
   try {
-    const response = await axios.post(
+    const response = await customAxios.post(
       `${config.SERVER_HOST}/report-article/${postId}`,
-      {
-        reason,
-      },
+      { reason },
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -292,20 +397,26 @@ const apiReportBlog = async (token, postId, reason) => {
         },
       }
     );
-    console.log("response:", response);
-    if (response?.data) return response.data;
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    toast.warning(error.response.data.message, {
-      pauseOnHover: false,
-      delay: 200,
-    });
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
 const apiGetExploreBlogs = async (token, limit, skip = "") => {
-  if (!token) return null;
   try {
-    const response = await axios.get(
+    const response = await customAxios.get(
       `${config.SERVER_HOST}/article/explore-new-articles/?limit=${limit}&skip=${skip}`,
       {
         headers: {
@@ -314,16 +425,26 @@ const apiGetExploreBlogs = async (token, limit, skip = "") => {
         },
       }
     );
-    if (response?.data) return response.data;
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    console.log("error:", error);
+    console.log("Error:", error);
+    // toast.error(
+    //   error?.response?.data?.message
+    //     ? error?.response?.data?.message
+    //     : "Something went wrong",
+    //   {
+    //     pauseOnHover: false,
+    //     delay: 250,
+    //   }
+    // );
   }
 };
 
 const apiGetStaffPick = async (token, limit = 3, skip = "") => {
-  if (!token) return null;
   try {
-    const response = await axios.get(
+    const response = await customAxios.get(
       `${config.SERVER_HOST}/article/admin-pick-full-list?limit=${limit}&skip=${skip}`,
       {
         headers: {
@@ -332,17 +453,32 @@ const apiGetStaffPick = async (token, limit = 3, skip = "") => {
         },
       }
     );
-    if (response?.data) return response.data;
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    console.log("error:", error);
+    console.log("Error:", error);
+    // toast.error(
+    //   error?.response?.data?.message
+    //     ? error?.response?.data?.message
+    //     : "Something went wrong",
+    //   {
+    //     pauseOnHover: false,
+    //     delay: 250,
+    //   }
+    // );
   }
 };
 
-const apiGetFollowedArticles = async (token, slug, limit = 10, skip = "") => {
-  if (!token) return null;
+const apiGetFollowedTopicArticles = async (
+  token,
+  slug,
+  limit = 10,
+  skip = ""
+) => {
   try {
-    const response = await axios.get(
-      `${config.SERVER_HOST}/article/topic/${slug}?limit=${limit}&skip=${skip}`,
+    const response = await customAxios.get(
+      `${config.SERVER_HOST}/article/followed/topic/${slug}?limit=${limit}&skip=${skip}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -350,9 +486,20 @@ const apiGetFollowedArticles = async (token, slug, limit = 10, skip = "") => {
         },
       }
     );
-    if (response?.data) return response.data;
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    console.log("error:", error);
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
@@ -362,9 +509,8 @@ const apiGetMyUserFollowings = async (
   limit = 10,
   skip = ""
 ) => {
-  if (!token) return null;
   try {
-    const response = await axios.get(
+    const response = await customAxios.get(
       `${config.SERVER_HOST}/follow-profile/${username}/following?limit=${limit}&skip=${skip}`,
       {
         headers: {
@@ -373,16 +519,26 @@ const apiGetMyUserFollowings = async (
         },
       }
     );
-    if (response?.data) return response.data;
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    console.log("error:", error);
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
 const apiGetPendingReportsArticles = async (token) => {
-  if (!token) return null;
   try {
-    const response = await axios.get(
+    const response = await customAxios.get(
       `${config.SERVER_HOST}/report-article/pending`,
       {
         headers: {
@@ -391,9 +547,20 @@ const apiGetPendingReportsArticles = async (token) => {
         },
       }
     );
-    if (response?.data) return response.data;
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    console.log("error:", error);
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
@@ -404,9 +571,8 @@ const apiGetAllArticlesAdmin = async (
   status = "",
   skip = ""
 ) => {
-  if (!token) return null;
   try {
-    const response = await axios.get(
+    const response = await customAxios.get(
       `${config.SERVER_HOST}/article?limit=${limit}&skip=${skip}&search=${search}&option=${status}`,
       {
         headers: {
@@ -415,30 +581,51 @@ const apiGetAllArticlesAdmin = async (
         },
       }
     );
-    if (response?.data) return response.data;
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    console.log("error:", error);
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
+
 const apiGetMyMuted = async (token) => {
-  if (!token) return null;
   try {
-    const response = await axios.get(`${config.SERVER_HOST}/mute/me`, {
+    const response = await customAxios.get(`${config.SERVER_HOST}/mute/me`, {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
     });
-    if (response?.data) return response.data;
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    console.log("error:", error);
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
 const apiLikeArticle = async (token, blogId) => {
-  if (!token && !blogId) return null;
   try {
-    const response = await axios.post(
+    const response = await customAxios.post(
       `${config.SERVER_HOST}/like/${blogId}`,
       {},
       {
@@ -448,17 +635,26 @@ const apiLikeArticle = async (token, blogId) => {
         },
       }
     );
-    if (response?.data.success) return true;
-    return false;
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    console.log("error:", error);
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
 const apiUnLikeArticle = async (token, blogId) => {
-  if (!token && !blogId) return null;
   try {
-    const response = await axios.delete(
+    const response = await customAxios.delete(
       `${config.SERVER_HOST}/like/${blogId}`,
       {
         headers: {
@@ -467,17 +663,26 @@ const apiUnLikeArticle = async (token, blogId) => {
         },
       }
     );
-    if (response?.data?.success) return true;
-    return false;
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    console.log("error:", error);
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
 const apiGetPendingReasonsReportsArticles = async (token, blogId) => {
-  if (!token && !blogId) return null;
   try {
-    const response = await axios.get(
+    const response = await customAxios.get(
       `${config.SERVER_HOST}/report-article/${blogId}/pending`,
       {
         headers: {
@@ -486,17 +691,26 @@ const apiGetPendingReasonsReportsArticles = async (token, blogId) => {
         },
       }
     );
-    if (response?.data?.success) return response?.data;
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    console.log("error:", error);
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
 const apiMarkReportBlog = async (token, reportBlogId) => {
-  console.log("reportBlogId:", reportBlogId);
-  if (!token && !reportBlogId) return null;
   try {
-    const response = await axios.patch(
+    const response = await customAxios.patch(
       `${config.SERVER_HOST}/report-article/report/${reportBlogId}/resolve`,
       {},
       {
@@ -506,17 +720,26 @@ const apiMarkReportBlog = async (token, reportBlogId) => {
         },
       }
     );
-    if (response?.data?.success) return true;
-    return false;
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    console.log("error:", error);
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
 const apiMarkAllReportBlog = async (token, BlogId) => {
-  if (!token && !BlogId) return null;
   try {
-    const response = await axios.patch(
+    const response = await customAxios.patch(
       `${config.SERVER_HOST}/report-article/${BlogId}`,
       {},
       {
@@ -526,17 +749,26 @@ const apiMarkAllReportBlog = async (token, BlogId) => {
         },
       }
     );
-    if (response?.data?.success) return true;
-    return false;
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    console.log("error:", error);
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
 const apiSetBackToDraft = async (token, BlogId, reason) => {
-  if (!token && !BlogId) return null;
   try {
-    const response = await axios.patch(
+    const response = await customAxios.patch(
       `${config.SERVER_HOST}/article/set-article-back-to-draft/${BlogId}`,
       { reason },
       {
@@ -546,20 +778,26 @@ const apiSetBackToDraft = async (token, BlogId, reason) => {
         },
       }
     );
-    if (response?.data?.success) return true;
-    return false;
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    toast.warning(error.response.data.message, {
-      pauseOnHover: false,
-      delay: 200,
-    });
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
 const apiGetReportsBlogSolved = async (token) => {
-  if (!token) return null;
   try {
-    const response = await axios.get(
+    const response = await customAxios.get(
       `${config.SERVER_HOST}/report-article/resolved`,
       {
         headers: {
@@ -568,15 +806,26 @@ const apiGetReportsBlogSolved = async (token) => {
         },
       }
     );
-    if (response?.data) return response.data;
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    console.log("error:", error);
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
 const apiGetBlogsTopic = async (token, slug, limit = 9, skip = "") => {
   try {
-    const response = await axios.get(
+    const response = await customAxios.get(
       `${config.SERVER_HOST}/article/topic/${slug}?limit=${limit}&skip=${skip}`,
       {
         headers: {
@@ -585,17 +834,26 @@ const apiGetBlogsTopic = async (token, slug, limit = 9, skip = "") => {
         },
       }
     );
-
-    if (response.data.success) return response.data;
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    console.log("error:", error);
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
 const apiSetApproved = async (token, BlogId) => {
-  if (!token && !BlogId) return null;
   try {
-    const response = await axios.patch(
+    const response = await customAxios.patch(
       `${config.SERVER_HOST}/article/approve/${BlogId}`,
       {},
       {
@@ -605,19 +863,26 @@ const apiSetApproved = async (token, BlogId) => {
         },
       }
     );
-    if (response?.data?.success) return true;
-    return false;
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    toast.warning(error.response.data.message, {
-      pauseOnHover: false,
-      delay: 200,
-    });
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
 const apiGetRemovedArticles = async (token, limit = 9, skip = "") => {
   try {
-    const response = await axios.get(
+    const response = await customAxios.get(
       `${config.SERVER_HOST}/article/removed-articles?limit=${limit}&skip=${skip}`,
       {
         headers: {
@@ -627,16 +892,26 @@ const apiGetRemovedArticles = async (token, limit = 9, skip = "") => {
       }
     );
 
-    if (response.data.success) return response.data;
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    console.log("error:", error);
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
 const apiRestoreArticle = async (token, BlogId) => {
-  if (!token && !BlogId) return null;
   try {
-    const response = await axios.patch(
+    const response = await customAxios.patch(
       `${config.SERVER_HOST}/article/restore/${BlogId}`,
       {},
       {
@@ -646,19 +921,26 @@ const apiRestoreArticle = async (token, BlogId) => {
         },
       }
     );
-    if (response?.data?.success) return true;
-    return false;
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    toast.warning(error.response.data.message, {
-      pauseOnHover: false,
-      delay: 200,
-    });
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
 const apiGetUserLikedBlogs = async (token, blogId, limit = 2, skip = "") => {
   try {
-    const response = await axios.get(
+    const response = await customAxios.get(
       `${config.SERVER_HOST}/like/${blogId}?limit=${limit}&skip=${skip}`,
       {
         headers: {
@@ -667,17 +949,26 @@ const apiGetUserLikedBlogs = async (token, blogId, limit = 2, skip = "") => {
         },
       }
     );
-
-    if (response.data.success) return response.data;
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    console.log("error:", error);
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
 const apiSetStaff = async (token, userId) => {
-  if (!token && !userId) return null;
   try {
-    const response = await axios.patch(
+    const response = await customAxios.patch(
       `${config.SERVER_HOST}/role/make-staff/${userId}`,
       {},
       {
@@ -687,21 +978,26 @@ const apiSetStaff = async (token, userId) => {
         },
       }
     );
-    if (response?.data?.success) return true;
-    return false;
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    console.log("error:", error);
-    toast.warning(error.response.data.message, {
-      pauseOnHover: false,
-      delay: 200,
-    });
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
 const apiSetUser = async (token, userId) => {
-  if (!token && !userId) return null;
   try {
-    const response = await axios.patch(
+    const response = await customAxios.patch(
       `${config.SERVER_HOST}/role/make-user/${userId}`,
       {},
       {
@@ -711,18 +1007,24 @@ const apiSetUser = async (token, userId) => {
         },
       }
     );
-    if (response?.data?.success) return true;
-    return false;
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    toast.warning(error.response.data.message, {
-      pauseOnHover: false,
-      delay: 200,
-    });
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
 const apiRegister = async (email, password) => {
-  if (!email && !password) return null;
   try {
     const response = await axios.post(
       `${config.SERVER_HOST}/auth/register`,
@@ -734,44 +1036,54 @@ const apiRegister = async (email, password) => {
       }
     );
     if (response?.data?.success) {
-      toast.success(response?.data?.message, {
-        pauseOnHover: false,
-        delay: 200,
-      });
+      return response.data;
     }
   } catch (error) {
-    toast.warning(error.response.data.message, {
-      pauseOnHover: false,
-      delay: 200,
-    });
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
 const apiLogin = async (email, password) => {
-  if (!email && !password) return null;
   try {
     const response = await axios.post(
       `${config.SERVER_HOST}/auth/login-email`,
       { email, password },
+      { withCredentials: true },
       {
         headers: {
           "Content-Type": "application/json",
         },
       }
     );
-    if (response.data.success) return response.data;
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    toast.warning(error.response.data.message, {
-      pauseOnHover: false,
-      delay: 200,
-    });
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
 const apiVerifyEmail = async (token) => {
-  if (!token) return null;
   try {
-    const response = await axios.patch(
+    const response = await customAxios.patch(
       `${config.SERVER_HOST}/auth/verify-email`,
       { token },
       {
@@ -780,15 +1092,24 @@ const apiVerifyEmail = async (token) => {
         },
       }
     );
-    if (response?.data) return response.data;
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    console.log("error:", error);
-    return error.response.data;
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
 const apiVerifySetupPassword = async (token) => {
-  if (!token) return null;
   try {
     const response = await axios.patch(
       `${config.SERVER_HOST}/auth/verify-setup-password`,
@@ -799,17 +1120,26 @@ const apiVerifySetupPassword = async (token) => {
         },
       }
     );
-    if (response?.data) return response.data;
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    console.log("error:", error);
-    return error.response.data;
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
 const apiVerifyProfile = async (token, formData) => {
-  if (!token) return null;
   try {
-    const response = await axios.post(
+    const response = await customAxios.post(
       `${config.SERVER_HOST}/profile/setup-profile`,
       formData,
       {
@@ -819,18 +1149,24 @@ const apiVerifyProfile = async (token, formData) => {
         },
       }
     );
-    if (response?.data) return response.data;
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    console.log("error:", error);
-    toast.warning(error.response.data.message, {
-      pauseOnHover: false,
-      delay: 200,
-    });
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
 const apiForgotPassword = async (email) => {
-  if (!email) return null;
   try {
     const response = await axios.post(
       `${config.SERVER_HOST}/auth/forgot-password`,
@@ -841,13 +1177,20 @@ const apiForgotPassword = async (email) => {
         },
       }
     );
-    if (response?.data) return response.data;
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    console.log("error:", error);
-    toast.warning(error.response.data.message, {
-      pauseOnHover: false,
-      delay: 200,
-    });
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
@@ -856,9 +1199,8 @@ const apiChangeForgotPassword = async (
   newPassword = "",
   confirmPassword = ""
 ) => {
-  if (!token && !newPassword && !confirmPassword) return null;
   try {
-    const response = await axios.patch(
+    const response = await customAxios.patch(
       `${config.SERVER_HOST}/auth/reset-password/${token}`,
       { newPassword, confirmPassword },
       {
@@ -867,13 +1209,20 @@ const apiChangeForgotPassword = async (
         },
       }
     );
-    if (response?.data) return response.data;
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    console.log("error:", error);
-    toast.warning(error.response.data.message, {
-      pauseOnHover: false,
-      delay: 200,
-    });
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
@@ -918,6 +1267,6 @@ export {
   apiReportBlog,
   apiGetExploreBlogs,
   apiGetStaffPick,
-  apiGetFollowedArticles,
+  apiGetFollowedTopicArticles,
   apiGetMyUserFollowings,
 };

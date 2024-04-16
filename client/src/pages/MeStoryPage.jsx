@@ -13,7 +13,7 @@ const MeStoryPage = () => {
     <>
       <div className="w-full">
         <div className="my-5 flex items-center justify-between">
-          <h1 className="text-4xl font-bold">Your stories</h1>
+          <h1 className="text-4xl font-bold">Your Stories</h1>
           <Button to={"/write"} height="40px">
             Write a story
           </Button>

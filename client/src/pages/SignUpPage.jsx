@@ -8,6 +8,7 @@ import InputAuth from "../components/input/InputAuth";
 import { Label } from "../components/label";
 import { Field } from "../components/field";
 import { apiRegister } from "../api/apisHung";
+import { toast } from "react-toastify";
 
 const schema = yup.object({
   email: yup
@@ -33,10 +34,13 @@ const SignUpPage = () => {
   const handleSignUp = async (values) => {
     if (!isValid) return;
     const { email, password } = values;
-    try {
-      await apiRegister(email, password);
-    } catch (error) {
-      console.log("error:", error);
+
+    const response = await apiRegister(email, password);
+    if (response) {
+      toast.success(response.message, {
+        pauseOnHover: false,
+        delay: 150,
+      });
     }
   };
 
@@ -68,7 +72,7 @@ const SignUpPage = () => {
           <p className="text-red-500">{errors?.password?.message}</p>
         </Field>
         <div className="have-account">
-          You already have an account? <NavLink to={"/sign-in"}>Login</NavLink>{" "}
+          You already have an account ? <NavLink to={"/sign-in"}>Login</NavLink>{" "}
         </div>
         <div className="flex items-center justify-center gap-3 mt-5">
           <Button

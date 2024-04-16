@@ -10,10 +10,8 @@ import { toast } from "react-toastify";
 const Account = () => {
   const [open, setOpen] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
-  const options = {
-    pauseOnHover: false,
-    delay: 300,
-  };
+  const token = localStorage.getItem("token");
+
   const schema = yup.object({
     oldPassword: yup.string().required().min(8),
     newPassword: yup.string().min(8),
@@ -39,18 +37,18 @@ const Account = () => {
   const handleOk = async (values) => {
     setConfirmLoading(true);
     const { oldPassword, newPassword, confirmPassword } = values;
-    console.log(values);
+
     const response = await apiChangePassword(
+      token,
       oldPassword,
       newPassword,
       confirmPassword
     );
-    console.log(response);
-    if (!response?.success) {
-      toast.error(response?.message, options);
-      return;
-    }
-    toast.success(response?.message, options);
+
+    toast.success(response.message, {
+      pauseOnHover: false,
+      delay: 150,
+    });
     setConfirmLoading(false);
     setOpen(false);
     reset();
@@ -61,6 +59,7 @@ const Account = () => {
     setOpen(false);
     reset();
   };
+
   const footer = () => {
     return (
       <div className="flex items-center justify-end">
@@ -77,6 +76,7 @@ const Account = () => {
       </div>
     );
   };
+
   return (
     <>
       <div className="">
@@ -100,7 +100,7 @@ const Account = () => {
             style={{ paddingTop: "15px", paddingBottom: "15px" }}
           >
             <div className="">
-              <label className="block font-bold" htmlFor="input-oldPassword">
+              <label className="block" htmlFor="input-oldPassword">
                 Old password
               </label>
               <input
@@ -120,7 +120,7 @@ const Account = () => {
               </p>
             </div>
             <div>
-              <label className="block font-bold" htmlFor="input-newPassword">
+              <label className="block" htmlFor="input-newPassword">
                 New password
               </label>
               <input
@@ -140,17 +140,13 @@ const Account = () => {
               </p>
             </div>
             <div>
-              <label
-                className="block font-bold"
-                htmlFor="input-confirmPassword"
-              >
+              <label className="block" htmlFor="input-confirmPassword">
                 Confirm password
               </label>
               <input
                 className="w-full py-2 border-b focus:placeholder-transparent "
                 type="password"
                 id="input-confirmPassword"
-                // placeholder="repeat your new password"
                 {...register("confirmPassword")}
               />
               <p className={errors.confirmPassword ? "text-red-400" : ""}>

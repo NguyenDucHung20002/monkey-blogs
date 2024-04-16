@@ -4,16 +4,18 @@ import Avatar from "../../modules/user/Avatar";
 import ButtonFollowingUser from "../button/ButtonFollowingUser";
 
 const FollowingUserHandle = ({ data = {}, initialFollowing = false }) => {
-  const { id, username, avatar, fullname, bio } = data;
+  const { id, userInfo, avatar, fullname, bio } = data;
+
   if (!data) return;
+
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center ">
-        <Link to={`/profile/${username}`}>
+        <Link to={`/profile/${userInfo?.username}`}>
           <Avatar size="small" url={avatar} />
         </Link>
         <div className="py-3 pr-5 ml-2 ">
-          <Link to={`/profile/${username}`}>
+          <Link to={`/profile/${userInfo?.username}`}>
             <h3 className="text-base font-semibold text-gray-400 transition-all hover:text-gray-600">
               {fullname}
             </h3>

@@ -10,16 +10,20 @@ import TopicList from "../topic/TopicList";
 import Swal from "sweetalert2";
 import BlogImage from "../blog/BlogImage";
 import ClearAll from "../../components/modalClear/ClearAll";
+import { toast } from "react-toastify";
+import { Skeleton } from "antd";
 
 const ReadingHistory = () => {
   const [history, setHistory] = useState([]);
-  console.log("history:", history);
+  const token = localStorage.getItem("token");
+
   const fetchApiClearHistory = async () => {
-    const response = await apiDeleteReadingHistory();
-    if (response?.success) {
+    const response = await apiDeleteReadingHistory(token);
+    if (response) {
       setHistory([]);
     }
   };
+
   const handleDelete = () => {
     Swal.fire({
       title: "Are you sure?",
@@ -36,24 +40,32 @@ const ReadingHistory = () => {
       }
     });
   };
+
   const getHistory = useCallback(async () => {
-    const response = await apiGetReadingHistory();
+    const response = await apiGetReadingHistory(token);
     if (response?.success) {
       setHistory(response.data);
     }
   }, []);
+
   const handleDeleteAnArticle = useCallback(
     async (id) => {
-      const response = await apiDeleteArticleHistory(id);
-      if (response?.success) {
+      const response = await apiDeleteArticleHistory(token, id);
+      if (response) {
         getHistory();
+        toast.success(response.message, {
+          pauseOnHover: false,
+          delay: 150,
+        });
       }
     },
     [getHistory]
   );
+
   useEffect(() => {
     getHistory();
   }, [getHistory]);
+
   return (
     <div>
       <ClearAll
@@ -84,7 +96,7 @@ const ReadingHistory = () => {
                 </div>
               </div>
             </div>
-            {val?.banner && (
+            {val?.banner ? (
               <div className="ml-14">
                 <BlogImage
                   className="flex-shrink-0"
@@ -92,6 +104,16 @@ const ReadingHistory = () => {
                   alt=""
                   to={`/blog/${val.slug}`}
                 ></BlogImage>
+              </div>
+            ) : (
+              <div className="ml-14">
+                <Skeleton.Image
+                  active={false}
+                  style={{
+                    width: "120px",
+                    height: "120px",
+                  }}
+                />
               </div>
             )}
           </div>

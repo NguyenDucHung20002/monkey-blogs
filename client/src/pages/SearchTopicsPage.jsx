@@ -13,9 +13,7 @@ const SearchTopicsPage = () => {
       try {
         const response = await apiTopicsSearch(token, search, 15);
         if (response?.success) setTopics(response.data);
-      } catch (error) {
-        console.log("error:", error);
-      }
+      } catch (error) {}
     }
     fetchTopics();
   }, [search, token]);

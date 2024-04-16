@@ -1,15 +1,10 @@
-import axios from "axios";
 import { config } from "../utils/constants";
 import { toast } from "react-toastify";
-import Swal from "sweetalert2";
+import { customAxios } from "../config/axios-customize";
 
-let token;
-setTimeout(() => {
-  token = localStorage.getItem("token");
-}, 100);
 const apiAddTopic = async (token, name) => {
   try {
-    const response = await axios.post(
+    const response = await customAxios.post(
       `${config.SERVER_HOST}/topic`,
       { name },
       {
@@ -19,52 +14,54 @@ const apiAddTopic = async (token, name) => {
         },
       }
     );
-
-    if (response.data.success) {
-      toast.success("Add successfully!", {
-        pauseOnHover: false,
-        delay: 300,
-      });
-      return true;
+    if (response?.data?.success) {
+      return response.data;
     }
   } catch (error) {
-    if (error.response.status === 409)
-      return toast.error(error.response.data.message, {
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
         pauseOnHover: false,
-        delay: 500,
-      });
-
-    toast.error("Some thing was wrong!", {
-      pauseOnHover: false,
-      delay: 500,
-    });
+        delay: 250,
+      }
+    );
   }
 };
 
-const apiDeleteArticle = async (blogId) => {
+const apiDeleteArticle = async (token, blogId) => {
   try {
-    const res = await axios.delete(`${config.SERVER_HOST}/article/${blogId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (!res?.data.success) {
-      return false;
+    const response = await customAxios.delete(
+      `${config.SERVER_HOST}/article/${blogId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response?.data?.success) {
+      return response.data;
     }
-    return true;
   } catch (error) {
-    console.log("error:", error);
-    toast.warning(error.response.data.message, {
-      pauseOnHover: false,
-      delay: 200,
-    });
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
+
 const apiDeleteAdminArticle = async (token, blogId) => {
   try {
-    const res = await axios.delete(
+    const response = await customAxios.delete(
       `${config.SERVER_HOST}/article/remove/${blogId}`,
       {
         headers: {
@@ -73,50 +70,54 @@ const apiDeleteAdminArticle = async (token, blogId) => {
         },
       }
     );
-
-    if (!res?.data.success) {
-      return false;
+    if (response?.data?.success) {
+      return response.data;
     }
-    return true;
   } catch (error) {
-    console.log("error:", error);
-    toast.warning(error.response.data.message, {
-      pauseOnHover: false,
-      delay: 200,
-    });
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
 const apiDeleteTopic = async (token, id) => {
   try {
-    const response = await axios.delete(`${config.SERVER_HOST}/topic/${id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (response.data.success) {
-      toast.success("Deleted successfully!", {
-        pauseOnHover: false,
-        delay: 500,
-      });
-      return true;
+    const response = await customAxios.delete(
+      `${config.SERVER_HOST}/topic/${id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response?.data?.success) {
+      return response.data;
     }
   } catch (error) {
-    if (error.response.status === 409)
-      return Swal.fire("Deleted!", "Your post has been deleted.", "success");
-
-    toast.error("Some thing was wrong!", {
-      pauseOnHover: false,
-      delay: 500,
-    });
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
 const apiFollowTopic = async (token, topicId) => {
-  const res = await axios
-    .post(
+  try {
+    const response = await customAxios.post(
       `${config.SERVER_HOST}/follow-topic/${topicId}`,
       {},
       {
@@ -125,51 +126,55 @@ const apiFollowTopic = async (token, topicId) => {
           "Content-Type": "application/json",
         },
       }
-    )
-    .catch((err) => {
-      if (err.response.status == 404) {
-        toast.error("Can not find topic!", {
-          pauseOnHover: false,
-          delay: 500,
-        });
+    );
+    if (response?.data?.success) {
+      return response.data;
+    }
+  } catch (error) {
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
       }
-    });
-
-  if (res?.data?.success) {
-    return true;
+    );
   }
-
-  return false;
 };
 
 const apiUnFollowTopic = async (token, topicId) => {
-  const res = await axios
-    .delete(`${config.SERVER_HOST}/follow-topic/${topicId}`, {
-      headers: {
-        authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    })
-    .catch((err) => {
-      if (err.response.status == 404) {
-        toast.error("Can not find topic!", {
-          pauseOnHover: false,
-          delay: 500,
-        });
+  try {
+    const response = await customAxios.delete(
+      `${config.SERVER_HOST}/follow-topic/${topicId}`,
+      {
+        headers: {
+          authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       }
-    });
-  console.log("res:", res);
-
-  if (res.data.success) {
-    return true;
+    );
+    if (response?.data?.success) {
+      return response.data;
+    }
+  } catch (error) {
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
-
-  return false;
 };
 
 const apiFollowUser = async (userID, token) => {
-  const res = await axios
-    .post(
+  try {
+    const response = await customAxios.post(
       `${config.SERVER_HOST}/follow-profile/${userID}`,
       {},
       {
@@ -178,23 +183,27 @@ const apiFollowUser = async (userID, token) => {
           "Content-Type": "application/json",
         },
       }
-    )
-    .catch((error) => {
-      toast.warning(error.response.data.message, {
+    );
+    if (response?.data?.success) {
+      return response.data;
+    }
+  } catch (error) {
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
         pauseOnHover: false,
-        delay: 200,
-      });
-    });
-  if (res?.data?.success) {
-    return true;
+        delay: 250,
+      }
+    );
   }
-  return false;
 };
 
 const apiGetAllUser = async (token, limit = "10", skip = "", search = "") => {
-  if (!token) return;
   try {
-    const response = await axios.get(
+    const response = await customAxios.get(
       `${config.SERVER_HOST}/user?limit=${limit}&skip=${skip}&search=${search}`,
       {
         headers: {
@@ -203,19 +212,26 @@ const apiGetAllUser = async (token, limit = "10", skip = "", search = "") => {
         },
       }
     );
-    if (response.data) return response.data;
-    console.log("response.data:", response);
-  } catch (error) {
-    if (error.response.status === 404) {
-      return null;
+    if (response?.data?.success) {
+      return response.data;
     }
+  } catch (error) {
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
 const apiGetAllStaff = async (token, limit = "10", skip = "", search = "") => {
-  if (!token) return;
   try {
-    const response = await axios.get(
+    const response = await customAxios.get(
       `${config.SERVER_HOST}/role/staffs?limit=${limit}&skip=${skip}&search=${search}`,
       {
         headers: {
@@ -224,34 +240,54 @@ const apiGetAllStaff = async (token, limit = "10", skip = "", search = "") => {
         },
       }
     );
-    if (response.data) return response.data;
-    console.log("response.data:", response);
-  } catch (error) {
-    if (error.response.status === 404) {
-      return null;
+    if (response?.data?.success) {
+      return response.data;
     }
+  } catch (error) {
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
 const apiGetArticle = async (token, slug) => {
   try {
-    const response = await axios.get(`${config.SERVER_HOST}/article/${slug} `, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    });
-    if (response.data) return response.data;
-  } catch (error) {
-    if (error.response.status === 404) {
-      return null;
+    const response = await customAxios.get(
+      `${config.SERVER_HOST}/article/${slug} `,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response?.data?.success) {
+      return response.data;
     }
+  } catch (error) {
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
 const apiGetArticleAdminDetail = async (token, blogId) => {
   try {
-    const response = await axios.get(
+    const response = await customAxios.get(
       `${config.SERVER_HOST}/article/detail/${blogId} `,
       {
         headers: {
@@ -260,15 +296,26 @@ const apiGetArticleAdminDetail = async (token, blogId) => {
         },
       }
     );
-    if (response.data) return response.data;
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    console.log("error:", error);
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
-const apiGetArticleOrDraft = async (slug) => {
+const apiGetArticleOrDraft = async (token, slug) => {
   try {
-    const response = await axios.get(
+    const response = await customAxios.get(
       `${config.SERVER_HOST}/article/get/${slug} `,
       {
         headers: {
@@ -277,14 +324,26 @@ const apiGetArticleOrDraft = async (slug) => {
         },
       }
     );
-    if (response.data) return response?.data;
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    console.log("error: ", error);
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
-const apiDeleteDraft = async (id) => {
+
+const apiDeleteDraft = async (token, id) => {
   try {
-    const response = await axios.delete(
+    const response = await customAxios.delete(
       `${config.SERVER_HOST}/article/draft/delete-draft/${id} `,
       {
         headers: {
@@ -293,14 +352,26 @@ const apiDeleteDraft = async (id) => {
         },
       }
     );
-    if (response.data) return response?.data;
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    console.log("error: ", error);
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
+
 const apiGetArticleSkip = async (skipId, token, limit = 5) => {
   try {
-    const response = await axios.get(
+    const response = await customAxios.get(
       `${config.SERVER_HOST}/article?skip=${skipId}&limit=${limit}`,
       {
         headers: {
@@ -309,20 +380,26 @@ const apiGetArticleSkip = async (skipId, token, limit = 5) => {
         },
       }
     );
-    if (response.data) return response.data;
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    console.log("error:", error);
-    toast.error("Some thing was wrong!", {
-      pauseOnHover: false,
-      delay: 500,
-    });
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
 const apiAddComment = async (blogId, parentCommentId, content, token) => {
-  if ((!blogId, !content, !token)) return;
   try {
-    const response = await axios.post(
+    const response = await customAxios.post(
       `${config.SERVER_HOST}/comment/${blogId}`,
       {
         parentCommentId,
@@ -335,33 +412,54 @@ const apiAddComment = async (blogId, parentCommentId, content, token) => {
         },
       }
     );
-
-    if (response.data) {
+    if (response?.data?.success) {
       return response.data;
     }
   } catch (error) {
-    console.log("error:", error);
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
 const apiGetComment = async (slug, token) => {
   try {
-    const response = await axios.get(`${config.SERVER_HOST}/comment/${slug} `, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    });
-    if (response.data) return response.data;
+    const response = await customAxios.get(
+      `${config.SERVER_HOST}/comment/${slug} `,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    console.log("error:", error);
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
 const apiGetCommentReplies = async (token, id) => {
-  if (!token) return null;
   try {
-    const response = await axios.get(
+    const response = await customAxios.get(
       `${config.SERVER_HOST}/comment/${id}/replies `,
       {
         headers: {
@@ -370,50 +468,82 @@ const apiGetCommentReplies = async (token, id) => {
         },
       }
     );
-    if (response.data) return response.data;
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    console.log("error:", error);
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
 const apiGetMyFollowingTopics = async (token) => {
-  if (!token) return undefined;
   try {
-    const response = await axios.get(`${config.SERVER_HOST}/follow-topic/me`, {
-      headers: {
-        authorization: "Bearer " + token,
-        "Content-Type": "application/json",
-      },
-    });
-    if (response?.data) return response.data;
+    const response = await customAxios.get(
+      `${config.SERVER_HOST}/follow-topic/me`,
+      {
+        headers: {
+          authorization: "Bearer " + token,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    console.log("error:", error);
+    console.log("Error:", error);
+    // toast.error(
+    //   error?.response?.data?.message
+    //     ? error?.response?.data?.message
+    //     : "Something went wrong",
+    //   {
+    //     pauseOnHover: false,
+    //     delay: 250,
+    //   }
+    // );
   }
 };
 
 const apiGetNotification = async (token) => {
   try {
-    const res = await axios
-      .get(`${config.SERVER_HOST}/notification/me`, {
+    const response = await customAxios.get(
+      `${config.SERVER_HOST}/notification/me`,
+      {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-    if (!res?.data.success) {
-      return null;
+      }
+    );
+    if (response?.data?.success) {
+      return response.data;
     }
-    return res.data.data;
   } catch (error) {
-    console.log("error:", error);
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
-const apiMarkAsReadNotification = async () => {
+
+const apiMarkAsReadNotification = async (token) => {
   try {
-    const res = await axios.patch(
+    const response = await customAxios.patch(
       `${config.SERVER_HOST}/notification/mark-all-as-read`,
       {},
       {
@@ -423,52 +553,68 @@ const apiMarkAsReadNotification = async () => {
         },
       }
     );
-    if (!res?.data.success) {
-      return null;
+    if (response?.data?.success) {
+      return response.data;
     }
-    return res.data.data;
   } catch (error) {
-    console.log("error:", error);
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
+
 const apiGetProfile = async (token, username) => {
   try {
-    const res = await axios
-      .get(`${config.SERVER_HOST}/profile/${username}`, {
+    const response = await customAxios.get(
+      `${config.SERVER_HOST}/profile/${username}`,
+      {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-    if (!res?.data.success) {
-      return null;
+      }
+    );
+    if (!response?.data?.success) {
+      return;
     }
-    return res.data.data;
+    return response.data;
   } catch (error) {
-    console.log("error:", error);
+    return;
   }
 };
 
 const apiGetTopic = async (token, slug) => {
   try {
-    const response = await axios.get(`${config.SERVER_HOST}/topic/${slug}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (response.data.success) return response.data;
-  } catch (error) {
-    if (error.response.status == 404) {
-      toast.error("Topic not found!", {
-        pauseOnHover: false,
-        delay: 500,
-      });
+    const response = await customAxios.get(
+      `${config.SERVER_HOST}/topic/${slug}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response?.data?.success) {
+      return response.data;
     }
+  } catch (error) {
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
@@ -479,9 +625,8 @@ const apiGetTopics = async (
   option = "",
   skip = ""
 ) => {
-  console.log('skip = "":', skip);
   try {
-    const response = await axios.get(
+    const response = await customAxios.get(
       `${config.SERVER_HOST}/topic?limit=${limit}&search=${search}&skip=${skip}&option=${option}`,
       {
         headers: {
@@ -490,50 +635,82 @@ const apiGetTopics = async (
         },
       }
     );
-    if (response.data) return response.data;
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    toast.error("Some thing was wrong!", {
-      pauseOnHover: false,
-      delay: 500,
-    });
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
-const apiGetUserBlogs = async (username) => {
+const apiGetUserBlogs = async (token, username) => {
   try {
-    const res = await axios
-      .get(`${config.SERVER_HOST}/article/${username}/all`, {})
-      .catch((err) => {
-        console.log(err);
-      });
-    if (!res?.data.success) {
-      return [];
+    const response = await customAxios.get(
+      `${config.SERVER_HOST}/article/${username}/all`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response?.data?.success) {
+      return response.data;
     }
-    return res.data.articles;
   } catch (error) {
-    console.log("error:", error);
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
-const apiGetUserFollowings = async (username) => {
+const apiGetUserFollowings = async (token, username) => {
   try {
-    const res = await axios
-      .get(`${config.SERVER_HOST}/follow-profile/${username}/following`, {})
-      .catch((err) => {
-        console.log(err);
-      });
-    if (!res?.data.success) {
-      return [];
+    const response = await customAxios.get(
+      `${config.SERVER_HOST}/follow-profile/${username}/following`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response?.data?.success) {
+      return response.data;
     }
-    return res.data.data;
   } catch (error) {
-    console.log("error:", error);
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
 const apiMyArticleFollowing = async (token, limit = 5, skip = "") => {
   try {
-    const response = await axios.get(
+    const response = await customAxios.get(
       `${config.SERVER_HOST}/article/following?limit=${limit}&skip=${skip}`,
       {
         headers: {
@@ -542,17 +719,26 @@ const apiMyArticleFollowing = async (token, limit = 5, skip = "") => {
         },
       }
     );
-    if (response?.data) return response.data;
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    console.log("error:", error);
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
-const apiSuggestionTopics = async (token, max) => {
-  if (!token) return undefined;
-  if (!max) max = 8;
+const apiSuggestionTopics = async (token, max = 8) => {
   try {
-    const response = await axios.get(
+    const response = await customAxios.get(
       `${config.SERVER_HOST}/topic/recommended-topics?max=${max}`,
       {
         headers: {
@@ -561,15 +747,26 @@ const apiSuggestionTopics = async (token, max) => {
         },
       }
     );
-    if (response.data) return response.data;
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    console.log("error:", error);
+    console.log("Error:", error);
+    // toast.error(
+    //   error?.response?.data?.message
+    //     ? error?.response?.data?.message
+    //     : "Something went wrong",
+    //   {
+    //     pauseOnHover: false,
+    //     delay: 250,
+    //   }
+    // );
   }
 };
 
 const apiSuggestionUsers = async (token, max = 5) => {
   try {
-    const response = await axios.get(
+    const response = await customAxios.get(
       `${config.SERVER_HOST}/follow-profile/who-to-follow?max=${max}`,
       {
         headers: {
@@ -578,38 +775,56 @@ const apiSuggestionUsers = async (token, max = 5) => {
         },
       }
     );
-    if (response?.data) return response.data;
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    console.log("error:", error);
+    console.log("Error:", error);
+    // toast.error(
+    //   error?.response?.data?.message
+    //     ? error?.response?.data?.message
+    //     : "Something went wrong",
+    //   {
+    //     pauseOnHover: false,
+    //     delay: 250,
+    //   }
+    // );
   }
 };
 
 const apiUnFollowUser = async (userID, token) => {
-  const res = await axios
-    .delete(`${config.SERVER_HOST}/follow-profile/${userID}`, {
-      headers: {
-        authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    })
-    .catch((error) => {
-      toast.warning(error.response.data.message, {
+  try {
+    const response = await customAxios.delete(
+      `${config.SERVER_HOST}/follow-profile/${userID}`,
+      {
+        headers: {
+          authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response?.data?.success) {
+      return response.data;
+    }
+  } catch (error) {
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
         pauseOnHover: false,
-        delay: 200,
-      });
-    });
-  if (res?.data.success) {
-    return true;
+        delay: 250,
+      }
+    );
   }
-
-  return false;
 };
 
-const apiUpdateArticle = async (token, slug, formData) => {
+const apiUpdateArticle = async (token, slug, data) => {
   try {
-    const response = await axios.patch(
+    const response = await customAxios.patch(
       `${config.SERVER_HOST}/article/update/${slug}`,
-      formData,
+      data,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -617,20 +832,26 @@ const apiUpdateArticle = async (token, slug, formData) => {
         },
       }
     );
-    if (response.data.success) return true;
-  } catch (error) {
-    if (error.response.status == 404) {
-      toast.error("Post not found!", {
-        pauseOnHover: false,
-        delay: 500,
-      });
+    if (response?.data?.success) {
+      return response.data;
     }
+  } catch (error) {
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
 const apiUpdateTopic = async (token, id, name) => {
   try {
-    const response = await axios.patch(
+    const response = await customAxios.patch(
       `${config.SERVER_HOST}/topic/${id}`,
       { name },
       {
@@ -640,37 +861,28 @@ const apiUpdateTopic = async (token, id, name) => {
         },
       }
     );
-
-    if (response.data.success) {
-      toast.success("Update successfully!", {
-        pauseOnHover: true,
-        delay: 200,
-      });
-      return true;
+    if (response?.data?.success) {
+      return response.data;
     }
   } catch (error) {
-    console.log("error:", error);
-    if (error.response.status === 409)
-      return toast.error(error.response.data.message, {
-        pauseOnHover: true,
-        delay: 200,
-      });
-
-    toast.error("Some thing was wrong!", {
-      pauseOnHover: false,
-      delay: 500,
-    });
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
 const apiUpdateBan = async (token, userId, banType) => {
-  if ((!token, !userId)) return null;
   try {
-    const response = await axios.patch(
+    const response = await customAxios.patch(
       `${config.SERVER_HOST}/user/update-ban/${userId}`,
-      {
-        banType,
-      },
+      { banType },
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -678,20 +890,28 @@ const apiUpdateBan = async (token, userId, banType) => {
         },
       }
     );
-    if (response?.data) return response.data;
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    console.log("error:", error);
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
 const apiBanUser = async (token, userId, banType) => {
-  if (!userId && !banType && !token) return null;
   try {
-    const response = await axios.patch(
+    const response = await customAxios.patch(
       `${config.SERVER_HOST}/user/ban/${userId}`,
-      {
-        banType,
-      },
+      { banType },
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -699,19 +919,26 @@ const apiBanUser = async (token, userId, banType) => {
         },
       }
     );
-    if (response?.data) return response.data;
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    toast.warning(error.message, {
-      pauseOnHover: false,
-      delay: 200,
-    });
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
 const apiLiftTheBan = async (token, userId) => {
-  if (!userId && !token) return null;
   try {
-    const response = await axios.patch(
+    const response = await customAxios.patch(
       `${config.SERVER_HOST}/user/unban/${userId}`,
       {},
       {
@@ -721,91 +948,112 @@ const apiLiftTheBan = async (token, userId) => {
         },
       }
     );
-    if (response?.data) return response.data;
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    toast.warning(error.message, {
-      pauseOnHover: false,
-      delay: 200,
-    });
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
 const apiUpdateProfile = async (token, formData) => {
   try {
-    const res = await axios.patch(
+    const response = await customAxios.patch(
       `${config.SERVER_HOST}/profile/me/update`,
       formData,
       {
         headers: {
           Authorization: `Bearer ${token}`,
-          // "Content-Type": "application/json",
           "Content-Type": "multipart/form-data",
         },
       }
     );
-    return res?.data;
+    if (response?.data?.success) {
+      return response.data;
+    }
   } catch (error) {
-    console.log("error:", error);
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
 const apiMuteUser = async (type = "post", token, userId) => {
   try {
-    const data = await fetch(`${config.SERVER_HOST}/mute/${userId}`, {
-      method: type,
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    }).then((response) => response.json());
-
-    console.log("data:", data);
-    if (data?.success) {
-      toast.success(data.message, {
-        pauseOnHover: false,
-        delay: 200,
-      });
-      return true;
+    const response = await customAxios[type](
+      `${config.SERVER_HOST}/mute/${userId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response?.data?.success) {
+      return response.data;
     }
-    return false;
   } catch (error) {
-    toast.warning(error.message, {
-      pauseOnHover: false,
-      delay: 200,
-    });
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
 const apiBlockUser = async (type = "post", token, userId) => {
   try {
-    const data = await fetch(`${config.SERVER_HOST}/block/${userId}`, {
-      method: type,
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    })
-      .then((response) => response.json())
-      .catch((err) => {
-        console.log(err);
-      });
-
-    if (!data?.success) {
-      toast.warning(data.message, {
-        pauseOnHover: true,
-        delay: 300,
-      });
-      return false;
+    const response = await customAxios[type](
+      `${config.SERVER_HOST}/block/${userId}`,
+      {
+        method: type,
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response?.data?.success) {
+      return response.data;
     }
-    return true;
   } catch (error) {
-    console.log("error:", error);
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
 const apiApproveTopic = async (token, id) => {
   try {
-    const data = await axios.patch(
+    const response = await customAxios.patch(
       `${config.SERVER_HOST}/topic/${id}/approve`,
       {},
       {
@@ -815,20 +1063,26 @@ const apiApproveTopic = async (token, id) => {
         },
       }
     );
-
-    console.log("data:", data);
-    if (!data.data.success) {
-      return false;
+    if (response?.data?.success) {
+      return response.data;
     }
-    return true;
   } catch (error) {
-    console.log("error:", error);
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
 const apiRejectTopic = async (token, id) => {
   try {
-    const data = await axios.patch(
+    const response = await customAxios.patch(
       `${config.SERVER_HOST}/topic/${id}/reject`,
       {},
       {
@@ -838,34 +1092,50 @@ const apiRejectTopic = async (token, id) => {
         },
       }
     );
-
-    console.log("data:", data);
-    if (!data.data.success) {
-      return false;
+    if (response?.data?.success) {
+      return response.data;
     }
-    return true;
   } catch (error) {
-    console.log("error:", error);
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 
 const apiReportUser = async (token, userId, reason, description) => {
   try {
-    const res = await fetch(`${config.SERVER_HOST}/report-user/${userId}`, {
-      method: "post",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ reason, description }),
-    })
-      .then((response) => response.json())
-      .catch((err) => {
-        console.log(err);
-      });
-    return res;
+    const response = await customAxios.post(
+      `${config.SERVER_HOST}/report-user/${userId}`,
+      { reason, description },
+      {
+        method: "post",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response?.data?.success) {
+      return reason.data;
+    }
   } catch (error) {
-    console.log("error:", error);
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
   }
 };
 

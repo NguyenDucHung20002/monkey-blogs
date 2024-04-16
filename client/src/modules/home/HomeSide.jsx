@@ -71,7 +71,7 @@ const HomeSide = () => {
                 <BlogStaffPick blog={blog} key={blog.id}></BlogStaffPick>
               ))}
               <div className="mt-3">
-                <NavLink to={"/profile/staff-pick/@hungduc2102"}>
+                <NavLink to={"/staff-pick"}>
                   <button className="font-medium text-blue-500 hover:text-blue-400">
                     See the full list
                   </button>

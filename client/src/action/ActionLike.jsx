@@ -6,6 +6,7 @@ import {
 } from "../api/apisHung";
 import { Modal } from "antd";
 import FollowingUserHandle from "../components/following/FollowingUserHandle";
+import { toast } from "react-toastify";
 
 /* eslint-disable react/prop-types */
 const ActionLike = ({ likesCount = 0, liked, blogId, title }) => {
@@ -52,12 +53,20 @@ const ActionLike = ({ likesCount = 0, liked, blogId, title }) => {
       if (response) {
         likeRef.current--;
         setIsLiked(!isLiked);
+        toast.success(response.message, {
+          pauseOnHover: false,
+          delay: 150,
+        });
       }
     } else {
       const response = await apiLikeArticle(token, blogId);
       if (response) {
         likeRef.current++;
         setIsLiked(!isLiked);
+        toast.success(response.message, {
+          pauseOnHover: false,
+          delay: 150,
+        });
       }
     }
   }, [blogId, isLiked, token]);

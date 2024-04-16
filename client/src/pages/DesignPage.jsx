@@ -1,4 +1,4 @@
-import { createContext, useState } from "react";
+import { createContext, useContext, useState } from "react";
 import HeaderDesignPage from "../modules/design/HeaderDesignPage";
 import { Layout, Menu, Button, Modal } from "antd";
 import { AppstoreOutlined, PictureOutlined } from "@ant-design/icons";
@@ -13,50 +13,45 @@ import { useParams } from "react-router-dom";
 const { Header, Sider, Content } = Layout;
 
 export const DesignContext = createContext();
+
 const DesignProvider = (props) => {
   const [imageDisplay, setImageDisplay] = useState({
     display: "object-none",
     position: "object-top",
   });
-  const [showFollRecmt, setShowFollRecmt] = useState({
+  const [showFollowRecommend, setShowFollowRecommend] = useState({
     following: 1,
-    recomment: 0,
+    recommend: 0,
   });
   const [user, setUser] = useState({});
+  const [design, setDesign] = useState({});
   const { username } = useParams();
   const token = localStorage.getItem("token");
-  // const designSettings = JSON.parse(localStorage.getItem("designSettings"));
 
   useEffect(() => {
     async function fetchUserInf() {
       const profileUser = await apiGetProfile(token, username);
       setUser({ ...profileUser });
+      const design = JSON.parse(profileUser.data.profileDesign);
+      setDesign({ ...design });
+      const display = design.style.split(" ")[0];
+      const position = design.style.split(" ")[2];
+      setShowFollowRecommend(design.show);
+      setImageDisplay({ display, position });
     }
-    // const curentSettings = () => {
-    //   if (!designSettings) return;
-    //   const dataShow = {
-    //     following: designSettings?.show?.following,
-    //     recomment: designSettings?.show?.recomment,
-    //   };
-    //   const styleImage = designSettings.style.split(" ");
-    //   console.log("styleImage: ", styleImage);
-    //   const dataImage = {
-    //     display: styleImage[0],
-    //     position: styleImage[2],
-    //   };
-    //   setImageDisplay(dataImage);
-    //   setShowFollRecmt(dataShow);
-    // };
-    // curentSettings();
+
     fetchUserInf();
   }, [token, username]);
+
   const value = {
     imageDisplay,
     setImageDisplay,
-    showFollRecmt,
-    setShowFollRecmt,
+    showFollowRecommend,
+    setShowFollowRecommend,
     user,
+    design,
   };
+
   return <DesignContext.Provider value={value} {...props} />;
 };
 
@@ -64,7 +59,8 @@ const DesignPage = () => {
   const [selectedDevice, setSelectedDevice] = useState("desktop");
   const [collapsed, setCollapsed] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { image, onSelectImage, onDeleteImage } = useUploadImage();
+  const { image, onSelectImage, onDeleteImage, setImage } = useUploadImage();
+
   const showModal = () => {
     onDeleteImage(image?.filename);
     setIsModalOpen(true);
@@ -87,6 +83,7 @@ const DesignPage = () => {
       </button>
     </div>
   );
+
   const getItem = (label, key = null, icon = "", children = null) => ({
     label,
     key,
@@ -131,18 +128,13 @@ const DesignPage = () => {
             >
               <Menu
                 selectable={false}
-                // onClick={onClick}
                 style={{
                   height: 1000,
                   padding: 0,
                 }}
                 mode="inline"
                 items={items}
-              >
-                {/* <SubMenu title="haha" className="">
-                <Image />
-              </SubMenu> */}
-              </Menu>
+              ></Menu>
             </Sider>
             <Layout className="">
               <Content
@@ -171,13 +163,13 @@ const DesignPage = () => {
                   collapsed={collapsed}
                   selectedDevice={selectedDevice}
                   image={image}
+                  setImage={setImage}
                 />
               </Content>
             </Layout>
           </Layout>
         </Layout>
         <Modal
-          // title="Basic Modal"
           open={isModalOpen}
           onOk={handleOk}
           onCancel={handleCancel}

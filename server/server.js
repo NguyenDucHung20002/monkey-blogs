@@ -7,11 +7,13 @@ import sequelize from "./databases/mysql/connect.js";
 import errorMiddleware from "./middlewares/errorMiddleware.js";
 import socket from "./socket.js";
 import http from "http";
+import cookieParser from "cookie-parser";
 
 const app = express();
 
 import checkToUnRestrictUsers from "./scripts/checkToUnRestrictUsers.js";
 import deleteSocketUsers from "./scripts/deleteSocketUser.js";
+import createAdminAccount from "./scripts/createAdminAccount.js";
 import "./models/mysql/Association.js";
 import "./services/passport.js";
 import "./cron.js";
@@ -37,8 +39,14 @@ import readingListRoute from "./routes/readingListRoute.js";
 import notificationRoute from "./routes/notificationRouter.js";
 
 app.use(express.json());
+app.use(cookieParser());
 app.use(morgan("dev"));
-app.use(cors("*"));
+app.use(
+  cors({
+    origin: true,
+    credentials: true,
+  })
+);
 
 MongoDB.connect();
 
@@ -49,6 +57,7 @@ sequelize
   })
   .then(() => {
     deleteSocketUsers();
+    createAdminAccount();
     checkToUnRestrictUsers();
   })
   .catch((error) => {

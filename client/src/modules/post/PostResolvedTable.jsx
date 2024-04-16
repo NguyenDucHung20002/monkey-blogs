@@ -9,7 +9,7 @@ import { Button } from "../../components/button";
 
 const PostResolvedTable = () => {
   const [blogReports, setBlogReports] = useState([]);
-  console.log("blogReports:", blogReports);
+
   const token = localStorage.getItem("token");
   const skip = useRef(0);
   const [isReload, setIsReload] = useState(false);
@@ -151,7 +151,7 @@ const PostResolvedTable = () => {
                   {blog?.article?.author?.userInfo?.username}
                 </p>
                 <Tag color="red">
-                  {blog?.article?.author.userInfo.role.name}
+                  {blog?.article?.author.userInfo.role.name.toUpperCase()}
                 </Tag>
               </div>
             </>
@@ -173,7 +173,9 @@ const PostResolvedTable = () => {
         <Column
           title="Status"
           key="status"
-          render={(blog) => <Tag color="green">{blog?.status}</Tag>}
+          render={(blog) => (
+            <Tag color="green">{blog?.status.toUpperCase()}</Tag>
+          )}
         />
         <Column
           title="Resolved by"
@@ -183,7 +185,7 @@ const PostResolvedTable = () => {
               <p className="font-semibold text-gray-500">
                 {blog.resolvedBy.username}
               </p>
-              <Tag color="red">{blog?.resolvedBy.role.name}</Tag>
+              <Tag color="red">{blog?.resolvedBy.role.name.toUpperCase()}</Tag>
             </div>
           )}
         />

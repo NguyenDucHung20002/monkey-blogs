@@ -29,7 +29,7 @@ const StaffPickPage = () => {
   useEffect(() => {
     async function fetchBlog() {
       const response = await apiGetStaffPick(token, 5);
-      console.log("response:", response);
+
       if (response?.success) {
         setBlogs(response.data);
         skip.current = response.newSkip;
@@ -48,7 +48,7 @@ const StaffPickPage = () => {
         skip.current
       ) {
         const response = await apiGetStaffPick(token, 5, skip.current);
-        console.log("response:", response);
+
         if (response?.success) {
           const blogsClone = [...blogs, ...response.data];
           setBlogs([...blogsClone]);
@@ -66,11 +66,11 @@ const StaffPickPage = () => {
   }, [blogs]);
 
   return (
-    <>
-      <div className="mb-7 pb-7 ">
+    <div>
+      <div className="pb-7 ">
         <h1 className="text-4xl font-bold">Admin Picks</h1>
         <p className="text-lg font-semibold text-gray-500 mt-3">
-          Stories from across Medium, hand-selected by admin team.
+          Stories from across Monkey Blogs, hand selected by admin
         </p>
       </div>
       <StaffPicksStyle>
@@ -82,7 +82,7 @@ const StaffPickPage = () => {
             ))}
         </div>
       </StaffPicksStyle>
-    </>
+    </div>
   );
 };
 

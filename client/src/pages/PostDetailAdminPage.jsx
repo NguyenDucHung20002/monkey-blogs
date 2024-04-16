@@ -96,7 +96,6 @@ const PostDetailAdminPage = () => {
 
       setBlog(response.data);
     } catch (error) {
-      console.log("error:", error);
       navigate("/*");
     }
   }, [id, navigate, token]);

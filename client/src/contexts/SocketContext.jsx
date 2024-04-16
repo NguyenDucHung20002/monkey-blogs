@@ -40,18 +40,18 @@ const SocketProvider = ({ children }) => {
 
   const fetchNotification = useCallback(async () => {
     const notificationResponse = await apiGetNotification(token);
-    setNotifications(notificationResponse);
+    setNotifications(notificationResponse.data);
   }, [token]);
 
   const handleClearNotifications = useCallback(async () => {
-    const response = await apiDeleteAllNotification();
-    if (response?.success) {
+    const response = await apiDeleteAllNotification(token);
+    if (response) {
       setNotifications([]);
     }
   }, [token]);
 
   const handleReadNotify = useCallback(async () => {
-    await apiMarkAsReadNotification();
+    await apiMarkAsReadNotification(token);
     fetchNotification(token);
   }, []);
 
@@ -87,7 +87,6 @@ const SocketProvider = ({ children }) => {
 
   useEffect(() => {
     if (error) {
-      console.log("Error Socket:", error);
     }
   }, [error]);
 

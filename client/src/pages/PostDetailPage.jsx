@@ -92,6 +92,7 @@ const PostDetailPage = () => {
   const [moreArticle, setMoreArticle] = useState([]);
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
+
   const fetchBlog = useCallback(async () => {
     try {
       const response = await apiGetArticle(token, slug);
@@ -99,7 +100,6 @@ const PostDetailPage = () => {
 
       setBlog(response.data);
     } catch (error) {
-      console.log("error:", error);
       navigate("/*");
     }
   }, [navigate, slug, token]);
@@ -107,10 +107,15 @@ const PostDetailPage = () => {
   useEffect(() => {
     fetchBlog();
   }, [fetchBlog]);
+
   useEffect(() => {
     const fetchMoreArticles = async () => {
+      window.scrollTo(0, 0);
       if (!blog) return;
-      const moreArticlesRes = await apiGetMoreArticleInDetailPage(blog?.id);
+      const moreArticlesRes = await apiGetMoreArticleInDetailPage(
+        token,
+        blog?.id
+      );
       if (!moreArticlesRes) {
         return;
       }
@@ -118,8 +123,9 @@ const PostDetailPage = () => {
     };
     fetchMoreArticles();
   }, [blog, slug]);
+
   if (!slug) return <PageNotFound></PageNotFound>;
-  console.log(blog);
+
   return (
     <PostDetailPagePageStyle>
       {blog && !blog?.authorBlocked && (
@@ -166,7 +172,6 @@ const PostDetailPage = () => {
           <div className="post-content">
             <div
               className="entry-content"
-              // Prevent XSS Attack recommen from React Docs
               dangerouslySetInnerHTML={{
                 __html: blog.content || "",
               }}

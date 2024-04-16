@@ -6,7 +6,6 @@ import ErrorResponse from "../responses/ErrorResponse.js";
 import fileController from "./fileController.js";
 import User from "../models/mysql/User.js";
 import Profile from "../models/mysql/Profile.js";
-import JsonWebToken from "../models/mongodb/JsonWebToken.js";
 
 // ==================== get logged in profile information ==================== //
 
@@ -26,20 +25,19 @@ const getLoggedInProfile = asyncMiddleware(async (req, res, next) => {
 // ==================== setup profile ==================== //
 
 const setupProfile = asyncMiddleware(async (req, res, next) => {
-  const { id: myUserId, iat, exp } = req.jwtPayLoad;
+  const { id: myUserId } = req.jwtPayLoad;
   const { fullname } = req.body;
 
   const filename = req.file?.filename;
 
-  const [user, profile, jsonWebToken] = await Promise.all([
+  const [user, profile] = await Promise.all([
     User.findByPk(myUserId),
     Profile.findOne({ where: { userId: myUserId } }),
-    JsonWebToken.findOne({ userId: myUserId, iat, exp }),
   ]);
 
   if (!user) throw ErrorResponse(404, "User not found");
 
-  if (profile.fullname && profile.avatar) {
+  if (profile && profile.fullname && profile.avatar) {
     throw ErrorResponse(409, "Profile already exists");
   }
 
@@ -48,16 +46,18 @@ const setupProfile = asyncMiddleware(async (req, res, next) => {
     { where: { userId: user.id } }
   );
 
-  res.json({ success: true, token: jsonWebToken.token });
+  res.json({
+    success: true,
+  });
 });
 
 // ==================== get profile ==================== //
 
 const getProfile = asyncMiddleware(async (req, res, next) => {
   const user = req.user;
-  const me = req.me ? req.me : null;
+  const me = req.me;
 
-  if (me && me.id === user.id) {
+  if (me.id === user.id) {
     user.profileInfo = {
       ...user.profileInfo.toJSON(),
       username: user.username,
@@ -66,7 +66,7 @@ const getProfile = asyncMiddleware(async (req, res, next) => {
     };
   }
 
-  if (me && me.id !== user.id) {
+  if (me.id !== user.id) {
     const [isBlocked, isMuted, isFollowed] = await Promise.all([
       Block.findOne({
         where: { blockedId: user.profileInfo.id, blockerId: me.profileInfo.id },
@@ -93,7 +93,10 @@ const getProfile = asyncMiddleware(async (req, res, next) => {
     };
   }
 
-  res.json({ success: true, data: user.profileInfo });
+  res.json({
+    success: true,
+    data: user.profileInfo,
+  });
 });
 
 // ==================== update my profile ==================== //
@@ -111,7 +114,43 @@ const updateMyProfile = asyncMiddleware(async (req, res, next) => {
 
   await me.profileInfo.update({ fullname, bio, about, avatar: filename });
 
-  res.json({ success: true, message: "Profile updated successfully" });
+  res.json({
+    success: true,
+    message: "Profile updated successfully",
+  });
+});
+
+// ==================== update my profile design ==================== //
+
+const updateMyProfileDesign = asyncMiddleware(async (req, res, next) => {
+  const me = req.me;
+  const { design } = req.body;
+
+  const operations = [];
+
+  const myDesignObj = JSON.parse(me.profileInfo.profileDesign);
+  const newDesignObj = JSON.parse(design);
+
+  if (
+    myDesignObj &&
+    myDesignObj.image &&
+    myDesignObj.image.filename &&
+    newDesignObj.image.filename !== myDesignObj.image.filename
+  ) {
+    operations.push(
+      fileController.autoRemoveImg(myDesignObj.image.filename),
+      me.profileInfo.update({ profileDesign: design })
+    );
+  }
+
+  operations.push(me.profileInfo.update({ profileDesign: design }));
+
+  await Promise.all(operations);
+
+  res.json({
+    success: true,
+    message: "Profile design updated successfully",
+  });
 });
 
 export default {
@@ -119,4 +158,5 @@ export default {
   setupProfile,
   updateMyProfile,
   getLoggedInProfile,
+  updateMyProfileDesign,
 };

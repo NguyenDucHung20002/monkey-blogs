@@ -13,19 +13,24 @@ module.exports = {
       articleId: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        // references: {
-        //   model: Article,
-        //   key: "id",
-        // },
+        references: {
+          model: {
+            tableName: "articles",
+          },
+          key: "id",
+        },
+        onDelete: "CASCADE",
       },
 
       userId: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        // references: {
-        //   model: User,
-        //   key: "id",
-        // },
+        references: {
+          model: {
+            tableName: "users",
+          },
+          key: "id",
+        },
       },
 
       reason: {
@@ -36,10 +41,12 @@ module.exports = {
       resolvedById: {
         type: Sequelize.INTEGER,
         allowNull: true,
-        // references: {
-        //   model: User,
-        //   key: "id",
-        // },
+        references: {
+          model: {
+            tableName: "users",
+          },
+          key: "id",
+        },
       },
 
       status: {

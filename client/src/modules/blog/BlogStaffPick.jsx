@@ -6,7 +6,7 @@ const BlogStaffPick = ({ blog }) => {
   const { title, slug, author } = blog;
   return (
     <div className="mt-5">
-      <Link to={`/profile/${author?.username}`}>
+      <Link to={`/profile/${author?.userInfo?.username}`}>
         <div className="flex items-center">
           <Avatar className="cursor-pointer" size="xs" url={author?.avatar} />
           <p className="ml-2 font-semibold text-gray-500 hover:text-gray-700">

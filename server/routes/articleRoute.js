@@ -5,7 +5,6 @@ import fetchMe from "../middlewares/fetchMe.js";
 import authorize from "../middlewares/authorize.js";
 import fetchUser from "../middlewares/fetchUser.js";
 import checkUserBanned from "../middlewares/checkUserBanned.js";
-import optionalAuth from "../middlewares/optionalAuth.js";
 import articleSchema from "../validations/articleSchema.js";
 import validator from "../middlewares/validator.js";
 
@@ -43,10 +42,6 @@ router.get(
   articleController.exploreNewArticles
 );
 
-// -------------------- admin pick -------------------- //
-
-router.get("/admin-pick", requiredAuth, fetchMe, articleController.adminPick);
-
 // -------------------- admin pick full list -------------------- //
 
 router.get(
@@ -70,7 +65,7 @@ router.get(
 
 router.get(
   "/:username/all",
-  optionalAuth,
+  requiredAuth,
   fetchMe,
   fetchUser,
   checkUserBanned,
@@ -141,7 +136,7 @@ router.delete("/:id", requiredAuth, fetchMe, articleController.deleteArticle);
 
 // -------------------- get an article -------------------- //
 
-router.get("/:slug", optionalAuth, fetchMe, articleController.getAnArticle);
+router.get("/:slug", requiredAuth, fetchMe, articleController.getAnArticle);
 
 // -------------------- get followed topic articles -------------------- //
 
@@ -156,7 +151,7 @@ router.get(
 
 router.get(
   "/topic/:slug",
-  optionalAuth,
+  requiredAuth,
   fetchMe,
   articleController.getTopicArticles
 );
@@ -215,7 +210,7 @@ router.get(
 
 router.get(
   "/more-articles-from-profile/:id",
-  optionalAuth,
+  requiredAuth,
   fetchMe,
   articleController.getMoreArticleFromProfile
 );

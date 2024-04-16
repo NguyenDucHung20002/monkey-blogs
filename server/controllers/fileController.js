@@ -39,11 +39,7 @@ const upLoadAnAvatar = asyncMiddleware(async (req, res, next) => {
 
         if (results[0][0].nsfw > 0.55) {
           fileController.autoRemoveImg(filename);
-
-          throw ErrorResponse(
-            400,
-            "Your image contains explicit content and is not allowed"
-          );
+          throw ErrorResponse(400, "Your image contains explicit content");
         }
 
         resolve();
@@ -89,7 +85,10 @@ const deleteAnImg = asyncMiddleware(async (req, res, next) => {
   const fileId = files[0]._id;
   await gfs.delete(fileId);
 
-  res.json({ success: true, message: "File deleted successfully" });
+  res.json({
+    success: true,
+    message: "File deleted successfully",
+  });
 });
 
 // ==================== auto remove image ==================== //

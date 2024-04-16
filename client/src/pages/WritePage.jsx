@@ -10,7 +10,7 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 import MyEditor from "../components/input/MyEditor";
-import { apiAddBlog, apiCreateDarft, apiUpdateDarft } from "../api/apiNew";
+import { apiAddBlog, apiCreateDraft, apiUpdateDraft } from "../api/apiNew";
 import { debounce } from "lodash";
 import useUploadImage from "../hooks/useUploadImage";
 
@@ -37,7 +37,6 @@ const WritePage = () => {
   } = useForm({
     resolver: yupResolver(schema),
   });
-
   const [topics, setTopics] = useState([]);
   const [topicInput, setTopicInput] = useState("");
   const [content, setContent] = useState("");
@@ -46,8 +45,10 @@ const WritePage = () => {
   const [showIsSaved, setShowIsSaved] = useState(false);
   const [newDraft, setNewDraft] = useState({});
   const [hasRunOnce, setHasRunOnce] = useState(false);
+  const [isCreatingDraft, setIsCreatingDraft] = useState(false);
   const navigate = useNavigate();
   const { image, onSelectImage, onDeleteImage } = useUploadImage();
+
   useEffect(() => {
     const arrErrs = Object.values(errors);
     if (arrErrs.length > 0) {
@@ -87,15 +88,8 @@ const WritePage = () => {
 
   const handleAddBlog = (values) => {
     if (!isValid) return;
-    // if (!image) {
-    //   toast.error("Please fill out your image title!", {
-    //     pauseOnHover: false,
-    //     delay: 500,
-    //   });
-    //   return;
-    // }
     const { preview } = values;
-    const cutPreview = preview.slice(0, 200);
+    const cutPreview = preview.slice(0, 150);
     const getTopicNames = topics.map((val) => val.name);
     const topicsSplit = topicInput.trim().split(/,+/).filter(Boolean);
     const topicsMap = topicsSplit.map((val) => val.trim());
@@ -106,39 +100,46 @@ const WritePage = () => {
       preview: cutPreview,
       banner: image.filename,
     };
+
     async function fetchAddBlog() {
       if (!token) return;
-      const response = await apiAddBlog(idDraft, data);
+      const response = await apiAddBlog(token, idDraft, data);
       if (response?.success) {
         navigate("/");
       }
     }
     fetchAddBlog();
   };
+
   const handleClickPublish = () => {
     handleSubmit(handleAddBlog)();
   };
 
   const watchedTitle = useWatch({ control, name: "title", defaultValue: "" });
+
   const createDraft = async () => {
-    const res = await apiCreateDarft(watchedTitle, content);
-    if (res?.success) {
-      setNewDraft(res);
+    const response = await apiCreateDraft(token, watchedTitle, content);
+    if (response) {
+      setNewDraft(response);
       setIsSaved(true);
       setHasRunOnce(true);
     }
   };
+
   const UpdateDraft = debounce(async () => {
     const idDraft = newDraft?.draftId;
-    const res = await apiUpdateDarft(idDraft, watchedTitle, content);
-    if (res?.success) {
+    const response = await apiUpdateDraft(
+      token,
+      idDraft,
+      watchedTitle,
+      content
+    );
+    if (response) {
       setIsSaved(true);
     }
   }, 1000);
 
   useEffect(() => {
-    // console.log("title",watchedTitle);
-    // console.log("content",content);
     const check = content !== "" && watchedTitle !== "";
     setIsSaved(false);
     const encoder = new TextEncoder();
@@ -146,15 +147,14 @@ const WritePage = () => {
     if (byteSize >= 30000) {
       return;
     }
-    if (check && !hasRunOnce) {
+    if (check && !hasRunOnce && !isCreatingDraft) {
       setShowIsSaved(true);
+      setIsCreatingDraft(true);
       createDraft();
     }
     if (newDraft?.draftId) {
       UpdateDraft();
     }
-    // console.log("newDraft",newDraft);
-    // console.log("changeDraft",changeDraft);
   }, [watchedTitle, content]);
 
   if (!token) return null;

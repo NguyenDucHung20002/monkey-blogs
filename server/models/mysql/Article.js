@@ -142,10 +142,7 @@ const Article = sequelize.define(
             };
             if (receivers.length > 0) {
               receivers.forEach((receiver) => {
-                io.to(receiver.socketId).emit(
-                  env.SOCKET_LISTENING_EVENT,
-                  message
-                );
+                io.to(receiver.socketId).emit("notification", message);
               });
             }
           }
@@ -173,10 +170,7 @@ const Article = sequelize.define(
             };
             if (receivers.length > 0) {
               receivers.forEach((receiver) => {
-                io.to(receiver.socketId).emit(
-                  env.SOCKET_LISTENING_EVENT,
-                  message
-                );
+                io.to(receiver.socketId).emit("notification", message);
               });
             }
           }
@@ -244,10 +238,7 @@ const Article = sequelize.define(
 
             if (receivers.length > 0) {
               receivers.forEach((receiver) => {
-                io.to(receiver.socketId).emit(
-                  env.SOCKET_LISTENING_EVENT,
-                  message
-                );
+                io.to(receiver.socketId).emit("notification", message);
               });
             }
           } else {
@@ -306,10 +297,7 @@ const Article = sequelize.define(
 
               if (receivers.length > 0) {
                 receivers.forEach((receiver) => {
-                  io.to(receiver.socketId).emit(
-                    env.SOCKET_LISTENING_EVENT,
-                    message
-                  );
+                  io.to(receiver.socketId).emit("notification", message);
                 });
               }
             });
@@ -343,7 +331,7 @@ const Article = sequelize.define(
           };
 
           receivers.forEach((receiver) => {
-            io.to(receiver.socketId).emit(env.SOCKET_LISTENING_EVENT, message);
+            io.to(receiver.socketId).emit("notification", message);
           });
         }
       },
@@ -378,7 +366,7 @@ const Article = sequelize.define(
           };
 
           receivers.forEach((receiver) => {
-            io.to(receiver.socketId).emit(env.SOCKET_LISTENING_EVENT, message);
+            io.to(receiver.socketId).emit("notification", message);
           });
         }
       },

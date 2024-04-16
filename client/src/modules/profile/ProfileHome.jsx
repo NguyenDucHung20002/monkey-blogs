@@ -6,8 +6,8 @@ import ProfileBlogs from "./ProfileBlogs";
 import { NavbarHome } from "../../components/navbar";
 
 const ProfileHome = () => {
+  const token = localStorage.getItem("token");
   const [blogs, setBlogs] = useState([]);
-  // console.log("blogs:", blogs);
   const { username } = useParams();
   const { user } = useOutletContext();
 
@@ -25,6 +25,7 @@ const ProfileHome = () => {
       url: `/profile/following/${username}`,
     },
   ];
+
   const navMyProfile = [
     {
       title: "Home",
@@ -43,21 +44,23 @@ const ProfileHome = () => {
       url: `/profile/reading-list/${username}`,
     },
   ];
+
   async function fetchUserBlog() {
-    const dataBlogs = await apiGetUserBlogs(username);
-    // console.log(dataBlogs);
-    setBlogs([...dataBlogs]);
+    const dataBlogs = await apiGetUserBlogs(token, username);
+    setBlogs([...dataBlogs.articles]);
   }
 
   async function fetchDeleteArticle(slug) {
-    const delArticle = await apiDeleteArticle(slug);
+    const delArticle = await apiDeleteArticle(token, slug);
     if (delArticle) {
       fetchUserBlog();
     }
   }
+
   useEffect(() => {
     fetchUserBlog();
   }, [username]);
+
   return (
     <>
       <NavbarHome

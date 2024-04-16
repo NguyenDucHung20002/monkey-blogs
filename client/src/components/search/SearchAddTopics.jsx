@@ -19,6 +19,7 @@ const SearchAddTopics = ({
     const topicFilters = topicsClone.filter((topic) => topic.slug !== slug);
     setTopics(topicFilters);
   };
+
   useEffect(() => {
     async function fetchTopics() {
       const response = await apiTopicsSearch(token, topicInput);
@@ -47,6 +48,7 @@ const SearchAddTopics = ({
       setAddTopics([]);
     }
   }, 500);
+
   return (
     <div className="relative flex flex-wrap items-center w-full p-1 mt-5 bg-gray-200 border border-gray-700">
       {topics &&
@@ -99,7 +101,7 @@ const SearchAddTopics = ({
                 className="p-1 text-sm text-black transition-all cursor-pointer hover:bg-black hover:text-white "
                 onClick={() => handleAddTopic(topic)}
               >
-                {topic?.name} ({topic.articlesCount})
+                {topic?.name}
               </li>
             ))}
           </ul>

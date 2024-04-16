@@ -4,15 +4,17 @@ import { AddBookMarkIcon, EllipsisIcon } from "../../assets/icon";
 import TopicList from "../topic/TopicList";
 import timeSince from "../modulesJs/timeAgo";
 import BlogImage from "../blog/BlogImage";
-import { useContext } from "react";
-import ProfileInfor from "../profile/ProfileInfor";
-// import sampleImage from "../../assets/sampleImage.png";
+import { useContext, useEffect } from "react";
+import ProfileInfo from "../profile/ProfileInfo";
 import { DesignContext } from "../../pages/DesignPage";
 import { dataDemoBlogs, dataDemoFollowing, dataDemoTopic } from "./dataDemo";
-// import TopicRcmm from "../topic/TopicRcm";
 
-const ProfileDemo = ({ selectedDevice, image }) => {
-  const { imageDisplay, showFollRecmt, user } = useContext(DesignContext);
+const ProfileDemo = ({ selectedDevice, image, setImage }) => {
+  const { imageDisplay, showFollowRecommend, user, design } =
+    useContext(DesignContext);
+  useEffect(() => {
+    setImage(design.image);
+  }, [design]);
   const setShow = () => {};
 
   return (
@@ -26,7 +28,6 @@ const ProfileDemo = ({ selectedDevice, image }) => {
               : "w-full md:px-14 md:max-w-[70%] "
           } `}
         >
-          {/* ProfileContext */}
           <div className="">
             <img
               className={`max-h-32 w-full ${imageDisplay?.display} ${imageDisplay?.position}`}
@@ -44,12 +45,10 @@ const ProfileDemo = ({ selectedDevice, image }) => {
               </div>
             </div>
           </div>
-          {/* ProfileContext End */}
           <div className="w-full flex border-b">
             <div className="py-3">Home</div>
             <div className="p-3">About</div>
           </div>
-          {/* ProfileBlogs  */}
           {dataDemoBlogs.map((val) => (
             <div key={val.id} className="mt-5 border-b min-h-[165px]">
               <div className="">
@@ -95,7 +94,6 @@ const ProfileDemo = ({ selectedDevice, image }) => {
               </div>
             </div>
           ))}
-          {/* {!isBlocked && <Outlet context={{ user }}></Outlet>} */}
         </div>
         <div
           className={`${
@@ -107,7 +105,7 @@ const ProfileDemo = ({ selectedDevice, image }) => {
           <StickyBox>
             <div className="w-full h-screen p-8 text-gray-500 border-l border-l-gray-300 ">
               {user.id && (
-                <ProfileInfor
+                <ProfileInfo
                   show={false}
                   setShow={setShow}
                   user={user}
@@ -115,7 +113,7 @@ const ProfileDemo = ({ selectedDevice, image }) => {
                 />
               )}
               {/* <Following data={following} token={token} user={user} /> */}
-              {showFollRecmt?.following ? (
+              {showFollowRecommend?.following ? (
                 <div className="w-full">
                   <h2 className="my-3 text-lg font-bold text-black ">
                     Following
@@ -157,9 +155,7 @@ const ProfileDemo = ({ selectedDevice, image }) => {
                 ""
               )}
 
-              {/* Following end */}
-              {/* <TopicRcmm /> */}
-              {showFollRecmt?.recomment ? (
+              {showFollowRecommend?.recommend ? (
                 <div className="pt-3 border-t border-gray-300 bg-gray80">
                   <h2 className="text-black font-bold my-4">
                     Recommended topics
@@ -173,8 +169,6 @@ const ProfileDemo = ({ selectedDevice, image }) => {
               ) : (
                 ""
               )}
-
-              {/* <TopicRcmm end /> */}
             </div>
           </StickyBox>
         </div>

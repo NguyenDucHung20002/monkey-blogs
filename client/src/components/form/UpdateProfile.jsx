@@ -17,11 +17,7 @@ const UpdateProfile = ({ show, setShow, user }) => {
   const [isLoading, setIsLoading] = useState(false);
   const { setUserInfo } = useAuth();
   const token = localStorage.getItem("token");
-  const options = {
-    pauseOnHover: false,
-    delay: 300,
-  };
-  // set animation when user click out side container
+
   const handleAnimateClick = (event) => {
     const container = document.querySelector(".container");
     if (container.contains(event.target)) {
@@ -32,21 +28,14 @@ const UpdateProfile = ({ show, setShow, user }) => {
       setShowAnimation(false);
     }, 100);
   };
-  //handle when upload file
+
   const handleFileChange = async (event) => {
     const selectedFile = event.target.files[0];
     if (!selectedFile) return;
-    const allowedExtensions = /(\.jpg|\.jpeg|\.png|\.gif)$/i;
-    if (!allowedExtensions.exec(selectedFile.name)) {
-      // alert("Choose inly .jpeg .jpg .png .gif");
-      toast.error("Choose only .jpeg .jpg .png .gif", options);
-      event.target.value = "";
-      return;
-    }
     const url = URL.createObjectURL(selectedFile);
     setImageSrc({ imageUrl: url, avatar: selectedFile });
   };
-  //Form Update User
+
   const schema = yup.object({
     fullname: yup.string().required().min(3).max(50),
     bio: yup.string().max(160),
@@ -66,36 +55,28 @@ const UpdateProfile = ({ show, setShow, user }) => {
 
   const usernameValue = useWatch({ control, name: "fullname" });
   const bioValue = useWatch({ control, name: "bio" });
+  const aboutValue = useWatch({ control, name: "about" });
 
-  const onSubmitHandeler = async (values) => {
+  const onSubmit = async (values) => {
     setIsLoading(true);
-    // const { fullname, bio, about } = values;
-    // let data = { fullname, bio, about };
-    // if (imageSrc?.avatar) {
-    //   data = { fullname, bio, about, avatar: imageSrc?.avatar };
-    // }
     const formData = new FormData();
     formData.set("fullname", values.fullname);
     formData.set("bio", values.bio ? values.bio : " ");
     formData.set("about", values.about ? values.about : " ");
+
     if (imageSrc.avatar) {
       formData.set("avatar", imageSrc.avatar);
     }
-    const res = await apiUpdateProfile(token, formData);
-    if (res?.success) {
+
+    const response = await apiUpdateProfile(token, formData);
+    if (response) {
       setUserInfo((prev) => ({
         ...prev,
         data: { ...prev.data, avatar: addUrlToImg(imageSrc?.imageUrl) },
       }));
-      setIsLoading(false);
       setShow(false);
-    } else {
-      setIsLoading(false);
-      toast.error(
-        "Your image contains explicit content and is not allowed",
-        options
-      );
     }
+    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -128,7 +109,6 @@ const UpdateProfile = ({ show, setShow, user }) => {
                     type="file"
                     accept="image/gif, image/jpeg, image/png"
                     id="upl"
-                    // {...register('avatar')}
                   />
                   {imageSrc?.imageUrl && (
                     <button
@@ -153,7 +133,7 @@ const UpdateProfile = ({ show, setShow, user }) => {
                 </div>
               </div>
               <form onSubmit={(e) => e.preventDefault()} action="">
-                <div className="input-group">
+                <div className="input-group-name">
                   <label htmlFor="input-name">Name*</label>
                   <input
                     type="text"
@@ -164,7 +144,7 @@ const UpdateProfile = ({ show, setShow, user }) => {
                     <p className={errors.fullname ? "warning" : ""}>
                       {errors.fullname
                         ? errors.fullname?.message
-                        : "Appears on your Profile page, as your byline, and in your responses."}
+                        : "This appears on your profile page, as your byline, and in your responses."}
                     </p>
                     <p className={usernameValue?.length > 50 ? "warning" : ""}>
                       <span>{usernameValue ? usernameValue.length : "0"}</span>
@@ -179,7 +159,7 @@ const UpdateProfile = ({ show, setShow, user }) => {
                     <p className={errors.bio ? "warning" : ""}>
                       {errors.bio
                         ? errors.bio?.message
-                        : "Appears on your Profile and next to your stories."}
+                        : "This appears on your profile and next to your stories."}
                     </p>
                     <p className={bioValue?.length > 160 ? "warning" : ""}>
                       <span>{bioValue ? bioValue.length : "0"}</span>/160
@@ -187,11 +167,17 @@ const UpdateProfile = ({ show, setShow, user }) => {
                   </div>
                 </div>
                 <div className="input-group">
-                  <label htmlFor="input-about">AboutMe</label>
+                  <label htmlFor="input-about">About</label>
                   <input type="text" id="input-about" {...register("about")} />
                   <div className="input-bottom">
-                    <p>{"Appears on your Profile and next to your stories."}</p>
-                    {/* <p className={bioValue?.length>160 ?"warning":""}><span>{bioValue ? bioValue.length:"0"}</span>/160</p> */}
+                    <p className={errors.about ? "warning" : ""}>
+                      {errors.about
+                        ? errors.about?.message
+                        : "This appears on your profile page."}
+                    </p>
+                    <p className={aboutValue?.length > 300 ? "warning" : ""}>
+                      <span>{aboutValue ? aboutValue.length : "0"}</span>/300
+                    </p>
                   </div>
                 </div>
                 <div className="group-btn-bottom">
@@ -200,7 +186,7 @@ const UpdateProfile = ({ show, setShow, user }) => {
                   </button>
                   <button
                     type="submit"
-                    onClick={handleSubmit(onSubmitHandeler)}
+                    onClick={handleSubmit(onSubmit)}
                     className={
                       isLoading
                         ? "save flex items-center cursor-not-allowed !bg-stone-200"
@@ -312,8 +298,28 @@ const ProfileStyles = styled.div`
         }
       }
     }
+    .input-group-name {
+      margin-top: 5px;
+      margin-bottom: 25px;
+      input {
+        width: 100%;
+        border-bottom: 1px solid #afadad;
+        &:focus {
+          border-bottom: 1px solid #161616;
+        }
+      }
+      .input-bottom {
+        display: flex;
+        justify-content: space-between;
+        height: 20px;
+        p {
+          font-size: 14px;
+          margin: 8px 0;
+        }
+      }
+    }
     .input-group {
-      margin: 20px 0;
+      margin: 25px 0;
       input {
         width: 100%;
         border-bottom: 1px solid #afadad;

@@ -66,6 +66,10 @@ const PostReportTable = () => {
       if (response) {
         const filterBlogs = blogReports.filter((blog) => blog.id != id);
         setBlogReports(filterBlogs);
+        toast.success(response.message, {
+          pauseOnHover: false,
+          delay: 150,
+        });
       }
     },
     [blogReports, token]
@@ -76,9 +80,9 @@ const PostReportTable = () => {
       const response = await apiSetBackToDraft(token, id, reason);
       if (response) {
         setOpenModalReporter(false);
-        toast.success("Set to draft successfully!", {
+        toast.success(response.message, {
           pauseOnHover: false,
-          delay: 200,
+          delay: 150,
         });
       }
     },
@@ -213,7 +217,9 @@ const PostReportTable = () => {
                 <p className="font-semibold text-gray-500">
                   {blog?.author?.userInfo?.username}
                 </p>
-                <Tag color="red">{blog?.author.userInfo.role.name}</Tag>
+                <Tag color="red">
+                  {blog?.author.userInfo.role.name.toUpperCase()}
+                </Tag>
               </div>
             </>
           )}
@@ -236,7 +242,7 @@ const PostReportTable = () => {
             blog.status === "approved" ? (
               <Tag color="green">APPROVED</Tag>
             ) : (
-              <Tag color="red">REJECTED</Tag>
+              <Tag color="red">{blog.status.toUpperCase()}</Tag>
             )
           }
         />

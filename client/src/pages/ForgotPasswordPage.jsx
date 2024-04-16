@@ -58,9 +58,7 @@ const ForgotPasswordPage = () => {
         });
         reset();
       }
-    } catch (error) {
-      console.log("error:", error);
-    }
+    } catch (error) {}
   };
 
   if (!token) return;
@@ -70,7 +68,7 @@ const ForgotPasswordPage = () => {
       <div className="flex flex-col items-center justify-center gap-4 my-10 logo">
         <Image width={40} preview={false} src={logo} />
         <h1 className="font-bold text-4xl bg-gradient-to-r from-[#74B9FF] to-[#0be881] text-transparent bg-clip-text inline-block">
-          Monkey Medium
+          Monkey Blogs
         </h1>
       </div>
       <h2 className="flex items-center justify-center mb-10 text-2xl font-bold text-gray-400">

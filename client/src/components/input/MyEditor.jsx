@@ -10,8 +10,10 @@ Quill.register("modules/imageUploader", ImageUploader);
 const MyEditor = ({ content, setContent }) => {
   const [imageFiles, setImageFiles] = useState([]);
   const quillRef = useRef();
+  const token = localStorage.getItem("token");
+
   const deleteImage = (filename) => {
-    apiDeleteImage(filename);
+    apiDeleteImage(token, filename);
   };
 
   useEffect(() => {
@@ -22,12 +24,12 @@ const MyEditor = ({ content, setContent }) => {
       for (let index = 0; index < imageFiles.length; index++) {
         if (!quillRef.current?.value.includes(imageFiles[index].path)) {
           const tempImageFiles = structuredClone(imageFiles);
-          // console.log("tempImageFiles:", tempImageFiles);
+
           const filteredImageFiles = tempImageFiles.filter(
             (image) => image.id !== imageFiles[index].id
           );
+
           deleteImage(imageFiles[index]?.filename);
-          // console.log("filteredImageFiles:", filteredImageFiles);
 
           setImageFiles(filteredImageFiles);
         }
@@ -41,25 +43,29 @@ const MyEditor = ({ content, setContent }) => {
         container: [
           ["bold", "italic", "underline", "strike"],
           ["blockquote"],
-          [{ header: 1 }, { header: 2 }], // custom button values
+          [{ header: 1 }, { header: 2 }],
           [{ list: "ordered" }, { list: "bullet" }],
           [{ header: [1, 2, 3, 4, 5, 6, false] }],
           ["link", "image"],
         ],
       },
+
       imageUploader: {
         upload: async (file) => {
-          const response = await apiUploadImage(file);
-          // console.log(response);
-          if (response.data.filename) {
-            const filename = response.data.filename;
+          const response = await apiUploadImage(token, file);
+
+          if (response.filename) {
+            const filename = response.filename;
+
             const src = `${config.SERVER_HOST}/file/${filename}`;
-            // console.log("src:", src);
+
             const date = Date.now();
+
             setImageFiles((prev) => [
               ...prev,
               { path: src, id: date, filename },
             ]);
+
             return src;
           }
           return;

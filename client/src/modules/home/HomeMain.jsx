@@ -5,7 +5,10 @@ import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import Blog from "../blog/Blog";
 import { debounce } from "lodash";
-import { apiGetExploreBlogs, apiGetFollowedArticles } from "../../api/apisHung";
+import {
+  apiGetExploreBlogs,
+  apiGetFollowedTopicArticles,
+} from "../../api/apisHung";
 import TopicSlider from "../topic/TopicSlider";
 import { apiGetMyFollowingTopics } from "../../api/api";
 import { useSearchParams } from "react-router-dom";
@@ -43,7 +46,7 @@ const HomeMain = () => {
     async function fetchBlog() {
       let response;
       if (topicParam) {
-        response = await apiGetFollowedArticles(token, topicParam, 5);
+        response = await apiGetFollowedTopicArticles(token, topicParam, 15);
       } else {
         response = await apiGetExploreBlogs(token, 5);
       }

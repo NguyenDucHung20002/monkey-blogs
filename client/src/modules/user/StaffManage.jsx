@@ -50,15 +50,17 @@ const StaffManage = () => {
       if (response) {
         const mapUsers = users.filter((user) => user.id != userId);
         setUsers(mapUsers);
+        toast.success(response.message, {
+          pauseOnHover: false,
+          delay: 150,
+        });
       }
     },
     [token, users]
   );
 
   useEffect(() => {
-    console.log("1");
-
-    return console.log("2");
+    return;
   }, []);
 
   const handleLoadMore = async () => {
@@ -79,34 +81,34 @@ const StaffManage = () => {
 
   const handleLiftTheBan = async (userId) => {
     const response = await apiLiftTheBan(token, userId);
-    if (response?.success) {
-      toast.success(response.message, {
-        pauseOnHover: true,
-        delay: 200,
-      });
+    if (response) {
       setStatusRender(!statusRender);
+      toast.success(response.message, {
+        pauseOnHover: false,
+        delay: 150,
+      });
     }
   };
 
   const handleUpdateBan = async (type, userId) => {
     const response = await apiUpdateBan(token, userId, type);
-    if (response?.success) {
-      toast.success(response.message, {
-        pauseOnHover: true,
-        delay: 200,
-      });
+    if (response) {
       setStatusRender(!statusRender);
+      toast.success(response.message, {
+        pauseOnHover: false,
+        delay: 150,
+      });
     }
   };
 
   const handleBanUser = async (type, userId) => {
     const response = await apiBanUser(token, userId, type);
-    if (response?.success) {
-      toast.success(response.message, {
-        pauseOnHover: true,
-        delay: 200,
-      });
+    if (response) {
       setStatusRender(!statusRender);
+      toast.success(response.message, {
+        pauseOnHover: false,
+        delay: 150,
+      });
     }
   };
 

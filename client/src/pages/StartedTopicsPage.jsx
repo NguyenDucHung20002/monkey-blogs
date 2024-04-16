@@ -76,7 +76,6 @@ const StartedTopicsPage = () => {
 
   const handleTopics = (e) => {
     e.preventDefault();
-    console.log("data:", data);
   };
 
   return (

@@ -14,15 +14,6 @@ router.get(
   readingListController.getMyReadingList
 );
 
-// -------------------- get my recently saved -------------------- //
-
-router.get(
-  "/me/recently-saved",
-  requiredAuth,
-  fetchMe,
-  readingListController.getMyRecentlySaved
-);
-
 // -------------------- add an article to reading list -------------------- //
 
 router.post(

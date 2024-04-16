@@ -29,7 +29,6 @@ const PostMetaStyles = styled.div`
 `;
 
 const PostMeta = ({ blog, isMyBlog, className }) => {
-  console.log("isMyBlog:", isMyBlog);
   const { isMyArticle } = blog;
   const getTimeAgo = useTimeAgo(blog.updatedAt);
   const token = localStorage.getItem("token");
@@ -45,13 +44,14 @@ const PostMeta = ({ blog, isMyBlog, className }) => {
   }, [blog, isMyArticle]);
 
   const handleFollow = async () => {
-    const res = isFollowed
+    const response = isFollowed
       ? await apiUnFollowUser(blog.author.id, token)
       : await apiFollowUser(blog.author.id, token);
-    if (res) {
+    if (response) {
       setIsFollowed(!isFollowed);
     }
   };
+
   return (
     <PostMetaStyles className={`post-meta ${className}`}>
       <Link to={`/profile/${blog.author.userInfo.username}`}>

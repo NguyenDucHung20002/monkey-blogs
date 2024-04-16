@@ -44,10 +44,7 @@ const reportAnArticle = asyncMiddleware(async (req, res, next) => {
   });
 
   if (reportAnArticle) {
-    throw ErrorResponse(
-      400,
-      `You have already reported this article, and the report is still pending`
-    );
+    throw ErrorResponse(400, `You have already reported this article`);
   }
 
   await Promise.all([
@@ -59,7 +56,10 @@ const reportAnArticle = asyncMiddleware(async (req, res, next) => {
     article.increment({ reportsCount: 1 }),
   ]);
 
-  res.status(201).json({ success: true, message: `Article has been reported` });
+  res.status(201).json({
+    success: true,
+    message: `Article has been reported`,
+  });
 });
 
 // ==================== get list of pending reported articles ==================== //
@@ -145,7 +145,12 @@ const getPendingReportedArticles = asyncMiddleware(async (req, res, next) => {
       ? reportedArticles[reportedArticles.length - 1].reportsCount
       : null;
 
-  res.json({ success: true, data: reportedArticles, newSkipId, newSkipCount });
+  res.json({
+    success: true,
+    data: reportedArticles,
+    newSkipId,
+    newSkipCount,
+  });
 });
 
 // ==================== Get pending reports of article ==================== //
@@ -190,7 +195,11 @@ const getPendingReportsOfArticle = asyncMiddleware(async (req, res, next) => {
 
   const newSkip = reports.length > 0 ? reports[reports.length - 1].id : null;
 
-  res.json({ success: true, data: reports, newSkip });
+  res.json({
+    success: true,
+    data: reports,
+    newSkip,
+  });
 });
 
 // ==================== Mark a report of the article as resolved ==================== //
@@ -308,7 +317,11 @@ const getResolvedReports = asyncMiddleware(async (req, res, next) => {
 
   const newSkip = reports.length > 0 ? reports[reports.length - 1].id : null;
 
-  res.json({ success: true, data: reports, newSkip });
+  res.json({
+    success: true,
+    data: reports,
+    newSkip,
+  });
 });
 
 export default {

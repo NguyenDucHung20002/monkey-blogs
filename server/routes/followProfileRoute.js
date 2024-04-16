@@ -44,7 +44,7 @@ router.delete(
 
 router.get(
   "/:username/following",
-  optionalAuth,
+  requiredAuth,
   fetchMe,
   fetchUser,
   checkUserBanned,
@@ -56,7 +56,7 @@ router.get(
 
 router.get(
   "/:username/followers",
-  optionalAuth,
+  requiredAuth,
   fetchMe,
   fetchUser,
   checkUserBanned,

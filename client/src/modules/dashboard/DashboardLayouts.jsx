@@ -8,6 +8,7 @@ import Button from "../../components/button/Button";
 import { icons } from "../../utils/constants";
 import { useEffect, useState } from "react";
 import { debounce } from "lodash";
+
 const DashboardStyles = styled.div`
   max-width: 1600px;
   margin: 0 auto;
@@ -26,7 +27,6 @@ const DashboardStyles = styled.div`
       display: grid;
       grid-template-columns: 300px minmax(0, 1fr);
       padding: 20px 20px;
-      gap: 0 40px;
       align-items: start;
     }
     @media screen and (max-width: 1023.98px) {
@@ -40,6 +40,7 @@ const DashboardStyles = styled.div`
     }
   }
 `;
+
 const DashboardLayout = () => {
   const navigate = useNavigate();
   const { userInfo } = useAuth();

@@ -48,13 +48,21 @@ module.exports = {
         defaultValue: 0,
       },
 
+      profileDesign: {
+        type:Sequelize.STRING,
+        allowNull: true
+      },
+
       userId: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        // references: {
-        //   model: User,
-        //   key: "id",
-        // },
+        references: {
+          model: {
+            tableName: "users",
+          },
+          key: "id",
+        },
+        onDelete: "CASCADE",
       },
 
       createdAt: {

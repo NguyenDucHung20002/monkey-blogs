@@ -3,6 +3,8 @@ import asyncMiddleware from "../middlewares/asyncMiddleware.js";
 import Article from "../models/mysql/Article.js";
 import Reading_History from "../models/mysql/Reading_History.js";
 import addUrlToImg from "../utils/addUrlToImg.js";
+import Article_Topic from "../models/mysql/Article_Topic.js";
+import Topic from "../models/mysql/Topic.js";
 
 // ==================== delete an article in reading history ==================== //
 
@@ -63,26 +65,41 @@ const getMyReadingHistory = asyncMiddleware(async (req, res, next) => {
     limit: Number(limit) ? Number(limit) : 15,
   });
 
-  const articles = readingHistory.map((readingHistory) => {
-    return {
-      id: readingHistory.readArticle.id,
-      banner: readingHistory.readArticle.banner
+  const articles = await Promise.all(
+    readingHistory.map(async (readingHistory) => {
+      const dataTopic = await Article_Topic.findOne({
+        attributes: [],
+        where: { articleId: readingHistory.readArticle.id },
+        include: {
+          model: Topic,
+          as: "topic",
+          attributes: ["id", "name", "slug"],
+          where: { status: "approved" },
+        },
+        order: [["id", "ASC"]],
+      });
+
+      readingHistory.readArticle.banner = readingHistory.readArticle.banner
         ? addUrlToImg(readingHistory.readArticle.banner)
-        : null,
-      title: readingHistory.readArticle.title,
-      preview: readingHistory.readArticle.preview,
-      slug: readingHistory.readArticle.slug,
-      createdAt: readingHistory.readArticle.createdAt,
-      updatedAt: readingHistory.readArticle.updatedAt,
-    };
-  });
+        : null;
+
+      return {
+        ...readingHistory.readArticle.toJSON(),
+        topic: dataTopic?.topic,
+      };
+    })
+  );
 
   const newSkip =
     readingHistory.length > 0
       ? readingHistory[readingHistory.length - 1].updatedAt
       : null;
 
-  res.json({ success: true, data: articles, newSkip });
+  res.json({
+    success: true,
+    data: articles,
+    newSkip,
+  });
 });
 
 export default {

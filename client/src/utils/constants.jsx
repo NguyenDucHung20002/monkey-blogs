@@ -16,8 +16,8 @@ export const theme = {
 };
 
 export const config = {
-  SERVER_HOST: "http://143.198.219.247:8080/api/v1",
-  SOCKET_HOST: "http://143.198.219.247:8080",
+  SERVER_HOST: "http://localhost:8080/api/v1",
+  SOCKET_HOST: "http://localhost:8080",
 };
 
 export const icons = {

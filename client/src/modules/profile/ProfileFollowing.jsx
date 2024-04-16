@@ -8,6 +8,7 @@ const ProfileFollowing = () => {
   const [followings, setFollowings] = useState([]);
   const { username } = useParams();
   const { user } = useOutletContext();
+  const token = localStorage.getItem("token");
 
   const navProfile = [
     {
@@ -43,9 +44,8 @@ const ProfileFollowing = () => {
   ];
 
   async function fetchUserFollow() {
-    const dataFollow = await apiGetUserFollow(username, "following");
+    const dataFollow = await apiGetUserFollow(token, username, "following");
     if (!dataFollow?.success) {
-      console.log("error api:", dataFollow?.message);
     }
     setFollowings(dataFollow?.data);
   }

@@ -1,4 +1,5 @@
 const replaceImgUrlsWithNames = (content) => {
+  console.log(content);
   const modifiedContent = content.replace(
     /<img[^>]*src="([^"]*)"[^>]*>/g,
     (match, imgUrl) => {

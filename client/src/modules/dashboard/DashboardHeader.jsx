@@ -124,21 +124,21 @@ const DashboardHeader = () => {
 
   const handleSignOut = useCallback(async () => {
     try {
-      const response = await axios.delete(`${config.SERVER_HOST}/auth/logout`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-      console.log("response:", response);
-      if (response.data) {
+      const response = await axios.delete(
+        `${config.SERVER_HOST}/auth/logout`,
+        { withCredentials: true },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (response?.data?.success) {
         setUserInfo({});
         localStorage.removeItem("token");
         navigate("/sign-in");
       }
-    } catch (error) {
-      console.log("error:", error);
-    }
+    } catch (error) {}
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

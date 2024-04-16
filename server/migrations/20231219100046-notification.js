@@ -13,28 +13,35 @@ module.exports = {
       senderId: {
         type: Sequelize.INTEGER,
         allowNull: true,
-        // references: {
-        //   model: Profile,
-        //   key: "id",
-        // },
+        references: {
+          model: {
+            tableName: "profiles",
+          },
+          key: "id",
+        },
       },
 
       receiverId: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        // references: {
-        //   model: Profile,
-        //   key: "id",
-        // },
+        references: {
+          model: {
+            tableName: "profiles",
+          },
+          key: "id",
+        },
       },
 
       articleId: {
         type: Sequelize.INTEGER,
         allowNull: true,
-        // references: {
-        //   model: Article,
-        //   key: "id",
-        // },
+        references: {
+          model: {
+            tableName: "articles",
+          },
+          key: "id",
+        },
+        onDelete: "SET NULL",
       },
 
       content: {

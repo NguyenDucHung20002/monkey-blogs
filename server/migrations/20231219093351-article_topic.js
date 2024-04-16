@@ -13,19 +13,25 @@ module.exports = {
       articleId: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        // references: {
-        //   model: Article,
-        //   key: "id",
-        // },
+        references: {
+          model: {
+            tableName: "articles",
+          },
+          key: "id",
+        },
+        onDelete: "CASCADE",
       },
 
       topicId: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        // references: {
-        //   model: Topic,
-        //   key: "id",
-        // },
+        references: {
+          model: {
+            tableName: "topics",
+          },
+          key: "id",
+        },
+        onDelete: "CASCADE",
       },
     });
   },
