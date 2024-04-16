@@ -120,3 +120,33 @@ Run the following command in the terminal to start the server:
 ```
 npm run dev
 ```
+
+# Preview
+
+Below are some screenshots of the web:
+
+&nbsp; 
+![Login page](https://drive.google.com/uc?export=view&id=1SNWqOYz2JQLXLIOHsBstjblHScBhcYxn "Home page") 
+&nbsp;
+
+&nbsp;
+![Detail page](https://drive.google.com/uc?export=view&id=1pvTc3MQPx9vqFxwQmCRaed7-38zjhweR "Detail page") 
+&nbsp;
+
+&nbsp;
+![Admin pick page](https://drive.google.com/uc?export=view&id=1kgXDtVW1tfmsFNMA0H0Mpy1nzrR-_DYU "Admin pick page")
+&nbsp;
+
+&nbsp;
+![Topic articles page](https://drive.google.com/uc?export=view&id=18RPXK3YemuL6-N3kKxcFbVj48GusWOeN "Topic articles page")
+&nbsp;
+
+&nbsp;
+![Profile page](https://drive.google.com/uc?export=view&id=18RL0_8n9ebE41K1J7qpM9d0dt9HAbjIp "Profile page")
+&nbsp;
+
+&nbsp;
+![Dashboard page](https://drive.google.com/uc?export=view&id=1NPaslS62dJOvJpKbqB1eCcLzGdyh06Tz "Dashboard page")
+&nbsp;
+
+There are more, but I think this file is long enough.
