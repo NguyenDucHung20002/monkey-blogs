@@ -18,6 +18,14 @@ SERVER_HOST: The server hostname for example: "http://localhost:8080/api/v1"
 SOCKET_HOST: The server socket hostname for example: "http://localhost:8080"
 ```
 
+### Start The Client
+
+Run the following command in the terminal to start the client:
+```
+npm run dev
+```
+
+
 ## Server Configuration
 
 Run this command in the terminal to install packages:
@@ -106,9 +114,9 @@ If you only want to undo fake data (optional), run the following command in the 
 ```
 npm run seed:down:all
 ```
-### Start The Project
+### Start The Server
 
-Run the following command in the terminal to start the project:
+Run the following command in the terminal to start the server:
 ```
 npm run dev
 ```
