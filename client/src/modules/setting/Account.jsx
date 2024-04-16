@@ -1,19 +1,23 @@
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Modal } from "antd";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { Button } from "../../components/button";
 import { apiChangePassword } from "../../api/apiNew";
+import { checkHasPassword, setUpPassword } from "../../api/apiHa";
 import { toast } from "react-toastify";
 
 const Account = () => {
   const [open, setOpen] = useState(false);
+  const [hasPassword, setHasPassword] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
   const token = localStorage.getItem("token");
 
   const schema = yup.object({
-    oldPassword: yup.string().required().min(8),
+    oldPassword: hasPassword
+      ? yup.string().required().min(8)
+      : yup.string().optional().min(8),
     newPassword: yup.string().min(8),
     confirmPassword: yup
       .string()
@@ -34,24 +38,39 @@ const Account = () => {
     setOpen(true);
   };
 
+  const checkPassword = async () => {
+    const response = await checkHasPassword(token);
+    if (response) {
+      setHasPassword(response.data);
+    }
+  };
+
+  useEffect(() => {
+    checkPassword();
+  }, []);
+
   const handleOk = async (values) => {
     setConfirmLoading(true);
-    const { oldPassword, newPassword, confirmPassword } = values;
 
-    const response = await apiChangePassword(
-      token,
-      oldPassword,
-      newPassword,
-      confirmPassword
-    );
+    const operation = hasPassword
+      ? apiChangePassword(
+          token,
+          values.oldPassword,
+          values.newPassword,
+          values.confirmPassword
+        )
+      : setUpPassword(token, values.newPassword);
 
-    toast.success(response.message, {
-      pauseOnHover: false,
-      delay: 150,
-    });
-    setConfirmLoading(false);
-    setOpen(false);
-    reset();
+    const response = await operation;
+    if (response) {
+      toast.success(response.message, {
+        pauseOnHover: false,
+        delay: 150,
+      });
+      setConfirmLoading(false);
+      setOpen(false);
+      reset();
+    }
   };
 
   const handleCancel = () => {
@@ -84,11 +103,13 @@ const Account = () => {
           onClick={showModal}
           className="flex items-center justify-between cursor-pointer"
         >
-          <p className="py-3 ">Change password</p>
-          <p>*********</p>
+          <p className="py-3 ">
+            {hasPassword ? "Change password" : "Set up password"}
+          </p>
+          <p> {hasPassword ? "*********" : ""}</p>
         </div>
         <Modal
-          title="Change your password"
+          title={hasPassword ? "Change your password" : "Set up password"}
           open={open}
           footer={footer}
           onCancel={handleCancel}
@@ -99,35 +120,36 @@ const Account = () => {
             action=""
             style={{ paddingTop: "15px", paddingBottom: "15px" }}
           >
-            <div className="">
-              <label className="block" htmlFor="input-oldPassword">
-                Old password
-              </label>
-              <input
-                className="w-full py-2 border-b focus:placeholder-transparent "
-                type="password"
-                id="input-oldPassword"
-                // placeholder="type your password"
-                {...register("oldPassword")}
-              />
-              <p className={errors.oldPassword ? "text-red-400" : ""}>
-                {errors.oldPassword
-                  ? `old password ${errors.oldPassword.message
-                      .split(" ")
-                      .slice(1)
-                      .join(" ")}`
-                  : ""}
-              </p>
-            </div>
+            {hasPassword && (
+              <div className="">
+                <label className="block" htmlFor="input-oldPassword">
+                  Old password:
+                </label>
+                <input
+                  className="w-full py-2 border-b focus:placeholder-transparent "
+                  type="password"
+                  id="input-oldPassword"
+                  {...register("oldPassword")}
+                />
+                <p className={errors.oldPassword ? "text-red-400" : ""}>
+                  {errors.oldPassword
+                    ? `old password ${errors.oldPassword.message
+                        .split(" ")
+                        .slice(1)
+                        .join(" ")}`
+                    : ""}
+                </p>
+              </div>
+            )}
+
             <div>
               <label className="block" htmlFor="input-newPassword">
-                New password
+                {hasPassword ? "New password:" : "Password"}
               </label>
               <input
                 className="w-full py-2 border-b focus:placeholder-transparent "
                 type="password"
                 id="input-newPassword"
-                // placeholder="type your new password"
                 {...register("newPassword")}
               />
               <p className={errors.newPassword ? "text-red-400" : ""}>
@@ -139,9 +161,10 @@ const Account = () => {
                   : ""}
               </p>
             </div>
+
             <div>
               <label className="block" htmlFor="input-confirmPassword">
-                Confirm password
+                Confirm password:
               </label>
               <input
                 className="w-full py-2 border-b focus:placeholder-transparent "
@@ -151,7 +174,9 @@ const Account = () => {
               />
               <p className={errors.confirmPassword ? "text-red-400" : ""}>
                 {errors.confirmPassword
-                  ? `confirm password ${errors.confirmPassword.message
+                  ? `${
+                      hasPassword ? "confirm password" : "password"
+                    } ${errors.confirmPassword.message
                       .split(" ")
                       .slice(1)
                       .join(" ")}`

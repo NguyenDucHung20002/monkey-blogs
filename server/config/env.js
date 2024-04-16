@@ -33,6 +33,11 @@ export default {
 
   NODEMAILER_APP_PASSWORD: process.env.NODEMAILER_APP_PASSWORD || "123456789",
 
+  OAUTH_GOOGLE_CLIENT_ID:
+    process.env.OAUTH_GOOGLE_CLIENT_ID || "your client id",
+  OAUTH_GOOGLE_CLIENT_SECRET:
+    process.env.OAUTH_GOOGLE_CLIENT_SECRET || "your client secret",
+
   ADMIN_EMAIL: process.env.ADMIN_EMAIL || "example@gmail.com",
   ADMIN_PASSWORD: process.env.ADMIN_PASSWORD || "123456789",
 
