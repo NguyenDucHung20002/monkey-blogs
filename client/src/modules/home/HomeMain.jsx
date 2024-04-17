@@ -48,7 +48,7 @@ const HomeMain = () => {
       if (topicParam) {
         response = await apiGetFollowedTopicArticles(token, topicParam, 15);
       } else {
-        response = await apiGetExploreBlogs(token, 5);
+        response = await apiGetExploreBlogs(token, 15);
       }
       if (response?.success) {
         setBlogs([...response.data]);
@@ -84,7 +84,7 @@ const HomeMain = () => {
             skip.current
           );
         } else {
-          response = await apiGetExploreBlogs(token, 10, skip.current);
+          response = await apiGetExploreBlogs(token, 15, skip.current);
         }
         if (response?.success) {
           const blogsClone = [...blogs, ...response.data];

@@ -273,15 +273,15 @@ const apiGetArticle = async (token, slug) => {
     }
   } catch (error) {
     console.log("Error:", error);
-    toast.error(
-      error?.response?.data?.message
-        ? error?.response?.data?.message
-        : "Something went wrong",
-      {
-        pauseOnHover: false,
-        delay: 250,
-      }
-    );
+    // toast.error(
+    //   error?.response?.data?.message
+    //     ? error?.response?.data?.message
+    //     : "Something went wrong",
+    //   {
+    //     pauseOnHover: false,
+    //     delay: 250,
+    //   }
+    // );
   }
 };
 
@@ -301,15 +301,15 @@ const apiGetArticleAdminDetail = async (token, blogId) => {
     }
   } catch (error) {
     console.log("Error:", error);
-    toast.error(
-      error?.response?.data?.message
-        ? error?.response?.data?.message
-        : "Something went wrong",
-      {
-        pauseOnHover: false,
-        delay: 250,
-      }
-    );
+    // toast.error(
+    //   error?.response?.data?.message
+    //     ? error?.response?.data?.message
+    //     : "Something went wrong",
+    //   {
+    //     pauseOnHover: false,
+    //     delay: 250,
+    //   }
+    // );
   }
 };
 
@@ -606,15 +606,15 @@ const apiGetTopic = async (token, slug) => {
     }
   } catch (error) {
     console.log("Error:", error);
-    toast.error(
-      error?.response?.data?.message
-        ? error?.response?.data?.message
-        : "Something went wrong",
-      {
-        pauseOnHover: false,
-        delay: 250,
-      }
-    );
+    // toast.error(
+    //   error?.response?.data?.message
+    //     ? error?.response?.data?.message
+    //     : "Something went wrong",
+    //   {
+    //     pauseOnHover: false,
+    //     delay: 250,
+    //   }
+    // );
   }
 };
 

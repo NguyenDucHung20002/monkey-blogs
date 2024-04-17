@@ -15,8 +15,9 @@ const TopicPage = () => {
 
   const fetchATopic = useCallback(async () => {
     const response = await apiGetTopic(token, slug);
-    if (response.data) setTopic(response.data);
-    else navigate("/");
+    if(!response) navigate("/*")
+    
+    setTopic(response.data);
   }, [navigate, slug, token]);
 
   useEffect(() => {
