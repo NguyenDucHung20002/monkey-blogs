@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useOutletContext, useParams } from "react-router-dom";
 import { apiGetReadingList } from "../../api/apisHung";
 import styled from "styled-components";
 import Blog from "../blog/Blog";
 import { NavbarHome } from "../../components/navbar";
+import { DesignContext } from "../../pages/DesignPage";
 
 const ReadingListStyle = styled.div`
   max-width: 700px;
@@ -20,6 +21,7 @@ const ProfileReadingList = () => {
   const token = localStorage.getItem("token");
   const user = data?.user;
   const { username } = useParams();
+  const { showFollowRecommend } = useContext(DesignContext);
   const navProfile = [
     {
       title: "Home",
@@ -34,6 +36,7 @@ const ProfileReadingList = () => {
       url: `/profile/following/${username}`,
     },
   ];
+
   const navMyProfile = [
     {
       title: "Home",
@@ -52,7 +55,16 @@ const ProfileReadingList = () => {
       url: `/profile/reading-list/${username}`,
     },
   ];
-
+  if (!showFollowRecommend?.about) {
+    navProfile.push({
+      title: "About",
+      url: `/profile/about/${username}`,
+    });
+    navMyProfile.push({
+      title: "About",
+      url: `/profile/about/${username}`,
+    });
+  }
   useEffect(() => {
     async function fetchUserBlog() {
       const dataBlogs = await apiGetReadingList(token, 10);

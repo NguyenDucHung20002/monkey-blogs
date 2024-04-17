@@ -1,14 +1,9 @@
-/* eslint-disable no-undef */
-import { useContext, useEffect, useState } from "react";
-import { useOutletContext, useParams } from "react-router-dom";
-import { apiDeleteArticle, apiGetUserBlogs } from "../../api/api";
-import ProfileBlogs from "./ProfileBlogs";
+import { useContext } from "react";
 import { NavbarHome } from "../../components/navbar";
 import { DesignContext } from "../../pages/DesignPage";
+import { useOutletContext, useParams } from "react-router-dom";
 
-const ProfileHome = () => {
-  const token = localStorage.getItem("token");
-  const [blogs, setBlogs] = useState([]);
+const About = () => {
   const { username } = useParams();
   const { user } = useOutletContext();
   const { showFollowRecommend } = useContext(DesignContext);
@@ -55,35 +50,18 @@ const ProfileHome = () => {
       url: `/profile/about/${username}`,
     });
   }
-  async function fetchUserBlog() {
-    const dataBlogs = await apiGetUserBlogs(token, username);
-    setBlogs([...dataBlogs.articles]);
-  }
-
-  async function fetchDeleteArticle(slug) {
-    const delArticle = await apiDeleteArticle(token, slug);
-    if (delArticle) {
-      fetchUserBlog();
-    }
-  }
-
-  useEffect(() => {
-    fetchUserBlog();
-  }, [username]);
-
   return (
     <>
       <NavbarHome
         data={user?.isMyProfile ? navMyProfile : navProfile}
         className="flex-1"
       />
-      <ProfileBlogs
-        blogs={blogs}
-        user={user}
-        fetchDeleteArticle={fetchDeleteArticle}
-      />
+
+      <div>
+        <p className="mt-5">{user.about}</p>
+      </div>
     </>
   );
 };
 
-export default ProfileHome;
+export default About;

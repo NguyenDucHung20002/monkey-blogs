@@ -1,15 +1,16 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { apiGetUserFollow } from "../../api/apiNew";
 import FollowingUserHandle from "../../components/following/FollowingUserHandle";
 import { useOutletContext, useParams } from "react-router-dom";
 import { NavbarHome } from "../../components/navbar";
+import { DesignContext } from "../../pages/DesignPage";
 
 const ProfileFollower = () => {
   const token = localStorage.getItem("token");
   const [followers, setFollower] = useState([]);
   const { username } = useParams();
   const { user } = useOutletContext();
-
+  const { showFollowRecommend } = useContext(DesignContext);
   const navProfile = [
     {
       title: "Home",
@@ -24,6 +25,7 @@ const ProfileFollower = () => {
       url: `/profile/following/${username}`,
     },
   ];
+
   const navMyProfile = [
     {
       title: "Home",
@@ -42,6 +44,16 @@ const ProfileFollower = () => {
       url: `/profile/reading-list/${username}`,
     },
   ];
+  if (!showFollowRecommend?.about) {
+    navProfile.push({
+      title: "About",
+      url: `/profile/about/${username}`,
+    });
+    navMyProfile.push({
+      title: "About",
+      url: `/profile/about/${username}`,
+    });
+  }
 
   useEffect(() => {
     async function fetchUserFollow() {

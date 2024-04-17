@@ -1,9 +1,13 @@
 /* eslint-disable react/prop-types */
+import { useContext } from "react";
 import ButtonFollowingUser from "../../components/button/ButtonFollowingUser";
 import Avatar from "../user/Avatar";
+import { DesignContext } from "../../pages/DesignPage";
 
 // eslint-disable-next-line react/prop-types
 const ProfileInfo = ({ isBlocked, setShow, user }) => {
+  const { showFollowRecommend } = useContext(DesignContext);
+  const showAbout = showFollowRecommend?.about;
   function formatFollowers(count) {
     if (count >= 1000000000) {
       return Math.floor(count / 1000000000) + "T";
@@ -30,7 +34,7 @@ const ProfileInfo = ({ isBlocked, setShow, user }) => {
         )}
         <p className="mb-4">{user?.bio ? user.bio : ""} </p>
 
-        {user?.about && user.about.trim() !== "" && (
+        {user?.about && user.about.trim() !== "" && showAbout != 0 && (
           <div>
             <p className="text-black font-bold">About me</p>
             <p className="mb-4">{user.about}</p>

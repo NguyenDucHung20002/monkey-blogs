@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useOutletContext, useParams } from "react-router-dom";
 import FollowingUserHandle from "../../components/following/FollowingUserHandle";
 import { apiGetUserFollow } from "../../api/apiNew";
 import { NavbarHome } from "../../components/navbar";
+import { DesignContext } from "../../pages/DesignPage";
 
 const ProfileFollowing = () => {
   const [followings, setFollowings] = useState([]);
@@ -10,6 +11,7 @@ const ProfileFollowing = () => {
   const { user } = useOutletContext();
   const token = localStorage.getItem("token");
 
+  const { showFollowRecommend } = useContext(DesignContext);
   const navProfile = [
     {
       title: "Home",
@@ -24,6 +26,7 @@ const ProfileFollowing = () => {
       url: `/profile/following/${username}`,
     },
   ];
+
   const navMyProfile = [
     {
       title: "Home",
@@ -42,10 +45,21 @@ const ProfileFollowing = () => {
       url: `/profile/reading-list/${username}`,
     },
   ];
+  if (!showFollowRecommend?.about) {
+    navProfile.push({
+      title: "About",
+      url: `/profile/about/${username}`,
+    });
+    navMyProfile.push({
+      title: "About",
+      url: `/profile/about/${username}`,
+    });
+  }
 
   async function fetchUserFollow() {
     const dataFollow = await apiGetUserFollow(token, username, "following");
     if (!dataFollow?.success) {
+      return;
     }
     setFollowings(dataFollow?.data);
   }
