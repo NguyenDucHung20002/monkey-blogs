@@ -20,7 +20,9 @@ const VerifySetupPasswordPage = () => {
   useEffect(() => {
     async function verifyToken() {
       const response = await apiVerifySetupPassword(tokenParams);
-      setVerify(response);
+      if (response) {
+        setVerify(response);
+      }
     }
     verifyToken();
   }, [tokenParams]);

@@ -29,11 +29,16 @@ export default {
   MONGODB_BUCKET: process.env.MONGODB_BUCKET || "uploads",
 
   NODEMAILER_GOOGLE_EMAIL:
-    process.env.NODEMAILER_GOOGLE_EMAIL || "your google email",
+    process.env.NODEMAILER_GOOGLE_EMAIL || "example@gmail.com",
 
-  NODEMAILER_APP_PASSWORD:
-    process.env.NODEMAILER_APP_PASSWORD || "your google app password",
+  NODEMAILER_APP_PASSWORD: process.env.NODEMAILER_APP_PASSWORD || "123456789",
 
+  OAUTH_GOOGLE_CLIENT_ID:
+    process.env.OAUTH_GOOGLE_CLIENT_ID || "your client id",
+  OAUTH_GOOGLE_CLIENT_SECRET:
+    process.env.OAUTH_GOOGLE_CLIENT_SECRET || "your client secret",
+
+  ADMIN_EMAIL: process.env.ADMIN_EMAIL || "example@gmail.com",
   ADMIN_PASSWORD: process.env.ADMIN_PASSWORD || "123456789",
 
   CLARIFAI_API_KEY: process.env.CLARIFAI_API_KEY || "your clarifai api key",

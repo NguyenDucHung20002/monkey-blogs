@@ -20,7 +20,9 @@ const VerifyEmailPage = () => {
   useEffect(() => {
     async function verifyToken() {
       const response = await apiVerifyEmail(tokenParams);
-      setVerify(response);
+      if (response) {
+        setVerify(response);
+      }
     }
     verifyToken();
   }, [tokenParams]);

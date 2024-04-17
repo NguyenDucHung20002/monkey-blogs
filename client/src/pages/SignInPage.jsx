@@ -98,10 +98,10 @@ const SignInPage = () => {
           </Button>
           <p className="text-lg font-semibold text-gray-400">or</p>
           <Button
-            disabled="true"
+            // disabled="false"
             type="button"
             height="45px"
-            // to={`${config.SERVER_HOST}/auth/google`}
+            to={`${config.SERVER_HOST}/auth/google`}
           >
             {icons.googleIcon} <span className="ml-2">Login with Google</span>
           </Button>

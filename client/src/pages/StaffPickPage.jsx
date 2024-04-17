@@ -70,7 +70,7 @@ const StaffPickPage = () => {
       <div className="pb-7 ">
         <h1 className="text-4xl font-bold">Admin Picks</h1>
         <p className="text-lg font-semibold text-gray-500 mt-3">
-          Stories from across Monkey Blogs, hand selected by admin
+          Articles from across Monkey Blogs, hand selected by admin
         </p>
       </div>
       <StaffPicksStyle>

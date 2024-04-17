@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import { Link, NavLink } from "react-router-dom";
-import { Popover } from "antd";
+import { Popover, Skeleton } from "antd";
 import TopicList from "../topic/TopicList";
 import Swal from "sweetalert2";
 import BlogImage from "../blog/BlogImage";
@@ -8,8 +8,10 @@ import timeAgo from "../modulesJs/timeAgo";
 import Avatar from "../user/Avatar";
 import ButtonActionBlogsAuthor from "../../components/button/ButtonActionBlogsAuthor";
 import ButtonSaveBlog from "../../components/button/ButtonSaveBlog";
+import { icons } from "../../utils/constants";
+
 const ProfileBlogs = ({ blogs, user, fetchDeleteArticle }) => {
-  const handleDelete = (slug) => {
+  const handleDelete = (id) => {
     Swal.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
@@ -20,39 +22,24 @@ const ProfileBlogs = ({ blogs, user, fetchDeleteArticle }) => {
       confirmButtonText: "Yes, delete it!",
     }).then(async (result) => {
       if (result.isConfirmed) {
-        fetchDeleteArticle(slug);
+        fetchDeleteArticle(id);
         Swal.fire("Deleted!", "Your post has been deleted.", "success");
       }
     });
   };
-  const MoreUser = ({ slug }) => {
+
+  const MoreUser = ({ id }) => {
     return (
       <div>
-        <NavLink to={`/edit-blog/${slug}`}>
+        <NavLink to={`/edit-blog/${id}`}>
           <div className="my-2 ">Edit story</div>
         </NavLink>
         <div
-          onClick={() => handleDelete(slug)}
+          onClick={() => handleDelete(id)}
           className="my-2 text-red-500 cursor-pointer"
         >
           Delete story
         </div>
-      </div>
-    );
-  };
-
-  const Save = ({ blog }) => {
-    return (
-      <div>
-        {/* <div className="my-2 ">Reading list</div>
-        <div className="my-2 ">List 1</div>
-        <div className="my-2 bg-stone-400 h-[1px]"></div>
-        <div className="my-2 ">Create new list</div> */}
-        <ButtonSaveBlog
-          BlogId={blog.id}
-          checkMyProfile={true}
-          isMyArticle={false}
-        />
       </div>
     );
   };
@@ -67,9 +54,9 @@ const ProfileBlogs = ({ blogs, user, fetchDeleteArticle }) => {
               {user?.fullname}
             </div>
           </div>
-          <h1 className="py-5 text-xl font-bold">Reading Story</h1>
+          <h1 className="py-5 text-xl font-bold">Articles</h1>
           <div className="flex justify-between">
-            <p className="">No Story</p>
+            <p className="">Noting now</p>
             <button className="text-lg">...</button>
           </div>
         </div>
@@ -102,46 +89,22 @@ const ProfileBlogs = ({ blogs, user, fetchDeleteArticle }) => {
               <div className="flex items-center justify-between py-4">
                 <TopicList data={[val?.topic]}></TopicList>
                 <div className="flex items-center">
-                  <Popover
-                    placement="bottom"
-                    content={<Save blog={val} />}
-                    trigger={"click"}
-                  >
-                    <button className="mx-5">
-                      <svg
-                        className=""
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                      >
-                        <path
-                          d="M17.5 1.25a.5.5 0 0 1 1 0v2.5H21a.5.5 0 0 1 0 1h-2.5v2.5a.5.5 0 0 1-1 0v-2.5H15a.5.5 0 0 1 0-1h2.5v-2.5zm-11 4.5a1 1 0 0 1 1-1H11a.5.5 0 0 0 0-1H7.5a2 2 0 0 0-2 2v14a.5.5 0 0 0 .8.4l5.7-4.4 5.7 4.4a.5.5 0 0 0 .8-.4v-8.5a.5.5 0 0 0-1 0v7.48l-5.2-4a.5.5 0 0 0-.6 0l-5.2 4V5.75z"
-                          fill="#000"
-                        ></path>
-                      </svg>
-                    </button>
-                  </Popover>
+                  <ButtonSaveBlog
+                    BlogId={val.id}
+                    checkMyProfile={
+                      val.isMyProfile ? val.isMyProfile : val.isSaved
+                    }
+                    isMyArticle={val.isMyArticle}
+                  ></ButtonSaveBlog>
+
                   {user?.isMyProfile ? (
                     <Popover
                       placement="bottom"
-                      content={<MoreUser slug={val.id} />}
+                      content={<MoreUser id={val.id} />}
                       trigger={"click"}
                     >
-                      <button>
-                        <svg
-                          width="24"
-                          height="24"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            clipRule="evenodd"
-                            d="M4.39 12c0 .55.2 1.02.59 1.41.39.4.86.59 1.4.59.56 0 1.03-.2 1.42-.59.4-.39.59-.86.59-1.41 0-.55-.2-1.02-.6-1.41A1.93 1.93 0 0 0 6.4 10c-.55 0-1.02.2-1.41.59-.4.39-.6.86-.6 1.41zM10 12c0 .55.2 1.02.58 1.41.4.4.87.59 1.42.59.54 0 1.02-.2 1.4-.59.4-.39.6-.86.6-1.41 0-.55-.2-1.02-.6-1.41a1.93 1.93 0 0 0-1.4-.59c-.55 0-1.04.2-1.42.59-.4.39-.58.86-.58 1.41zm5.6 0c0 .55.2 1.02.57 1.41.4.4.88.59 1.43.59.57 0 1.04-.2 1.43-.59.39-.39.57-.86.57-1.41 0-.55-.2-1.02-.57-1.41A1.93 1.93 0 0 0 17.6 10c-.55 0-1.04.2-1.43.59-.38.39-.57.86-.57 1.41z"
-                            fill="currentColor"
-                          ></path>
-                        </svg>
+                      <button className="flex items-center text-gray-400 hover:text-gray-500">
+                        {icons.moreIcon}
                       </button>
                     </Popover>
                   ) : (
@@ -152,14 +115,24 @@ const ProfileBlogs = ({ blogs, user, fetchDeleteArticle }) => {
                 </div>
               </div>
             </div>
-            {val.banner && (
+            {val.banner ? (
               <div className="ml-14">
                 <BlogImage
                   className="flex-shrink-0"
                   url={val.banner}
                   alt=""
                   to={`/blog/${val.slug}`}
-                ></BlogImage>
+                ></BlogImage>{" "}
+              </div>
+            ) : (
+              <div className="ml-14">
+                <Skeleton.Image
+                  active={false}
+                  style={{
+                    width: "120px",
+                    height: "120px",
+                  }}
+                />
               </div>
             )}
           </div>

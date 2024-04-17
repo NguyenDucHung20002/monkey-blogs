@@ -89,7 +89,7 @@ const WritePage = () => {
   const handleAddBlog = (values) => {
     if (!isValid) return;
     const { preview } = values;
-    const cutPreview = preview.slice(0, 200);
+    const cutPreview = preview.slice(0, 150);
     const getTopicNames = topics.map((val) => val.name);
     const topicsSplit = topicInput.trim().split(/,+/).filter(Boolean);
     const topicsMap = topicsSplit.map((val) => val.trim());

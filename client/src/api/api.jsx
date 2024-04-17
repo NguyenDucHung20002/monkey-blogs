@@ -820,11 +820,11 @@ const apiUnFollowUser = async (userID, token) => {
   }
 };
 
-const apiUpdateArticle = async (token, slug, formData) => {
+const apiUpdateArticle = async (token, slug, data) => {
   try {
     const response = await customAxios.patch(
       `${config.SERVER_HOST}/article/update/${slug}`,
-      formData,
+      data,
       {
         headers: {
           Authorization: `Bearer ${token}`,

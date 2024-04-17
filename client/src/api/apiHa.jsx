@@ -52,4 +52,66 @@ const updateProfileDesign = async (token, design) => {
   }
 };
 
-export { fetchAccessToken, updateProfileDesign };
+const checkHasPassword = async (token) => {
+  try {
+    const response = await customAxios.get(
+      `${config.SERVER_HOST}/user/me/check-has-password`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response?.data?.success) {
+      return response.data;
+    }
+  } catch (error) {
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
+  }
+};
+
+const setUpPassword = async (token, password) => {
+  try {
+    const response = await customAxios.post(
+      `${config.SERVER_HOST}/user/me/setup-password`,
+      { password },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response?.data?.success) {
+      return response.data;
+    }
+  } catch (error) {
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
+  }
+};
+
+export {
+  fetchAccessToken,
+  updateProfileDesign,
+  checkHasPassword,
+  setUpPassword,
+};
