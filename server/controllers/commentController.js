@@ -143,7 +143,7 @@ const deleteComment = asyncMiddleware(async (req, res, next) => {
 // ==================== get article main comments ==================== //
 
 const getMainComments = asyncMiddleware(async (req, res, next) => {
-  const me = req.me ? req.me : null;
+  const me = req.me;
   const { id } = req.params;
   const { skip, limit = 15 } = req.query;
 
@@ -217,7 +217,7 @@ const getMainComments = asyncMiddleware(async (req, res, next) => {
 // ==================== get article nested comments of main comment ==================== //
 
 const getNestedComments = asyncMiddleware(async (req, res, next) => {
-  const me = req.me ? req.me : null;
+  const me = req.me;
   const { id } = req.params;
   const { skip, limit = 15 } = req.query;
 
