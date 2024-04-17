@@ -44,13 +44,14 @@ const HeaderDesignPage = ({
 
     await updateProfileDesign(token, design);
 
-    window.location.replace(`/profile/${user?.data?.username}`);
+    window.location.replace(`/profile/${user?.username}`);
   };
 
   const handleCancelPublish = () => {
     setShowFollowRecommend({
       following: 1,
       recommend: 0,
+      about: 0,
     });
     setImageDisplay({
       display: "object-none",
