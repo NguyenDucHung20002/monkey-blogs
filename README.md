@@ -148,5 +148,3 @@ Below are some screenshots of the web:
 &nbsp;
 ![Dashboard page](https://drive.google.com/uc?export=view&id=1NPaslS62dJOvJpKbqB1eCcLzGdyh06Tz "Dashboard page")
 &nbsp;
-
-There are more, but I think this file is long enough.
