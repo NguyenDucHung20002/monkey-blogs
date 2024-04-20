@@ -52,6 +52,12 @@ module.exports = {
       bannedById: {
         type: Sequelize.INTEGER,
         allowNull: true,
+        references: {
+          model: {
+            tableName: "users",
+          },
+          key: "id",
+        },
       },
 
       roleId: {

@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import { useCallback, useEffect, useRef, useState } from "react";
-import { apiGetRemovedArticles, apiRestoreArticle } from "../../api/apisHung";
+import { apiGetRemovedArticles, apiRestoreAnArticle } from "../../api/apisHung";
 import { Popover, Table, Tag } from "antd";
 import Column from "antd/es/table/Column";
 import { Button } from "../../components/button";
@@ -18,7 +18,7 @@ const PostRemoved = () => {
   const [isReload, setIsReload] = useState(false);
 
   const fetchReports = useCallback(async () => {
-    const response = await apiGetRemovedArticles(token, 10);
+    const response = await apiGetRemovedArticles(token, 15);
     if (response.data) {
       skip.current = response.newSkip;
       const mapBlogs = response.data.map((user) => {
@@ -30,30 +30,26 @@ const PostRemoved = () => {
       setBlogReports(mapBlogs);
     }
   }, [token]);
+
   useEffect(() => {
     fetchReports();
   }, [fetchReports, isReload]);
 
   const handleLoadMore = async () => {
     const newSkip = skip.current;
-    const response = await apiGetRemovedArticles(token, 10, newSkip);
-
+    const response = await apiGetRemovedArticles(token, 15, newSkip);
     if (response) {
       const mapBlogs = response.data.map((user) => {
-        return {
-          ...user,
-          key: user.id,
-        };
+        return { ...user, key: user.id };
       });
       skip.current = response.newSkip;
       setBlogReports([...blogReports, ...mapBlogs]);
     }
-    return [];
   };
 
   const handleRestoreArticle = useCallback(
     async (id) => {
-      const response = await apiRestoreArticle(token, id);
+      const response = await apiRestoreAnArticle(token, id);
       if (response) {
         fetchReports();
         toast.success(response.message, {
@@ -195,7 +191,7 @@ const PostRemoved = () => {
           render={(blog) => ButtonMore(blog)}
         />
       </Table>
-      {blogReports && blogReports.length >= 5 && (
+      {skip.current && (
         <div className="flex justify-center mt-5" onClick={handleLoadMore}>
           <Button type="button" kind="primary" height="40px">
             Load more

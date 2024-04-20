@@ -1,6 +1,6 @@
 import { Popover } from "antd";
 import { icons } from "../../utils/constants";
-import { apiAddReadingList, apiDeleteReadingList } from "../../api/apisHung";
+import { apAddAnArticleToReadingList, apiRemoveAnArticleInReadingList } from "../../api/apisHung";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
@@ -17,9 +17,9 @@ const ButtonSaveBlog = ({ BlogId, isMyArticle, checkMyProfile }) => {
     let response;
 
     if (!isSaveList) {
-      response = await apiAddReadingList(token, BlogId);
+      response = await apAddAnArticleToReadingList(token, BlogId);
     } else {
-      response = await apiDeleteReadingList(token, BlogId);
+      response = await apiRemoveAnArticleInReadingList(token, BlogId);
     }
     if (response) {
       setIsSaveList(!isSaveList);

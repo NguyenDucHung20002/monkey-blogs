@@ -9,8 +9,8 @@ import {
 } from "react";
 import { io } from "socket.io-client";
 import { useAuth } from "./auth-context";
-import { apiGetNotification, apiMarkAsReadNotification } from "../api/api";
-import { apiDeleteAllNotification } from "../api/apiNew";
+import { apiGetNotifications, apiMartAllNotificationsAsRead } from "../api/api";
+import { apiClearReadNotifications } from "../api/apiNew";
 import { config } from "../utils/constants";
 
 const SocketContext = createContext();
@@ -39,19 +39,19 @@ const SocketProvider = ({ children }) => {
   }, [notifications]);
 
   const fetchNotification = useCallback(async () => {
-    const notificationResponse = await apiGetNotification(token);
-    setNotifications(notificationResponse.data);
+    const response = await apiGetNotifications(token);
+    setNotifications(response.data);
   }, [token]);
 
   const handleClearNotifications = useCallback(async () => {
-    const response = await apiDeleteAllNotification(token);
+    const response = await apiClearReadNotifications(token);
     if (response) {
       setNotifications([]);
     }
   }, [token]);
 
   const handleReadNotify = useCallback(async () => {
-    await apiMarkAsReadNotification(token);
+    await apiMartAllNotificationsAsRead(token);
     fetchNotification(token);
   }, []);
 

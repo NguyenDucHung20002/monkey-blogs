@@ -14,7 +14,7 @@ const SearchAddTopics = ({
   const [addTopics, setAddTopics] = useState([]);
   const input = useRef(null);
   const token = localStorage.getItem("token");
-  const handleDeleteTopic = (slug) => {
+  const handledeleteATopic = (slug) => {
     const topicsClone = [...topics];
     const topicFilters = topicsClone.filter((topic) => topic.slug !== slug);
     setTopics(topicFilters);
@@ -61,7 +61,7 @@ const SearchAddTopics = ({
             <span className="p-1">{topic?.name}</span>{" "}
             <button
               type="button"
-              onClick={() => handleDeleteTopic(topic?.slug)}
+              onClick={() => handledeleteATopic(topic?.slug)}
               className="px-1 cursor-pointer"
             >
               <svg

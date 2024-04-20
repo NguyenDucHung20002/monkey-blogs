@@ -58,29 +58,9 @@ const getNotifications = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// ==================== mark as read ==================== //
+// ==================== mark all notifications as read ==================== //
 
-const markAsRead = asyncMiddleware(async (req, res, next) => {
-  const me = req.me;
-  const { id } = req.params;
-
-  const notification = await Notification.findOne({
-    where: { id, isRead: false },
-  });
-
-  if (!notification) throw ErrorResponse(404, "Notification not found");
-
-  await notification.update({ isRead: true });
-
-  res.json({
-    success: true,
-    message: "Marked notification as read successfully",
-  });
-});
-
-// ==================== mark all as read ==================== //
-
-const martAllAsRead = asyncMiddleware(async (req, res, next) => {
+const martAllNotificationsAsRead = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
 
   await Notification.update(
@@ -111,7 +91,6 @@ const clearReadNotifications = asyncMiddleware(async (req, res, next) => {
 
 export default {
   getNotifications,
-  markAsRead,
-  martAllAsRead,
+  martAllNotificationsAsRead,
   clearReadNotifications,
 };

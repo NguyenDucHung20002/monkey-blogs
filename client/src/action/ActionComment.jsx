@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Drawer } from "antd";
 import Comment from "../components/comment/Comment";
-import { apiGetComment } from "../api/api";
+import { apiGetMainCommentsOfAnArticle } from "../api/api";
 
 const ActionComment = ({ blogId = "" }) => {
   const token = localStorage.getItem("token");
@@ -13,7 +13,7 @@ const ActionComment = ({ blogId = "" }) => {
 
   useEffect(() => {
     async function fetchCommentBlog() {
-      const response = await apiGetComment(blogId, token);
+      const response = await apiGetMainCommentsOfAnArticle(blogId, token);
       if (response) setCommentBlog(response.data);
     }
     fetchCommentBlog();

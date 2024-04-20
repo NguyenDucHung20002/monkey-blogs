@@ -10,10 +10,10 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate, useParams } from "react-router-dom";
 import MyEditor from "../components/input/MyEditor";
-import { apiGetArticleOrDraft, apiUpdateArticle } from "../api/api";
+import { apiGetAnArticleOrADraftToEdit, apiUpdateAnArticle } from "../api/api";
 import useUploadImage from "../hooks/useUploadImage";
 import { config } from "../utils/constants";
-import { apiAddBlog, apiUpdateDraft } from "../api/apiNew";
+import { apiCreateAnArticle, apiUpdateADraft } from "../api/apiNew";
 import { debounce } from "lodash";
 
 const EditBlogPageStyle = styled.div`
@@ -72,7 +72,7 @@ const EditBlogPage = () => {
   };
 
   const fetchBlog = async () => {
-    const response = await apiGetArticleOrDraft(token, slug);
+    const response = await apiGetAnArticleOrADraftToEdit(token, slug);
     if (response) resetForm(response.data);
   };
 
@@ -138,7 +138,7 @@ const EditBlogPage = () => {
         preview: cutPreview,
         banner: image.filename,
       };
-      response = await apiAddBlog(token, status?.id, data);
+      response = await apiCreateAnArticle(token, status?.id, data);
     } else {
       const data = {
         title,
@@ -147,7 +147,7 @@ const EditBlogPage = () => {
         preview: cutPreview,
         banner: image.filename,
       };
-      response = await apiUpdateArticle(token, status?.id, data);
+      response = await apiUpdateAnArticle(token, status?.id, data);
     }
 
     if (response) navigate(`/`);
@@ -156,7 +156,7 @@ const EditBlogPage = () => {
   const watchedTitle = useWatch({ control, name: "title", defaultValue: "" });
 
   const UpdateDraft = debounce(async () => {
-    const response = await apiUpdateDraft(
+    const response = await apiUpdateADraft(
       token,
       status?.id,
       watchedTitle,

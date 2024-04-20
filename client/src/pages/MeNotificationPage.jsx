@@ -4,7 +4,7 @@ import { Outlet } from "react-router-dom";
 const MeNotificationPage = () => {
   const navStory = [
     {
-      title: "See All",
+      title: "All :)",
       url: "/me/notifications",
     },
   ];

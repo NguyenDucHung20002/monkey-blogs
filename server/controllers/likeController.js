@@ -65,9 +65,9 @@ const unLikeAnArticle = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// ==================== get an article likers ==================== //
+// ==================== get likers of an article ==================== //
 
-const getArticleLiker = asyncMiddleware(async (req, res, next) => {
+const getLikersOfAnArticle = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { skip = 0, limit = 15 } = req.query;
   const { id } = req.params;
@@ -151,5 +151,5 @@ const getArticleLiker = asyncMiddleware(async (req, res, next) => {
 export default {
   likeAnArticle,
   unLikeAnArticle,
-  getArticleLiker,
+  getLikersOfAnArticle,
 };

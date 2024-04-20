@@ -1,22 +1,56 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useAuth } from "../contexts/auth-context";
 import { Link } from "react-router-dom";
 import Avatar from "../modules/user/Avatar";
-import { apiGetMyBlocked } from "../api/apiNew";
+import { apiGetBlockedProfiles } from "../api/apiNew";
 import ButtonBlocked from "../components/button/ButtonBlocked";
+import { debounce } from "lodash";
 
 const MeBlocked = () => {
   const [users, setUsers] = useState([]);
   const token = localStorage.getItem("token");
   const { userInfo } = useAuth();
+  const skip = useRef("");
+  const windowHeight = useRef(window.innerHeight);
+  const scrollY = useRef(window.scrollY);
+  const documentHeight = useRef(document.documentElement.scrollHeight);
 
   useEffect(() => {
     async function fetchUser() {
-      const response = await apiGetMyBlocked(token);
-      if (response) setUsers(response.data);
+      const response = await apiGetBlockedProfiles(token, 15);
+      if (response) {
+        setUsers([...response.data]);
+        skip.current = response.newSkip;
+      }
     }
     fetchUser();
   }, [token]);
+
+  useEffect(() => {
+    const handleScroll = async () => {
+      windowHeight.current = window.innerHeight;
+      scrollY.current = window.scrollY;
+      documentHeight.current = document.documentElement.scrollHeight;
+      if (
+        windowHeight.current + scrollY.current + 10 >= documentHeight.current &&
+        skip.current
+      ) {
+        const response = await apiGetBlockedProfiles(token, 15, skip.current);
+        if (response) {
+          const usersClone = [...users, ...response.data];
+          setUsers([...usersClone]);
+          skip.current = response.newSkip;
+        }
+      }
+    };
+    const debouncedScroll = debounce(handleScroll, 200);
+
+    window.addEventListener("scroll", debouncedScroll);
+
+    return () => {
+      window.removeEventListener("scroll", debouncedScroll);
+    };
+  }, [users]);
 
   if (!userInfo) return;
 

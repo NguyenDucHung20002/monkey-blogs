@@ -22,7 +22,7 @@ import extractImg from "../utils/extractImg.js";
 import replaceImgUrlsWithNames from "../utils/replaceImgUrlsWithNames.js";
 import replaceImgNamesWithUrls from "../utils/replaceImgNamesWithUrls.js";
 
-// ==================== create draft ==================== //
+// ==================== create a draft ==================== //
 
 const createADraft = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
@@ -44,7 +44,7 @@ const createADraft = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// ==================== update draft ==================== //
+// ==================== update a draft ==================== //
 
 const updateADraft = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
@@ -70,7 +70,7 @@ const updateADraft = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// ==================== delete draft ==================== //
+// ==================== delete a draft ==================== //
 
 const deleteADraft = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
@@ -86,13 +86,13 @@ const deleteADraft = asyncMiddleware(async (req, res, next) => {
 
     await Promise.all([
       contentImgs.forEach(async (img) => {
-        await fileController.autoRemoveImg(img);
+        await fileController.autoRemoveAnImage(img);
       }),
       draft.articleTopics.forEach(async (articleTopic) => {
         await articleTopic.increment({ articlesCount: -1 });
       }),
       draft.destroy({ force: true, hooks: false }),
-      fileController.autoRemoveImg(draft.banner),
+      fileController.autoRemoveAnImage(draft.banner),
     ]);
   }
 
@@ -128,9 +128,9 @@ const getAnArticleOrADraftToEdit = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// ==================== get my draft ==================== //
+// ==================== get all drafts ==================== //
 
-const getMyDrafts = asyncMiddleware(async (req, res, next) => {
+const getAllDrafts = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { skip, limit = 15 } = req.query;
 
@@ -157,9 +157,9 @@ const getMyDrafts = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// ==================== create article ==================== //
+// ==================== create an article ==================== //
 
-const createArticle = asyncMiddleware(async (req, res, next) => {
+const createAnArticle = asyncMiddleware(async (req, res, next) => {
   const { id } = req.params;
   const me = req.me;
   const { preview, banner, topicNames } = req.body;
@@ -206,9 +206,9 @@ const createArticle = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// ==================== update article ==================== //
+// ==================== update an article ==================== //
 
-const updateArticle = asyncMiddleware(async (req, res, next) => {
+const updateAnArticle = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { id } = req.params;
   const { title, preview, content, banner, topicNames } = req.body;
@@ -221,7 +221,7 @@ const updateArticle = asyncMiddleware(async (req, res, next) => {
   if (!article) throw ErrorResponse(404, "Article not found");
 
   if (banner !== article.banner) {
-    fileController.autoRemoveImg(article.banner);
+    fileController.autoRemoveAnImage(article.banner);
   }
 
   const updatedSlug = title ? toSlug(title) + "-" + Date.now() : article.slug;
@@ -268,9 +268,9 @@ const updateArticle = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// ==================== delete article ==================== //
+// ==================== delete an article ==================== //
 
-const deleteArticle = asyncMiddleware(async (req, res, next) => {
+const deleteAnArticle = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { id } = req.params;
 
@@ -284,12 +284,12 @@ const deleteArticle = asyncMiddleware(async (req, res, next) => {
 
     await Promise.all([
       contentImgs.forEach(async (img) => {
-        await fileController.autoRemoveImg(img);
+        await fileController.autoRemoveAnImage(img);
       }),
       article.articleTopics.forEach(async (articleTopic) => {
         await articleTopic.increment({ articlesCount: -1 });
       }),
-      fileController.autoRemoveImg(article.banner),
+      fileController.autoRemoveAnImage(article.banner),
       article.destroy({ force: true, hooks: false }),
     ]);
   }
@@ -799,9 +799,9 @@ const exploreNewArticles = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// ==================== admin pick full list ==================== //
+// ==================== admin pick ==================== //
 
-const adminPickFullList = asyncMiddleware(async (req, res, next) => {
+const adminPick = asyncMiddleware(async (req, res, next) => {
   const { skip, limit = 15 } = req.query;
   const me = req.me;
 
@@ -811,11 +811,11 @@ const adminPickFullList = asyncMiddleware(async (req, res, next) => {
     "$readArticle.authorBlocker.blockerId$": null,
   };
 
-  if (skip) whereQuery.id = { [Op.lt]: skip };
+  if (skip) whereQuery.createdAt = { [Op.lt]: skip };
 
   const adminPickList = await Reading_List.findAll({
     where: whereQuery,
-    attributes: ["id"],
+    attributes: ["id", "createdAt"],
     include: [
       {
         model: Article,
@@ -877,11 +877,11 @@ const adminPickFullList = asyncMiddleware(async (req, res, next) => {
         },
       },
     ],
-    order: [["id", "DESC"]],
+    order: [["createdAt", "DESC"]],
     limit: Number(limit) ? Number(limit) : 15,
   });
 
-  const articles = await Promise.all(
+  const result = await Promise.all(
     adminPickList.map(async (adminPick) => {
       const topicData = await Article_Topic.findOne({
         attributes: [],
@@ -924,12 +924,12 @@ const adminPickFullList = asyncMiddleware(async (req, res, next) => {
 
   const newSkip =
     adminPickList.length > 0
-      ? adminPickList[adminPickList.length - 1].id
+      ? adminPickList[adminPickList.length - 1].createdAt
       : null;
 
   res.json({
     success: true,
-    data: articles,
+    data: result,
     newSkip,
   });
 });
@@ -1125,9 +1125,9 @@ const getTopicArticles = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// ==================== set article back to draft ==================== //
+// ==================== set an article back to draft ==================== //
 
-const setArticleBackToDraft = asyncMiddleware(async (req, res, next) => {
+const setAnArticleBackToDraft = asyncMiddleware(async (req, res, next) => {
   const { id } = req.params;
   const { reason } = req.body;
   const me = req.me;
@@ -1146,9 +1146,9 @@ const setArticleBackToDraft = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// ==================== approve article ==================== //
+// ==================== approve an article ==================== //
 
-const approveArticle = asyncMiddleware(async (req, res, next) => {
+const approveAnArticle = asyncMiddleware(async (req, res, next) => {
   const { id } = req.params;
   const me = req.me;
 
@@ -1170,9 +1170,9 @@ const approveArticle = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// ==================== remove article ==================== //
+// ==================== remove an article ==================== //
 
-const removeArticle = asyncMiddleware(async (req, res, next) => {
+const removeAnArticle = asyncMiddleware(async (req, res, next) => {
   const { id } = req.params;
   const me = req.me;
 
@@ -1192,9 +1192,9 @@ const removeArticle = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// ==================== restore article ==================== //
+// ==================== restore an article ==================== //
 
-const restoreArticle = asyncMiddleware(async (req, res, next) => {
+const restoreAnArticle = asyncMiddleware(async (req, res, next) => {
   const { id } = req.params;
   const me = req.me;
 
@@ -1291,9 +1291,9 @@ const getRemovedArticles = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// ==================== get article detail ==================== //
+// ==================== get an article detail ==================== //
 
-const getArticleDetail = asyncMiddleware(async (req, res, next) => {
+const getAnArticleDetail = asyncMiddleware(async (req, res, next) => {
   const { id } = req.params;
 
   const article = await Article.findOne({
@@ -1338,9 +1338,9 @@ const getArticleDetail = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// ==================== get more articles from profile ==================== //
+// ==================== get more articles from author ==================== //
 
-const getMoreArticleFromProfile = asyncMiddleware(async (req, res, next) => {
+const getMoreArticlesFromAuthor = asyncMiddleware(async (req, res, next) => {
   const { id } = req.params;
   const me = req.me;
 
@@ -1422,23 +1422,23 @@ export default {
   updateADraft,
   deleteADraft,
   getAnArticleOrADraftToEdit,
-  getMyDrafts,
-  createArticle,
-  updateArticle,
-  deleteArticle,
+  getAllDrafts,
+  createAnArticle,
+  updateAnArticle,
+  deleteAnArticle,
   getProfileArticles,
   getAllArticles,
   getAnArticle,
   getFollowedProfilesArticles,
   getFollowedTopicArticles,
   exploreNewArticles,
-  adminPickFullList,
+  adminPick,
   getTopicArticles,
-  setArticleBackToDraft,
-  removeArticle,
+  setAnArticleBackToDraft,
+  removeAnArticle,
   getRemovedArticles,
-  approveArticle,
-  restoreArticle,
-  getArticleDetail,
-  getMoreArticleFromProfile,
+  approveAnArticle,
+  restoreAnArticle,
+  getAnArticleDetail,
+  getMoreArticlesFromAuthor,
 };

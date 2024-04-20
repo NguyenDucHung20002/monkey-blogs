@@ -18,7 +18,7 @@ router.get(
   followProfileController.whoToFollow
 );
 
-// -------------------- follow a profile -------------------- //
+// -------------------- follow a user -------------------- //
 
 router.post(
   "/:id",
@@ -27,20 +27,20 @@ router.post(
   fetchUser,
   checkUserBanned,
   checkBlockedByUser,
-  followProfileController.followAProfile
+  followProfileController.followAUser
 );
 
-// -------------------- unfollow a profile -------------------- //
+// -------------------- unfollow a user -------------------- //
 
 router.delete(
   "/:id",
   requiredAuth,
   fetchMe,
   fetchUser,
-  followProfileController.unFollowAProfile
+  followProfileController.unFollowAUser
 );
 
-// -------------------- get list of followed profiles -------------------- //
+// -------------------- get followed profiles -------------------- //
 
 router.get(
   "/:username/following",
@@ -49,10 +49,10 @@ router.get(
   fetchUser,
   checkUserBanned,
   checkBlockedByUser,
-  followProfileController.getFolloweds
+  followProfileController.getFollowedProfiles
 );
 
-// -------------------- get list of follower profiles -------------------- //
+// -------------------- get follower profiles -------------------- //
 
 router.get(
   "/:username/followers",
@@ -61,7 +61,7 @@ router.get(
   fetchUser,
   checkUserBanned,
   checkBlockedByUser,
-  followProfileController.getFollowers
+  followProfileController.getFollowerProfiles
 );
 
 export default router;

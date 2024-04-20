@@ -10,7 +10,7 @@ import Avatar from "../user/Avatar";
 import { Modal } from "antd";
 import { useContext, useState } from "react";
 import { DesignContext } from "../../pages/DesignPage";
-import { updateProfileDesign } from "../../api/apiHa";
+import { apiUpdateProfileDesign } from "../../api/apiHa";
 
 const token = localStorage.getItem("token");
 
@@ -42,15 +42,16 @@ const HeaderDesignPage = ({
 
     const design = JSON.stringify(data);
 
-    await updateProfileDesign(token, design);
+    await apiUpdateProfileDesign(token, design);
 
-    window.location.replace(`/profile/${user?.data?.username}`);
+    window.location.replace(`/profile/${user?.username}`);
   };
 
   const handleCancelPublish = () => {
     setShowFollowRecommend({
       following: 1,
       recommend: 0,
+      about: 0,
     });
     setImageDisplay({
       display: "object-none",

@@ -13,7 +13,7 @@ import useClickOutSide from "../hooks/useClickOutSide";
 import { config, icons } from "../utils/constants";
 import Notify from "../modules/notification/Notify";
 import axios from "axios";
-import { apiTopicsSearch, apiUserSearch } from "../api/apisHung";
+import { apiTopicsSearch, apiUsersSearch } from "../api/apisHung";
 import { useSocket } from "../contexts/SocketContext";
 
 const HomeStyle = styled.header`
@@ -133,7 +133,7 @@ const Header = () => {
 
   useEffect(() => {
     async function fetchUsers() {
-      const response = await apiUserSearch(token, inputSearch, 3);
+      const response = await apiUsersSearch(token, inputSearch, 3);
       if (response?.data) setUsers(response?.data);
     }
     async function fetchTopics() {

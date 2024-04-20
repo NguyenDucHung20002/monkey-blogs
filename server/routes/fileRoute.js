@@ -15,7 +15,7 @@ router.post(
   requiredAuth,
   mongoUpload.single("img"),
   checkFileLimit(env.IMAGE_FILE_SIZE_LIMIT),
-  fileController.upLoadAnImg
+  fileController.upLoadAnImage
 );
 
 // -------------------- upload an avatar -------------------- //
@@ -30,10 +30,15 @@ router.post(
 
 // -------------------- get an image -------------------- //
 
-router.get("/:filename", fileController.getAnImg);
+router.get("/:filename", fileController.getAnImage);
 
 // -------------------- delete an image -------------------- //
 
-router.delete("/:filename", requiredAuth, fetchMe, fileController.deleteAnImg);
+router.delete(
+  "/:filename",
+  requiredAuth,
+  fetchMe,
+  fileController.deleteAnImage
+);
 
 export default router;

@@ -6,4 +6,6 @@ const reportAnArticleSchema = Joi.object({
     .required(),
 });
 
-export default { reportAnArticleSchema };
+export default {
+  reportAnArticleSchema,
+};

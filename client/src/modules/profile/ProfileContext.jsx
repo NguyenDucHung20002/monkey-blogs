@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import { Button, Modal, Popover } from "antd";
 import { useEffect, useState } from "react";
-import { apiBlockUser, apiMuteUser, apiReportUser } from "../../api/api";
+import { apiBlockAUser, apiMuteAUser, apiReportAUser } from "../../api/api";
 import { toast } from "react-toastify";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -97,7 +97,7 @@ const ProfileContext = ({ setIsBlocked, isBlocked, user, token }) => {
     const toastContent = !isMuted
       ? "You will no longer see their stories"
       : "You will see their stories";
-    const response = await apiMuteUser(type, token, user.id);
+    const response = await apiMuteAUser(type, token, user.id);
     if (response) {
       setMuted(!isMuted);
       toast.success(response.message, {
@@ -113,7 +113,7 @@ const ProfileContext = ({ setIsBlocked, isBlocked, user, token }) => {
 
   const handleBlock = async () => {
     const type = isBlock ? "delete" : "post";
-    const response = await apiBlockUser(type, token, user.id);
+    const response = await apiBlockAUser(type, token, user.id);
     if (response) {
       setBlock(!isBlock);
       setIsBlocked(!isBlock);
@@ -152,7 +152,7 @@ const ProfileContext = ({ setIsBlocked, isBlocked, user, token }) => {
     setLoading(true);
     const reason = values.reason;
     const description = values.description;
-    const response = await apiReportUser(token, user.id, reason, description);
+    const response = await apiReportAUser(token, user.id, reason, description);
     if (response) {
       toast.success(response.message, {
         pauseOnHover: false,

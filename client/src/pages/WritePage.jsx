@@ -10,7 +10,7 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 import MyEditor from "../components/input/MyEditor";
-import { apiAddBlog, apiCreateDraft, apiUpdateDraft } from "../api/apiNew";
+import { apiCreateAnArticle, apiCreateADraft, apiUpdateADraft } from "../api/apiNew";
 import { debounce } from "lodash";
 import useUploadImage from "../hooks/useUploadImage";
 
@@ -103,7 +103,7 @@ const WritePage = () => {
 
     async function fetchAddBlog() {
       if (!token) return;
-      const response = await apiAddBlog(token, idDraft, data);
+      const response = await apiCreateAnArticle(token, idDraft, data);
       if (response?.success) {
         navigate("/");
       }
@@ -118,7 +118,7 @@ const WritePage = () => {
   const watchedTitle = useWatch({ control, name: "title", defaultValue: "" });
 
   const createDraft = async () => {
-    const response = await apiCreateDraft(token, watchedTitle, content);
+    const response = await apiCreateADraft(token, watchedTitle, content);
     if (response) {
       setNewDraft(response);
       setIsSaved(true);
@@ -128,7 +128,7 @@ const WritePage = () => {
 
   const UpdateDraft = debounce(async () => {
     const idDraft = newDraft?.draftId;
-    const response = await apiUpdateDraft(
+    const response = await apiUpdateADraft(
       token,
       idDraft,
       watchedTitle,

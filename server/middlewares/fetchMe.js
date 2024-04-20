@@ -15,7 +15,14 @@ const fetchMe = async (req, res, next) => {
     }
 
     const me = await User.findByPk(myUserId, {
-      attributes: ["status", "bannedUntil", "id", "username", "password"],
+      attributes: [
+        "email",
+        "status",
+        "bannedUntil",
+        "id",
+        "username",
+        "password",
+      ],
       include: [
         {
           model: Profile,

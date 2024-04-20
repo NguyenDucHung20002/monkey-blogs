@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import Blog from "../modules/blog/Blog";
-import { apiMyArticleFollowing } from "../api/api";
+import { apiGetFollowedProfilesArticles } from "../api/api";
 import { debounce } from "lodash";
 
 const FollowingPageStyled = styled.div`
@@ -37,7 +37,7 @@ const FollowingPage = () => {
         windowHeight.current + scrollY.current + 10 >= documentHeight.current &&
         skip.current
       ) {
-        const response = await apiMyArticleFollowing(token, 10, skip.current);
+        const response = await apiGetFollowedProfilesArticles(token, 10, skip.current);
         if (response?.success) {
           const blogsClone = [...blogs, ...response.data];
           setBlogs(blogsClone);
@@ -57,7 +57,7 @@ const FollowingPage = () => {
 
   useEffect(() => {
     async function fetchBlog() {
-      const response = await apiMyArticleFollowing(token, 10);
+      const response = await apiGetFollowedProfilesArticles(token, 10);
       if (response) {
         setBlogs(response.data);
         skip.current = response.newSkip;

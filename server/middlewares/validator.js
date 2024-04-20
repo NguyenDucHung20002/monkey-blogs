@@ -7,7 +7,7 @@ const validator = (schema, property = "body") => {
     if (!error) {
       next();
     } else {
-      if (req.file) await fileController.autoRemoveImg(req.file.filename);
+      if (req.file) await fileController.autoRemoveAnImage(req.file.filename);
 
       console.log("error validating =>", error);
 

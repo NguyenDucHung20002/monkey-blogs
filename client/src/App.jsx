@@ -18,6 +18,7 @@ import MeSettingPage from "./pages/MeSettingPage";
 import Account from "./modules/setting/Account";
 import { AxiosInterceptorsSetup } from "./config/axios-customize";
 import { useNavigate } from "react-router-dom";
+import About from "./modules/profile/About";
 
 const AuthenticationPage = React.lazy(() =>
   import("./pages/AuthenticationPage")
@@ -194,6 +195,7 @@ function App() {
                   path="/profile/reading-list/:username"
                   element={<ProfileReadingList></ProfileReadingList>}
                 />
+                <Route path="/profile/about/:username" element={<About />} />
               </Route>
 
               <Route element={<SearchPage></SearchPage>}>

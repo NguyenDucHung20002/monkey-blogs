@@ -9,6 +9,25 @@ import fetchUser from "../middlewares/fetchUser.js";
 
 const router = express.Router();
 
+// -------------------- set up password -------------------- //
+
+router.post(
+  "/me/setup-password",
+  requiredAuth,
+  fetchMe,
+  validator(userSchema.setUpPasswordSchema),
+  userController.setUpPassword
+);
+
+// -------------------- check user has password or not -------------------- //
+
+router.get(
+  "/me/check-has-password",
+  requiredAuth,
+  fetchMe,
+  userController.checkUserHasPassword
+);
+
 // -------------------- change password -------------------- //
 
 router.patch(

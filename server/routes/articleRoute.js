@@ -10,19 +10,19 @@ import validator from "../middlewares/validator.js";
 
 const router = express.Router();
 
-// -------------------- create draft -------------------- //
+// -------------------- create a draft -------------------- //
 
 router.post(
   "/draft/create-draft",
   requiredAuth,
   fetchMe,
-  validator(articleSchema.createDraftSchema, "body"),
+  validator(articleSchema.createADraftSchema, "body"),
   articleController.createADraft
 );
 
-// -------------------- get my drafts -------------------- //
+// -------------------- get all drafts -------------------- //
 
-router.get("/draft/me", requiredAuth, fetchMe, articleController.getMyDrafts);
+router.get("/draft/me", requiredAuth, fetchMe, articleController.getAllDrafts);
 
 // -------------------- get followed profiles articles -------------------- //
 
@@ -42,13 +42,13 @@ router.get(
   articleController.exploreNewArticles
 );
 
-// -------------------- admin pick full list -------------------- //
+// -------------------- admin pick -------------------- //
 
 router.get(
   "/admin-pick-full-list",
   requiredAuth,
   fetchMe,
-  articleController.adminPickFullList
+  articleController.adminPick
 );
 
 // -------------------- get all articles -------------------- //
@@ -72,17 +72,17 @@ router.get(
   articleController.getProfileArticles
 );
 
-// -------------------- update draft -------------------- //
+// -------------------- update a draft -------------------- //
 
 router.patch(
   "/draft/update-draft/:id",
   requiredAuth,
   fetchMe,
-  validator(articleSchema.updateDraftSchema, "body"),
+  validator(articleSchema.updateADraftSchema, "body"),
   articleController.updateADraft
 );
 
-// -------------------- delete draft -------------------- //
+// -------------------- delete a draft -------------------- //
 
 router.delete(
   "/draft/delete-draft/:id",
@@ -110,29 +110,29 @@ router.get(
   articleController.getAnArticleOrADraftToEdit
 );
 
-// -------------------- create article -------------------- //
+// -------------------- create an article -------------------- //
 
 router.patch(
   "/:id",
   requiredAuth,
   fetchMe,
-  validator(articleSchema.createArticleSchema, "body"),
-  articleController.createArticle
+  validator(articleSchema.createAnArticleSchema, "body"),
+  articleController.createAnArticle
 );
 
-// -------------------- update article -------------------- //
+// -------------------- update an article -------------------- //
 
 router.patch(
   "/update/:id",
   requiredAuth,
   fetchMe,
-  validator(articleSchema.updateArticleSchema, "body"),
-  articleController.updateArticle
+  validator(articleSchema.updateAnArticleSchema, "body"),
+  articleController.updateAnArticle
 );
 
-// -------------------- delete article -------------------- //
+// -------------------- delete an article -------------------- //
 
-router.delete("/:id", requiredAuth, fetchMe, articleController.deleteArticle);
+router.delete("/:id", requiredAuth, fetchMe, articleController.deleteAnArticle);
 
 // -------------------- get an article -------------------- //
 
@@ -156,63 +156,63 @@ router.get(
   articleController.getTopicArticles
 );
 
-// -------------------- set article back to draft -------------------- //
+// -------------------- set an article back to draft -------------------- //
 
 router.patch(
   "/set-article-back-to-draft/:id",
   requiredAuth,
   fetchMe,
   authorize("admin", "staff"),
-  articleController.setArticleBackToDraft
+  articleController.setAnArticleBackToDraft
 );
 
-// -------------------- approve article -------------------- //
+// -------------------- approve an article -------------------- //
 
 router.patch(
   "/approve/:id",
   requiredAuth,
   fetchMe,
   authorize("admin", "staff"),
-  articleController.approveArticle
+  articleController.approveAnArticle
 );
 
-// -------------------- remove article -------------------- //
+// -------------------- remove an article -------------------- //
 
 router.delete(
   "/remove/:id",
   requiredAuth,
   fetchMe,
   authorize("admin", "staff"),
-  articleController.removeArticle
+  articleController.removeAnArticle
 );
 
-// -------------------- restore article -------------------- //
+// -------------------- restore an article -------------------- //
 
 router.patch(
   "/restore/:id",
   requiredAuth,
   fetchMe,
   authorize("admin"),
-  articleController.restoreArticle
+  articleController.restoreAnArticle
 );
 
-// -------------------- get article detail -------------------- //
+// -------------------- get an article detail -------------------- //
 
 router.get(
   "/detail/:id",
   requiredAuth,
   fetchMe,
   authorize("admin", "staff"),
-  articleController.getArticleDetail
+  articleController.getAnArticleDetail
 );
 
-// -------------------- get more articles from profile -------------------- //
+// -------------------- get more articles from author -------------------- //
 
 router.get(
   "/more-articles-from-profile/:id",
   requiredAuth,
   fetchMe,
-  articleController.getMoreArticleFromProfile
+  articleController.getMoreArticlesFromAuthor
 );
 
 export default router;

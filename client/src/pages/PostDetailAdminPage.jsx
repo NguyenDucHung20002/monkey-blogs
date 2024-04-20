@@ -7,7 +7,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import PageNotFound from "./PageNotFound";
 import ActionComment from "../action/ActionComment";
 import ActionLike from "../action/ActionLike";
-import { apiGetArticleAdminDetail } from "../api/api";
+import { apiGetAnArticleDetail } from "../api/api";
 import useTimeAgo from "../hooks/useTimeAgo";
 import { Tag } from "antd";
 
@@ -91,7 +91,7 @@ const PostDetailAdminPage = () => {
 
   const fetchBlog = useCallback(async () => {
     try {
-      const response = await apiGetArticleAdminDetail(token, id);
+      const response = await apiGetAnArticleDetail(token, id);
       if (!response) navigate("/*");
 
       setBlog(response.data);

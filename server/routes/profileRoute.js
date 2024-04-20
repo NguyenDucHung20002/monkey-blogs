@@ -13,13 +13,13 @@ import checkAvatar from "../middlewares/checkAvatar.js";
 
 const router = express.Router();
 
-// -------------------- get login profile information -------------------- //
+// -------------------- get login information -------------------- //
 
 router.get(
-  "/logged-in-profile-information",
+  "/login-information",
   requiredAuth,
   fetchMe,
-  profileController.getLoggedInProfile
+  profileController.getLoginInformation
 );
 
 // -------------------- setup profile -------------------- //
@@ -42,7 +42,7 @@ router.patch(
   mongoUpload.single("avatar"),
   checkAvatar,
   validator(profileSchema.updateProfileSchema, "body"),
-  profileController.updateMyProfile
+  profileController.updateProfile
 );
 
 // -------------------- get profile -------------------- //
@@ -64,7 +64,7 @@ router.patch(
   requiredAuth,
   fetchMe,
   validator(profileSchema.updateProfileDesignSchema, "body"),
-  profileController.updateMyProfileDesign
+  profileController.updateProfileDesign
 );
 
 export default router;

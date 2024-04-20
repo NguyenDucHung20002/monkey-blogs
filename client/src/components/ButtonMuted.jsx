@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useState } from "react";
-import { apiMuteUser } from "../api/api";
+import { apiMuteAUser } from "../api/api";
 import { toast } from "react-toastify";
 
 const ButtonMuted = ({ userId, initialMuted = false }) => {
@@ -16,8 +16,8 @@ const ButtonMuted = ({ userId, initialMuted = false }) => {
 
   const handleMute = async () => {
     const response = isMuted
-      ? await apiMuteUser("delete", token, userId)
-      : await apiMuteUser("post", token, userId);
+      ? await apiMuteAUser("delete", token, userId)
+      : await apiMuteAUser("post", token, userId);
     const toastContent = !isMuted
       ? "You will no longer see their stories"
       : "You will see their stories";

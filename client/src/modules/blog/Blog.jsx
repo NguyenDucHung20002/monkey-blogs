@@ -5,12 +5,13 @@ import BlogImage from "./BlogImage";
 import BlogMeta from "./BlogMeta";
 import BlogTitle from "./BlogTitle";
 import styled from "styled-components";
-import { Avatar, Skeleton } from "antd";
-import { Link } from "react-router-dom";
+import { Avatar, Popover, Skeleton } from "antd";
+import { Link, NavLink } from "react-router-dom";
 import Topic from "../topic/Topic";
 import useTimeAgo from "../../hooks/useTimeAgo";
 import ButtonSaveBlog from "../../components/button/ButtonSaveBlog";
 import ButtonActionBlogsAuthor from "../../components/button/ButtonActionBlogsAuthor";
+import { icons } from "../../utils/constants";
 
 const BlogStyle = styled.div`
   display: flex;
@@ -37,6 +38,16 @@ const Blog = ({ blog, isMyProfile, mute = {} }) => {
 
   const checkMyProfile = isMyProfile ? isMyProfile : isSaved;
   const getTimeAgo = useTimeAgo(createdAt);
+
+  const MoreUser = ({ id }) => {
+    return (
+      <div>
+        <NavLink to={`/edit-blog/${id}`}>
+          <div>Edit story</div>
+        </NavLink>
+      </div>
+    );
+  };
 
   return (
     <BlogStyle className="border-b border-gray-300">
@@ -72,12 +83,22 @@ const Blog = ({ blog, isMyProfile, mute = {} }) => {
               checkMyProfile={checkMyProfile}
               isMyArticle={isMyArticle}
             ></ButtonSaveBlog>
-            {!isMyArticle && (
+            {!isMyArticle ? (
               <ButtonActionBlogsAuthor
                 setMuteId={setMuteId}
                 blog={blog}
                 isMyArticle={isMyArticle}
               ></ButtonActionBlogsAuthor>
+            ) : (
+              <Popover
+                placement="bottom"
+                content={<MoreUser id={id} />}
+                trigger={"click"}
+              >
+                <button className="flex items-center text-gray-400 hover:text-gray-500">
+                  {icons.moreIcon}
+                </button>
+              </Popover>
             )}
           </div>
         </div>

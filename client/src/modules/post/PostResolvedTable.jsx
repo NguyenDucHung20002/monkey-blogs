@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useRef, useState } from "react";
-import { apiGetReportsBlogSolved } from "../../api/apisHung";
+import { apiGetResolvedArticleReports } from "../../api/apisHung";
 import { Table, Tag } from "antd";
 import Column from "antd/es/table/Column";
 import { NavLink } from "react-router-dom";
@@ -9,7 +9,6 @@ import { Button } from "../../components/button";
 
 const PostResolvedTable = () => {
   const [blogReports, setBlogReports] = useState([]);
-
   const token = localStorage.getItem("token");
   const skip = useRef(0);
   const [isReload, setIsReload] = useState(false);
@@ -23,14 +22,11 @@ const PostResolvedTable = () => {
 
   useEffect(() => {
     async function fetchReports() {
-      const response = await apiGetReportsBlogSolved(token);
+      const response = await apiGetResolvedArticleReports(token, 15);
       if (response.success) {
         skip.current = response.newSkip;
         const mapBlogs = response.data.map((blog) => {
-          return {
-            ...blog,
-            key: blog.id,
-          };
+          return { ...blog, key: blog.id };
         });
         setBlogReports(mapBlogs);
       }
@@ -38,27 +34,17 @@ const PostResolvedTable = () => {
     fetchReports();
   }, [token, isReload]);
 
-  // const handleLoadMore = async () => {
-  //   const newSkip = skip.current;
-  //   const response = await apiGetAllArticlesAdmin(
-  //     token,
-  //     10,
-  //     searchBlogs,
-  //     status,
-  //     newSkip
-  //   );
-  //   if (response) {
-  //     const mapBlogs = response.data.map((user) => {
-  //       return {
-  //         ...user,
-  //         key: user.id,
-  //       };
-  //     });
-  //     skip.current = response.newSkip;
-  //     setBlogReports([...blogReports, ...mapBlogs]);
-  //   }
-  //   return [];
-  // };
+  const handleLoadMore = async () => {
+    const newSkip = skip.current;
+    const response = await apiGetResolvedArticleReports(token, 15, newSkip);
+    if (response) {
+      const mapBlogs = response.data.map((blog) => {
+        return { ...blog, key: blog.id };
+      });
+      skip.current = response.newSkip;
+      setBlogReports([...blogReports, ...mapBlogs]);
+    }
+  };
 
   // const ShowAuthor = ({ author }) => {
   //   return (
@@ -190,13 +176,13 @@ const PostResolvedTable = () => {
           )}
         />
       </Table>
-      {/* {blogReports && blogReports.length >= 5 && (
+      {skip.current && (
         <div className="flex justify-center mt-5" onClick={handleLoadMore}>
           <Button type="button" kind="primary" height="40px">
             Load more
           </Button>
         </div>
-      )} */}
+      )}
     </>
   );
 };

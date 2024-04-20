@@ -3,7 +3,7 @@ import reportUserController from "../controllers/reportUserController.js";
 import requiredAuth from "../middlewares/requiredAuth.js";
 import authorize from "../middlewares/authorize.js";
 import fetchMe from "../middlewares/fetchMe.js";
-import reportProfileSchema from "../validations/reportProfileSchema.js";
+import reportProfileSchema from "../validations/reportUserSchema.js";
 import validator from "../middlewares/validator.js";
 import fetchUser from "../middlewares/fetchUser.js";
 import checkUserBanned from "../middlewares/checkUserBanned.js";
@@ -30,14 +30,14 @@ router.get(
   reportUserController.getPendingReportedStaffs
 );
 
-// -------------------- get resolved reports -------------------- //
+// -------------------- get resolved user reports -------------------- //
 
 router.get(
   "/resolved",
   requiredAuth,
   fetchMe,
   authorize("admin"),
-  reportUserController.getResolvedReports
+  reportUserController.getResolvedUserReports
 );
 
 // -------------------- report a user -------------------- //
@@ -49,7 +49,7 @@ router.post(
   authorize("user"),
   fetchUser,
   checkUserBanned,
-  validator(reportProfileSchema.reportAProfileSchema),
+  validator(reportProfileSchema.reportAUserSchema),
   reportUserController.reportAUser
 );
 
@@ -60,10 +60,10 @@ router.get(
   requiredAuth,
   fetchMe,
   authorize("staff", "admin"),
-  reportUserController.getPendingReportsOfUser
+  reportUserController.getPendingReportsOfAUser
 );
 
-// -------------------- mark all resolved -------------------- //
+// -------------------- mark all reports of a user as resolved -------------------- //
 
 router.patch(
   "/:id",
@@ -71,17 +71,17 @@ router.patch(
   fetchMe,
   authorize("staff", "admin"),
   fetchUser,
-  reportUserController.markAllResolved
+  reportUserController.markAllReportsOfAUserAsResolved
 );
 
-// -------------------- mark a report as resolved -------------------- //
+// -------------------- mark a report of a user as resolved -------------------- //
 
 router.patch(
   "/report/:id/resolve",
   requiredAuth,
   fetchMe,
   authorize("staff", "admin"),
-  reportUserController.markAReportAsResolved
+  reportUserController.markAReportOfAUserAsResolved
 );
 
 export default router;

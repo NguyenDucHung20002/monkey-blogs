@@ -2,10 +2,10 @@
 /* eslint-disable react/prop-types */
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  apiApproveTopic,
-  apiDeleteTopic,
-  apiGetTopics,
-  apiRejectTopic,
+  apiApproveATopic,
+  apiDeleteATopic,
+  apiGetAllTopics,
+  apiRejectATopic,
 } from "../../api/api";
 import Column from "antd/es/table/Column";
 import Button from "../../components/button/Button";
@@ -27,7 +27,7 @@ const TopicTable = () => {
 
   useEffect(() => {
     async function fetchTopics() {
-      const response = await apiGetTopics(token, 10, searchTopic, status);
+      const response = await apiGetAllTopics(token, 15, searchTopic, status);
       const mapTopics = response.data.map((topic) => {
         return {
           ...topic,
@@ -49,32 +49,27 @@ const TopicTable = () => {
   };
 
   const handleLoadMore = async () => {
-    const newSkip = skip.current;
-    const response = await apiGetTopics(
-      token,
-      10,
-      searchTopic,
-      status,
-      newSkip
-    );
-
-    if (response) {
-      const mapTopics = response.data.map((topic) => {
-        return {
-          ...topic,
-          key: topic.id,
-        };
-      });
-      skip.current = response.newSkip;
-      setTopics([...topics, ...mapTopics]);
+    if (skip.current) {
+      const response = await apiGetAllTopics(
+        token,
+        15,
+        searchTopic,
+        status,
+        skip.current
+      );
+      if (response) {
+        const mapTopics = response.data.map((topic) => {
+          return { ...topic, key: topic.id };
+        });
+        skip.current = response.newSkip;
+        setTopics([...topics, ...mapTopics]);
+      }
     }
-
-    return [];
   };
 
   const handleApproved = useCallback(
     async (id) => {
-      const response = await apiApproveTopic(token, id);
+      const response = await apiApproveATopic(token, id);
       if (response) {
         const { data } = userInfo;
         const newTopics = topics.map((topic) => {
@@ -108,7 +103,7 @@ const TopicTable = () => {
 
   const handleRejected = useCallback(
     async (id) => {
-      const response = await apiRejectTopic(token, id);
+      const response = await apiRejectATopic(token, id);
       if (response) {
         const { data } = userInfo;
         const newTopics = topics.map((topic) => {
@@ -141,9 +136,9 @@ const TopicTable = () => {
     [token, topics, userInfo]
   );
 
-  const handleDeleteTopic = useCallback(
+  const handleDeleteATopic = useCallback(
     async (id) => {
-      const response = await apiDeleteTopic(token, id);
+      const response = await apiDeleteATopic(token, id);
 
       const filterTopics = topics.filter((topic) => topic.id != id);
 
@@ -176,7 +171,7 @@ const TopicTable = () => {
             <div>
               <button
                 className="block w-full py-1 text-left hover:text-blue-400"
-                onClick={() => handleDeleteTopic(topic.id)}
+                onClick={() => handleDeleteATopic(topic.id)}
               >
                 Remove this Topic
               </button>
@@ -362,11 +357,13 @@ const TopicTable = () => {
           render={(blog) => ButtonMore(blog)}
         />
       </Table>
-      <div className="flex justify-center mt-5" onClick={handleLoadMore}>
-        <Button type="button" kind="primary" height="40px">
-          Load more
-        </Button>
-      </div>
+      {skip.current && (
+        <div className="flex justify-center mt-5" onClick={handleLoadMore}>
+          <Button type="button" kind="primary" height="40px">
+            Load more
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

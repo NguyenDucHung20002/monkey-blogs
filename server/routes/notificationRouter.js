@@ -14,22 +14,13 @@ router.get(
   notificationController.getNotifications
 );
 
-// -------------------- mark all as read -------------------- //
+// -------------------- mark all notifications as read -------------------- //
 
 router.patch(
   "/mark-all-as-read",
   requiredAuth,
   fetchMe,
-  notificationController.martAllAsRead
-);
-
-// -------------------- mark as read -------------------- //
-
-router.patch(
-  "/mark-as-read/:id",
-  requiredAuth,
-  fetchMe,
-  notificationController.markAsRead
+  notificationController.martAllNotificationsAsRead
 );
 
 // -------------------- clear read notifications -------------------- //

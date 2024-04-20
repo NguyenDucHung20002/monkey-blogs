@@ -8,10 +8,10 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import PageNotFound from "./PageNotFound";
 import ActionComment from "../action/ActionComment";
 import ActionLike from "../action/ActionLike";
-import { apiGetArticle } from "../api/api";
+import { apiGetAnArticle } from "../api/api";
 import ButtonSaveBlog from "../components/button/ButtonSaveBlog";
 import ButtonActionBlogsAuthor from "../components/button/ButtonActionBlogsAuthor";
-import { apiGetMoreArticleInDetailPage } from "../api/apiNew";
+import { apiGetMoreArticlesFromAuthor } from "../api/apiNew";
 import ArticleList from "../modules/article/ArticleList";
 import { Button } from "../components/button";
 
@@ -95,7 +95,7 @@ const PostDetailPage = () => {
 
   const fetchBlog = useCallback(async () => {
     try {
-      const response = await apiGetArticle(token, slug);
+      const response = await apiGetAnArticle(token, slug);
       if (!response) navigate("/*");
 
       setBlog(response.data);
@@ -112,14 +112,14 @@ const PostDetailPage = () => {
     const fetchMoreArticles = async () => {
       window.scrollTo(0, 0);
       if (!blog) return;
-      const moreArticlesRes = await apiGetMoreArticleInDetailPage(
+      const response = await apiGetMoreArticlesFromAuthor(
         token,
         blog?.id
       );
-      if (!moreArticlesRes) {
+      if (!response) {
         return;
       }
-      setMoreArticle(moreArticlesRes?.data);
+      setMoreArticle(response?.data);
     };
     fetchMoreArticles();
   }, [blog, slug]);

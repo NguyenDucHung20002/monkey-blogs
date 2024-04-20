@@ -2,7 +2,7 @@
 import { Link, NavLink } from "react-router-dom";
 import styled from "styled-components";
 import useTimeAgo from "../../hooks/useTimeAgo";
-import { apiFollowUser, apiUnFollowUser } from "../../api/api";
+import { apiFollowAUser, apiUnFollowAUser } from "../../api/api";
 import { useEffect, useState } from "react";
 const PostMetaStyles = styled.div`
   color: inherit;
@@ -45,8 +45,8 @@ const PostMeta = ({ blog, isMyBlog, className }) => {
 
   const handleFollow = async () => {
     const response = isFollowed
-      ? await apiUnFollowUser(blog.author.id, token)
-      : await apiFollowUser(blog.author.id, token);
+      ? await apiUnFollowAUser(blog.author.id, token)
+      : await apiFollowAUser(blog.author.id, token);
     if (response) {
       setIsFollowed(!isFollowed);
     }

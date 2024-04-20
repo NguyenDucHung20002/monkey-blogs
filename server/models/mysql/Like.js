@@ -6,7 +6,6 @@ import SocketUser from "../mongodb/SocketUser.js";
 import socket from "../../socket.js";
 import Notification from "./Notification.js";
 import addUrlToImg from "../../utils/addUrlToImg.js";
-import env from "../../config/env.js";
 
 const Like = sequelize.define(
   "Like",

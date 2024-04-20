@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useState } from "react";
 import HeaderDesignPage from "../modules/design/HeaderDesignPage";
 import { Layout, Menu, Button, Modal } from "antd";
 import { AppstoreOutlined, PictureOutlined } from "@ant-design/icons";
@@ -14,7 +14,7 @@ const { Header, Sider, Content } = Layout;
 
 export const DesignContext = createContext();
 
-const DesignProvider = (props) => {
+export const DesignProvider = (props) => {
   const [imageDisplay, setImageDisplay] = useState({
     display: "object-none",
     position: "object-top",
@@ -22,6 +22,7 @@ const DesignProvider = (props) => {
   const [showFollowRecommend, setShowFollowRecommend] = useState({
     following: 1,
     recommend: 0,
+    about: 0,
   });
   const [user, setUser] = useState({});
   const [design, setDesign] = useState({});
@@ -30,14 +31,18 @@ const DesignProvider = (props) => {
 
   useEffect(() => {
     async function fetchUserInf() {
-      const profileUser = await apiGetProfile(token, username);
-      setUser({ ...profileUser });
-      const design = JSON.parse(profileUser.data.profileDesign);
-      setDesign({ ...design });
-      const display = design.style.split(" ")[0];
-      const position = design.style.split(" ")[2];
-      setShowFollowRecommend(design.show);
-      setImageDisplay({ display, position });
+      const response = await apiGetProfile(token, username);
+      if (response) {
+        setUser({ ...response.data });
+        if (response.data.profileDesign) {
+          const design = JSON.parse(response.data.profileDesign);
+          setDesign({ ...design });
+          const display = design.style.split(" ")[0];
+          const position = design.style.split(" ")[2];
+          setShowFollowRecommend(design.show);
+          setImageDisplay({ display, position });
+        }
+      }
     }
 
     fetchUserInf();

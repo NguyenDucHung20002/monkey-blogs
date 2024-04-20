@@ -6,11 +6,11 @@ import styled from "styled-components";
 import Blog from "../blog/Blog";
 import { debounce } from "lodash";
 import {
-  apiGetExploreBlogs,
+  apiExploreNewArticles,
   apiGetFollowedTopicArticles,
 } from "../../api/apisHung";
 import TopicSlider from "../topic/TopicSlider";
-import { apiGetMyFollowingTopics } from "../../api/api";
+import { apiGetFollowedTopics } from "../../api/api";
 import { useSearchParams } from "react-router-dom";
 
 const HomeMainStyled = styled.div`
@@ -36,6 +36,7 @@ const HomeMain = () => {
   const [topicFollowings, setTopicFollowings] = useState([]);
   const [searchParams] = useSearchParams();
   const topicParam = searchParams.get("topic");
+  
   useEffect(() => {
     if (!muteId) return;
     const filterBlogs = blogs.filter((blog) => blog.author.id !== muteId);
@@ -48,7 +49,7 @@ const HomeMain = () => {
       if (topicParam) {
         response = await apiGetFollowedTopicArticles(token, topicParam, 15);
       } else {
-        response = await apiGetExploreBlogs(token, 5);
+        response = await apiExploreNewArticles(token, 15);
       }
       if (response?.success) {
         setBlogs([...response.data]);
@@ -60,7 +61,7 @@ const HomeMain = () => {
 
   useEffect(() => {
     async function fetTopicFollowings() {
-      const response = await apiGetMyFollowingTopics(token);
+      const response = await apiGetFollowedTopics(token);
       if (response) setTopicFollowings(response.data);
     }
     fetTopicFollowings();
@@ -77,14 +78,14 @@ const HomeMain = () => {
       ) {
         let response;
         if (topicParam) {
-          response = await apiGetFollowedArticles(
+          response = await apiGetFollowedTopicArticles(
             token,
             topicParam,
             10,
             skip.current
           );
         } else {
-          response = await apiGetExploreBlogs(token, 10, skip.current);
+          response = await apiExploreNewArticles(token, 15, skip.current);
         }
         if (response?.success) {
           const blogsClone = [...blogs, ...response.data];

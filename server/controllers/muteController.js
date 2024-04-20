@@ -7,9 +7,9 @@ import ErrorResponse from "../responses/ErrorResponse.js";
 import addUrlToImg from "../utils/addUrlToImg.js";
 import Role from "../models/mysql/Role.js";
 
-// ==================== mute a profile ==================== //
+// ==================== mute a user ==================== //
 
-const muteAProfile = asyncMiddleware(async (req, res, next) => {
+const muteAUser = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const user = req.user;
 
@@ -38,9 +38,9 @@ const muteAProfile = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// ==================== unmute a profile ==================== //
+// ==================== unmute a user ==================== //
 
-const unMuteAProfile = asyncMiddleware(async (req, res, next) => {
+const unMuteAUser = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const user = req.user;
 
@@ -60,14 +60,18 @@ const unMuteAProfile = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// ==================== get list of muted profiles ==================== //
+// ==================== get muted profiles ==================== //
 const getMutedProfiles = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
-  const { skip = 0, limit = 15 } = req.query;
+  const { skip, limit = 15 } = req.query;
+
+  let whereQuery = { muterId: me.profileInfo.id };
+
+  if (skip) whereQuery.createdAt = { [Op.lt]: skip };
 
   const mutedProfiles = await Mute.findAll({
-    where: { muterId: me.profileInfo.id, id: { [Op.gt]: skip } },
-    attributes: ["id"],
+    where: whereQuery,
+    attributes: ["id", "createdAt"],
     include: {
       model: Profile,
       as: "muted",
@@ -79,24 +83,29 @@ const getMutedProfiles = asyncMiddleware(async (req, res, next) => {
         include: { model: Role, as: "role", attributes: ["slug"] },
       },
     },
+    order: [["createdAt", "DESC"]],
     limit: Number(limit) ? Number(limit) : 15,
   });
 
-  const muteds = mutedProfiles.map((mutedProfile) => {
+  const result = mutedProfiles.map((mutedProfile) => {
     mutedProfile.muted.avatar = addUrlToImg(mutedProfile.muted.avatar);
     return mutedProfile.muted;
   });
 
   const newSkip =
     mutedProfiles.length > 0
-      ? mutedProfiles[mutedProfiles.length - 1].id
+      ? mutedProfiles[mutedProfiles.length - 1].createdAt
       : null;
 
   res.json({
     success: true,
-    data: muteds,
+    data: result,
     newSkip,
   });
 });
 
-export default { muteAProfile, unMuteAProfile, getMutedProfiles };
+export default {
+  muteAUser,
+  unMuteAUser,
+  getMutedProfiles,
+};

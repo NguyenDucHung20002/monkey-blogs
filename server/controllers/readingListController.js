@@ -12,7 +12,7 @@ import Role from "../models/mysql/Role.js";
 
 // ==================== add an article to reading list ==================== //
 
-const addToReadingList = asyncMiddleware(async (req, res, next) => {
+const addAnArticleToReadingList = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { id } = req.params;
 
@@ -41,9 +41,9 @@ const addToReadingList = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// ==================== remove an article from reading list ==================== //
+// ==================== remove an article in reading list ==================== //
 
-const removeFromReadingList = asyncMiddleware(async (req, res, next) => {
+const removeAnArticleInReadingList = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { id } = req.params;
 
@@ -57,19 +57,19 @@ const removeFromReadingList = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// ==================== get my reading list ==================== //
+// ==================== get reading list ==================== //
 
-const getMyReadingList = asyncMiddleware(async (req, res, next) => {
+const getReadingList = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { skip, limit = 15 } = req.query;
 
   let whereQuery = { profileId: me.profileInfo.id };
 
-  if (skip) whereQuery.updatedAt = { [Op.lt]: skip };
+  if (skip) whereQuery.createdAt = { [Op.lt]: skip };
 
   const readingList = await Reading_List.findAll({
     where: whereQuery,
-    attributes: ["id"],
+    attributes: ["id", "createdAt"],
     include: {
       model: Article,
       as: "readArticle",
@@ -94,11 +94,11 @@ const getMyReadingList = asyncMiddleware(async (req, res, next) => {
         },
       },
     },
-    order: [["id", "DESC"]],
+    order: [["createdAt", "DESC"]],
     limit: Number(limit) ? Number(limit) : 15,
   });
 
-  const articles = await Promise.all(
+  const result = await Promise.all(
     readingList.map(async (readingList) => {
       const dataTopic = await Article_Topic.findOne({
         attributes: [],
@@ -128,17 +128,19 @@ const getMyReadingList = asyncMiddleware(async (req, res, next) => {
   );
 
   const newSkip =
-    readingList.length > 0 ? readingList[readingList.length - 1].id : null;
+    readingList.length > 0
+      ? readingList[readingList.length - 1].createdAt
+      : null;
 
   res.json({
     success: true,
-    data: articles,
+    data: result,
     newSkip,
   });
 });
 
 export default {
-  addToReadingList,
-  removeFromReadingList,
-  getMyReadingList,
+  addAnArticleToReadingList,
+  removeAnArticleInReadingList,
+  getReadingList,
 };

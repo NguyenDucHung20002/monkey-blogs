@@ -2,10 +2,11 @@
 import { Checkbox, Modal, Popover, Select } from "antd";
 import { icons } from "../../utils/constants";
 import { useRef, useState } from "react";
-import { apiBlockUser, apiMuteUser } from "../../api/api";
+import { apiBlockAUser, apiMuteAUser } from "../../api/api";
 import { toast } from "react-toastify";
-import { apiReportBlog } from "../../api/apisHung";
+import { apiReportAnArticle } from "../../api/apisHung";
 import { debounce } from "lodash";
+import {  useNavigate } from "react-router-dom";
 
 const ButtonActionBlogsAuthor = ({ setMuteId, blog }) => {
   const [open, setOpen] = useState(false);
@@ -13,6 +14,7 @@ const ButtonActionBlogsAuthor = ({ setMuteId, blog }) => {
   const token = localStorage.getItem("token");
   const [openModalReporter, setOpenModalReporter] = useState(false);
   const reportForm = useRef({ reason: "", block: false });
+  const navigate = useNavigate();
 
   const handleOpenChange = (newOpen) => {
     setOpen(newOpen);
@@ -28,7 +30,7 @@ const ButtonActionBlogsAuthor = ({ setMuteId, blog }) => {
   };
 
   const handleMuteAuthor = async () => {
-    const response = await apiMuteUser("post", token, author?.id);
+    const response = await apiMuteAUser("post", token, author?.id);
     if (setMuteId && response) {
       setMuteId(author?.id);
       toast.success(response.message, {
@@ -39,6 +41,7 @@ const ButtonActionBlogsAuthor = ({ setMuteId, blog }) => {
         pauseOnHover: false,
         delay: 250,
       });
+      navigate("/");
     }
   };
 
@@ -58,7 +61,7 @@ const ButtonActionBlogsAuthor = ({ setMuteId, blog }) => {
     }
 
     if (blockAuthor) {
-      const response = await apiBlockUser("post", token, author?.id);
+      const response = await apiBlockAUser("post", token, author?.id);
       if (response) {
         setMuteId(author?.id);
         toast.success(response.message, {
@@ -68,7 +71,7 @@ const ButtonActionBlogsAuthor = ({ setMuteId, blog }) => {
       }
     }
 
-    const response = await apiReportBlog(token, id, reason);
+    const response = await apiReportAnArticle(token, id, reason);
     if (response) {
       toast.success(response.message, {
         pauseOnHover: false,

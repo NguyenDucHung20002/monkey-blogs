@@ -116,6 +116,13 @@ export const NavigationItem = () => {
       ["recommend"]: e.target.value,
     });
   };
+  const handleChangeAbout = (e) => {
+    setShowFollowRecommend({
+      ...showFollowRecommend,
+      ["about"]: e.target.value,
+    });
+  };
+  console.log(showFollowRecommend);
   return (
     <>
       <div className="">
@@ -133,6 +140,15 @@ export const NavigationItem = () => {
           onChange={handleChangeRecmt}
           defaultValue={0}
           value={showFollowRecommend.recommend}
+        >
+          <Radio value={0}>Off</Radio>
+          <Radio value={1}>On</Radio>
+        </Radio.Group>
+        <h4 className="text-base text-black">About</h4>
+        <Radio.Group
+          onChange={handleChangeAbout}
+          defaultValue={0}
+          value={showFollowRecommend.about}
         >
           <Radio value={0}>Off</Radio>
           <Radio value={1}>On</Radio>

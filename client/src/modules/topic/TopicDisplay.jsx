@@ -13,7 +13,7 @@ const TopicDisplay = ({ topic }) => {
             <div className="mx-1 -translate-y-1">.</div>
             {topic?.followersCount} Followers
             <div className="mx-1 -translate-y-1">.</div>
-            {topic?.articlesCount} Stories
+            {topic?.articlesCount} Articles
           </div>
           <ButtonFollowingTopic
             topicId={topic?.id}

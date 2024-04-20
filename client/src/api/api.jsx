@@ -2,7 +2,7 @@ import { config } from "../utils/constants";
 import { toast } from "react-toastify";
 import { customAxios } from "../config/axios-customize";
 
-const apiAddTopic = async (token, name) => {
+const apiCreateATopic = async (token, name) => {
   try {
     const response = await customAxios.post(
       `${config.SERVER_HOST}/topic`,
@@ -31,10 +31,10 @@ const apiAddTopic = async (token, name) => {
   }
 };
 
-const apiDeleteArticle = async (token, blogId) => {
+const apiDeleteAnArticle = async (token, articleId) => {
   try {
     const response = await customAxios.delete(
-      `${config.SERVER_HOST}/article/${blogId}`,
+      `${config.SERVER_HOST}/article/${articleId}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -59,10 +59,10 @@ const apiDeleteArticle = async (token, blogId) => {
   }
 };
 
-const apiDeleteAdminArticle = async (token, blogId) => {
+const apiRemoveAnArticle = async (token, articleId) => {
   try {
     const response = await customAxios.delete(
-      `${config.SERVER_HOST}/article/remove/${blogId}`,
+      `${config.SERVER_HOST}/article/remove/${articleId}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -87,10 +87,10 @@ const apiDeleteAdminArticle = async (token, blogId) => {
   }
 };
 
-const apiDeleteTopic = async (token, id) => {
+const apiDeleteATopic = async (token, topicId) => {
   try {
     const response = await customAxios.delete(
-      `${config.SERVER_HOST}/topic/${id}`,
+      `${config.SERVER_HOST}/topic/${topicId}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -115,7 +115,7 @@ const apiDeleteTopic = async (token, id) => {
   }
 };
 
-const apiFollowTopic = async (token, topicId) => {
+const apiFollowATopic = async (token, topicId) => {
   try {
     const response = await customAxios.post(
       `${config.SERVER_HOST}/follow-topic/${topicId}`,
@@ -144,7 +144,7 @@ const apiFollowTopic = async (token, topicId) => {
   }
 };
 
-const apiUnFollowTopic = async (token, topicId) => {
+const apiUnFollowATopic = async (token, topicId) => {
   try {
     const response = await customAxios.delete(
       `${config.SERVER_HOST}/follow-topic/${topicId}`,
@@ -172,10 +172,10 @@ const apiUnFollowTopic = async (token, topicId) => {
   }
 };
 
-const apiFollowUser = async (userID, token) => {
+const apiFollowAUser = async (profileId, token) => {
   try {
     const response = await customAxios.post(
-      `${config.SERVER_HOST}/follow-profile/${userID}`,
+      `${config.SERVER_HOST}/follow-profile/${profileId}`,
       {},
       {
         headers: {
@@ -201,7 +201,7 @@ const apiFollowUser = async (userID, token) => {
   }
 };
 
-const apiGetAllUser = async (token, limit = "10", skip = "", search = "") => {
+const apiGetAllUsers = async (token, limit = "10", skip = "", search = "") => {
   try {
     const response = await customAxios.get(
       `${config.SERVER_HOST}/user?limit=${limit}&skip=${skip}&search=${search}`,
@@ -229,7 +229,7 @@ const apiGetAllUser = async (token, limit = "10", skip = "", search = "") => {
   }
 };
 
-const apiGetAllStaff = async (token, limit = "10", skip = "", search = "") => {
+const apiGetAllStaffs = async (token, limit = "10", skip = "", search = "") => {
   try {
     const response = await customAxios.get(
       `${config.SERVER_HOST}/role/staffs?limit=${limit}&skip=${skip}&search=${search}`,
@@ -257,10 +257,66 @@ const apiGetAllStaff = async (token, limit = "10", skip = "", search = "") => {
   }
 };
 
-const apiGetArticle = async (token, slug) => {
+const apiGetAnArticle = async (token, articleSlug) => {
   try {
     const response = await customAxios.get(
-      `${config.SERVER_HOST}/article/${slug} `,
+      `${config.SERVER_HOST}/article/${articleSlug} `,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response?.data?.success) {
+      return response.data;
+    }
+  } catch (error) {
+    console.log("Error:", error);
+    // toast.error(
+    //   error?.response?.data?.message
+    //     ? error?.response?.data?.message
+    //     : "Something went wrong",
+    //   {
+    //     pauseOnHover: false,
+    //     delay: 250,
+    //   }
+    // );
+  }
+};
+
+const apiGetAnArticleDetail = async (token, articleId) => {
+  try {
+    const response = await customAxios.get(
+      `${config.SERVER_HOST}/article/detail/${articleId} `,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response?.data?.success) {
+      return response.data;
+    }
+  } catch (error) {
+    console.log("Error:", error);
+    // toast.error(
+    //   error?.response?.data?.message
+    //     ? error?.response?.data?.message
+    //     : "Something went wrong",
+    //   {
+    //     pauseOnHover: false,
+    //     delay: 250,
+    //   }
+    // );
+  }
+};
+
+const apiGetAnArticleOrADraftToEdit = async (token, id) => {
+  try {
+    const response = await customAxios.get(
+      `${config.SERVER_HOST}/article/get/${id} `,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -285,66 +341,10 @@ const apiGetArticle = async (token, slug) => {
   }
 };
 
-const apiGetArticleAdminDetail = async (token, blogId) => {
-  try {
-    const response = await customAxios.get(
-      `${config.SERVER_HOST}/article/detail/${blogId} `,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    if (response?.data?.success) {
-      return response.data;
-    }
-  } catch (error) {
-    console.log("Error:", error);
-    toast.error(
-      error?.response?.data?.message
-        ? error?.response?.data?.message
-        : "Something went wrong",
-      {
-        pauseOnHover: false,
-        delay: 250,
-      }
-    );
-  }
-};
-
-const apiGetArticleOrDraft = async (token, slug) => {
-  try {
-    const response = await customAxios.get(
-      `${config.SERVER_HOST}/article/get/${slug} `,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    if (response?.data?.success) {
-      return response.data;
-    }
-  } catch (error) {
-    console.log("Error:", error);
-    toast.error(
-      error?.response?.data?.message
-        ? error?.response?.data?.message
-        : "Something went wrong",
-      {
-        pauseOnHover: false,
-        delay: 250,
-      }
-    );
-  }
-};
-
-const apiDeleteDraft = async (token, id) => {
+const apiDeleteADraft = async (token, draftId) => {
   try {
     const response = await customAxios.delete(
-      `${config.SERVER_HOST}/article/draft/delete-draft/${id} `,
+      `${config.SERVER_HOST}/article/draft/delete-draft/${draftId} `,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -369,38 +369,43 @@ const apiDeleteDraft = async (token, id) => {
   }
 };
 
-const apiGetArticleSkip = async (skipId, token, limit = 5) => {
-  try {
-    const response = await customAxios.get(
-      `${config.SERVER_HOST}/article?skip=${skipId}&limit=${limit}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    if (response?.data?.success) {
-      return response.data;
-    }
-  } catch (error) {
-    console.log("Error:", error);
-    toast.error(
-      error?.response?.data?.message
-        ? error?.response?.data?.message
-        : "Something went wrong",
-      {
-        pauseOnHover: false,
-        delay: 250,
-      }
-    );
-  }
-};
+// const apiGetArticleSkip = async (skipId, token, limit = 5) => {
+//   try {
+//     const response = await customAxios.get(
+//       `${config.SERVER_HOST}/article?skip=${skipId}&limit=${limit}`,
+//       {
+//         headers: {
+//           Authorization: `Bearer ${token}`,
+//           "Content-Type": "application/json",
+//         },
+//       }
+//     );
+//     if (response?.data?.success) {
+//       return response.data;
+//     }
+//   } catch (error) {
+//     console.log("Error:", error);
+//     toast.error(
+//       error?.response?.data?.message
+//         ? error?.response?.data?.message
+//         : "Something went wrong",
+//       {
+//         pauseOnHover: false,
+//         delay: 250,
+//       }
+//     );
+//   }
+// };
 
-const apiAddComment = async (blogId, parentCommentId, content, token) => {
+const apiCreateAComment = async (
+  articleId,
+  parentCommentId,
+  content,
+  token
+) => {
   try {
     const response = await customAxios.post(
-      `${config.SERVER_HOST}/comment/${blogId}`,
+      `${config.SERVER_HOST}/comment/${articleId}`,
       {
         parentCommentId,
         content,
@@ -429,10 +434,10 @@ const apiAddComment = async (blogId, parentCommentId, content, token) => {
   }
 };
 
-const apiGetComment = async (slug, token) => {
+const apiGetMainCommentsOfAnArticle = async (articleId, token) => {
   try {
     const response = await customAxios.get(
-      `${config.SERVER_HOST}/comment/${slug} `,
+      `${config.SERVER_HOST}/comment/${articleId} `,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -457,10 +462,10 @@ const apiGetComment = async (slug, token) => {
   }
 };
 
-const apiGetCommentReplies = async (token, id) => {
+const apiGetNestedCommentsOfAComment = async (token, commentId) => {
   try {
     const response = await customAxios.get(
-      `${config.SERVER_HOST}/comment/${id}/replies `,
+      `${config.SERVER_HOST}/comment/${commentId}/replies `,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -485,7 +490,7 @@ const apiGetCommentReplies = async (token, id) => {
   }
 };
 
-const apiGetMyFollowingTopics = async (token) => {
+const apiGetFollowedTopics = async (token) => {
   try {
     const response = await customAxios.get(
       `${config.SERVER_HOST}/follow-topic/me`,
@@ -513,7 +518,7 @@ const apiGetMyFollowingTopics = async (token) => {
   }
 };
 
-const apiGetNotification = async (token) => {
+const apiGetNotifications = async (token) => {
   try {
     const response = await customAxios.get(
       `${config.SERVER_HOST}/notification/me`,
@@ -541,7 +546,7 @@ const apiGetNotification = async (token) => {
   }
 };
 
-const apiMarkAsReadNotification = async (token) => {
+const apiMartAllNotificationsAsRead = async (token) => {
   try {
     const response = await customAxios.patch(
       `${config.SERVER_HOST}/notification/mark-all-as-read`,
@@ -590,10 +595,10 @@ const apiGetProfile = async (token, username) => {
   }
 };
 
-const apiGetTopic = async (token, slug) => {
+const apiGetATopic = async (token, topicSlug) => {
   try {
     const response = await customAxios.get(
-      `${config.SERVER_HOST}/topic/${slug}`,
+      `${config.SERVER_HOST}/topic/${topicSlug}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -606,19 +611,19 @@ const apiGetTopic = async (token, slug) => {
     }
   } catch (error) {
     console.log("Error:", error);
-    toast.error(
-      error?.response?.data?.message
-        ? error?.response?.data?.message
-        : "Something went wrong",
-      {
-        pauseOnHover: false,
-        delay: 250,
-      }
-    );
+    // toast.error(
+    //   error?.response?.data?.message
+    //     ? error?.response?.data?.message
+    //     : "Something went wrong",
+    //   {
+    //     pauseOnHover: false,
+    //     delay: 250,
+    //   }
+    // );
   }
 };
 
-const apiGetTopics = async (
+const apiGetAllTopics = async (
   token,
   limit = "10",
   search = "",
@@ -652,7 +657,7 @@ const apiGetTopics = async (
   }
 };
 
-const apiGetUserBlogs = async (token, username) => {
+const apiGetProfileArticles = async (token, username) => {
   try {
     const response = await customAxios.get(
       `${config.SERVER_HOST}/article/${username}/all`,
@@ -680,35 +685,35 @@ const apiGetUserBlogs = async (token, username) => {
   }
 };
 
-const apiGetUserFollowings = async (token, username) => {
-  try {
-    const response = await customAxios.get(
-      `${config.SERVER_HOST}/follow-profile/${username}/following`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    if (response?.data?.success) {
-      return response.data;
-    }
-  } catch (error) {
-    console.log("Error:", error);
-    toast.error(
-      error?.response?.data?.message
-        ? error?.response?.data?.message
-        : "Something went wrong",
-      {
-        pauseOnHover: false,
-        delay: 250,
-      }
-    );
-  }
-};
+// const apiGetFollowedProfiles = async (token, username, limit = 5) => {
+//   try {
+//     const response = await customAxios.get(
+//       `${config.SERVER_HOST}/follow-profile/${username}/following?limit=${limit}`,
+//       {
+//         headers: {
+//           Authorization: `Bearer ${token}`,
+//           "Content-Type": "application/json",
+//         },
+//       }
+//     );
+//     if (response?.data?.success) {
+//       return response.data;
+//     }
+//   } catch (error) {
+//     console.log("Error:", error);
+//     toast.error(
+//       error?.response?.data?.message
+//         ? error?.response?.data?.message
+//         : "Something went wrong",
+//       {
+//         pauseOnHover: false,
+//         delay: 250,
+//       }
+//     );
+//   }
+// };
 
-const apiMyArticleFollowing = async (token, limit = 5, skip = "") => {
+const apiGetFollowedProfilesArticles = async (token, limit = 5, skip = "") => {
   try {
     const response = await customAxios.get(
       `${config.SERVER_HOST}/article/following?limit=${limit}&skip=${skip}`,
@@ -736,7 +741,7 @@ const apiMyArticleFollowing = async (token, limit = 5, skip = "") => {
   }
 };
 
-const apiSuggestionTopics = async (token, max = 8) => {
+const apiRecommendedTopics = async (token, max = 8) => {
   try {
     const response = await customAxios.get(
       `${config.SERVER_HOST}/topic/recommended-topics?max=${max}`,
@@ -764,7 +769,7 @@ const apiSuggestionTopics = async (token, max = 8) => {
   }
 };
 
-const apiSuggestionUsers = async (token, max = 5) => {
+const apiWhoToFollow = async (token, max = 5) => {
   try {
     const response = await customAxios.get(
       `${config.SERVER_HOST}/follow-profile/who-to-follow?max=${max}`,
@@ -792,10 +797,10 @@ const apiSuggestionUsers = async (token, max = 5) => {
   }
 };
 
-const apiUnFollowUser = async (userID, token) => {
+const apiUnFollowAUser = async (profileId, token) => {
   try {
     const response = await customAxios.delete(
-      `${config.SERVER_HOST}/follow-profile/${userID}`,
+      `${config.SERVER_HOST}/follow-profile/${profileId}`,
       {
         headers: {
           authorization: `Bearer ${token}`,
@@ -820,10 +825,10 @@ const apiUnFollowUser = async (userID, token) => {
   }
 };
 
-const apiUpdateArticle = async (token, slug, data) => {
+const apiUpdateAnArticle = async (token, articleId, data) => {
   try {
     const response = await customAxios.patch(
-      `${config.SERVER_HOST}/article/update/${slug}`,
+      `${config.SERVER_HOST}/article/update/${articleId}`,
       data,
       {
         headers: {
@@ -849,10 +854,10 @@ const apiUpdateArticle = async (token, slug, data) => {
   }
 };
 
-const apiUpdateTopic = async (token, id, name) => {
+const apiUpdateATopic = async (token, topicId, name) => {
   try {
     const response = await customAxios.patch(
-      `${config.SERVER_HOST}/topic/${id}`,
+      `${config.SERVER_HOST}/topic/${topicId}`,
       { name },
       {
         headers: {
@@ -878,7 +883,7 @@ const apiUpdateTopic = async (token, id, name) => {
   }
 };
 
-const apiUpdateBan = async (token, userId, banType) => {
+const apiUpdateUserBan = async (token, userId, banType) => {
   try {
     const response = await customAxios.patch(
       `${config.SERVER_HOST}/user/update-ban/${userId}`,
@@ -907,7 +912,7 @@ const apiUpdateBan = async (token, userId, banType) => {
   }
 };
 
-const apiBanUser = async (token, userId, banType) => {
+const apiBanAUser = async (token, userId, banType) => {
   try {
     const response = await customAxios.patch(
       `${config.SERVER_HOST}/user/ban/${userId}`,
@@ -936,7 +941,7 @@ const apiBanUser = async (token, userId, banType) => {
   }
 };
 
-const apiLiftTheBan = async (token, userId) => {
+const apiUnBanAUser = async (token, userId) => {
   try {
     const response = await customAxios.patch(
       `${config.SERVER_HOST}/user/unban/${userId}`,
@@ -994,10 +999,10 @@ const apiUpdateProfile = async (token, formData) => {
   }
 };
 
-const apiMuteUser = async (type = "post", token, userId) => {
+const apiMuteAUser = async (type = "post", token, profileId) => {
   try {
     const response = await customAxios[type](
-      `${config.SERVER_HOST}/mute/${userId}`,
+      `${config.SERVER_HOST}/mute/${profileId}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -1022,10 +1027,10 @@ const apiMuteUser = async (type = "post", token, userId) => {
   }
 };
 
-const apiBlockUser = async (type = "post", token, userId) => {
+const apiBlockAUser = async (type = "post", token, profileId) => {
   try {
     const response = await customAxios[type](
-      `${config.SERVER_HOST}/block/${userId}`,
+      `${config.SERVER_HOST}/block/${profileId}`,
       {
         method: type,
         headers: {
@@ -1051,10 +1056,10 @@ const apiBlockUser = async (type = "post", token, userId) => {
   }
 };
 
-const apiApproveTopic = async (token, id) => {
+const apiApproveATopic = async (token, topicId) => {
   try {
     const response = await customAxios.patch(
-      `${config.SERVER_HOST}/topic/${id}/approve`,
+      `${config.SERVER_HOST}/topic/${topicId}/approve`,
       {},
       {
         headers: {
@@ -1080,10 +1085,10 @@ const apiApproveTopic = async (token, id) => {
   }
 };
 
-const apiRejectTopic = async (token, id) => {
+const apiRejectATopic = async (token, topicId) => {
   try {
     const response = await customAxios.patch(
-      `${config.SERVER_HOST}/topic/${id}/reject`,
+      `${config.SERVER_HOST}/topic/${topicId}/reject`,
       {},
       {
         headers: {
@@ -1109,7 +1114,7 @@ const apiRejectTopic = async (token, id) => {
   }
 };
 
-const apiReportUser = async (token, userId, reason, description) => {
+const apiReportAUser = async (token, userId, reason, description) => {
   try {
     const response = await customAxios.post(
       `${config.SERVER_HOST}/report-user/${userId}`,
@@ -1123,7 +1128,7 @@ const apiReportUser = async (token, userId, reason, description) => {
       }
     );
     if (response?.data?.success) {
-      return reason.data;
+      return response.data;
     }
   } catch (error) {
     console.log("Error:", error);
@@ -1140,44 +1145,44 @@ const apiReportUser = async (token, userId, reason, description) => {
 };
 
 export {
-  apiGetArticleAdminDetail,
-  apiGetAllStaff,
-  apiRejectTopic,
-  apiDeleteAdminArticle,
-  apiGetTopic,
-  apiAddTopic,
-  apiAddComment,
-  apiBanUser,
-  apiDeleteArticle,
-  apiDeleteTopic,
-  apiLiftTheBan,
-  apiFollowTopic,
-  apiFollowUser,
-  apiGetAllUser,
-  apiGetArticle,
-  apiGetArticleOrDraft,
-  apiDeleteDraft,
-  apiGetArticleSkip,
-  apiGetComment,
-  apiGetCommentReplies,
-  apiGetMyFollowingTopics,
-  apiGetNotification,
-  apiMarkAsReadNotification,
+  apiGetAnArticleDetail,
+  apiGetAllStaffs,
+  apiRejectATopic,
+  apiRemoveAnArticle,
+  apiGetATopic,
+  apiCreateATopic,
+  apiCreateAComment,
+  apiBanAUser,
+  apiDeleteAnArticle,
+  apiDeleteATopic,
+  apiUnBanAUser,
+  apiFollowATopic,
+  apiFollowAUser,
+  apiGetAllUsers,
+  apiGetAnArticle,
+  apiGetAnArticleOrADraftToEdit,
+  apiDeleteADraft,
+  // apiGetArticleSkip,
+  apiGetMainCommentsOfAnArticle,
+  apiGetNestedCommentsOfAComment,
+  apiGetFollowedTopics,
+  apiGetNotifications,
+  apiMartAllNotificationsAsRead,
   apiGetProfile,
-  apiGetTopics,
-  apiGetUserBlogs,
-  apiGetUserFollowings,
-  apiMyArticleFollowing,
-  apiSuggestionTopics,
-  apiSuggestionUsers,
-  apiUnFollowUser,
-  apiUpdateArticle,
-  apiUpdateTopic,
-  apiUpdateBan,
-  apiUnFollowTopic,
+  apiGetAllTopics,
+  apiGetProfileArticles,
+  // apiGetFollowedProfiles,
+  apiGetFollowedProfilesArticles,
+  apiRecommendedTopics,
+  apiWhoToFollow,
+  apiUnFollowAUser,
+  apiUpdateAnArticle,
+  apiUpdateATopic,
+  apiUpdateUserBan,
+  apiUnFollowATopic,
   apiUpdateProfile,
-  apiApproveTopic,
-  apiMuteUser,
-  apiBlockUser,
-  apiReportUser,
+  apiApproveATopic,
+  apiMuteAUser,
+  apiBlockAUser,
+  apiReportAUser,
 };

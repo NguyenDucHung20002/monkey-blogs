@@ -6,6 +6,10 @@ import Role from "../models/mysql/Role.js";
 import hashPassword from "../utils/hashPassword.js";
 import bcrypt from "bcryptjs";
 import Profile from "../models/mysql/Profile.js";
+import SetupPasswordToken from "../models/mongodb/SetupPasswordToken.js";
+import randomBytes from "../utils/randomBytes.js";
+import env from "../config/env.js";
+import emailService from "../services/nodeMailer.js";
 
 // ==================== ban a user ==================== //
 
@@ -176,10 +180,69 @@ const changePassword = asyncMiddleware(async (req, res, next) => {
   res.json({ success: true, message: "Password changed successfully" });
 });
 
+// ==================== check user has password or not ==================== //
+
+const checkUserHasPassword = asyncMiddleware(async (req, res, next) => {
+  const me = req.me;
+
+  const hashPassword = me.password ? true : false;
+
+  res.json({
+    success: true,
+    data: hashPassword,
+  });
+});
+
+// ==================== set up password ==================== //
+
+const setUpPassword = asyncMiddleware(async (req, res, next) => {
+  const me = req.me;
+  const { password } = req.body;
+
+  if (me.password) {
+    throw ErrorResponse(401, "You already have a password");
+  }
+
+  const token = randomBytes(32);
+
+  const hashedPassword = hashPassword(password);
+
+  const setupToken = await SetupPasswordToken.findOne({
+    email: me.email,
+  });
+
+  const operation = setupToken
+    ? setupToken.updateOne({ token })
+    : SetupPasswordToken.create({
+        email: me.email,
+        token,
+        password: hashedPassword,
+      });
+
+  const link = `${env.CLIENT_DOMAIN}/verify-setup-password?token=${token}`;
+
+  await Promise.all([
+    operation,
+    emailService({
+      to: me.email,
+      subject: "Complete Your Password Setup",
+      template: "password-setup",
+      context: { email: me.email, link },
+    }),
+  ]);
+
+  res.json({
+    success: true,
+    message: "Please check your email to verify your password setup request",
+  });
+});
+
 export default {
   banAUser,
   unBanAUser,
   updateUserBan,
   getAllUsers,
   changePassword,
+  checkUserHasPassword,
+  setUpPassword,
 };

@@ -8,23 +8,25 @@ import Topic from "../models/mysql/Topic.js";
 
 // ==================== delete an article in reading history ==================== //
 
-const deleteAnArticleInHistory = asyncMiddleware(async (req, res, next) => {
-  const me = req.me;
-  const { id } = req.params;
+const deleteAnArticleInReadingHistory = asyncMiddleware(
+  async (req, res, next) => {
+    const me = req.me;
+    const { id } = req.params;
 
-  await Reading_History.destroy({
-    where: { articleId: id, profileId: me.profileInfo.id },
-  });
+    await Reading_History.destroy({
+      where: { articleId: id, profileId: me.profileInfo.id },
+    });
 
-  res.json({
-    success: true,
-    message: "Article deleted successfully from reading history.",
-  });
-});
+    res.json({
+      success: true,
+      message: "Article deleted successfully from reading history.",
+    });
+  }
+);
 
-// ==================== clear my history reading ==================== //
+// ==================== clear reading history ==================== //
 
-const clearMyReadingHistory = asyncMiddleware(async (req, res, next) => {
+const clearReadingHistory = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
 
   await Reading_History.destroy({ where: { profileId: me.profileInfo.id } });
@@ -35,9 +37,9 @@ const clearMyReadingHistory = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// ==================== get history reading ==================== //
+// ==================== get reading history ==================== //
 
-const getMyReadingHistory = asyncMiddleware(async (req, res, next) => {
+const getReadingHistory = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { skip, limit = 15 } = req.query;
 
@@ -65,7 +67,7 @@ const getMyReadingHistory = asyncMiddleware(async (req, res, next) => {
     limit: Number(limit) ? Number(limit) : 15,
   });
 
-  const articles = await Promise.all(
+  const result = await Promise.all(
     readingHistory.map(async (readingHistory) => {
       const dataTopic = await Article_Topic.findOne({
         attributes: [],
@@ -97,13 +99,13 @@ const getMyReadingHistory = asyncMiddleware(async (req, res, next) => {
 
   res.json({
     success: true,
-    data: articles,
+    data: result,
     newSkip,
   });
 });
 
 export default {
-  deleteAnArticleInHistory,
-  clearMyReadingHistory,
-  getMyReadingHistory,
+  deleteAnArticleInReadingHistory,
+  clearReadingHistory,
+  getReadingHistory,
 };

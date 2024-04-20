@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import FollowingUserHandle from "../components/following/FollowingUserHandle";
 import TopicUserHandle from "../components/topic/TopicUserHandle";
-import { apiSuggestionTopics, apiSuggestionUsers } from "../api/api";
+import { apiRecommendedTopics, apiWhoToFollow } from "../api/api";
 import { Modal } from "antd";
 
 const MeSuggestionPage = () => {
@@ -14,7 +14,7 @@ const MeSuggestionPage = () => {
 
   useEffect(() => {
     async function fetchTopic() {
-      const response = await apiSuggestionTopics(token, 50);
+      const response = await apiRecommendedTopics(token, 50);
       if (response) setTopics(response.data);
     }
     fetchTopic();
@@ -22,7 +22,7 @@ const MeSuggestionPage = () => {
 
   useEffect(() => {
     async function fetchTopic() {
-      const response = await apiSuggestionUsers(token, 50);
+      const response = await apiWhoToFollow(token, 50);
       if (response) setUsers(response.data);
     }
     fetchTopic();

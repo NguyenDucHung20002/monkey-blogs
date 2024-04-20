@@ -29,7 +29,7 @@ const Article = sequelize.define(
     },
 
     banner: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
       allowNull: true,
     },
 
@@ -116,6 +116,8 @@ const Article = sequelize.define(
         const receivers = await SocketUser.find({ userId: article.authorId });
 
         if (me) {
+          let message = {};
+
           if (article.status === "approved" && article.approvedById === me.id) {
             const [notification] = await Promise.all([
               Notification.create({
@@ -129,7 +131,7 @@ const Article = sequelize.define(
               ),
             ]);
 
-            const message = {
+            message = {
               id: notification.id,
               article: {
                 id: article.id,
@@ -140,11 +142,6 @@ const Article = sequelize.define(
               createdAt: notification.createdAt,
               updatedAt: notification.updatedAt,
             };
-            if (receivers.length > 0) {
-              receivers.forEach((receiver) => {
-                io.to(receiver.socketId).emit("notification", message);
-              });
-            }
           }
 
           if (article.status === "draft") {
@@ -162,17 +159,17 @@ const Article = sequelize.define(
               ),
             ]);
 
-            const message = {
+            message = {
               id: notification.id,
               content: notification.content,
               createdAt: notification.createdAt,
               updatedAt: notification.updatedAt,
             };
-            if (receivers.length > 0) {
-              receivers.forEach((receiver) => {
-                io.to(receiver.socketId).emit("notification", message);
-              });
-            }
+          }
+          if (receivers.length > 0) {
+            receivers.forEach((receiver) => {
+              io.to(receiver.socketId).emit("notification", message);
+            });
           }
         } else {
           const imgsName = extractImg(article.content);
@@ -187,11 +184,10 @@ const Article = sequelize.define(
             imgsName.map(async (imgName) => {
               const files = await gfs.find({ filename: imgName }).toArray();
 
-              if (!files || !files.length) {
-                return;
-              }
+              if (!files || !files.length) return;
 
               const readStream = gfs.openDownloadStreamByName(imgName);
+
               const chunks = [];
 
               await new Promise((resolve, reject) => {
@@ -243,9 +239,7 @@ const Article = sequelize.define(
             }
           } else {
             clarifai(array, async (err, results) => {
-              if (err) {
-                return;
-              }
+              if (err) return;
 
               const nsfwFound = Boolean(
                 results.some((data) =>

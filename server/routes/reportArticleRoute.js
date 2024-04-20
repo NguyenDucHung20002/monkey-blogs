@@ -18,24 +18,24 @@ router.get(
   reportArticleController.getPendingReportedArticles
 );
 
-// -------------------- get resolved reports -------------------- //
+// -------------------- Get resolved article reports -------------------- //
 
 router.get(
   "/resolved",
   requiredAuth,
   fetchMe,
   authorize("admin"),
-  reportArticleController.getResolvedReports
+  reportArticleController.getResolvedArticleReports
 );
 
-// -------------------- get pending reports of article -------------------- //
+// -------------------- Get pending reports of an article -------------------- //
 
 router.get(
   "/:id/pending",
   requiredAuth,
   fetchMe,
   authorize("staff", "admin"),
-  reportArticleController.getPendingReportsOfArticle
+  reportArticleController.getPendingReportsOfAnArticle
 );
 
 // -------------------- report an article -------------------- //
@@ -49,24 +49,24 @@ router.post(
   reportArticleController.reportAnArticle
 );
 
-// -------------------- mark all resolved -------------------- //
+// -------------------- Mark all reports of an article as resolved -------------------- //
 
 router.patch(
   "/:id",
   requiredAuth,
   fetchMe,
   authorize("staff", "admin"),
-  reportArticleController.markAllResolved
+  reportArticleController.markAllReportsOfAnArticleAsResolved
 );
 
-// -------------------- mark a report as resolved -------------------- //
+// -------------------- Mark a report of an article as resolved -------------------- //
 
 router.patch(
   "/report/:id/resolve",
   requiredAuth,
   fetchMe,
   authorize("staff", "admin"),
-  reportArticleController.markAReportAsResolved
+  reportArticleController.markAReportOfAnArticleAsResolved
 );
 
 export default router;

@@ -6,8 +6,8 @@ import FollowingUserHandle from "../../components/following/FollowingUserHandle"
 import { NavLink } from "react-router-dom";
 import { useStickyBox } from "react-sticky-box";
 import BlogStaffPick from "../blog/BlogStaffPick";
-import { apiSuggestionTopics, apiSuggestionUsers } from "../../api/api";
-import { apiGetReadingList, apiGetStaffPick } from "../../api/apisHung";
+import { apiRecommendedTopics, apiWhoToFollow } from "../../api/api";
+import { apiGetReadingList, apiAdminPick } from "../../api/apisHung";
 import { useAuth } from "../../contexts/auth-context";
 import { icons } from "../../utils/constants";
 const HomeSideStyle = styled.div`
@@ -36,16 +36,16 @@ const HomeSide = () => {
       if (dataBlogs?.success) setReadingList(dataBlogs.data);
     },
     async fetchStaffPick() {
-      const response = await apiGetStaffPick(token);
+      const response = await apiAdminPick(token);
       if (response) setStaffPick(response.data);
     },
     async fetchSuggestionTopics() {
-      const response = await apiSuggestionTopics(token);
+      const response = await apiRecommendedTopics(token);
       if (response) setTopics(response.data);
     },
 
     async fetchSuggestionUsers() {
-      const response = await apiSuggestionUsers(token);
+      const response = await apiWhoToFollow(token);
       if (response) setUsers(response.data);
     },
   };

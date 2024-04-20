@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import { useState } from "react";
-import { apiFollowUser, apiUnFollowUser } from "../../api/api";
+import { apiFollowAUser, apiUnFollowAUser } from "../../api/api";
 
 const ButtonFollowingUser = ({ userId, initialFollowing = false }) => {
   const [followed, setFollowed] = useState(initialFollowing);
@@ -8,8 +8,8 @@ const ButtonFollowingUser = ({ userId, initialFollowing = false }) => {
 
   const handleFollow = async () => {
     const response = followed
-      ? await apiUnFollowUser(userId, token)
-      : await apiFollowUser(userId, token);
+      ? await apiUnFollowAUser(userId, token)
+      : await apiFollowAUser(userId, token);
     if (response) {
       setFollowed(!followed);
     }

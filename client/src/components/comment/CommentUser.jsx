@@ -3,12 +3,12 @@ import { useEffect, useState } from "react";
 import Avatar from "../../modules/user/Avatar";
 import InputComment from "../input/InputComment";
 import { Link } from "react-router-dom";
-import { apiGetCommentReplies } from "../../api/api";
+import { apiGetNestedCommentsOfAComment } from "../../api/api";
 import useTimeAgo from "../../hooks/useTimeAgo";
 import { icons } from "../../utils/constants";
 import { Popover } from "antd";
 import { debounce } from "lodash";
-import { apiDeleteMyComment } from "../../api/apisHung";
+import { apiDeleteAComment } from "../../api/apisHung";
 
 const CommentUser = ({
   data,
@@ -60,13 +60,13 @@ const CommentUser = ({
   const handleShowComment = debounce(async () => {
     setHideReplies(!hideReplies);
     if (!hideReplies) {
-      const response = await apiGetCommentReplies(token, id);
+      const response = await apiGetNestedCommentsOfAComment(token, id);
       if (response) setCommentBlog(response.data);
     }
   }, []);
 
   const handleDeleteMyComment = async () => {
-    const response = await apiDeleteMyComment(token, id);
+    const response = await apiDeleteAComment(token, id);
     if (response?.success) {
       const deleteItem = commentBlogParent.filter((item) => item.id != id);
       setCommentBlogParent([...deleteItem]);

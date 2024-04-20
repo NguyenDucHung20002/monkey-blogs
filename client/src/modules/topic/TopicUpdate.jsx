@@ -10,7 +10,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useEffect } from "react";
 import { toast } from "react-toastify";
 import { useSearchParams } from "react-router-dom";
-import { apiUpdateTopic } from "../../api/api";
+import { apiUpdateATopic } from "../../api/api";
 
 const schema = yup.object({
   name: yup.string().required("Please fill out your name topic"),
@@ -50,14 +50,14 @@ const TopicUpdate = () => {
     }
   }, [errors]);
 
-  const handleUpdateTopic = async ({ name }) => {
+  const handleUpdateATopic = async ({ name }) => {
     if (!isValid) return;
     const nameTopic = name.charAt(0).toUpperCase() + name.slice(1);
 
     async function fetchAddTopic() {
       if (!token) return;
 
-      const response = await apiUpdateTopic(token, id, nameTopic);
+      const response = await apiUpdateATopic(token, id, nameTopic);
       if (response) {
         toast.success(response.message, {
           pauseOnHover: false,
@@ -71,7 +71,7 @@ const TopicUpdate = () => {
   return (
     <div>
       <DashboardHeading title="Update topic"></DashboardHeading>
-      <form onSubmit={handleSubmit(handleUpdateTopic)} autoComplete="off">
+      <form onSubmit={handleSubmit(handleUpdateATopic)} autoComplete="off">
         <div className="form-layout">
           <Field>
             <Label>Name</Label>

@@ -5,7 +5,7 @@ import clarifai from "../services/clarifai.js";
 
 // ==================== upload an image ==================== //
 
-const upLoadAnImg = asyncMiddleware(async (req, res, next) => {
+const upLoadAnImage = asyncMiddleware(async (req, res, next) => {
   res.status(201).json({
     success: true,
     message: "File uploaded successfully",
@@ -38,7 +38,7 @@ const upLoadAnAvatar = asyncMiddleware(async (req, res, next) => {
         }
 
         if (results[0][0].nsfw > 0.55) {
-          fileController.autoRemoveImg(filename);
+          fileController.autoRemoveAnImage(filename);
           throw ErrorResponse(400, "Your image contains explicit content");
         }
 
@@ -56,7 +56,7 @@ const upLoadAnAvatar = asyncMiddleware(async (req, res, next) => {
 
 // ==================== get an image ==================== //
 
-const getAnImg = asyncMiddleware(async (req, res, next) => {
+const getAnImage = asyncMiddleware(async (req, res, next) => {
   const { filename } = req.params;
 
   const gfs = MongoDB.gfs;
@@ -72,7 +72,7 @@ const getAnImg = asyncMiddleware(async (req, res, next) => {
 
 // ==================== delete an image ==================== //
 
-const deleteAnImg = asyncMiddleware(async (req, res, next) => {
+const deleteAnImage = asyncMiddleware(async (req, res, next) => {
   const { filename } = req.params;
 
   const gfs = MongoDB.gfs;
@@ -91,9 +91,9 @@ const deleteAnImg = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// ==================== auto remove image ==================== //
+// ==================== auto remove an image ==================== //
 
-const autoRemoveImg = async (filename) => {
+const autoRemoveAnImage = async (filename) => {
   const gfs = MongoDB.gfs;
 
   const files = await gfs.find({ filename }).toArray();
@@ -106,9 +106,9 @@ const autoRemoveImg = async (filename) => {
 };
 
 export default {
-  upLoadAnImg,
+  upLoadAnImage,
   upLoadAnAvatar,
-  getAnImg,
-  deleteAnImg,
-  autoRemoveImg,
+  getAnImage,
+  deleteAnImage,
+  autoRemoveAnImage,
 };

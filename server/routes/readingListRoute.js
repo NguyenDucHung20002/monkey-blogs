@@ -5,14 +5,9 @@ import readingListController from "../controllers/readingListController.js";
 
 const router = express.Router();
 
-// -------------------- get my reading list -------------------- //
+// -------------------- get reading list -------------------- //
 
-router.get(
-  "/me",
-  requiredAuth,
-  fetchMe,
-  readingListController.getMyReadingList
-);
+router.get("/me", requiredAuth, fetchMe, readingListController.getReadingList);
 
 // -------------------- add an article to reading list -------------------- //
 
@@ -20,16 +15,16 @@ router.post(
   "/:id",
   requiredAuth,
   fetchMe,
-  readingListController.addToReadingList
+  readingListController.addAnArticleToReadingList
 );
 
-// -------------------- remove an article from reading list -------------------- //
+// -------------------- remove an article in reading list -------------------- //
 
 router.delete(
   "/:id",
   requiredAuth,
   fetchMe,
-  readingListController.removeFromReadingList
+  readingListController.removeAnArticleInReadingList
 );
 
 export default router;

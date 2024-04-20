@@ -55,13 +55,13 @@ const unFollowATopic = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// ==================== get my followed topics ==================== //
+// ==================== get followed topics ==================== //
 
-const getMyFollowedTopics = asyncMiddleware(async (req, res, next) => {
+const getFollowedTopics = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { skip = 0, limit = 15 } = req.query;
 
-  const followTopics = await Follow_Topic.findAll({
+  let followedTopics = await Follow_Topic.findAll({
     where: { profileId: me.profileInfo.id, id: { [Op.gt]: skip } },
     attributes: ["id"],
     include: {
@@ -72,12 +72,14 @@ const getMyFollowedTopics = asyncMiddleware(async (req, res, next) => {
     limit: Number(limit) ? Number(limit) : 15,
   });
 
-  const followedTopics = followTopics.map((followTopic) => {
+  followedTopics = followedTopics.map((followTopic) => {
     return followTopic.topicFollower;
   });
 
   const newSkip =
-    followTopics.length > 0 ? followTopics[followTopics.length - 1].id : null;
+    followedTopics.length > 0
+      ? followedTopics[followedTopics.length - 1].id
+      : null;
 
   res.json({
     success: true,
@@ -89,5 +91,5 @@ const getMyFollowedTopics = asyncMiddleware(async (req, res, next) => {
 export default {
   followATopic,
   unFollowATopic,
-  getMyFollowedTopics,
+  getFollowedTopics,
 };

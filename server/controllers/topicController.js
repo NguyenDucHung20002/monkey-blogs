@@ -9,9 +9,9 @@ import Role from "../models/mysql/Role.js";
 import toUpperCase from "../utils/toUpperCase.js";
 import sequelize from "../databases/mysql/connect.js";
 
-// ==================== create topic ==================== //
+// ==================== create a topic ==================== //
 
-const createTopic = asyncMiddleware(async (req, res, next) => {
+const createATopic = asyncMiddleware(async (req, res, next) => {
   const { name } = req.body;
 
   const slug = toSlug(name);
@@ -32,9 +32,9 @@ const createTopic = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// ==================== update topic ==================== //
+// ==================== update a topic ==================== //
 
-const updateTopic = asyncMiddleware(async (req, res, next) => {
+const updateATopic = asyncMiddleware(async (req, res, next) => {
   const { id } = req.params;
   const { name } = req.body;
 
@@ -66,9 +66,9 @@ const updateTopic = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// ==================== delete topic ==================== //
+// ==================== delete a topic ==================== //
 
-const deleteTopic = asyncMiddleware(async (req, res, next) => {
+const deleteATopic = asyncMiddleware(async (req, res, next) => {
   const { id } = req.params;
 
   await Topic.destroy({ where: { id } });
@@ -79,7 +79,7 @@ const deleteTopic = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// ==================== get a topic ============= ======= //
+// ==================== get a topic ==================== //
 
 const getATopic = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
@@ -150,9 +150,9 @@ const getAllTopics = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// ==================== mark topic as approved ==================== //
+// ==================== approve a topic ==================== //
 
-const martTopicAsApproved = asyncMiddleware(async (req, res, next) => {
+const approveATopic = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { id } = req.params;
 
@@ -172,9 +172,9 @@ const martTopicAsApproved = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// ==================== mark topic as rejected ==================== //
+// ==================== reject a topic ==================== //
 
-const martTopicAsRejected = asyncMiddleware(async (req, res, next) => {
+const rejectATopic = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { id } = req.params;
 
@@ -299,7 +299,13 @@ const recommendedTopics = asyncMiddleware(async (req, res, next) => {
         status: "approved",
       },
       attributes: {
-        exclude: ["approvedById", "status", "createdAt", "updatedAt"],
+        exclude: [
+          "approvedById",
+          "rejectedById",
+          "status",
+          "createdAt",
+          "updatedAt",
+        ],
       },
       include: {
         model: Follow_Topic,
@@ -322,13 +328,13 @@ const recommendedTopics = asyncMiddleware(async (req, res, next) => {
 });
 
 export default {
-  createTopic,
-  updateTopic,
-  deleteTopic,
+  createATopic,
+  updateATopic,
+  deleteATopic,
   getATopic,
   getAllTopics,
-  martTopicAsApproved,
-  martTopicAsRejected,
+  approveATopic,
+  rejectATopic,
   searchTopicsCreateArticle,
   exploreAllTopics,
   recommendedTopics,

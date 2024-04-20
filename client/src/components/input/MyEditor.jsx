@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import ReactQuill, { Quill } from "react-quill";
 import ImageUploader from "quill-image-uploader";
 import { config } from "../../utils/constants";
-import { apiDeleteImage, apiUploadImage } from "../../api/apiNew";
+import { apiDeleteAnImage, apiUploadAnImage } from "../../api/apiNew";
 
 Quill.register("modules/imageUploader", ImageUploader);
 
@@ -13,7 +13,7 @@ const MyEditor = ({ content, setContent }) => {
   const token = localStorage.getItem("token");
 
   const deleteImage = (filename) => {
-    apiDeleteImage(token, filename);
+    apiDeleteAnImage(token, filename);
   };
 
   useEffect(() => {
@@ -52,7 +52,7 @@ const MyEditor = ({ content, setContent }) => {
 
       imageUploader: {
         upload: async (file) => {
-          const response = await apiUploadImage(token, file);
+          const response = await apiUploadAnImage(token, file);
 
           if (response.filename) {
             const filename = response.filename;

@@ -2,7 +2,7 @@
 import { Input } from "antd";
 import { useState } from "react";
 import { useEffect } from "react";
-import { apiAddComment } from "../../api/api";
+import { apiCreateAComment } from "../../api/api";
 
 const { TextArea } = Input;
 
@@ -21,7 +21,7 @@ const InputComment = ({ blogId = "", parentCommentId, commentValue }) => {
   const HandleRespond = () => {
     setIsSubmit(true);
     async function postRespond() {
-      const response = await apiAddComment(
+      const response = await apiCreateAComment(
         blogId,
         parentCommentId,
         content,

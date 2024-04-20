@@ -12,7 +12,7 @@ const router = express.Router();
 
 router.get("/me", requiredAuth, fetchMe, muteController.getMutedProfiles);
 
-// -------------------- mute a profile -------------------- //
+// -------------------- mute a user -------------------- //
 
 router.post(
   "/:id",
@@ -21,17 +21,17 @@ router.post(
   fetchUser,
   checkUserBanned,
   checkBlockedByUser,
-  muteController.muteAProfile
+  muteController.muteAUser
 );
 
-// -------------------- unmute a profile -------------------- //
+// -------------------- unmute a user -------------------- //
 
 router.delete(
   "/:id",
   requiredAuth,
   fetchMe,
   fetchUser,
-  muteController.unMuteAProfile
+  muteController.unMuteAUser
 );
 
 export default router;

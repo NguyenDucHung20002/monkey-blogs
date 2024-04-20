@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { apiGetStaffPick } from "../api/apisHung";
+import { apiAdminPick } from "../api/apisHung";
 import { debounce } from "lodash";
 import Blog from "../modules/blog/Blog";
 import styled from "styled-components";
@@ -28,7 +28,7 @@ const StaffPickPage = () => {
 
   useEffect(() => {
     async function fetchBlog() {
-      const response = await apiGetStaffPick(token, 5);
+      const response = await apiAdminPick(token, 5);
 
       if (response?.success) {
         setBlogs(response.data);
@@ -47,7 +47,7 @@ const StaffPickPage = () => {
         windowHeight.current + scrollY.current + 10 >= documentHeight.current &&
         skip.current
       ) {
-        const response = await apiGetStaffPick(token, 5, skip.current);
+        const response = await apiAdminPick(token, 5, skip.current);
 
         if (response?.success) {
           const blogsClone = [...blogs, ...response.data];
@@ -70,7 +70,7 @@ const StaffPickPage = () => {
       <div className="pb-7 ">
         <h1 className="text-4xl font-bold">Admin Picks</h1>
         <p className="text-lg font-semibold text-gray-500 mt-3">
-          Stories from across Monkey Blogs, hand selected by admin
+          Articles from across Monkey Blogs, hand selected by admin
         </p>
       </div>
       <StaffPicksStyle>

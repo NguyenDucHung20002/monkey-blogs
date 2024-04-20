@@ -7,7 +7,7 @@ const UserReportsContent = ({ reason, description }) => {
   return (
     <div>
       <p className="mb-2 text-sm font-medium">
-        Reason: <span className="text-gray-600">{reason}</span>{" "}
+        Reason: <span className="text-gray-600">{reason}</span>
       </p>
       {description && (
         <p
@@ -15,11 +15,10 @@ const UserReportsContent = ({ reason, description }) => {
             !showMore && "line-clamp-2"
           }`}
         >
-          Description:{" "}
+          Description:
           <span className="text-sm text-gray-600">{description}</span>
         </p>
       )}
-
       {description?.length && description?.length > 150 && (
         <button
           onClick={() => setShowMore(!showMore)}

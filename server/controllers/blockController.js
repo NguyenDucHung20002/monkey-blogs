@@ -6,14 +6,14 @@ import User from "../models/mysql/User.js";
 import ErrorResponse from "../responses/ErrorResponse.js";
 import addUrlToImg from "../utils/addUrlToImg.js";
 
-// ==================== block a profile ==================== //
+// ==================== block a user ==================== //
 
-const blockAProfile = asyncMiddleware(async (req, res, next) => {
+const blockAUser = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const user = req.user;
 
   if (user.profileInfo.id === me.profileInfo.id) {
-    throw ErrorResponse(400, "Cannot block your own profile");
+    throw ErrorResponse(400, "Cannot block your self");
   }
 
   if (user.role.slug === "admin" || user.role.slug === "staff") {
@@ -37,14 +37,14 @@ const blockAProfile = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// ==================== unblock a profile ==================== //
+// ==================== unblock a user ==================== //
 
-const unBlockAProfile = asyncMiddleware(async (req, res, next) => {
+const unBlockAUser = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const user = req.user;
 
   if (user.profileInfo.id === me.profileInfo.id) {
-    throw ErrorResponse(400, "Cannot unblock your own profile");
+    throw ErrorResponse(400, "Cannot unblock your self");
   }
 
   const blocks = await Block.findOne({
@@ -59,25 +59,30 @@ const unBlockAProfile = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// ==================== get list of blocked profiles ==================== //
+// ==================== get blocked profiles ==================== //
 
 const getBlockedProfiles = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
-  const { skip = 0, limit = 15 } = req.query;
+  const { skip, limit = 15 } = req.query;
+
+  let whereQuery = { blockerId: me.profileInfo.id };
+
+  if (skip) whereQuery.createdAt = { [Op.lt]: skip };
 
   const blockedProfiles = await Block.findAll({
-    where: { blockerId: me.profileInfo.id, id: { [Op.gt]: skip } },
-    attributes: ["id"],
+    where: whereQuery,
+    attributes: ["id", "createdAt"],
     include: {
       model: Profile,
       as: "blocked",
       attributes: ["id", "fullname", "avatar", "bio"],
       include: { model: User, as: "userInfo", attributes: ["username"] },
     },
+    order: [["createdAt", "DESC"]],
     limit: Number(limit) ? Number(limit) : 15,
   });
 
-  const blockedProfilesInfo = blockedProfiles.map((blockedProfile) => {
+  const result = blockedProfiles.map((blockedProfile) => {
     blockedProfile.blocked.avatar = addUrlToImg(blockedProfile.blocked.avatar);
 
     return blockedProfile.blocked;
@@ -85,10 +90,18 @@ const getBlockedProfiles = asyncMiddleware(async (req, res, next) => {
 
   const newSkip =
     blockedProfiles.length > 0
-      ? blockedProfiles[blockedProfiles.length - 1].id
+      ? blockedProfiles[blockedProfiles.length - 1].createdAt
       : null;
 
-  res.json({ success: true, data: blockedProfilesInfo, newSkip });
+  res.json({
+    success: true,
+    data: result,
+    newSkip,
+  });
 });
 
-export default { blockAProfile, unBlockAProfile, getBlockedProfiles };
+export default {
+  blockAUser,
+  unBlockAUser,
+  getBlockedProfiles,
+};

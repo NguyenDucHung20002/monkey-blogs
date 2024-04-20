@@ -2,8 +2,8 @@ import TopicDisplay from "../modules/topic/TopicDisplay";
 import ArticleList from "../modules/article/ArticleList";
 import { useNavigate, useParams } from "react-router-dom";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { apiGetTopic } from "../api/api";
-import { apiGetBlogsTopic } from "../api/apisHung";
+import { apiGetATopic } from "../api/api";
+import { apiGetTopicArticles } from "../api/apisHung";
 
 const TopicPage = () => {
   const { slug } = useParams();
@@ -14,9 +14,10 @@ const TopicPage = () => {
   const newSkip = useRef("");
 
   const fetchATopic = useCallback(async () => {
-    const response = await apiGetTopic(token, slug);
-    if (response.data) setTopic(response.data);
-    else navigate("/");
+    const response = await apiGetATopic(token, slug);
+    if(!response) navigate("/*")
+    
+    setTopic(response.data);
   }, [navigate, slug, token]);
 
   useEffect(() => {
@@ -24,7 +25,7 @@ const TopicPage = () => {
   }, [fetchATopic]);
 
   const fetchBlogsTopic = useCallback(async () => {
-    const response = await apiGetBlogsTopic(token, slug, 9);
+    const response = await apiGetTopicArticles(token, slug, 9);
     if (response.data) {
       newSkip.current = response.newSkip;
       setBlogs(response.data);
@@ -38,7 +39,7 @@ const TopicPage = () => {
   }, [fetchBlogsTopic]);
 
   const handleLoadMore = async () => {
-    const response = await apiGetBlogsTopic(token, slug, 9, newSkip.current);
+    const response = await apiGetTopicArticles(token, slug, 9, newSkip.current);
     if (response.data) {
       newSkip.current = response.newSkip;
       setBlogs([...blogs, ...response.data]);

@@ -9,9 +9,9 @@ import User from "../models/mysql/User.js";
 import { Op } from "sequelize";
 import Role from "../models/mysql/Role.js";
 
-// ==================== add comment ==================== //
+// ==================== create a comment ==================== //
 
-const createComment = asyncMiddleware(async (req, res, next) => {
+const createAComment = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { id } = req.params;
   const { parentCommentId, content } = req.body;
@@ -71,9 +71,9 @@ const createComment = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// ==================== update comment ==================== //
+// ==================== update a comment ==================== //
 
-const updateComment = asyncMiddleware(async (req, res, next) => {
+const updateAComment = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { id } = req.params;
   const { content } = req.body;
@@ -92,9 +92,9 @@ const updateComment = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// ==================== delete comment ==================== //
+// ==================== delete a comment ==================== //
 
-const deleteComment = asyncMiddleware(async (req, res, next) => {
+const deleteAComment = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { id } = req.params;
 
@@ -140,10 +140,10 @@ const deleteComment = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// ==================== get article main comments ==================== //
+// ==================== get main comments of an article ==================== //
 
-const getMainComments = asyncMiddleware(async (req, res, next) => {
-  const me = req.me ? req.me : null;
+const getMainCommentsOfAnArticle = asyncMiddleware(async (req, res, next) => {
+  const me = req.me;
   const { id } = req.params;
   const { skip, limit = 15 } = req.query;
 
@@ -214,10 +214,10 @@ const getMainComments = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// ==================== get article nested comments of main comment ==================== //
+// ==================== get nested comments of a comment ==================== //
 
-const getNestedComments = asyncMiddleware(async (req, res, next) => {
-  const me = req.me ? req.me : null;
+const getNestedCommentsOfAComment = asyncMiddleware(async (req, res, next) => {
+  const me = req.me;
   const { id } = req.params;
   const { skip, limit = 15 } = req.query;
 
@@ -296,9 +296,9 @@ const getNestedComments = asyncMiddleware(async (req, res, next) => {
 });
 
 export default {
-  createComment,
-  updateComment,
-  deleteComment,
-  getMainComments,
-  getNestedComments,
+  createAComment,
+  updateAComment,
+  deleteAComment,
+  getMainCommentsOfAnArticle,
+  getNestedCommentsOfAComment,
 };

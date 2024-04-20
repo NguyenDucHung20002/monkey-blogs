@@ -9,7 +9,6 @@ import VerifyToken from "../models/mongodb/VerifyToken.js";
 import SetupPasswordToken from "../models/mongodb/SetupPasswordToken.js";
 import Profile from "../models/mysql/Profile.js";
 import bcrypt from "bcryptjs";
-import generateJwt from "../utils/generateRefreshToken.js";
 import generateUserName from "../utils/generateUserName.js";
 import generateRefreshToken from "../utils/generateRefreshToken.js";
 import ms from "ms";
@@ -24,36 +23,11 @@ const register = asyncMiddleware(async (req, res, next) => {
 
   let user = await User.findOne({ where: { email } });
 
-  if (user && user.password) throw ErrorResponse(409, "Email already exists");
+  if (user) throw ErrorResponse(409, "Email already exists");
 
   const token = randomBytes(32);
 
   const hashedPassword = hashPassword(password);
-
-  if (user && user.email.includes("@gmail.com") && !user.password) {
-    const link = `${env.CLIENT_DOMAIN}/verify-setup-password?token=${token}`;
-
-    const setupToken = await SetupPasswordToken.findOne({ email });
-
-    const operation = setupToken
-      ? setupToken.updateOne({ token })
-      : SetupPasswordToken.create({ email, token, password: hashedPassword });
-
-    await Promise.all([
-      operation,
-      emailService({
-        to: email,
-        subject: "Complete Your Sign Up",
-        template: "verify-email",
-        context: { email: user.email, link },
-      }),
-    ]);
-
-    return res.json({
-      success: true,
-      message: "Please check your email to verify your password setup request",
-    });
-  }
 
   const link = `${env.CLIENT_DOMAIN}/verify-email?token=${token}`;
 
@@ -191,9 +165,9 @@ const resetPassword = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// ==================== login ==================== //
+// ==================== login with email and password ==================== //
 
-const loginEmail = asyncMiddleware(async (req, res, next) => {
+const loginWithEmailAndPassword = asyncMiddleware(async (req, res, next) => {
   const { email, password } = req.body;
 
   const user = await User.findOne({
@@ -274,7 +248,7 @@ const getAccessToken = asyncMiddleware(async (req, res, next) => {
 
 // ==================== login with google ==================== //
 
-const loginGoogle = asyncMiddleware(async (req, res, next) => {
+const loginWithGoogle = asyncMiddleware(async (req, res, next) => {
   const { avatar, fullname, email } = req.user;
 
   let user = await User.findOne({
@@ -309,9 +283,20 @@ const loginGoogle = asyncMiddleware(async (req, res, next) => {
 
   await operation;
 
-  const jsonWebToken = await generateJwt({ id: user.id });
+  const refreshToken = await generateRefreshToken({ id: user.id });
 
-  res.redirect(`${env.CLIENT_DOMAIN}?token=${jsonWebToken}`);
+  const accessToken = jwt.sign({ id: user.id }, env.JWT_ACCESS_SECRET, {
+    expiresIn: env.JWT_ACCESS_EXPIRE_TIME,
+  });
+
+  res.clearCookie("refresh_token");
+
+  res.cookie("refresh_token", refreshToken, {
+    httpOnly: true,
+    maxAge: ms(env.JWT_REFRESH_EXPIRE_TIME),
+  });
+
+  res.redirect(`${env.CLIENT_DOMAIN}?token=${accessToken}`);
 });
 
 // ==================== logout ==================== //
@@ -341,8 +326,8 @@ export default {
   verifyEmail,
   verifySetUpPassword,
   resetPassword,
-  loginGoogle,
-  loginEmail,
+  loginWithGoogle,
+  loginWithEmailAndPassword,
   logout,
   getAccessToken,
 };
