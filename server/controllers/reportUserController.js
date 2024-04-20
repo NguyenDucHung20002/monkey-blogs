@@ -48,7 +48,7 @@ const reportAUser = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// ==================== get list of pending reported users ==================== //
+// ==================== get pending reported users ==================== //
 
 const getPendingReportedUsers = asyncMiddleware(async (req, res, next) => {
   const { skipId, skipCount, limit = 15, search } = req.query;
@@ -100,7 +100,7 @@ const getPendingReportedUsers = asyncMiddleware(async (req, res, next) => {
     limit: Number(limit) ? Number(limit) : 15,
   });
 
-  const reportedUsers = reports.map((report) => {
+  const result = reports.map((report) => {
     return report.reported;
   });
 
@@ -114,13 +114,13 @@ const getPendingReportedUsers = asyncMiddleware(async (req, res, next) => {
 
   res.json({
     success: true,
-    data: reportedUsers,
+    data: result,
     newSkipId,
     newSkipCount,
   });
 });
 
-// ==================== get list of pending reported staffs ==================== //
+// ==================== get pending reported staffs ==================== //
 
 const getPendingReportedStaffs = asyncMiddleware(async (req, res, next) => {
   const { skipId, skipCount, limit = 15, search } = req.query;
@@ -141,7 +141,7 @@ const getPendingReportedStaffs = asyncMiddleware(async (req, res, next) => {
     ];
   }
 
-  const reports = await Report_User.findAll({
+  let reports = await Report_User.findAll({
     where: { status: "pending" },
     attributes: ["reportedId"],
     include: [
@@ -172,7 +172,7 @@ const getPendingReportedStaffs = asyncMiddleware(async (req, res, next) => {
     limit: Number(limit) ? Number(limit) : 15,
   });
 
-  const reportedStaffs = reports.map((report) => {
+  reports = reports.map((report) => {
     return report.reported;
   });
 
@@ -186,15 +186,15 @@ const getPendingReportedStaffs = asyncMiddleware(async (req, res, next) => {
 
   res.json({
     success: true,
-    data: reportedStaffs,
+    data: reports,
     newSkipId,
     newSkipCount,
   });
 });
 
-// ==================== Get pending reports of the user ==================== //
+// ==================== get pending reports of a user ==================== //
 
-const getPendingReportsOfUser = asyncMiddleware(async (req, res, next) => {
+const getPendingReportsOfAUser = asyncMiddleware(async (req, res, next) => {
   const { skip, limit = 15 } = req.query;
   const { id } = req.params;
 
@@ -241,9 +241,9 @@ const getPendingReportsOfUser = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// ==================== Get resolved reports ==================== //
+// ==================== get resolved user reports ==================== //
 
-const getResolvedReports = asyncMiddleware(async (req, res, next) => {
+const getResolvedUserReports = asyncMiddleware(async (req, res, next) => {
   const { skip, limit = 15 } = req.query;
 
   let whereQuery = { status: "resolved" };
@@ -298,29 +298,31 @@ const getResolvedReports = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// ==================== Mark all reports of the user as resolved ==================== //
+// ==================== mark all reports of the user as resolved ==================== //
 
-const markAllResolved = asyncMiddleware(async (req, res, next) => {
-  const me = req.me;
-  const user = req.user;
+const markAllReportsOfAUserAsResolved = asyncMiddleware(
+  async (req, res, next) => {
+    const me = req.me;
+    const user = req.user;
 
-  await Promise.all([
-    Report_User.update(
-      { status: "resolved", resolvedById: me.id },
-      { where: { status: "pending", reportedId: user.id } }
-    ),
-    user.update({ reportsCount: 0 }),
-  ]);
+    await Promise.all([
+      Report_User.update(
+        { status: "resolved", resolvedById: me.id },
+        { where: { status: "pending", reportedId: user.id } }
+      ),
+      user.update({ reportsCount: 0 }),
+    ]);
 
-  res.json({
-    success: true,
-    message: "All reports marked as resolved successfully",
-  });
-});
+    res.json({
+      success: true,
+      message: "All reports marked as resolved successfully",
+    });
+  }
+);
 
-// ==================== Mark a report of the user as resolved ==================== //
+// ==================== mark a report of the user as resolved ==================== //
 
-const markAReportAsResolved = asyncMiddleware(async (req, res, next) => {
+const markAReportOfAUserAsResolved = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { id } = req.params;
 
@@ -342,9 +344,9 @@ const markAReportAsResolved = asyncMiddleware(async (req, res, next) => {
 export default {
   reportAUser,
   getPendingReportedUsers,
-  getPendingReportsOfUser,
-  markAllResolved,
-  markAReportAsResolved,
-  getResolvedReports,
+  getPendingReportsOfAUser,
+  markAllReportsOfAUserAsResolved,
+  markAReportOfAUserAsResolved,
+  getResolvedUserReports,
   getPendingReportedStaffs,
 };

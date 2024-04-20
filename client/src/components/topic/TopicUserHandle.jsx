@@ -14,7 +14,7 @@ const TopicUserHandle = ({ data, initialFollowing = false }) => {
             {name}
           </Topic>
           <div className="flex items-center gap-2 font-semibold text-gray-500">
-            <p>{articlesCount} Stories</p>
+            <p>{articlesCount} Articles</p>
             <div className="text-2xl -translate-y-1">.</div>{" "}
             <p>{followersCount} Follower</p>
           </div>

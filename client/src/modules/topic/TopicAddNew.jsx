@@ -9,7 +9,7 @@ import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useEffect } from "react";
 import { toast } from "react-toastify";
-import { apiAddTopic } from "../../api/api";
+import { apiCreateATopic } from "../../api/api";
 
 const schema = yup.object({
   name: yup.string().required("Please fill out your name topic"),
@@ -45,7 +45,7 @@ const TopicAddNew = () => {
 
       const nameTopic = name.charAt(0).toUpperCase() + name.slice(1);
 
-      const response = await apiAddTopic(token, nameTopic);
+      const response = await apiCreateATopic(token, nameTopic);
       if (response) {
         reset();
         toast.success(response.message, {

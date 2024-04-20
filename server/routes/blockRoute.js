@@ -12,7 +12,7 @@ const router = express.Router();
 
 router.get("/me", requiredAuth, fetchMe, blockController.getBlockedProfiles);
 
-// -------------------- block a profile -------------------- //
+// -------------------- block a user -------------------- //
 
 router.post(
   "/:id",
@@ -21,17 +21,17 @@ router.post(
   fetchUser,
   checkUserBanned,
   checkBlockByUser,
-  blockController.blockAProfile
+  blockController.blockAUser
 );
 
-// -------------------- unblock a profile -------------------- //
+// -------------------- unblock a user -------------------- //
 
 router.delete(
   "/:id",
   requiredAuth,
   fetchMe,
   fetchUser,
-  blockController.unBlockAProfile
+  blockController.unBlockAUser
 );
 
 export default router;

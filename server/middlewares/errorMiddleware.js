@@ -22,7 +22,7 @@ const errorMiddleware = async (err, req, res, next) => {
     message = err.message;
   }
 
-  if (req.file) await fileController.autoRemoveImg(req.file.filename);
+  if (req.file) await fileController.autoRemoveAnImage(req.file.filename);
 
   console.log("error middleware =>", err);
 

@@ -5,15 +5,15 @@ import { NavLink } from "react-router-dom";
 import { Tag, Table, Popover } from "antd";
 import Column from "antd/es/table/Column";
 import {
-  apiBanUser,
-  apiGetAllUser,
-  apiLiftTheBan,
-  apiUpdateBan,
+  apiBanAUser,
+  apiGetAllUsers,
+  apiUnBanAUser,
+  apiUpdateUserBan,
 } from "../../api/api";
 import { toast } from "react-toastify";
 import Button from "../../components/button/Button";
 import { debounce } from "lodash";
-import { apiSetStaff } from "../../api/apisHung";
+import { apiMakeAUserStaff } from "../../api/apisHung";
 import { useAuth } from "../../contexts/auth-context";
 
 const UserTable = () => {
@@ -27,14 +27,11 @@ const UserTable = () => {
   const [isReload, setIsReload] = useState(false);
 
   const fetchUsers = useCallback(async () => {
-    const response = await apiGetAllUser(token, 10, null, search);
+    const response = await apiGetAllUsers(token, 15, null, search);
     if (response) {
       skip.current = response.newSkip;
       const mapUsers = response.data.map((user) => {
-        return {
-          ...user,
-          key: user.id,
-        };
+        return { ...user, key: user.id };
       });
       setUsers(mapUsers);
     }
@@ -46,7 +43,7 @@ const UserTable = () => {
 
   const handleSetStaff = useCallback(
     async (userId) => {
-      const response = await apiSetStaff(token, userId);
+      const response = await apiMakeAUserStaff(token, userId);
       if (response) {
         const mapUsers = users.filter((user) => user.id != userId);
         setUsers(mapUsers);
@@ -61,14 +58,10 @@ const UserTable = () => {
 
   const handleLoadMore = async () => {
     const newSkip = skip.current;
-
-    const response = await apiGetAllUser(token, 10, newSkip, search);
+    const response = await apiGetAllUsers(token, 15, newSkip, search);
     if (response) {
       const mapUsers = response.data.map((user) => {
-        return {
-          ...user,
-          key: user.id,
-        };
+        return { ...user, key: user.id };
       });
       skip.current = response.newSkip;
       setUsers([...users, ...mapUsers]);
@@ -76,7 +69,7 @@ const UserTable = () => {
   };
 
   const handleLiftTheBan = async (userId) => {
-    const response = await apiLiftTheBan(token, userId);
+    const response = await apiUnBanAUser(token, userId);
     if (response) {
       setStatusRender(!statusRender);
       toast.success(response.message, {
@@ -87,7 +80,7 @@ const UserTable = () => {
   };
 
   const handleUpdateBan = async (type, userId) => {
-    const response = await apiUpdateBan(token, userId, type);
+    const response = await apiUpdateUserBan(token, userId, type);
     if (response) {
       setStatusRender(!statusRender);
       toast.success(response.message, {
@@ -98,7 +91,7 @@ const UserTable = () => {
   };
 
   const handleBanUser = async (type, userId) => {
-    const response = await apiBanUser(token, userId, type);
+    const response = await apiBanAUser(token, userId, type);
     if (response) {
       setStatusRender(!statusRender);
       toast.success(response.message, {
@@ -324,11 +317,13 @@ const UserTable = () => {
 
         <Column title="More" key="More" render={(user) => ButtonMore(user)} />
       </Table>
-      <div className="flex justify-center mt-5" onClick={handleLoadMore}>
-        <Button type="button" kind="primary" height="40px">
-          Load more
-        </Button>
-      </div>
+      {skip.current && (
+        <div className="flex justify-center mt-5" onClick={handleLoadMore}>
+          <Button type="button" kind="primary" height="40px">
+            Load more
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

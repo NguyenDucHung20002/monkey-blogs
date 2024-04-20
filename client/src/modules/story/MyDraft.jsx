@@ -1,10 +1,10 @@
 /* eslint-disable react/prop-types */
 import { Popover } from "antd";
 import { useEffect, useState } from "react";
-import { apiGetMyDraft } from "../../api/apiNew";
+import { apiGetAllDrafts } from "../../api/apiNew";
 import timeAgo from "../modulesJs/timeAgo";
 import { Link } from "react-router-dom";
-import { apiDeleteDraft } from "../../api/api";
+import { apiDeleteADraft } from "../../api/api";
 import { toast } from "react-toastify";
 
 const PopoverContent = ({ id, handleDeleteDraft }) => {
@@ -28,14 +28,14 @@ const MyDraft = () => {
   const token = localStorage.getItem("token");
 
   const fetchDrafts = async () => {
-    const response = await apiGetMyDraft(token);
+    const response = await apiGetAllDrafts(token);
     if (response?.success) {
       setDrafts(response?.data);
     }
   };
 
   const handleDeleteDraft = async (id) => {
-    const response = await apiDeleteDraft(token, id);
+    const response = await apiDeleteADraft(token, id);
     if (response) {
       fetchDrafts();
       toast.success(response.message, {

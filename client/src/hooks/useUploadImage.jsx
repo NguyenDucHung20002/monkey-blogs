@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { apiDeleteImage, apiUploadImage } from "../api/apiNew";
+import { apiDeleteAnImage, apiUploadAnImage } from "../api/apiNew";
 import { config } from "../utils/constants";
 
 const useUploadImage = () => {
@@ -7,7 +7,7 @@ const useUploadImage = () => {
   const [image, setImage] = useState("");
 
   const onUploadImage = async (file) => {
-    const response = await apiUploadImage(token, file);
+    const response = await apiUploadAnImage(token, file);
     if (response?.filename) {
       const filename = response?.filename;
       const url = `${config.SERVER_HOST}/file/${filename}`;
@@ -34,7 +34,7 @@ const useUploadImage = () => {
     if (!filename) {
       return;
     }
-    apiDeleteImage(token, filename);
+    apiDeleteAnImage(token, filename);
     setImage("");
   };
 

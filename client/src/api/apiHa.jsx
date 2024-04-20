@@ -3,7 +3,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { customAxios } from "../config/axios-customize";
 
-const fetchAccessToken = async () => {
+const apiFetchAccessToken = async () => {
   try {
     const response = await axios.get(
       `${config.SERVER_HOST}/auth/access-token`,
@@ -23,7 +23,7 @@ const fetchAccessToken = async () => {
   }
 };
 
-const updateProfileDesign = async (token, design) => {
+const apiUpdateProfileDesign = async (token, design) => {
   try {
     const response = await customAxios.patch(
       `${config.SERVER_HOST}/profile/me/update/design`,
@@ -52,7 +52,7 @@ const updateProfileDesign = async (token, design) => {
   }
 };
 
-const checkHasPassword = async (token) => {
+const apiCheckUserHasPassword = async (token) => {
   try {
     const response = await customAxios.get(
       `${config.SERVER_HOST}/user/me/check-has-password`,
@@ -109,9 +109,39 @@ const setUpPassword = async (token, password) => {
   }
 };
 
+const apiGetLoginInformation = async (token) => {
+  try {
+    const response = await customAxios.get(
+      `${config.SERVER_HOST}/profile/login-information`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (response?.data?.success) {
+      return response.data;
+    }
+  } catch (error) {
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
+  }
+};
+
 export {
-  fetchAccessToken,
-  updateProfileDesign,
-  checkHasPassword,
+  apiFetchAccessToken,
+  apiUpdateProfileDesign,
+  apiCheckUserHasPassword,
   setUpPassword,
+  apiGetLoginInformation,
 };

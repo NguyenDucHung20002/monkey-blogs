@@ -2,10 +2,16 @@ import { config } from "../utils/constants";
 import { toast } from "react-toastify";
 import { customAxios } from "../config/axios-customize";
 
-const apiGetUserFollow = async (token, username, typeFollow = "followers") => {
+const apiGetUserFollow = async (
+  token,
+  username,
+  typeFollow = "followers",
+  limit = 15,
+  skip = ""
+) => {
   try {
     const response = await customAxios.get(
-      `${config.SERVER_HOST}/follow-profile/${username}/${typeFollow}`,
+      `${config.SERVER_HOST}/follow-profile/${username}/${typeFollow}?skip=${skip}&limit=${limit}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -30,39 +36,39 @@ const apiGetUserFollow = async (token, username, typeFollow = "followers") => {
   }
 };
 
-const apiUploadCheckImage = async (token, file) => {
-  try {
-    const bodyFormData = new FormData();
-    bodyFormData.append("avatar", file);
+// const apiUploadCheckImage = async (token, file) => {
+//   try {
+//     const bodyFormData = new FormData();
+//     bodyFormData.append("avatar", file);
 
-    const response = await customAxios.post(
-      `${config.SERVER_HOST}/file/avatar`,
-      bodyFormData,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
-    if (response?.data?.success) {
-      return response.data;
-    }
-  } catch (error) {
-    console.log("Error:", error);
-    toast.error(
-      error?.response?.data?.message
-        ? error?.response?.data?.message
-        : "Something went wrong",
-      {
-        pauseOnHover: false,
-        delay: 250,
-      }
-    );
-  }
-};
+//     const response = await customAxios.post(
+//       `${config.SERVER_HOST}/file/avatar`,
+//       bodyFormData,
+//       {
+//         headers: {
+//           Authorization: `Bearer ${token}`,
+//           "Content-Type": "multipart/form-data",
+//         },
+//       }
+//     );
+//     if (response?.data?.success) {
+//       return response.data;
+//     }
+//   } catch (error) {
+//     console.log("Error:", error);
+//     toast.error(
+//       error?.response?.data?.message
+//         ? error?.response?.data?.message
+//         : "Something went wrong",
+//       {
+//         pauseOnHover: false,
+//         delay: 250,
+//       }
+//     );
+//   }
+// };
 
-const apiUploadImage = async (token, file) => {
+const apiUploadAnImage = async (token, file) => {
   try {
     const bodyFormData = new FormData();
     bodyFormData.append("img", file);
@@ -94,7 +100,7 @@ const apiUploadImage = async (token, file) => {
   }
 };
 
-const apiDeleteImage = async (token, filename) => {
+const apiDeleteAnImage = async (token, filename) => {
   try {
     const response = await customAxios.delete(
       `${config.SERVER_HOST}/file/${filename}`,
@@ -121,7 +127,7 @@ const apiDeleteImage = async (token, filename) => {
   }
 };
 
-const apiCreateDraft = async (token, title, content) => {
+const apiCreateADraft = async (token, title, content) => {
   try {
     const response = await customAxios.post(
       `${config.SERVER_HOST}/article/draft/create-draft`,
@@ -150,10 +156,10 @@ const apiCreateDraft = async (token, title, content) => {
   }
 };
 
-const apiUpdateDraft = async (token, id, title, content) => {
+const apiUpdateADraft = async (token, draftId, title, content) => {
   try {
     const response = await customAxios.patch(
-      `${config.SERVER_HOST}/article/draft/update-draft/${id}`,
+      `${config.SERVER_HOST}/article/draft/update-draft/${draftId}`,
       { title, content },
       {
         headers: {
@@ -179,10 +185,10 @@ const apiUpdateDraft = async (token, id, title, content) => {
   }
 };
 
-const apiDeleteDraft = async (token, id) => {
+const apiDeleteADraft = async (token, draftId) => {
   try {
     const response = await customAxios.delete(
-      `${config.SERVER_HOST}/article/draft/delete-draft/${id}`,
+      `${config.SERVER_HOST}/article/draft/delete-draft/${draftId}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -207,10 +213,10 @@ const apiDeleteDraft = async (token, id) => {
   }
 };
 
-const apiAddBlog = async (token, articleId, data) => {
+const apiCreateAnArticle = async (token, draftId, data) => {
   try {
     const response = await customAxios.patch(
-      `${config.SERVER_HOST}/article/${articleId}`,
+      `${config.SERVER_HOST}/article/${draftId}`,
       data,
       {
         headers: {
@@ -236,7 +242,7 @@ const apiAddBlog = async (token, articleId, data) => {
   }
 };
 
-const apiGetMyDraft = async (token) => {
+const apiGetAllDrafts = async (token) => {
   try {
     const response = await customAxios.get(
       `${config.SERVER_HOST}/article/draft/me`,
@@ -264,10 +270,10 @@ const apiGetMyDraft = async (token) => {
   }
 };
 
-const apiGetReadingHistory = async (token) => {
+const apiGetReadingHistory = async (token, limit = 15, skip = "") => {
   try {
     const response = await customAxios.get(
-      `${config.SERVER_HOST}/reading-history/me `,
+      `${config.SERVER_HOST}/reading-history/me?skip=${skip}&limit=${limit}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -292,7 +298,7 @@ const apiGetReadingHistory = async (token) => {
   }
 };
 
-const apiGetMoreArticleInDetailPage = async (token, articleId) => {
+const apiGetMoreArticlesFromAuthor = async (token, articleId) => {
   try {
     const response = await customAxios.get(
       `${config.SERVER_HOST}/article/more-articles-from-profile/${articleId} `,
@@ -320,7 +326,7 @@ const apiGetMoreArticleInDetailPage = async (token, articleId) => {
   }
 };
 
-const apiDeleteReadingHistory = async (token) => {
+const apiClearReadingHistory = async (token) => {
   try {
     const response = await customAxios.delete(
       `${config.SERVER_HOST}/reading-history/me/clear `,
@@ -348,7 +354,7 @@ const apiDeleteReadingHistory = async (token) => {
   }
 };
 
-const apiDeleteAllNotification = async (token) => {
+const apiClearReadNotifications = async (token) => {
   try {
     const response = await customAxios.delete(
       `${config.SERVER_HOST}/notification/clear `,
@@ -376,10 +382,10 @@ const apiDeleteAllNotification = async (token) => {
   }
 };
 
-const apiDeleteArticleHistory = async (token, id) => {
+const apiDeleteAnArticleInReadingHistory = async (token, articleId) => {
   try {
     const response = await customAxios.delete(
-      `${config.SERVER_HOST}/reading-history/${id} `,
+      `${config.SERVER_HOST}/reading-history/${articleId} `,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -404,14 +410,17 @@ const apiDeleteArticleHistory = async (token, id) => {
   }
 };
 
-const apiGetMyBlocked = async (token) => {
+const apiGetBlockedProfiles = async (token, limit = 15, skip = "") => {
   try {
-    const response = await customAxios.get(`${config.SERVER_HOST}/block/me`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    });
+    const response = await customAxios.get(
+      `${config.SERVER_HOST}/block/me?skip=${skip}&limit=${limit}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
     if (response?.data?.success) {
       return response.data;
     }
@@ -464,19 +473,19 @@ const apiChangePassword = async (
 
 export {
   apiGetUserFollow,
-  apiUploadImage,
-  apiDeleteImage,
-  apiCreateDraft,
-  apiUpdateDraft,
-  apiDeleteDraft,
-  apiAddBlog,
-  apiUploadCheckImage,
-  apiGetMyDraft,
+  apiUploadAnImage,
+  apiDeleteAnImage,
+  apiCreateADraft,
+  apiUpdateADraft,
+  apiDeleteADraft,
+  apiCreateAnArticle,
+  // apiUploadCheckImage,
+  apiGetAllDrafts,
   apiGetReadingHistory,
-  apiDeleteReadingHistory,
-  apiDeleteArticleHistory,
-  apiDeleteAllNotification,
-  apiGetMyBlocked,
-  apiGetMoreArticleInDetailPage,
+  apiClearReadingHistory,
+  apiDeleteAnArticleInReadingHistory,
+  apiClearReadNotifications,
+  apiGetBlockedProfiles,
+  apiGetMoreArticlesFromAuthor,
   apiChangePassword,
 };

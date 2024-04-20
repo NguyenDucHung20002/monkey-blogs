@@ -15,16 +15,17 @@ router.post(
   "/me/setup-password",
   requiredAuth,
   fetchMe,
+  validator(userSchema.setUpPasswordSchema),
   userController.setUpPassword
 );
 
-// -------------------- check user has password -------------------- //
+// -------------------- check user has password or not -------------------- //
 
 router.get(
   "/me/check-has-password",
   requiredAuth,
   fetchMe,
-  userController.checkHasPassword
+  userController.checkUserHasPassword
 );
 
 // -------------------- change password -------------------- //

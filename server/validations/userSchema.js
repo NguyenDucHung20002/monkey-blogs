@@ -13,4 +13,12 @@ const changePasswordSchema = Joi.object({
   confirmPassword: authScheme.pwSchema,
 });
 
-export default { banAUserSchema, changePasswordSchema };
+const setUpPasswordSchema = Joi.object({
+  password: authScheme.pwSchema,
+});
+
+export default {
+  banAUserSchema,
+  changePasswordSchema,
+  setUpPasswordSchema,
+};

@@ -1,14 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import UpdateProfile from "../components/form/UpdateProfile";
 import ProfileInfo from "../modules/profile/ProfileInfo";
 import ProfileContext from "../modules/profile/ProfileContext";
 import { Navigate, Outlet, useParams } from "react-router-dom";
 import Following from "../components/follow/Following";
-import {
-  apiGetProfile,
-  apiGetUserFollowings,
-  apiSuggestionTopics,
-} from "../api/api";
+import { apiGetProfile, apiRecommendedTopics } from "../api/api";
+import { apiGetFollowedProfiles } from "../api/apisHung";
 import StickyBox from "react-sticky-box";
 import RecommendTopic from "../modules/topic/TopicRcm";
 import { DesignProvider } from "./DesignPage";
@@ -25,16 +22,16 @@ const ProfilePage = () => {
 
   useEffect(() => {
     async function fetchUserInf() {
-      const profileUser = await apiGetProfile(token, username);
-      if (!profileUser) return window.location.replace("/*");
-      setUser({ ...profileUser.data });
-      setIsBlocked(profileUser?.isBlocked);
-      const design = JSON.parse(profileUser.data.profileDesign);
+      const response = await apiGetProfile(token, username);
+      if (!response) return window.location.replace("/*");
+      setUser({ ...response.data });
+      setIsBlocked(response?.isBlocked);
+      const design = JSON.parse(response.data.profileDesign);
       setDesign({ ...design });
     }
 
     async function fetchSuggestionTopics() {
-      const response = await apiSuggestionTopics(token);
+      const response = await apiRecommendedTopics(token);
       if (response) setTopics(response.data);
     }
 
@@ -44,8 +41,8 @@ const ProfilePage = () => {
 
   useEffect(() => {
     async function fetchUserFollowing() {
-      const dataFollowings = await apiGetUserFollowings(token, username);
-      setFollowing([...dataFollowings.data]);
+      const response = await apiGetFollowedProfiles(token, username, 5);
+      if (response) setFollowing([...response.data]);
     }
     fetchUserFollowing();
   }, [username]);

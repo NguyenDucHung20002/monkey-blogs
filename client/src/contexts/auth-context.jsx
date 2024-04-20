@@ -1,8 +1,5 @@
-import React, { useCallback, useEffect } from "react";
-import { config } from "../utils/constants";
-import axios from "axios";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { customAxios } from "../config/axios-customize";
+import React, { useEffect } from "react";
+import { apiGetLoginInformation } from "../api/apiHa";
 
 const { createContext, useContext, useState } = React;
 
@@ -30,22 +27,10 @@ const AuthProvider = React.memo((props) => {
   const token = getToken();
 
   const fetcher = async () => {
-    try {
-      const response = await customAxios.get(
-        `${config.SERVER_HOST}/profile/logged-in-profile-information`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (response?.data?.success) {
-        setUserInfo(response.data);
-      }
-      return null;
-    } catch (error) {}
+    const response = await apiGetLoginInformation(token);
+    if (response) {
+      setUserInfo(response);
+    }
   };
 
   useEffect(() => {

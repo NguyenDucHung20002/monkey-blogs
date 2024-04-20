@@ -165,9 +165,9 @@ const resetPassword = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// ==================== login ==================== //
+// ==================== login with email and password ==================== //
 
-const loginEmail = asyncMiddleware(async (req, res, next) => {
+const loginWithEmailAndPassword = asyncMiddleware(async (req, res, next) => {
   const { email, password } = req.body;
 
   const user = await User.findOne({
@@ -248,7 +248,7 @@ const getAccessToken = asyncMiddleware(async (req, res, next) => {
 
 // ==================== login with google ==================== //
 
-const loginGoogle = asyncMiddleware(async (req, res, next) => {
+const loginWithGoogle = asyncMiddleware(async (req, res, next) => {
   const { avatar, fullname, email } = req.user;
 
   let user = await User.findOne({
@@ -326,8 +326,8 @@ export default {
   verifyEmail,
   verifySetUpPassword,
   resetPassword,
-  loginGoogle,
-  loginEmail,
+  loginWithGoogle,
+  loginWithEmailAndPassword,
   logout,
   getAccessToken,
 };

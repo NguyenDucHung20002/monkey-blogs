@@ -5,13 +5,13 @@ import fetchMe from "../middlewares/fetchMe.js";
 
 const router = express.Router();
 
-// -------------------- get my followed topics -------------------- //
+// -------------------- get followed topics -------------------- //
 
 router.get(
   "/me",
   requiredAuth,
   fetchMe,
-  followTopicController.getMyFollowedTopics
+  followTopicController.getFollowedTopics
 );
 
 // -------------------- follow a topic -------------------- //

@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useRef, useState } from "react";
-import { apiGetUsersResolved } from "../../api/apisHung";
+import { apiGetResolvedUserReports } from "../../api/apisHung";
 import { Popover, Table, Tag } from "antd";
 import Column from "antd/es/table/Column";
 import { NavLink } from "react-router-dom";
@@ -13,7 +13,7 @@ const UserReportsResolved = () => {
   const skip = useRef("");
   useEffect(() => {
     async function fetchUserResolved() {
-      const response = await apiGetUsersResolved(token);
+      const response = await apiGetResolvedUserReports(token);
       if (response?.success) {
         const mapReports = response.data.map((report) => {
           return {

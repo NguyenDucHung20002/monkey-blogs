@@ -1,6 +1,6 @@
 import Joi from "joi";
 
-const createDraftSchema = Joi.object({
+const createADraftSchema = Joi.object({
   title: Joi.string().max(250),
   content: Joi.string()
     .allow("")
@@ -15,7 +15,7 @@ const createDraftSchema = Joi.object({
     }),
 });
 
-const updateDraftSchema = Joi.object({
+const updateADraftSchema = Joi.object({
   title: Joi.string().max(250),
   content: Joi.string()
     .allow("")
@@ -30,13 +30,13 @@ const updateDraftSchema = Joi.object({
     }),
 });
 
-const createArticleSchema = Joi.object({
+const createAnArticleSchema = Joi.object({
   banner: Joi.string(),
   preview: Joi.string().max(150),
   topicNames: Joi.array().max(5).items(Joi.string()),
 });
 
-const updateArticleSchema = Joi.object({
+const updateAnArticleSchema = Joi.object({
   banner: Joi.string(),
   title: Joi.string().max(250),
   preview: Joi.string().max(150),
@@ -44,14 +44,14 @@ const updateArticleSchema = Joi.object({
   topicNames: Joi.array().max(5).items(Joi.string()),
 });
 
-const setDraftSchema = Joi.object({
+const setAnArticleBackToDraftSchema = Joi.object({
   reason: Joi.string().min(4).max(150).allow("").allow(null),
 });
 
 export default {
-  createDraftSchema,
-  updateDraftSchema,
-  createArticleSchema,
-  updateArticleSchema,
-  setDraftSchema,
+  createADraftSchema,
+  updateADraftSchema,
+  createAnArticleSchema,
+  updateAnArticleSchema,
+  setAnArticleBackToDraftSchema,
 };

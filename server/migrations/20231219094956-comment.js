@@ -36,6 +36,12 @@ module.exports = {
       parentCommentId: {
         type: Sequelize.INTEGER,
         allowNull: true,
+        references: {
+          model: {
+            tableName: "comments",
+          },
+          key: "id",
+        },
       },
 
       repliesCount: {

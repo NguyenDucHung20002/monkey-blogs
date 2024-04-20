@@ -1,11 +1,14 @@
 import Joi from "joi";
 
-const createTopicSchema = Joi.object({
+const createATopicSchema = Joi.object({
   name: Joi.string().min(1).required(),
 });
 
-const updateTopicSchema = Joi.object({
+const updateATopicSchema = Joi.object({
   name: Joi.string().min(1),
 });
 
-export default { createTopicSchema, updateTopicSchema };
+export default {
+  createATopicSchema,
+  updateATopicSchema,
+};

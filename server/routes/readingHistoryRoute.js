@@ -5,31 +5,31 @@ import readingHistoryController from "../controllers/readingHistoryController.js
 
 const router = express.Router();
 
-// -------------------- delete article from reading history -------------------- //
+// -------------------- delete an article in reading history -------------------- //
 
 router.delete(
   "/:id",
   requiredAuth,
   fetchMe,
-  readingHistoryController.deleteAnArticleInHistory
+  readingHistoryController.deleteAnArticleInReadingHistory
 );
 
-// -------------------- clear my reading history -------------------- //
+// -------------------- clear reading history -------------------- //
 
 router.delete(
   "/me/clear",
   requiredAuth,
   fetchMe,
-  readingHistoryController.clearMyReadingHistory
+  readingHistoryController.clearReadingHistory
 );
 
-// -------------------- get my reading history -------------------- //
+// -------------------- get reading history -------------------- //
 
 router.get(
   "/me",
   requiredAuth,
   fetchMe,
-  readingHistoryController.getMyReadingHistory
+  readingHistoryController.getReadingHistory
 );
 
 export default router;

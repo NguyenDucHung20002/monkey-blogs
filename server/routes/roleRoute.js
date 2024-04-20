@@ -18,7 +18,7 @@ router.get(
   roleController.getAllStaffs
 );
 
-// -------------------- make user staff -------------------- //
+// -------------------- make a user staff -------------------- //
 
 router.patch(
   "/make-staff/:id",
@@ -27,10 +27,10 @@ router.patch(
   authorize("admin"),
   fetchUser,
   checkUserBanned,
-  roleController.makeUserStaff
+  roleController.makeAUserStaff
 );
 
-// -------------------- make user user -------------------- //
+// -------------------- make a staff user -------------------- //
 
 router.patch(
   "/make-user/:id",
@@ -39,7 +39,7 @@ router.patch(
   authorize("admin"),
   fetchUser,
   checkUserBanned,
-  roleController.makeUserUser
+  roleController.makeAStaffUser
 );
 
 export default router;

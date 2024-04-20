@@ -8,7 +8,7 @@ import { toast } from "react-toastify";
 import InputHook from "../components/input/InputHook";
 import logo from "../assets/logo.png";
 import ImageUpload from "../components/image/ImageUpload";
-import { apiVerifyProfile } from "../api/apisHung";
+import { apiVerifySetupProfile } from "../api/apisHung";
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
@@ -68,7 +68,7 @@ const VerifyProfilePage = () => {
     formData.append("fullname", values.fullName);
     formData.append("avatar", values.avatar);
     try {
-      const response = await apiVerifyProfile(token, formData);
+      const response = await apiVerifySetupProfile(token, formData);
       if (response.success) {
         window.location.replace(`/?token=${token}`);
       }

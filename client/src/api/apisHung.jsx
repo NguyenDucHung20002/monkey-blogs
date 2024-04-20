@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 import { customAxios } from "../config/axios-customize";
 import axios from "axios";
 
-const apiGetPendingReportUsers = async (
+const apiGetPendingReportedUsers = async (
   token,
   limit = 10,
   skipId = "",
@@ -36,7 +36,7 @@ const apiGetPendingReportUsers = async (
   }
 };
 
-const apiGetPendingReportStaff = async (
+const apiGetPendingReportedStaffs = async (
   token,
   limit = 10,
   skipId = "",
@@ -69,10 +69,15 @@ const apiGetPendingReportStaff = async (
   }
 };
 
-const apiGetReportedUsers = async (token, userId, limit = 10, skip = "") => {
+const apiGetPendingReportsOfAUser = async (
+  token,
+  userId,
+  limit = 10,
+  skip = ""
+) => {
   try {
     const response = await customAxios.get(
-      `${config.SERVER_HOST}/report-user/${userId}/pending?limit=${limit}&skip =${skip}`,
+      `${config.SERVER_HOST}/report-user/${userId}/pending?limit=${limit}&skip=${skip}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -97,7 +102,7 @@ const apiGetReportedUsers = async (token, userId, limit = 10, skip = "") => {
   }
 };
 
-const apiGetUsersResolved = async (token, limit = 10, skip = "") => {
+const apiGetResolvedUserReports = async (token, limit = 10, skip = "") => {
   try {
     const response = await customAxios.get(
       `${config.SERVER_HOST}/report-user/resolved?limit=${limit}&skip =${skip}`,
@@ -125,10 +130,10 @@ const apiGetUsersResolved = async (token, limit = 10, skip = "") => {
   }
 };
 
-const apiResolveReportedUsers = async (token, userId) => {
+const apiMarkAReportOfAUserAsResolved = async (token, reportUserId) => {
   try {
     const response = await customAxios.patch(
-      `${config.SERVER_HOST}/report-user/report/${userId}/resolve`,
+      `${config.SERVER_HOST}/report-user/report/${reportUserId}/resolve`,
       {},
       {
         headers: {
@@ -154,7 +159,7 @@ const apiResolveReportedUsers = async (token, userId) => {
   }
 };
 
-const apiResolveReportedAllUsers = async (token, userId) => {
+const apiMarkAllReportsOfAUserAsResolved = async (token, userId) => {
   try {
     const response = await customAxios.patch(
       `${config.SERVER_HOST}/report-user/${userId}`,
@@ -183,7 +188,7 @@ const apiResolveReportedAllUsers = async (token, userId) => {
   }
 };
 
-const apiDeleteMyComment = async (token, commentId) => {
+const apiDeleteAComment = async (token, commentId) => {
   try {
     const response = await customAxios.delete(
       `${config.SERVER_HOST}/comment/${commentId}`,
@@ -211,10 +216,10 @@ const apiDeleteMyComment = async (token, commentId) => {
   }
 };
 
-const apiUserSearch = async (token, inputSearch, limit = 10, skip = "") => {
+const apiUsersSearch = async (token, search, limit = 10, skip = "") => {
   try {
     const response = await customAxios.get(
-      `${config.SERVER_HOST}/search?users=${inputSearch}&limit=${limit}&skip =${skip}`,
+      `${config.SERVER_HOST}/search?users=${search}&limit=${limit}&skip =${skip}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -239,10 +244,10 @@ const apiUserSearch = async (token, inputSearch, limit = 10, skip = "") => {
   }
 };
 
-const apiBlogSearch = async (token, inputSearch, limit = 10, skip = "") => {
+const apiArticlesSearch = async (token, search, limit = 10, skip = "") => {
   try {
     const response = await customAxios.get(
-      `${config.SERVER_HOST}/search?post=${inputSearch}&limit=${limit}&skip=${skip}`,
+      `${config.SERVER_HOST}/search?post=${search}&limit=${limit}&skip=${skip}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -267,15 +272,10 @@ const apiBlogSearch = async (token, inputSearch, limit = 10, skip = "") => {
   }
 };
 
-const apiTopicsSearch = async (
-  token,
-  inputSearch = "",
-  limit = 10,
-  skip = ""
-) => {
+const apiTopicsSearch = async (token, search = "", limit = 10, skip = "") => {
   try {
     const response = await customAxios.get(
-      `${config.SERVER_HOST}/search?tag=${inputSearch}&limit=${limit}&skip =${skip}`,
+      `${config.SERVER_HOST}/search?tag=${search}&limit=${limit}&skip =${skip}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -300,10 +300,10 @@ const apiTopicsSearch = async (
   }
 };
 
-const apiGetReadingList = async (token, limit) => {
+const apiGetReadingList = async (token, limit = 15, skip = "") => {
   try {
     const response = await customAxios.get(
-      `${config.SERVER_HOST}/reading-list/me?limit=${limit}`,
+      `${config.SERVER_HOST}/reading-list/me?skip=${skip}&limit=${limit}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -328,10 +328,10 @@ const apiGetReadingList = async (token, limit) => {
   }
 };
 
-const apiAddReadingList = async (token, postId) => {
+const apAddAnArticleToReadingList = async (token, articleId) => {
   try {
     const response = await customAxios.post(
-      `${config.SERVER_HOST}/reading-list/${postId}`,
+      `${config.SERVER_HOST}/reading-list/${articleId}`,
       {},
       {
         headers: {
@@ -357,10 +357,10 @@ const apiAddReadingList = async (token, postId) => {
   }
 };
 
-const apiDeleteReadingList = async (token, postId) => {
+const apiRemoveAnArticleInReadingList = async (token, articleId) => {
   try {
     const response = await customAxios.delete(
-      `${config.SERVER_HOST}/reading-list/${postId}`,
+      `${config.SERVER_HOST}/reading-list/${articleId}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -385,10 +385,10 @@ const apiDeleteReadingList = async (token, postId) => {
   }
 };
 
-const apiReportBlog = async (token, postId, reason) => {
+const apiReportAnArticle = async (token, articleId, reason) => {
   try {
     const response = await customAxios.post(
-      `${config.SERVER_HOST}/report-article/${postId}`,
+      `${config.SERVER_HOST}/report-article/${articleId}`,
       { reason },
       {
         headers: {
@@ -414,7 +414,7 @@ const apiReportBlog = async (token, postId, reason) => {
   }
 };
 
-const apiGetExploreBlogs = async (token, limit, skip = "") => {
+const apiExploreNewArticles = async (token, limit, skip = "") => {
   try {
     const response = await customAxios.get(
       `${config.SERVER_HOST}/article/explore-new-articles/?limit=${limit}&skip=${skip}`,
@@ -442,7 +442,7 @@ const apiGetExploreBlogs = async (token, limit, skip = "") => {
   }
 };
 
-const apiGetStaffPick = async (token, limit = 3, skip = "") => {
+const apiAdminPick = async (token, limit = 3, skip = "") => {
   try {
     const response = await customAxios.get(
       `${config.SERVER_HOST}/article/admin-pick-full-list?limit=${limit}&skip=${skip}`,
@@ -472,13 +472,13 @@ const apiGetStaffPick = async (token, limit = 3, skip = "") => {
 
 const apiGetFollowedTopicArticles = async (
   token,
-  slug,
+  topicSlug,
   limit = 10,
   skip = ""
 ) => {
   try {
     const response = await customAxios.get(
-      `${config.SERVER_HOST}/article/followed/topic/${slug}?limit=${limit}&skip=${skip}`,
+      `${config.SERVER_HOST}/article/followed/topic/${topicSlug}?limit=${limit}&skip=${skip}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -503,10 +503,10 @@ const apiGetFollowedTopicArticles = async (
   }
 };
 
-const apiGetMyUserFollowings = async (
+const apiGetFollowedProfiles = async (
   token,
   username,
-  limit = 10,
+  limit = 15,
   skip = ""
 ) => {
   try {
@@ -536,10 +536,15 @@ const apiGetMyUserFollowings = async (
   }
 };
 
-const apiGetPendingReportsArticles = async (token) => {
+const apiGetPendingReportedArticles = async (
+  token,
+  limit = 15,
+  skipId = "",
+  skipCount = ""
+) => {
   try {
     const response = await customAxios.get(
-      `${config.SERVER_HOST}/report-article/pending`,
+      `${config.SERVER_HOST}/report-article/pending?skipId=${skipId}&skipCount=${skipCount}&limit=${limit}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -564,7 +569,7 @@ const apiGetPendingReportsArticles = async (token) => {
   }
 };
 
-const apiGetAllArticlesAdmin = async (
+const apiGetAllArticles = async (
   token,
   limit,
   search = "",
@@ -598,92 +603,10 @@ const apiGetAllArticlesAdmin = async (
   }
 };
 
-const apiGetMyMuted = async (token) => {
-  try {
-    const response = await customAxios.get(`${config.SERVER_HOST}/mute/me`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    });
-    if (response?.data?.success) {
-      return response.data;
-    }
-  } catch (error) {
-    console.log("Error:", error);
-    toast.error(
-      error?.response?.data?.message
-        ? error?.response?.data?.message
-        : "Something went wrong",
-      {
-        pauseOnHover: false,
-        delay: 250,
-      }
-    );
-  }
-};
-
-const apiLikeArticle = async (token, blogId) => {
-  try {
-    const response = await customAxios.post(
-      `${config.SERVER_HOST}/like/${blogId}`,
-      {},
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    if (response?.data?.success) {
-      return response.data;
-    }
-  } catch (error) {
-    console.log("Error:", error);
-    toast.error(
-      error?.response?.data?.message
-        ? error?.response?.data?.message
-        : "Something went wrong",
-      {
-        pauseOnHover: false,
-        delay: 250,
-      }
-    );
-  }
-};
-
-const apiUnLikeArticle = async (token, blogId) => {
-  try {
-    const response = await customAxios.delete(
-      `${config.SERVER_HOST}/like/${blogId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    if (response?.data?.success) {
-      return response.data;
-    }
-  } catch (error) {
-    console.log("Error:", error);
-    toast.error(
-      error?.response?.data?.message
-        ? error?.response?.data?.message
-        : "Something went wrong",
-      {
-        pauseOnHover: false,
-        delay: 250,
-      }
-    );
-  }
-};
-
-const apiGetPendingReasonsReportsArticles = async (token, blogId) => {
+const apiGetMutedProfiles = async (token, limit, skip = "") => {
   try {
     const response = await customAxios.get(
-      `${config.SERVER_HOST}/report-article/${blogId}/pending`,
+      `${config.SERVER_HOST}/mute/me?skip=${skip}&limit=${limit}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -708,10 +631,10 @@ const apiGetPendingReasonsReportsArticles = async (token, blogId) => {
   }
 };
 
-const apiMarkReportBlog = async (token, reportBlogId) => {
+const apiLikeAnArticle = async (token, articleId) => {
   try {
-    const response = await customAxios.patch(
-      `${config.SERVER_HOST}/report-article/report/${reportBlogId}/resolve`,
+    const response = await customAxios.post(
+      `${config.SERVER_HOST}/like/${articleId}`,
       {},
       {
         headers: {
@@ -737,10 +660,71 @@ const apiMarkReportBlog = async (token, reportBlogId) => {
   }
 };
 
-const apiMarkAllReportBlog = async (token, BlogId) => {
+const apiUnLikeAnArticle = async (token, articleId) => {
+  try {
+    const response = await customAxios.delete(
+      `${config.SERVER_HOST}/like/${articleId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response?.data?.success) {
+      return response.data;
+    }
+  } catch (error) {
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
+  }
+};
+
+const apiGetPendingReportsOfAnArticle = async (
+  token,
+  articleId,
+  limit = 15,
+  skip = ""
+) => {
+  try {
+    const response = await customAxios.get(
+      `${config.SERVER_HOST}/report-article/${articleId}/pending?skip=${skip}&limit=${limit}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response?.data?.success) {
+      return response.data;
+    }
+  } catch (error) {
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
+  }
+};
+
+const apiMarkAReportOfAnArticleAsResolved = async (token, reportArticleId) => {
   try {
     const response = await customAxios.patch(
-      `${config.SERVER_HOST}/report-article/${BlogId}`,
+      `${config.SERVER_HOST}/report-article/report/${reportArticleId}/resolve`,
       {},
       {
         headers: {
@@ -766,10 +750,39 @@ const apiMarkAllReportBlog = async (token, BlogId) => {
   }
 };
 
-const apiSetBackToDraft = async (token, BlogId, reason) => {
+const apiMarkAllReportsOfAnArticleAsResolved = async (token, articleId) => {
   try {
     const response = await customAxios.patch(
-      `${config.SERVER_HOST}/article/set-article-back-to-draft/${BlogId}`,
+      `${config.SERVER_HOST}/report-article/${articleId}`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response?.data?.success) {
+      return response.data;
+    }
+  } catch (error) {
+    console.log("Error:", error);
+    toast.error(
+      error?.response?.data?.message
+        ? error?.response?.data?.message
+        : "Something went wrong",
+      {
+        pauseOnHover: false,
+        delay: 250,
+      }
+    );
+  }
+};
+
+const apiSetAnArticleBackToDraft = async (token, articleId, reason) => {
+  try {
+    const response = await customAxios.patch(
+      `${config.SERVER_HOST}/article/set-article-back-to-draft/${articleId}`,
       { reason },
       {
         headers: {
@@ -795,7 +808,7 @@ const apiSetBackToDraft = async (token, BlogId, reason) => {
   }
 };
 
-const apiGetReportsBlogSolved = async (token) => {
+const apiGetResolvedArticleReports = async (token) => {
   try {
     const response = await customAxios.get(
       `${config.SERVER_HOST}/report-article/resolved`,
@@ -823,10 +836,10 @@ const apiGetReportsBlogSolved = async (token) => {
   }
 };
 
-const apiGetBlogsTopic = async (token, slug, limit = 9, skip = "") => {
+const apiGetTopicArticles = async (token, topicSlug, limit = 9, skip = "") => {
   try {
     const response = await customAxios.get(
-      `${config.SERVER_HOST}/article/topic/${slug}?limit=${limit}&skip=${skip}`,
+      `${config.SERVER_HOST}/article/topic/${topicSlug}?limit=${limit}&skip=${skip}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -851,10 +864,10 @@ const apiGetBlogsTopic = async (token, slug, limit = 9, skip = "") => {
   }
 };
 
-const apiSetApproved = async (token, BlogId) => {
+const approveAnArticle = async (token, articleId) => {
   try {
     const response = await customAxios.patch(
-      `${config.SERVER_HOST}/article/approve/${BlogId}`,
+      `${config.SERVER_HOST}/article/approve/${articleId}`,
       {},
       {
         headers: {
@@ -909,10 +922,10 @@ const apiGetRemovedArticles = async (token, limit = 9, skip = "") => {
   }
 };
 
-const apiRestoreArticle = async (token, BlogId) => {
+const apiRestoreAnArticle = async (token, articleId) => {
   try {
     const response = await customAxios.patch(
-      `${config.SERVER_HOST}/article/restore/${BlogId}`,
+      `${config.SERVER_HOST}/article/restore/${articleId}`,
       {},
       {
         headers: {
@@ -938,10 +951,15 @@ const apiRestoreArticle = async (token, BlogId) => {
   }
 };
 
-const apiGetUserLikedBlogs = async (token, blogId, limit = 2, skip = "") => {
+const apiGetLikersOfAnArticle = async (
+  token,
+  articleId,
+  limit = 2,
+  skip = ""
+) => {
   try {
     const response = await customAxios.get(
-      `${config.SERVER_HOST}/like/${blogId}?limit=${limit}&skip=${skip}`,
+      `${config.SERVER_HOST}/like/${articleId}?limit=${limit}&skip=${skip}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -966,7 +984,7 @@ const apiGetUserLikedBlogs = async (token, blogId, limit = 2, skip = "") => {
   }
 };
 
-const apiSetStaff = async (token, userId) => {
+const apiMakeAUserStaff = async (token, userId) => {
   try {
     const response = await customAxios.patch(
       `${config.SERVER_HOST}/role/make-staff/${userId}`,
@@ -995,7 +1013,7 @@ const apiSetStaff = async (token, userId) => {
   }
 };
 
-const apiSetUser = async (token, userId) => {
+const apiMakeAStaffUser = async (token, userId) => {
   try {
     const response = await customAxios.patch(
       `${config.SERVER_HOST}/role/make-user/${userId}`,
@@ -1137,7 +1155,7 @@ const apiVerifySetupPassword = async (token) => {
   }
 };
 
-const apiVerifyProfile = async (token, formData) => {
+const apiVerifySetupProfile = async (token, formData) => {
   try {
     const response = await customAxios.post(
       `${config.SERVER_HOST}/profile/setup-profile`,
@@ -1194,7 +1212,7 @@ const apiForgotPassword = async (email) => {
   }
 };
 
-const apiChangeForgotPassword = async (
+const apiResetPassword = async (
   token,
   newPassword = "",
   confirmPassword = ""
@@ -1227,46 +1245,46 @@ const apiChangeForgotPassword = async (
 };
 
 export {
-  apiGetPendingReportStaff,
+  apiGetPendingReportedStaffs,
   apiVerifySetupPassword,
-  apiChangeForgotPassword,
+  apiResetPassword,
   apiForgotPassword,
-  apiVerifyProfile,
+  apiVerifySetupProfile,
   apiVerifyEmail,
   apiLogin,
   apiRegister,
-  apiSetUser,
-  apiSetStaff,
-  apiGetUserLikedBlogs,
-  apiRestoreArticle,
+  apiMakeAStaffUser,
+  apiMakeAUserStaff,
+  apiGetLikersOfAnArticle,
+  apiRestoreAnArticle,
   apiGetRemovedArticles,
-  apiSetApproved,
-  apiGetBlogsTopic,
-  apiGetReportsBlogSolved,
-  apiSetBackToDraft,
-  apiMarkAllReportBlog,
-  apiMarkReportBlog,
-  apiGetPendingReasonsReportsArticles,
-  apiUnLikeArticle,
-  apiLikeArticle,
-  apiGetMyMuted,
-  apiGetAllArticlesAdmin,
-  apiGetPendingReportsArticles,
-  apiGetPendingReportUsers,
-  apiGetReportedUsers,
-  apiResolveReportedUsers,
-  apiResolveReportedAllUsers,
-  apiGetUsersResolved,
-  apiDeleteMyComment,
-  apiUserSearch,
+  approveAnArticle,
+  apiGetTopicArticles,
+  apiGetResolvedArticleReports,
+  apiSetAnArticleBackToDraft,
+  apiMarkAllReportsOfAnArticleAsResolved,
+  apiMarkAReportOfAnArticleAsResolved,
+  apiGetPendingReportsOfAnArticle,
+  apiUnLikeAnArticle,
+  apiLikeAnArticle,
+  apiGetMutedProfiles,
+  apiGetAllArticles,
+  apiGetPendingReportedArticles,
+  apiGetPendingReportedUsers,
+  apiGetPendingReportsOfAUser,
+  apiMarkAReportOfAUserAsResolved,
+  apiMarkAllReportsOfAUserAsResolved,
+  apiGetResolvedUserReports,
+  apiDeleteAComment,
+  apiUsersSearch,
   apiTopicsSearch,
-  apiBlogSearch,
+  apiArticlesSearch,
   apiGetReadingList,
-  apiAddReadingList,
-  apiDeleteReadingList,
-  apiReportBlog,
-  apiGetExploreBlogs,
-  apiGetStaffPick,
+  apAddAnArticleToReadingList,
+  apiRemoveAnArticleInReadingList,
+  apiReportAnArticle,
+  apiExploreNewArticles,
+  apiAdminPick,
   apiGetFollowedTopicArticles,
-  apiGetMyUserFollowings,
+  apiGetFollowedProfiles,
 };

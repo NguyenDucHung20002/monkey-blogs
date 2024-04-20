@@ -1,16 +1,16 @@
 /* eslint-disable react/prop-types */
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  apiGetAllArticlesAdmin,
-  apiSetApproved,
-  apiSetBackToDraft,
+  apiGetAllArticles,
+  approveAnArticle,
+  apiSetAnArticleBackToDraft,
 } from "../../api/apisHung";
 import { Modal, Popover, Select, Table, Tag } from "antd";
 import Column from "antd/es/table/Column";
 import { Button } from "../../components/button";
 import { debounce } from "lodash";
 import { icons } from "../../utils/constants";
-import { apiDeleteAdminArticle } from "../../api/api";
+import { apiRemoveAnArticle } from "../../api/api";
 import { NavLink } from "react-router-dom";
 import TextArea from "antd/es/input/TextArea";
 import { toast } from "react-toastify";
@@ -20,7 +20,7 @@ const PostTable = () => {
   const token = localStorage.getItem("token");
   const [searchBlogs, setSearchBlogs] = useState("");
   const [status, setStatus] = useState("");
-  const skip = useRef(0);
+  const skip = useRef("");
   const [isReload, setIsReload] = useState(false);
   const [openModalReporter, setOpenModalReporter] = useState(false);
   const [reason, setReason] = useState("");
@@ -43,47 +43,36 @@ const PostTable = () => {
   }, 200);
 
   const fetchReports = useCallback(async () => {
-    const response = await apiGetAllArticlesAdmin(
-      token,
-      10,
-      searchBlogs,
-      status
-    );
+    const response = await apiGetAllArticles(token, 15, searchBlogs, status);
     if (response.data) {
       skip.current = response.newSkip;
       const mapBlogs = response.data.map((user) => {
-        return {
-          ...user,
-          key: user.id,
-        };
+        return { ...user, key: user.id };
       });
       setBlogReports(mapBlogs);
     }
   }, [searchBlogs, status, token]);
+
   useEffect(() => {
     fetchReports();
   }, [fetchReports, isReload]);
 
   const handleLoadMore = async () => {
     const newSkip = skip.current;
-    const response = await apiGetAllArticlesAdmin(
+    const response = await apiGetAllArticles(
       token,
-      10,
+      15,
       searchBlogs,
       status,
       newSkip
     );
     if (response) {
       const mapBlogs = response.data.map((user) => {
-        return {
-          ...user,
-          key: user.id,
-        };
+        return { ...user, key: user.id };
       });
       skip.current = response.newSkip;
       setBlogReports([...blogReports, ...mapBlogs]);
     }
-    return [];
   };
 
   const handleChange = (value) => {
@@ -92,7 +81,7 @@ const PostTable = () => {
 
   const handleSetBackToDraft = useCallback(
     async (id) => {
-      const response = await apiSetBackToDraft(token, id, reason);
+      const response = await apiSetAnArticleBackToDraft(token, id, reason);
       if (response) {
         setOpenModalReporter(false);
         toast.success(response.message, {
@@ -107,7 +96,7 @@ const PostTable = () => {
 
   const handleRemoveArticle = useCallback(
     async (id) => {
-      const response = await apiDeleteAdminArticle(token, id);
+      const response = await apiRemoveAnArticle(token, id);
       if (response) {
         fetchReports();
         toast.success(response.message, {
@@ -121,7 +110,7 @@ const PostTable = () => {
 
   const handleSetApproved = useCallback(
     async (id) => {
-      const response = await apiSetApproved(token, id);
+      const response = await approveAnArticle(token, id);
       if (response) {
         fetchReports();
         toast.success(response.message, {
@@ -344,7 +333,7 @@ const PostTable = () => {
           render={(blog) => ButtonMore(blog)}
         />
       </Table>
-      {blogReports && blogReports.length >= 5 && (
+      {skip.current && (
         <div className="flex justify-center mt-5" onClick={handleLoadMore}>
           <Button type="button" kind="primary" height="40px">
             Load more

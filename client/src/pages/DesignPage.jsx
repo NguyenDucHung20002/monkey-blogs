@@ -31,14 +31,18 @@ export const DesignProvider = (props) => {
 
   useEffect(() => {
     async function fetchUserInf() {
-      const profileUser = await apiGetProfile(token, username);
-      setUser({ ...profileUser?.data });
-      const design = JSON.parse(profileUser.data.profileDesign);
-      setDesign({ ...design });
-      const display = design.style.split(" ")[0];
-      const position = design.style.split(" ")[2];
-      setShowFollowRecommend(design.show);
-      setImageDisplay({ display, position });
+      const response = await apiGetProfile(token, username);
+      if (response) {
+        setUser({ ...response.data });
+        if (response.data.profileDesign) {
+          const design = JSON.parse(response.data.profileDesign);
+          setDesign({ ...design });
+          const display = design.style.split(" ")[0];
+          const position = design.style.split(" ")[2];
+          setShowFollowRecommend(design.show);
+          setImageDisplay({ display, position });
+        }
+      }
     }
 
     fetchUserInf();

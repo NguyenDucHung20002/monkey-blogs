@@ -62,7 +62,7 @@ const reportAnArticle = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// ==================== get list of pending reported articles ==================== //
+// ==================== get pending reported articles ==================== //
 
 const getPendingReportedArticles = asyncMiddleware(async (req, res, next) => {
   const { skipId, skipCount, limit = 15 } = req.query;
@@ -125,7 +125,7 @@ const getPendingReportedArticles = asyncMiddleware(async (req, res, next) => {
     ],
     order: [
       [{ model: Article, as: "article" }, "reportsCount", "DESC"],
-      [{ model: Article, as: "article" }, "id", "DESC"],
+      [{ model: Article, as: "article" }, "id", "ASC"],
     ],
     group: ["articleId"],
     limit: Number(limit) ? Number(limit) : 15,
@@ -153,9 +153,9 @@ const getPendingReportedArticles = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// ==================== Get pending reports of article ==================== //
+// ==================== get pending reports of an article ==================== //
 
-const getPendingReportsOfArticle = asyncMiddleware(async (req, res, next) => {
+const getPendingReportsOfAnArticle = asyncMiddleware(async (req, res, next) => {
   const { skip, limit = 15 } = req.query;
   const { id } = req.params;
 
@@ -202,57 +202,61 @@ const getPendingReportsOfArticle = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// ==================== Mark a report of the article as resolved ==================== //
+// ==================== mark a report of an article as resolved ==================== //
 
-const markAReportAsResolved = asyncMiddleware(async (req, res, next) => {
-  const me = req.me;
-  const { id } = req.params;
+const markAReportOfAnArticleAsResolved = asyncMiddleware(
+  async (req, res, next) => {
+    const me = req.me;
+    const { id } = req.params;
 
-  const report = await Report_Article.findByPk(id);
+    const report = await Report_Article.findByPk(id);
 
-  if (!report) throw ErrorResponse(404, "Report not found");
+    if (!report) throw ErrorResponse(404, "Report not found");
 
-  await Promise.all([
-    report.update({ status: "resolved", resolvedById: me.id }),
-    Article.increment(
-      { reportsCount: -1 },
-      { where: { id: report.articleId } }
-    ),
-  ]);
+    await Promise.all([
+      report.update({ status: "resolved", resolvedById: me.id }),
+      Article.increment(
+        { reportsCount: -1 },
+        { where: { id: report.articleId } }
+      ),
+    ]);
 
-  res.json({
-    success: true,
-    message: "Report marked as resolved successfully",
-  });
-});
+    res.json({
+      success: true,
+      message: "Report marked as resolved successfully",
+    });
+  }
+);
 
-// ==================== Mark all reports of the article as resolved ==================== //
+// ==================== mark all reports of an article as resolved ==================== //
 
-const markAllResolved = asyncMiddleware(async (req, res, next) => {
-  const me = req.me;
-  const { id } = req.params;
+const markAllReportsOfAnArticleAsResolved = asyncMiddleware(
+  async (req, res, next) => {
+    const me = req.me;
+    const { id } = req.params;
 
-  const article = await Article.findByPk(id);
+    const article = await Article.findByPk(id);
 
-  if (!article) throw ErrorResponse(404, "Article not found");
+    if (!article) throw ErrorResponse(404, "Article not found");
 
-  await Promise.all([
-    Report_Article.update(
-      { status: "resolved", resolvedById: me.id },
-      { where: { status: "pending", articleId: article.id } }
-    ),
-    article.update({ reportsCount: 0 }, { hooks: false }),
-  ]);
+    await Promise.all([
+      Report_Article.update(
+        { status: "resolved", resolvedById: me.id },
+        { where: { status: "pending", articleId: article.id } }
+      ),
+      article.update({ reportsCount: 0 }, { hooks: false }),
+    ]);
 
-  res.json({
-    success: true,
-    message: "All reports marked as resolved successfully",
-  });
-});
+    res.json({
+      success: true,
+      message: "All reports marked as resolved successfully",
+    });
+  }
+);
 
-// ==================== Get resolved reports ==================== //
+// ==================== get resolved article reports ==================== //
 
-const getResolvedReports = asyncMiddleware(async (req, res, next) => {
+const getResolvedArticleReports = asyncMiddleware(async (req, res, next) => {
   const { skip, limit = 15 } = req.query;
 
   let whereQuery = { status: "resolved" };
@@ -327,8 +331,8 @@ const getResolvedReports = asyncMiddleware(async (req, res, next) => {
 export default {
   reportAnArticle,
   getPendingReportedArticles,
-  getPendingReportsOfArticle,
-  getResolvedReports,
-  markAReportAsResolved,
-  markAllResolved,
+  getPendingReportsOfAnArticle,
+  getResolvedArticleReports,
+  markAReportOfAnArticleAsResolved,
+  markAllReportsOfAnArticleAsResolved,
 };

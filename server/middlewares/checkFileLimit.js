@@ -9,7 +9,7 @@ const checkFileLimit = (limit) => async (req, res, next) => {
     const FILE_LIMIT = limit * 1024 * 1024;
 
     if (size && size > FILE_LIMIT) {
-      await fileController.autoRemoveImg(filename);
+      await fileController.autoRemoveAnImage(filename);
       return res.status(400).json({
         success: false,
         message: `File too large. The maximum allowed size is ${FILE_LIMIT}MB`,

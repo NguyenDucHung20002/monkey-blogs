@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  apiGetUserLikedBlogs,
-  apiLikeArticle,
-  apiUnLikeArticle,
+  apiGetLikersOfAnArticle,
+  apiLikeAnArticle,
+  apiUnLikeAnArticle,
 } from "../api/apisHung";
 import { Modal } from "antd";
 import FollowingUserHandle from "../components/following/FollowingUserHandle";
@@ -18,7 +18,7 @@ const ActionLike = ({ likesCount = 0, liked, blogId, title }) => {
   const skip = useRef("");
 
   const fetchUserLiked = useCallback(async () => {
-    const response = await apiGetUserLikedBlogs(token, blogId, 2);
+    const response = await apiGetLikersOfAnArticle(token, blogId, 2);
     if (response.data) {
       skip.current = response.newSkip;
       setUserLiked(response.data);
@@ -36,7 +36,7 @@ const ActionLike = ({ likesCount = 0, liked, blogId, title }) => {
 
   const handleSeeMore = async () => {
     const newSkip = skip.current;
-    const response = await apiGetUserLikedBlogs(token, blogId, 2, newSkip);
+    const response = await apiGetLikersOfAnArticle(token, blogId, 2, newSkip);
     if (response.data && response.newSkip) {
       skip.current = response.newSkip;
       setUserLiked([...userLiked, ...response.data]);
@@ -49,7 +49,7 @@ const ActionLike = ({ likesCount = 0, liked, blogId, title }) => {
 
   const handleLike = useCallback(async () => {
     if (isLiked) {
-      const response = await apiUnLikeArticle(token, blogId);
+      const response = await apiUnLikeAnArticle(token, blogId);
       if (response) {
         likeRef.current--;
         setIsLiked(!isLiked);
@@ -59,7 +59,7 @@ const ActionLike = ({ likesCount = 0, liked, blogId, title }) => {
         });
       }
     } else {
-      const response = await apiLikeArticle(token, blogId);
+      const response = await apiLikeAnArticle(token, blogId);
       if (response) {
         likeRef.current++;
         setIsLiked(!isLiked);

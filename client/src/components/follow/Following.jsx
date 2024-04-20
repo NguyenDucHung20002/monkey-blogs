@@ -8,8 +8,8 @@ import { Link } from "react-router-dom";
 const Following = ({ data = [], token, user }) => {
   const [userFollow, setUserFollow] = useState({});
   async function fetchUserInf(username) {
-    const profile = await apiGetProfile(token, username);
-    setUserFollow({ ...profile.data });
+    const response = await apiGetProfile(token, username);
+    setUserFollow({ ...response.data });
   }
   const SmallInf = () => {
     return (

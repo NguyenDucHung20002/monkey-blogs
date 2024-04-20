@@ -7,9 +7,9 @@ import fileController from "./fileController.js";
 import User from "../models/mysql/User.js";
 import Profile from "../models/mysql/Profile.js";
 
-// ==================== get logged in profile information ==================== //
+// ==================== get login information ==================== //
 
-const getLoggedInProfile = asyncMiddleware(async (req, res, next) => {
+const getLoginInformation = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
 
   res.json({
@@ -99,9 +99,9 @@ const getProfile = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// ==================== update my profile ==================== //
+// ==================== update profile ==================== //
 
-const updateMyProfile = asyncMiddleware(async (req, res, next) => {
+const updateProfile = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { fullname, bio, about } = req.body;
 
@@ -109,7 +109,7 @@ const updateMyProfile = asyncMiddleware(async (req, res, next) => {
 
   if (filename && filename !== me.profileInfo.avatar) {
     const oldAvatar = me.profileInfo.avatar.split("/");
-    await fileController.autoRemoveImg(oldAvatar[oldAvatar.length - 1]);
+    await fileController.autoRemoveAnImage(oldAvatar[oldAvatar.length - 1]);
   }
 
   await me.profileInfo.update({ fullname, bio, about, avatar: filename });
@@ -120,9 +120,9 @@ const updateMyProfile = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// ==================== update my profile design ==================== //
+// ==================== update profile design ==================== //
 
-const updateMyProfileDesign = asyncMiddleware(async (req, res, next) => {
+const updateProfileDesign = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
   const { design } = req.body;
 
@@ -138,7 +138,7 @@ const updateMyProfileDesign = asyncMiddleware(async (req, res, next) => {
     newDesignObj.image.filename !== myDesignObj.image.filename
   ) {
     operations.push(
-      fileController.autoRemoveImg(myDesignObj.image.filename),
+      fileController.autoRemoveAnImage(myDesignObj.image.filename),
       me.profileInfo.update({ profileDesign: design })
     );
   }
@@ -156,7 +156,7 @@ const updateMyProfileDesign = asyncMiddleware(async (req, res, next) => {
 export default {
   getProfile,
   setupProfile,
-  updateMyProfile,
-  getLoggedInProfile,
-  updateMyProfileDesign,
+  updateProfile,
+  getLoginInformation,
+  updateProfileDesign,
 };

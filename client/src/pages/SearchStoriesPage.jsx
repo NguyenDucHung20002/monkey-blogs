@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import Blog from "../modules/blog/Blog";
 import { useSearchParams } from "react-router-dom";
-import { apiBlogSearch } from "../api/apisHung";
+import { apiArticlesSearch } from "../api/apisHung";
 import { debounce } from "lodash";
 
 const SearchStoriesPageStyle = styled.div`
@@ -34,7 +34,7 @@ const SearchStoriesPage = () => {
 
   useEffect(() => {
     async function fetchBlog() {
-      const response = await apiBlogSearch(token, search, 5);
+      const response = await apiArticlesSearch(token, search, 5);
 
       if (response?.success) {
         setBlogs(response.data);
@@ -53,7 +53,7 @@ const SearchStoriesPage = () => {
         windowHeight.current + scrollY.current + 10 >= documentHeight.current &&
         skip.current
       ) {
-        const response = await apiBlogSearch(token, search, 5, skip.current);
+        const response = await apiArticlesSearch(token, search, 5, skip.current);
 
         if (response?.success) {
           const blogsClone = [...blogs, ...response.data];

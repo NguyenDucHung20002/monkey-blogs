@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useRef, useState } from "react";
-import { apiGetReportsBlogSolved } from "../../api/apisHung";
+import { apiGetResolvedArticleReports } from "../../api/apisHung";
 import { Table, Tag } from "antd";
 import Column from "antd/es/table/Column";
 import { NavLink } from "react-router-dom";
@@ -23,7 +23,7 @@ const PostResolvedTable = () => {
 
   useEffect(() => {
     async function fetchReports() {
-      const response = await apiGetReportsBlogSolved(token);
+      const response = await apiGetResolvedArticleReports(token);
       if (response.success) {
         skip.current = response.newSkip;
         const mapBlogs = response.data.map((blog) => {
@@ -40,7 +40,7 @@ const PostResolvedTable = () => {
 
   // const handleLoadMore = async () => {
   //   const newSkip = skip.current;
-  //   const response = await apiGetAllArticlesAdmin(
+  //   const response = await apiGetAllArticles(
   //     token,
   //     10,
   //     searchBlogs,

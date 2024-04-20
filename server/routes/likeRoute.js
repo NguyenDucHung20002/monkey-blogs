@@ -14,8 +14,8 @@ router.post("/:id", requiredAuth, fetchMe, likeController.likeAnArticle);
 
 router.delete("/:id", requiredAuth, fetchMe, likeController.unLikeAnArticle);
 
-// -------------------- get article likers -------------------- //
+// -------------------- get likers of an article -------------------- //
 
-router.get("/:id", requiredAuth, fetchMe, likeController.getArticleLiker);
+router.get("/:id", requiredAuth, fetchMe, likeController.getLikersOfAnArticle);
 
 export default router;

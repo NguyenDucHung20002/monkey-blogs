@@ -1,6 +1,6 @@
 import { config } from "../utils/constants";
 import axios from "axios";
-import { fetchAccessToken } from "../api/apiHa";
+import { apiFetchAccessToken } from "../api/apiHa";
 
 const customAxios = axios.create({
   baseURL: config.SERVER_HOST,
@@ -18,7 +18,7 @@ const AxiosInterceptorsSetup = (navigate) => {
       if (error.response.status === 401 && !originalRequest._retry) {
         originalRequest._retry = true;
         try {
-          const newAccessToken = await fetchAccessToken();
+          const newAccessToken = await apiFetchAccessToken();
           localStorage.setItem("token", newAccessToken);
           accessToken = newAccessToken;
           originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;

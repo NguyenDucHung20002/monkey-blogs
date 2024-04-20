@@ -5,7 +5,7 @@ import Profile from "../models/mysql/Profile.js";
 
 // ==================== make a user staff ==================== //
 
-const makeUserStaff = asyncMiddleware(async (req, res, next) => {
+const makeAUserStaff = asyncMiddleware(async (req, res, next) => {
   const user = req.user;
 
   await user.update({ roleId: 2 });
@@ -16,9 +16,9 @@ const makeUserStaff = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// ==================== make a user user ==================== //
+// ==================== make a staff user ==================== //
 
-const makeUserUser = asyncMiddleware(async (req, res, next) => {
+const makeAStaffUser = asyncMiddleware(async (req, res, next) => {
   const user = req.user;
 
   await user.update({ roleId: 1 });
@@ -67,7 +67,7 @@ const getAllStaffs = asyncMiddleware(async (req, res, next) => {
 });
 
 export default {
-  makeUserStaff,
-  makeUserUser,
+  makeAUserStaff,
+  makeAStaffUser,
   getAllStaffs,
 };

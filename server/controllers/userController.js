@@ -180,9 +180,9 @@ const changePassword = asyncMiddleware(async (req, res, next) => {
   res.json({ success: true, message: "Password changed successfully" });
 });
 
-// ==================== check has password or not ==================== //
+// ==================== check user has password or not ==================== //
 
-const checkHasPassword = asyncMiddleware(async (req, res, next) => {
+const checkUserHasPassword = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
 
   const hashPassword = me.password ? true : false;
@@ -193,7 +193,7 @@ const checkHasPassword = asyncMiddleware(async (req, res, next) => {
   });
 });
 
-// ==================== check has password or not ==================== //
+// ==================== set up password ==================== //
 
 const setUpPassword = asyncMiddleware(async (req, res, next) => {
   const me = req.me;
@@ -243,6 +243,6 @@ export default {
   updateUserBan,
   getAllUsers,
   changePassword,
-  checkHasPassword,
+  checkUserHasPassword,
   setUpPassword,
 };

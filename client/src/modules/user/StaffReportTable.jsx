@@ -4,11 +4,11 @@ import { icons } from "../../utils/constants";
 import { NavLink } from "react-router-dom";
 import { Tag, Table, Popover, Drawer } from "antd";
 import Column from "antd/es/table/Column";
-import { apiBanUser, apiLiftTheBan, apiUpdateBan } from "../../api/api";
+import { apiBanAUser, apiUnBanAUser, apiUpdateUserBan } from "../../api/api";
 import { toast } from "react-toastify";
 import {
-  apiGetPendingReportStaff,
-  apiResolveReportedAllUsers,
+  apiGetPendingReportedStaffs,
+  apiMarkAllReportsOfAUserAsResolved,
 } from "../../api/apisHung";
 import UserModelReportReason from "./UserModelReportReason";
 import { Button } from "../../components/button";
@@ -26,7 +26,7 @@ const StaffReportTable = () => {
 
   useEffect(() => {
     async function fetchUsers() {
-      const response = await apiGetPendingReportStaff(token, 10);
+      const response = await apiGetPendingReportedStaffs(token, 10);
       if (response) {
         skip.current = response.newSkipId;
         skipCount.current = response.newSkipCount;
@@ -47,7 +47,7 @@ const StaffReportTable = () => {
   const handleLoadMore = useCallback(async () => {
     const newSkip = skip.current;
     const newSkipCount = skipCount.current;
-    const response = await apiGetPendingReportStaff(
+    const response = await apiGetPendingReportedStaffs(
       token,
       10,
       newSkip,
@@ -69,7 +69,7 @@ const StaffReportTable = () => {
   }, [token, users]);
 
   const handleLiftTheBan = async (userId) => {
-    const response = await apiLiftTheBan(token, userId);
+    const response = await apiUnBanAUser(token, userId);
     if (response) {
       setStatusRender(!statusRender);
       toast.success(response.message, {
@@ -80,7 +80,7 @@ const StaffReportTable = () => {
   };
 
   const handleUpdateBan = async (type, userId) => {
-    const response = await apiUpdateBan(token, userId, type);
+    const response = await apiUpdateUserBan(token, userId, type);
     if (response) {
       setStatusRender(!statusRender);
       toast.success(response.message, {
@@ -91,7 +91,7 @@ const StaffReportTable = () => {
   };
 
   const handleBanUser = async (type, userId) => {
-    const response = await apiBanUser(token, userId, type);
+    const response = await apiBanAUser(token, userId, type);
     if (response) {
       setStatusRender(!statusRender);
       toast.success(response.message, {
@@ -102,7 +102,7 @@ const StaffReportTable = () => {
   };
 
   const handleResolveReports = async (id) => {
-    const response = await apiResolveReportedAllUsers(token, id);
+    const response = await apiMarkAllReportsOfAUserAsResolved(token, id);
 
     if (response) {
       const filterUsers = users.filter((user) => user.id != id);

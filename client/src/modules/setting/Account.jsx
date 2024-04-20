@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { Button } from "../../components/button";
 import { apiChangePassword } from "../../api/apiNew";
-import { checkHasPassword, setUpPassword } from "../../api/apiHa";
+import { apiCheckUserHasPassword, setUpPassword } from "../../api/apiHa";
 import { toast } from "react-toastify";
 
 const Account = () => {
@@ -39,7 +39,7 @@ const Account = () => {
   };
 
   const checkPassword = async () => {
-    const response = await checkHasPassword(token);
+    const response = await apiCheckUserHasPassword(token);
     if (response) {
       setHasPassword(response.data);
     }

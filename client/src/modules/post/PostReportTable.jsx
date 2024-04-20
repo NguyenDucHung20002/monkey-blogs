@@ -1,9 +1,9 @@
 /* eslint-disable react/prop-types */
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  apiGetPendingReportsArticles,
-  apiMarkAllReportBlog,
-  apiSetBackToDraft,
+  apiGetPendingReportedArticles,
+  apiMarkAllReportsOfAnArticleAsResolved,
+  apiSetAnArticleBackToDraft,
 } from "../../api/apisHung";
 import { Drawer, Modal, Popover, Select, Table, Tag } from "antd";
 import Column from "antd/es/table/Column";
@@ -18,7 +18,8 @@ const PostReportTable = () => {
   const token = localStorage.getItem("token");
   const [open, setOpen] = useState(false);
   const [blogId, setBlogId] = useState();
-  const skip = useRef(0);
+  const skipId = useRef("");
+  const skipCount = useRef("");
   const [isReload, setIsReload] = useState(false);
   const [blogReports, setBlogReports] = useState([]);
   const [openModalReporter, setOpenModalReporter] = useState(false);
@@ -43,15 +44,14 @@ const PostReportTable = () => {
   };
 
   const fetchReports = useCallback(async () => {
-    const response = await apiGetPendingReportsArticles(token);
+    const response = await apiGetPendingReportedArticles(token, 15);
     if (response.data) {
-      skip.current = response.newSkip;
+      skipId.current = response.newSkipId;
+      skipCount.current = response.newSkipCount;
       const mapBlogs = response.data.map((user) => {
-        return {
-          ...user,
-          key: user.id,
-        };
+        return { ...user, key: user.id };
       });
+
       setBlogReports(mapBlogs);
     }
   }, [token]);
@@ -60,9 +60,29 @@ const PostReportTable = () => {
     fetchReports();
   }, [fetchReports, isReload]);
 
+  const handleLoadMore = async () => {
+    if (skipId.current !== null && skipCount.current !== null) {
+      const response = await apiGetPendingReportedArticles(
+        token,
+        15,
+        skipId.current,
+        skipCount.current
+      );
+      if (response) {
+        const mapBlogs = response.data.map((user) => {
+          return { ...user, key: user.id };
+        });
+
+        skipId.current = response.newSkipId;
+        skipCount.current = response.newSkipCount;
+        setBlogReports([...blogReports, ...mapBlogs]);
+      }
+    }
+  };
+
   const handleMarkAllThisReport = useCallback(
     async (id) => {
-      const response = await apiMarkAllReportBlog(token, id);
+      const response = await apiMarkAllReportsOfAnArticleAsResolved(token, id);
       if (response) {
         const filterBlogs = blogReports.filter((blog) => blog.id != id);
         setBlogReports(filterBlogs);
@@ -77,7 +97,7 @@ const PostReportTable = () => {
 
   const handleSetBackToDraft = useCallback(
     async (id) => {
-      const response = await apiSetBackToDraft(token, id, reason);
+      const response = await apiSetAnArticleBackToDraft(token, id, reason);
       if (response) {
         setOpenModalReporter(false);
         toast.success(response.message, {
@@ -270,13 +290,16 @@ const PostReportTable = () => {
 
         <Column title="More" key="More" render={(blog) => ButtonMore(blog)} />
       </Table>
-      {/* {blogReports && blogReports.length >= 5 && (
-        <div className="flex justify-center mt-5" onClick={handleLoadMore}>
-          <Button type="button" kind="primary" height="40px">
-            Load more
-          </Button>
-        </div>
-      )} */}
+
+      {skipId.current !== null &&
+        skipCount !== null &&
+        blogReports.length > 0 && (
+          <div className="flex justify-center mt-5" onClick={handleLoadMore}>
+            <Button type="button" kind="primary" height="40px">
+              Load more
+            </Button>
+          </div>
+        )}
     </>
   );
 };

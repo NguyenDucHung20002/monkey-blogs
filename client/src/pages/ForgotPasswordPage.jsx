@@ -7,7 +7,7 @@ import { Label } from "../components/label";
 import { Field } from "../components/field";
 import { toast } from "react-toastify";
 import InputPasswordToggle from "../components/input/InputPasswordToggle";
-import { apiChangeForgotPassword } from "../api/apisHung";
+import { apiResetPassword } from "../api/apisHung";
 import { Image } from "antd";
 import logo from "../assets/logo.png";
 
@@ -46,7 +46,7 @@ const ForgotPasswordPage = () => {
       return;
     }
     try {
-      const response = await apiChangeForgotPassword(
+      const response = await apiResetPassword(
         token,
         password,
         confirmPassword

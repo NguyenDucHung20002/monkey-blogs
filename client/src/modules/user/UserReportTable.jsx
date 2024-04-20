@@ -4,11 +4,11 @@ import { icons } from "../../utils/constants";
 import { NavLink } from "react-router-dom";
 import { Tag, Table, Popover, Drawer } from "antd";
 import Column from "antd/es/table/Column";
-import { apiBanUser, apiLiftTheBan, apiUpdateBan } from "../../api/api";
+import { apiBanAUser, apiUnBanAUser, apiUpdateUserBan } from "../../api/api";
 import { toast } from "react-toastify";
 import {
-  apiGetPendingReportUsers,
-  apiResolveReportedAllUsers,
+  apiGetPendingReportedUsers,
+  apiMarkAllReportsOfAUserAsResolved,
 } from "../../api/apisHung";
 import UserModelReportReason from "./UserModelReportReason";
 import { Button } from "../../components/button";
@@ -26,19 +26,15 @@ const UserReportTable = () => {
 
   useEffect(() => {
     async function fetchUsers() {
-      const response = await apiGetPendingReportUsers(token, 10);
+      const response = await apiGetPendingReportedUsers(token, 15);
       if (response) {
         skip.current = response.newSkipId;
         skipCount.current = response.newSkipCount;
         const mapUsers = response.data.map((user) => {
-          return {
-            ...user,
-            key: user.id,
-          };
+          return { ...user, key: user.id };
         });
         setUsers(mapUsers);
       }
-      return [];
     }
 
     fetchUsers();
@@ -47,19 +43,16 @@ const UserReportTable = () => {
   const handleLoadMore = useCallback(async () => {
     const newSkip = skip.current;
     const newSkipCount = skipCount.current;
-    const response = await apiGetPendingReportUsers(
+    const response = await apiGetPendingReportedUsers(
       token,
-      10,
+      15,
       newSkip,
       newSkipCount
     );
 
     if (response) {
       const mapUsers = response.data.map((user) => {
-        return {
-          ...user,
-          key: user.id,
-        };
+        return { ...user, key: user.id };
       });
       setUsers([...users, ...mapUsers]);
       skip.current = response.newSkipId;
@@ -69,7 +62,7 @@ const UserReportTable = () => {
   }, [token, users]);
 
   const handleLiftTheBan = async (userId) => {
-    const response = await apiLiftTheBan(token, userId);
+    const response = await apiUnBanAUser(token, userId);
     if (response) {
       setStatusRender(!statusRender);
       toast.success(response.message, {
@@ -80,7 +73,7 @@ const UserReportTable = () => {
   };
 
   const handleUpdateBan = async (type, userId) => {
-    const response = await apiUpdateBan(token, userId, type);
+    const response = await apiUpdateUserBan(token, userId, type);
     if (response) {
       setStatusRender(!statusRender);
       toast.success(response.message, {
@@ -91,7 +84,7 @@ const UserReportTable = () => {
   };
 
   const handleBanUser = async (type, userId) => {
-    const response = await apiBanUser(token, userId, type);
+    const response = await apiBanAUser(token, userId, type);
     if (response) {
       setStatusRender(!statusRender);
       toast.success(response.message, {
@@ -102,7 +95,7 @@ const UserReportTable = () => {
   };
 
   const handleResolveReports = async (id) => {
-    const response = await apiResolveReportedAllUsers(token, id);
+    const response = await apiMarkAllReportsOfAUserAsResolved(token, id);
 
     if (response) {
       const filterUsers = users.filter((user) => user.id != id);
@@ -318,8 +311,7 @@ const UserReportTable = () => {
           ></UserModelReportReason>
         </Drawer>
       )}
-
-      {users && users.length > 0 && (
+      {skip.current && (
         <div className="flex justify-center mt-5" onClick={handleLoadMore}>
           <Button type="button" kind="primary" height="40px">
             Load more

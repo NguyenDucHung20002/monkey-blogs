@@ -8,15 +8,15 @@ import fetchMe from "../middlewares/fetchMe.js";
 
 const router = express.Router();
 
-// -------------------- create topic -------------------- //
+// -------------------- create a topic -------------------- //
 
 router.post(
   "/",
   requiredAuth,
   fetchMe,
   authorize("admin"),
-  validator(topicSchema.createTopicSchema, "body"),
-  topicController.createTopic
+  validator(topicSchema.createATopicSchema, "body"),
+  topicController.createATopic
 );
 
 // -------------------- get all topics -------------------- //
@@ -51,43 +51,45 @@ router.get(
   topicController.recommendedTopics
 );
 
-// -------------------- update topic -------------------- //
+// -------------------- update a topic -------------------- //
 
 router.patch(
   "/:id",
   requiredAuth,
   fetchMe,
   authorize("admin"),
-  validator(topicSchema.updateTopicSchema, "body"),
-  topicController.updateTopic
+  validator(topicSchema.updateATopicSchema, "body"),
+  topicController.updateATopic
 );
+
+// -------------------- delete a topic -------------------- //
 
 router.delete(
   "/:id",
   requiredAuth,
   fetchMe,
   authorize("admin"),
-  topicController.deleteTopic
+  topicController.deleteATopic
 );
 
-// -------------------- mark topic as approved -------------------- //
+// -------------------- approve a topic -------------------- //
 
 router.patch(
   "/:id/approve",
   requiredAuth,
   fetchMe,
   authorize("admin", "staff"),
-  topicController.martTopicAsApproved
+  topicController.approveATopic
 );
 
-// -------------------- mark topic as rejected -------------------- //
+// -------------------- reject a topic -------------------- //
 
 router.patch(
   "/:id/reject",
   requiredAuth,
   fetchMe,
   authorize("admin", "staff"),
-  topicController.martTopicAsRejected
+  topicController.rejectATopic
 );
 
 // -------------------- get a topic -------------------- //

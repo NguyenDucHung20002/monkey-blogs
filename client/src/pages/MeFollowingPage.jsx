@@ -2,8 +2,8 @@ import FollowingUserHandle from "../components/following/FollowingUserHandle";
 import TopicUserHandle from "../components/topic/TopicUserHandle";
 import { useEffect, useState } from "react";
 import { useAuth } from "../contexts/auth-context";
-import { apiGetMyFollowingTopics } from "../api/api";
-import { apiGetMyUserFollowings } from "../api/apisHung";
+import { apiGetFollowedTopics } from "../api/api";
+import { apiGetFollowedProfiles } from "../api/apisHung";
 
 const MeFollowingPage = () => {
   const [topics, setTopics] = useState([]);
@@ -13,7 +13,7 @@ const MeFollowingPage = () => {
 
   useEffect(() => {
     async function fetchTopic() {
-      const response = await apiGetMyFollowingTopics(token);
+      const response = await apiGetFollowedTopics(token);
       if (response) setTopics(response.data);
     }
     fetchTopic();
@@ -21,12 +21,13 @@ const MeFollowingPage = () => {
 
   useEffect(() => {
     async function fetchUser() {
-      const response = await apiGetMyUserFollowings(
-        token,
-        userInfo?.data?.username
-      );
-
-      if (response?.data) setUsers(response.data);
+      const username = userInfo?.data?.username;
+      if (username) {
+        const response = await apiGetFollowedProfiles(token, username, 15);
+        if (response) {
+          setUsers(response.data);
+        }
+      }
     }
     fetchUser();
   }, [token, userInfo?.data?.username]);

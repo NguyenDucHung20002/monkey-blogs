@@ -8,41 +8,46 @@ import commentSchema from "../validations/commentSchema.js";
 
 const router = express.Router();
 
-// -------------------- create comment -------------------- //
+// -------------------- create a comment -------------------- //
 
 router.post(
   "/:id",
   requiredAuth,
   fetchMe,
-  validator(commentSchema.createCommentSchema),
-  commentController.createComment
+  validator(commentSchema.createACommentSchema),
+  commentController.createAComment
 );
 
-// -------------------- update comment -------------------- //
+// -------------------- update a comment -------------------- //
 
 router.patch(
   "/:id",
   requiredAuth,
   fetchMe,
-  validator(commentSchema.updateCommentSchema),
-  commentController.updateComment
+  validator(commentSchema.updateACommentSchema),
+  commentController.updateAComment
 );
 
-// -------------------- delete comment -------------------- //
+// -------------------- delete a comment -------------------- //
 
-router.delete("/:id", requiredAuth, fetchMe, commentController.deleteComment);
+router.delete("/:id", requiredAuth, fetchMe, commentController.deleteAComment);
 
-// -------------------- get main comments -------------------- //
+// -------------------- get main comments of an article -------------------- //
 
-router.get("/:id", requiredAuth, fetchMe, commentController.getMainComments);
+router.get(
+  "/:id",
+  requiredAuth,
+  fetchMe,
+  commentController.getMainCommentsOfAnArticle
+);
 
-// -------------------- get replies comments -------------------- //
+// -------------------- get nested comments of a comment -------------------- //
 
 router.get(
   "/:id/replies",
   requiredAuth,
   fetchMe,
-  commentController.getNestedComments
+  commentController.getNestedCommentsOfAComment
 );
 
 export default router;

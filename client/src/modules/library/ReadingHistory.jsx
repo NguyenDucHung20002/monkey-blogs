@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import {
-  apiDeleteArticleHistory,
-  apiDeleteReadingHistory,
+  apiDeleteAnArticleInReadingHistory,
+  apiClearReadingHistory,
   apiGetReadingHistory,
 } from "../../api/apiNew";
 import timeAgo from "../modulesJs/timeAgo";
@@ -12,13 +12,18 @@ import BlogImage from "../blog/BlogImage";
 import ClearAll from "../../components/modalClear/ClearAll";
 import { toast } from "react-toastify";
 import { Skeleton } from "antd";
+import { debounce } from "lodash";
 
 const ReadingHistory = () => {
   const [history, setHistory] = useState([]);
   const token = localStorage.getItem("token");
+  const skip = useRef("");
+  const windowHeight = useRef(window.innerHeight);
+  const scrollY = useRef(window.scrollY);
+  const documentHeight = useRef(document.documentElement.scrollHeight);
 
   const fetchApiClearHistory = async () => {
-    const response = await apiDeleteReadingHistory(token);
+    const response = await apiClearReadingHistory(token);
     if (response) {
       setHistory([]);
     }
@@ -42,15 +47,16 @@ const ReadingHistory = () => {
   };
 
   const getHistory = useCallback(async () => {
-    const response = await apiGetReadingHistory(token);
+    const response = await apiGetReadingHistory(token, 15);
     if (response?.success) {
-      setHistory(response.data);
+      setHistory([...response.data]);
+      skip.current = response.newSkip;
     }
   }, []);
 
   const handleDeleteAnArticle = useCallback(
     async (id) => {
-      const response = await apiDeleteArticleHistory(token, id);
+      const response = await apiDeleteAnArticleInReadingHistory(token, id);
       if (response) {
         getHistory();
         toast.success(response.message, {
@@ -65,6 +71,32 @@ const ReadingHistory = () => {
   useEffect(() => {
     getHistory();
   }, [getHistory]);
+
+  useEffect(() => {
+    const handleScroll = async () => {
+      windowHeight.current = window.innerHeight;
+      scrollY.current = window.scrollY;
+      documentHeight.current = document.documentElement.scrollHeight;
+      if (
+        windowHeight.current + scrollY.current + 10 >= documentHeight.current &&
+        skip.current
+      ) {
+        const response = await apiGetReadingHistory(token, 15, skip.current);
+        if (response) {
+          const readingHistoryClone = [...history, ...response.data];
+          setHistory([...readingHistoryClone]);
+          skip.current = response.newSkip;
+        }
+      }
+    };
+    const debouncedScroll = debounce(handleScroll, 200);
+
+    window.addEventListener("scroll", debouncedScroll);
+
+    return () => {
+      window.removeEventListener("scroll", debouncedScroll);
+    };
+  }, [history]);
 
   return (
     <div>

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import FollowingUserHandle from "../components/following/FollowingUserHandle";
-import { apiUserSearch } from "../api/apisHung";
+import { apiUsersSearch } from "../api/apisHung";
 import { debounce } from "lodash";
 
 const SearchUsersPage = () => {
@@ -17,7 +17,7 @@ const SearchUsersPage = () => {
   useEffect(() => {
     async function fetchTopics() {
       try {
-        const response = await apiUserSearch(token, search, 15);
+        const response = await apiUsersSearch(token, search, 15);
 
         if (response?.success) {
           skip.current = response.newSkip;
@@ -38,7 +38,7 @@ const SearchUsersPage = () => {
         windowHeight.current + scrollY.current + 10 >= documentHeight.current &&
         skip.current
       ) {
-        const response = await apiUserSearch(token, search, 15, skip.current);
+        const response = await apiUsersSearch(token, search, 15, skip.current);
         if (response?.success) {
           const usersClone = [...users, ...response.data];
           setUsers([...usersClone]);

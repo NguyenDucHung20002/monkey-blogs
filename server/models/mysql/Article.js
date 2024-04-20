@@ -29,7 +29,7 @@ const Article = sequelize.define(
     },
 
     banner: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
       allowNull: true,
     },
 

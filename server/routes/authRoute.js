@@ -16,7 +16,7 @@ router.get(
 router.get(
   "/google/callback",
   passport.authenticate("google", { session: false }),
-  authController.loginGoogle
+  authController.loginWithGoogle
 );
 
 // -------------------- register -------------------- //
@@ -64,7 +64,7 @@ router.patch(
 router.post(
   "/login-email",
   validator(authSchema.loginSchema),
-  authController.loginEmail
+  authController.loginWithEmailAndPassword
 );
 
 // -------------------- get access token -------------------- //

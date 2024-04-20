@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useState } from "react";
-import { apiBlockUser } from "../../api/api";
+import { apiBlockAUser } from "../../api/api";
 import { toast } from "react-toastify";
 
 const ButtonBlocked = ({ userId, initialBlock = false }) => {
@@ -16,8 +16,8 @@ const ButtonBlocked = ({ userId, initialBlock = false }) => {
 
   const handleBlock = async () => {
     const response = isBlocked
-      ? await apiBlockUser("delete", token, userId)
-      : await apiBlockUser("post", token, userId);
+      ? await apiBlockAUser("delete", token, userId)
+      : await apiBlockAUser("post", token, userId);
     if (response) {
       setIsBlock(!isBlocked);
       toast.success(response.message, {

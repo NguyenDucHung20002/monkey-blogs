@@ -133,6 +133,7 @@ Topic.belongsToMany(Profile, {
   through: Follow_Topic,
   foreignKey: "topicId",
   as: "followers",
+  onDelete: "CASCADE",
 });
 
 // Follow_Topic - Profile
@@ -154,11 +155,13 @@ Article.belongsToMany(Topic, {
   through: Article_Topic,
   foreignKey: "articleId",
   as: "articleTopics",
+  onDelete: "CASCADE",
 });
 Topic.belongsToMany(Article, {
   through: Article_Topic,
   foreignKey: "topicId",
   as: "topicArticles",
+  onDelete: "CASCADE",
 });
 
 // Article_Topic - Article
@@ -180,6 +183,7 @@ Article.belongsToMany(Profile, {
   through: Like,
   foreignKey: "articleId",
   as: "articleLikes",
+  onDelete: "CASCADE",
 });
 Profile.belongsToMany(Article, {
   through: Like,
@@ -211,6 +215,7 @@ Article.belongsToMany(User, {
   through: Report_Article,
   foreignKey: "articleId",
   as: "reportedUsers",
+  onDelete: "CASCADE",
 });
 
 // Report_Article - Article
@@ -241,6 +246,7 @@ Article.belongsToMany(Profile, {
   through: Reading_History,
   foreignKey: "articleId",
   as: "historyProfiles",
+  onDelete: "CASCADE",
 });
 Profile.belongsToMany(Article, {
   through: Reading_History,
@@ -267,6 +273,7 @@ Article.belongsToMany(Profile, {
   through: Reading_List,
   foreignKey: "articleId",
   as: "readingProfiles",
+  onDelete: "CASCADE",
 });
 Profile.belongsToMany(Article, {
   through: Reading_List,
@@ -311,6 +318,10 @@ Notification.belongsTo(Profile, {
 });
 
 // Notification - Article
+Article.hasMany(Notification, {
+  foreignKey: "articleId",
+  onDelete: "SET NULL",
+});
 Notification.belongsTo(Article, {
   foreignKey: "articleId",
   as: "article",
@@ -412,6 +423,7 @@ User.belongsTo(Role, {
 User.hasOne(Profile, {
   foreignKey: "userId",
   as: "profileInfo",
+  onDelete: "CASCADE",
 });
 Profile.belongsTo(User, {
   foreignKey: "userId",

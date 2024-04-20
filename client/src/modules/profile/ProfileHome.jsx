@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
 import { useContext, useEffect, useState } from "react";
 import { useOutletContext, useParams } from "react-router-dom";
-import { apiDeleteArticle, apiGetUserBlogs } from "../../api/api";
+import { apiDeleteAnArticle, apiGetProfileArticles } from "../../api/api";
 import ProfileBlogs from "./ProfileBlogs";
 import { NavbarHome } from "../../components/navbar";
 import { DesignContext } from "../../pages/DesignPage";
@@ -56,13 +56,13 @@ const ProfileHome = () => {
     });
   }
   async function fetchUserBlog() {
-    const dataBlogs = await apiGetUserBlogs(token, username);
-    setBlogs([...dataBlogs.articles]);
+    const response = await apiGetProfileArticles(token, username);
+    setBlogs([...response.articles]);
   }
 
-  async function fetchDeleteArticle(slug) {
-    const delArticle = await apiDeleteArticle(token, slug);
-    if (delArticle) {
+  async function fetchDeleteArticle(id) {
+    const response = await apiDeleteAnArticle(token, id);
+    if (response) {
       fetchUserBlog();
     }
   }
