@@ -79,6 +79,12 @@ NODEMAILER_GOOGLE_EMAIL: Email address for sending emails via Nodemailer (Google
 NODEMAILER_APP_PASSWORD: App password for Nodemailer (Google)
 ```
 
+#### OAUTH Configuration
+```
+OAUTH_GOOGLE_CLIENT_ID = Google OAUTH client id for login with google
+OAUTH_GOOGLE_CLIENT_SECRET = Google OAUTH client secret for login with google
+```
+
 #### Admin Account Configuration
 ```
 ADMIN_EMAIL: Email address for the admin user
