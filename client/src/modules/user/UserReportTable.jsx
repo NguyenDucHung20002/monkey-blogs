@@ -220,7 +220,7 @@ const UserReportTable = () => {
                 className="block w-full py-2 text-left hover:text-blue-400"
                 onClick={() => handleShowDrawer(user.id)}
               >
-                Show Reasons
+                Show reasons
               </button>
             </div>
           </div>

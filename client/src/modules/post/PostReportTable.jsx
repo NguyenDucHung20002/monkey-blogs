@@ -167,7 +167,7 @@ const PostReportTable = () => {
                 className="block w-full py-2 text-left hover:text-blue-400"
                 onClick={() => handleMarkAllThisReport(blog.id)}
               >
-                Mark all reports as solved
+                Mark all reports as resolved
               </button>
               <button
                 className="block w-full py-2 text-left hover:text-blue-400 whitespace-nowrap"

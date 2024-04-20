@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { apiGetResolvedUserReports } from "../../api/apisHung";
 import { Popover, Table, Tag } from "antd";
 import Column from "antd/es/table/Column";
@@ -11,23 +11,31 @@ const UserReportsResolved = () => {
   const [reports, setReports] = useState([]);
   const [isReload, setIsReload] = useState(false);
   const skip = useRef("");
+
   useEffect(() => {
     async function fetchUserResolved() {
-      const response = await apiGetResolvedUserReports(token);
+      const response = await apiGetResolvedUserReports(token, 15);
       if (response?.success) {
         const mapReports = response.data.map((report) => {
-          return {
-            ...report,
-            key: report.id,
-          };
+          return { ...report, key: report.id };
         });
         setReports(mapReports);
         skip.current = response.newSkip;
       }
     }
-
     fetchUserResolved();
   }, [token, isReload]);
+
+  const handleLoadMore = useCallback(async () => {
+    const response = await apiGetResolvedUserReports(token, 15, skip.current);
+    if (response) {
+      const mapReports = response.data.map((report) => {
+        return { ...report, key: report.id };
+      });
+      skip.current = response.newSkip;
+      setReports([...reports, ...mapReports]);
+    }
+  }, [reports]);
 
   const ButtonBaned = ({ resolvedBy, reason, description }) => (
     <div>
@@ -142,13 +150,13 @@ const UserReportsResolved = () => {
         />
       </Table>
 
-      {/* {reports && reports.length > 0 && (
+      {skip.current > 0 && (
         <div className="flex justify-center mt-5" onClick={handleLoadMore}>
           <Button type="button" kind="primary" height="40px">
             Load more
           </Button>
         </div>
-      )} */}
+      )}
     </div>
   );
 };

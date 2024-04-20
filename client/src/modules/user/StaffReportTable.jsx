@@ -26,19 +26,15 @@ const StaffReportTable = () => {
 
   useEffect(() => {
     async function fetchUsers() {
-      const response = await apiGetPendingReportedStaffs(token, 10);
+      const response = await apiGetPendingReportedStaffs(token, 15);
       if (response) {
         skip.current = response.newSkipId;
         skipCount.current = response.newSkipCount;
         const mapUsers = response.data.map((user) => {
-          return {
-            ...user,
-            key: user.id,
-          };
+          return { ...user, key: user.id };
         });
         setUsers(mapUsers);
       }
-      return [];
     }
 
     fetchUsers();
@@ -56,16 +52,12 @@ const StaffReportTable = () => {
 
     if (response) {
       const mapUsers = response.data.map((user) => {
-        return {
-          ...user,
-          key: user.id,
-        };
+        return { ...user, key: user.id };
       });
       setUsers([...users, ...mapUsers]);
       skip.current = response.newSkipId;
       skipCount.current = response.newSkipCount;
     }
-    return [];
   }, [token, users]);
 
   const handleLiftTheBan = async (userId) => {
@@ -227,7 +219,7 @@ const StaffReportTable = () => {
                 className="block w-full py-2 text-left hover:text-blue-400"
                 onClick={() => handleShowDrawer(user.id)}
               >
-                Show Reasons
+                Show reasons
               </button>
             </div>
           </div>
@@ -319,7 +311,7 @@ const StaffReportTable = () => {
         </Drawer>
       )}
 
-      {users && users.length > 0 && (
+      {skip.current && skipCount.current && (
         <div className="flex justify-center mt-5" onClick={handleLoadMore}>
           <Button type="button" kind="primary" height="40px">
             Load more

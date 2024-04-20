@@ -154,7 +154,7 @@ const UserTable = () => {
                 className="block w-full text-left hover:text-blue-400"
                 onClick={() => handleSetStaff(user.id)}
               >
-                Set Staff
+                Set staff
               </button>
             )}
 

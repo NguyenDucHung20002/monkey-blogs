@@ -102,10 +102,10 @@ const apiGetPendingReportsOfAUser = async (
   }
 };
 
-const apiGetResolvedUserReports = async (token, limit = 10, skip = "") => {
+const apiGetResolvedUserReports = async (token, limit = 15, skip = "") => {
   try {
     const response = await customAxios.get(
-      `${config.SERVER_HOST}/report-user/resolved?limit=${limit}&skip =${skip}`,
+      `${config.SERVER_HOST}/report-user/resolved?limit=${limit}&skip=${skip}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -808,10 +808,10 @@ const apiSetAnArticleBackToDraft = async (token, articleId, reason) => {
   }
 };
 
-const apiGetResolvedArticleReports = async (token) => {
+const apiGetResolvedArticleReports = async (token, limit = 15, skip = "") => {
   try {
     const response = await customAxios.get(
-      `${config.SERVER_HOST}/report-article/resolved`,
+      `${config.SERVER_HOST}/report-article/resolved?skip=${skip}&limit=${limit}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
