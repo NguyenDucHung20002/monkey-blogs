@@ -172,7 +172,8 @@ const getPendingReportedStaffs = asyncMiddleware(async (req, res, next) => {
     limit: Number(limit) ? Number(limit) : 15,
   });
 
-  reports = reports.map((report) => {
+  const result = reports.map((report) => {
+    console.log(report.toJSON());
     return report.reported;
   });
 
@@ -186,7 +187,7 @@ const getPendingReportedStaffs = asyncMiddleware(async (req, res, next) => {
 
   res.json({
     success: true,
-    data: reports,
+    data: result,
     newSkipId,
     newSkipCount,
   });

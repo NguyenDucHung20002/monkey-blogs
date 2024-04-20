@@ -263,7 +263,7 @@ const getResolvedArticleReports = asyncMiddleware(async (req, res, next) => {
 
   if (skip) whereQuery.id = { [Op.lt]: skip };
 
-  let reports = await Report_Article.findAll({
+  const reports = await Report_Article.findAll({
     where: whereQuery,
     attributes: { exclude: ["articleId", "userId", "resolvedById"] },
     include: [
